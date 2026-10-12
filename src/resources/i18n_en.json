@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "Lua Garage",
+    "menu": {
+      "dashboard": "Dashboard",
+      "customers": "Customers",
+      "vehicles": "Vehicles",
+      "intakeSlips": "Intake Slips",
+      "diagnoses": "Technical Diagnoses",
+      "shiftAssignment": "Shift Assignment",
+      "mySchedule": "My Schedule",
+      "shopSchedule": "Garage-wide Schedule",
+      "inventory": "Parts Inventory",
+      "partsReceipts": "Parts Receipts",
+      "servicePriceList": "Service Price List",
+      "vouchers": "Voucher Management",
+      "invoices": "Invoices",
+      "employees": "Employee Accounts",
+      "revenueReport": "Revenue Report",
+      "partsConsumptionReport": "Monthly Parts Consumption",
+      "serviceConsumptionReport": "Monthly Service Consumption",
+      "complaints": "Complaint Intake",
+      "complaintManagement": "Complaint Management"
+    }
+  }
+}

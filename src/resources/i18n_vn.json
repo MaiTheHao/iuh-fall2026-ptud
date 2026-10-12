@@ -1,0 +1,26 @@
+{
+  "app": {
+    "title": "Gara Lúa",
+    "menu": {
+      "dashboard": "Tổng quan",
+      "customers": "Khách hàng",
+      "vehicles": "Phương tiện",
+      "intakeSlips": "Phiếu tiếp nhận",
+      "diagnoses": "Chẩn đoán kỹ thuật",
+      "shiftAssignment": "Phân ca làm việc",
+      "mySchedule": "Lịch làm việc của tôi",
+      "shopSchedule": "Lịch làm việc toàn gara",
+      "inventory": "Quản lý phụ tùng",
+      "partsReceipts": "Phiếu nhập phụ tùng",
+      "servicePriceList": "Bảng giá dịch vụ",
+      "vouchers": "Quản lý voucher",
+      "invoices": "Hóa đơn",
+      "employees": "Tài khoản nhân viên",
+      "revenueReport": "Báo cáo doanh thu",
+      "partsConsumptionReport": "Báo cáo tiêu thụ phụ tùng",
+      "serviceConsumptionReport": "Báo cáo tiêu thụ dịch vụ",
+      "complaints": "Tiếp nhận khiếu nại",
+      "complaintManagement": "Quản lý khiếu nại"
+    }
+  }
+}
