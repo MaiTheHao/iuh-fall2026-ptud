@@ -1,8 +1,10 @@
 package iuh.fit.entity;
 
+import iuh.fit.enumeration.LoaiSanPham;
+
 public class ChiTietHoaDon {
     private String maHoaDon;
-    private String loaiSanPham;
+    private LoaiSanPham loaiSanPham;
     private String maSanPham;
     private int soLuong;
     private Double donGia;
@@ -10,7 +12,7 @@ public class ChiTietHoaDon {
     public ChiTietHoaDon() {
     }
 
-    public ChiTietHoaDon(String maHoaDon, String loaiSanPham, String maSanPham, int soLuong, Double donGia) {
+    public ChiTietHoaDon(String maHoaDon, LoaiSanPham loaiSanPham, String maSanPham, int soLuong, Double donGia) {
         this.maHoaDon = maHoaDon;
         this.loaiSanPham = loaiSanPham;
         this.maSanPham = maSanPham;
@@ -26,11 +28,11 @@ public class ChiTietHoaDon {
         this.maHoaDon = maHoaDon;
     }
 
-    public String getLoaiSanPham() {
+    public LoaiSanPham getLoaiSanPham() {
         return loaiSanPham;
     }
 
-    public void setLoaiSanPham(String loaiSanPham) {
+    public void setLoaiSanPham(LoaiSanPham loaiSanPham) {
         this.loaiSanPham = loaiSanPham;
     }
 

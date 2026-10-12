@@ -1,18 +1,20 @@
 package iuh.fit.entity;
 
+import iuh.fit.enumeration.CaLamViec;
+
 public class PhanCong {
     private String maPhanCong;
     private String maNhanVien;
     private int ngay;
     private int thang;
     private int nam;
-    private String caLamViec;
+    private CaLamViec caLamViec;
     private String ghiChu;
 
     public PhanCong() {
     }
 
-    public PhanCong(String maPhanCong, String maNhanVien, int ngay, int thang, int nam, String caLamViec,
+    public PhanCong(String maPhanCong, String maNhanVien, int ngay, int thang, int nam, CaLamViec caLamViec,
             String ghiChu) {
         this.maPhanCong = maPhanCong;
         this.maNhanVien = maNhanVien;
@@ -63,11 +65,11 @@ public class PhanCong {
         this.nam = nam;
     }
 
-    public String getCaLamViec() {
+    public CaLamViec getCaLamViec() {
         return caLamViec;
     }
 
-    public void setCaLamViec(String caLamViec) {
+    public void setCaLamViec(CaLamViec caLamViec) {
         this.caLamViec = caLamViec;
     }
 

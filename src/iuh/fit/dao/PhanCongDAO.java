@@ -1,38 +1,22 @@
 package iuh.fit.dao;
 
-import iuh.fit.core.config.DatabaseConfig;
 import iuh.fit.entity.PhanCong;
+import iuh.fit.enumeration.CaLamViec;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public final class PhanCongDAO extends BaseDao<PhanCong> {
 
+    private static final String SQL_SELECT = "SELECT maPhanCong, maNhanVien, ngay, thang, nam, caLamViec, ghiChu FROM PhanCong";
+
     public PhanCong findById(String maPhanCong) throws SQLException {
-        String sql = "SELECT maPhanCong, maNhanVien, ngay, thang, nam, caLamViec, ghiChu FROM PhanCong WHERE maPhanCong = ?";
-        try (Connection connection = DatabaseConfig.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, maPhanCong);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapRow(rs);
-                }
-                return null;
-            }
-        }
+        return findOne(SQL_SELECT + " WHERE maPhanCong = ?", maPhanCong);
     }
 
     public List<PhanCong> findAll() throws SQLException {
-        String sql = "SELECT maPhanCong, maNhanVien, ngay, thang, nam, caLamViec, ghiChu FROM PhanCong";
-        try (Connection connection = DatabaseConfig.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-            return mapRows(rs);
-        }
+        return findAll(SQL_SELECT);
     }
 
     @Override
@@ -43,17 +27,8 @@ public final class PhanCongDAO extends BaseDao<PhanCong> {
         phanCong.setNgay(rs.getInt("ngay"));
         phanCong.setThang(rs.getInt("thang"));
         phanCong.setNam(rs.getInt("nam"));
-        phanCong.setCaLamViec(rs.getString("caLamViec"));
+        phanCong.setCaLamViec(CaLamViec.valueOf(rs.getString("caLamViec")));
         phanCong.setGhiChu(rs.getString("ghiChu"));
         return phanCong;
-    }
-
-    @Override
-    protected List<PhanCong> mapRows(ResultSet rs) throws SQLException {
-        List<PhanCong> list = new ArrayList<>();
-        while (rs.next()) {
-            list.add(mapRow(rs));
-        }
-        return list;
     }
 }
