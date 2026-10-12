@@ -4,16 +4,18 @@ public class PhuTung {
     private String maPhuTung;
     private String tenPhuTung;
     private String moTa;
+    private String anhUrl;
     private Double donGiaNhap;
     private int soLuongTon;
 
     public PhuTung() {
     }
 
-    public PhuTung(String maPhuTung, String tenPhuTung, String moTa, Double donGiaNhap, int soLuongTon) {
+    public PhuTung(String maPhuTung, String tenPhuTung, String moTa, String anhUrl, Double donGiaNhap, int soLuongTon) {
         this.maPhuTung = maPhuTung;
         this.tenPhuTung = tenPhuTung;
         this.moTa = moTa;
+        this.anhUrl = anhUrl;
         this.donGiaNhap = donGiaNhap;
         this.soLuongTon = soLuongTon;
     }
@@ -40,6 +42,14 @@ public class PhuTung {
 
     public void setMoTa(String moTa) {
         this.moTa = moTa;
+    }
+
+    public String getAnhUrl() {
+        return anhUrl;
+    }
+
+    public void setAnhUrl(String anhUrl) {
+        this.anhUrl = anhUrl;
     }
 
     public Double getDonGiaNhap() {

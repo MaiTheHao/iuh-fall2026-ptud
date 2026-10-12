@@ -14,7 +14,7 @@ import java.util.List;
 
 public final class KhachHangDAO extends BaseDao<KhachHang> {
 
-    private static final String SQL_SELECT = "SELECT maKhachHang, sdt, hoTen, anhDaiDien, ngayTao FROM KhachHang";
+    private static final String SQL_SELECT = "SELECT maKhachHang, sdt, hoTen, ngayTao FROM KhachHang";
 
     public KhachHang findById(String maKhachHang) throws SQLException {
         try (Connection conn = DatabaseConfig.getConnection()) {
@@ -37,7 +37,6 @@ public final class KhachHangDAO extends BaseDao<KhachHang> {
                 rs.getString("maKhachHang"),
                 rs.getString("sdt"),
                 rs.getString("hoTen"),
-                rs.getString("anhDaiDien"),
                 rs.getObject("ngayTao", LocalDateTime.class));
     }
 

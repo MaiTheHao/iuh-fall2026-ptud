@@ -5,6 +5,7 @@ CREATE TABLE DichVu (
     maDichVu    varchar(20)   NOT NULL,
     tenDichVu   nvarchar(100) NOT NULL,
     moTa        nvarchar(500) NULL,
+    anhUrl      varchar(500)  NULL,
     donGia      decimal(18,2) NOT NULL,
     CONSTRAINT PK_DichVu PRIMARY KEY (maDichVu)
 );
@@ -16,7 +17,6 @@ CREATE TABLE KhachHang (
     maKhachHang  varchar(20)  NOT NULL,
     sdt          varchar(10)  NOT NULL,
     hoTen        nvarchar(50) NOT NULL,
-    anhDaiDien   varchar(500) NULL,
     ngayTao      datetime2(3) DEFAULT sysdatetime() NOT NULL,
     CONSTRAINT PK_KhachHang PRIMARY KEY (maKhachHang)
 );
@@ -43,6 +43,7 @@ CREATE TABLE PhuTung (
     maPhuTung    varchar(20)   NOT NULL,
     tenPhuTung   nvarchar(100) NOT NULL,
     moTa         nvarchar(500) NULL,
+    anhUrl       varchar(500)  NULL,
     donGiaNhap   decimal(18,2) NOT NULL,
     soLuongTon   int DEFAULT 0 NOT NULL,
     CONSTRAINT PK_PhuTung PRIMARY KEY (maPhuTung)
@@ -189,6 +190,4 @@ CREATE TABLE VanDeKyThuat (
         FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan),
     CONSTRAINT CK_VanDeKyThuat_MucDoUuTien
         CHECK (mucDoUuTien BETWEEN 1 AND 100),
-    CONSTRAINT CK_VanDeKyThuat_KhachHangDongY
-        CHECK (khachHangDongY IN ('CO', 'KHONG', 'CHUA_XAC_NHAN'))
 );

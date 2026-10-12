@@ -8,18 +8,16 @@ public class KhachHang {
     private String maKhachHang;
     private String sdt;
     private String hoTen;
-    private String anhDaiDien;
     private LocalDateTime ngayTao;
     private List<Xe> danhSachXe = new ArrayList<>();
 
     public KhachHang() {
     }
 
-    public KhachHang(String maKhachHang, String sdt, String hoTen, String anhDaiDien, LocalDateTime ngayTao) {
+    public KhachHang(String maKhachHang, String sdt, String hoTen, LocalDateTime ngayTao) {
         this.maKhachHang = maKhachHang;
         this.sdt = sdt;
         this.hoTen = hoTen;
-        this.anhDaiDien = anhDaiDien;
         this.ngayTao = ngayTao;
     }
 
@@ -45,14 +43,6 @@ public class KhachHang {
 
     public void setHoTen(String hoTen) {
         this.hoTen = hoTen;
-    }
-
-    public String getAnhDaiDien() {
-        return anhDaiDien;
-    }
-
-    public void setAnhDaiDien(String anhDaiDien) {
-        this.anhDaiDien = anhDaiDien;
     }
 
     public LocalDateTime getNgayTao() {
