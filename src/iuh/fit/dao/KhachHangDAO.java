@@ -14,42 +14,35 @@ import java.util.List;
 
 public final class KhachHangDAO extends BaseDao<KhachHang> {
 
+    private static final String SQL_SELECT = "SELECT maKhachHang, sdt, hoTen, anhDaiDien, ngayTao FROM KhachHang";
+
     public KhachHang findById(String maKhachHang) throws SQLException {
-        String sql = "SELECT maKhachHang, sdt, hoTen, anhDaiDien, ngayTao FROM KhachHang WHERE maKhachHang = ?";
-        try (Connection conn = DatabaseConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maKhachHang);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    return null;
-                }
-                KhachHang kh = mapRow(rs);
-                kh.setDanhSachXe(loadDanhSachXe(conn, maKhachHang));
-                return kh;
+        try (Connection conn = DatabaseConfig.getConnection()) {
+            KhachHang kh = findOne(conn, SQL_SELECT + " WHERE maKhachHang = ?", maKhachHang);
+            if (kh == null) {
+                return null;
             }
+            kh.setDanhSachXe(loadDanhSachXe(conn, maKhachHang));
+            return kh;
         }
     }
 
     public List<KhachHang> findAll() throws SQLException {
-        String sql = "SELECT maKhachHang, sdt, hoTen, anhDaiDien, ngayTao FROM KhachHang";
-        try (Connection conn = DatabaseConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-            return mapRows(rs);
-        }
+        return findAll(SQL_SELECT);
     }
 
     @Override
-    protected List<KhachHang> mapRows(ResultSet rs) throws SQLException {
-        List<KhachHang> list = new ArrayList<>();
-        while (rs.next()) {
-            list.add(mapRow(rs));
-        }
-        return list;
+    protected KhachHang mapRow(ResultSet rs) throws SQLException {
+        return new KhachHang(
+                rs.getString("maKhachHang"),
+                rs.getString("sdt"),
+                rs.getString("hoTen"),
+                rs.getString("anhDaiDien"),
+                rs.getObject("ngayTao", LocalDateTime.class));
     }
 
     private List<Xe> loadDanhSachXe(Connection conn, String maKhachHang) throws SQLException {
-        String sql = "SELECT x.bienSo, x.hangXe, x.dongXe, x.doiXe, x.odo FROM Xe x JOIN KhachHang_Xe khx ON khx.bienSo = x.bienSo WHERE khx.maKhachHang = ? ORDER BY x.bienSo";
+        String sql = "SELECT x.bienSo, x.hangXe, x.dongXe, x.doiXe, x.odo FROM Xe x JOIN KhachHang_Xe khx ON khx.bienSo = x.bienSo WHERE khx.maKhachHang = ?";
         List<Xe> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maKhachHang);
@@ -65,15 +58,5 @@ public final class KhachHangDAO extends BaseDao<KhachHang> {
             }
         }
         return list;
-    }
-
-    @Override
-    protected KhachHang mapRow(ResultSet rs) throws SQLException {
-        return new KhachHang(
-                rs.getString("maKhachHang"),
-                rs.getString("sdt"),
-                rs.getString("hoTen"),
-                rs.getString("anhDaiDien"),
-                rs.getObject("ngayTao", LocalDateTime.class));
     }
 }

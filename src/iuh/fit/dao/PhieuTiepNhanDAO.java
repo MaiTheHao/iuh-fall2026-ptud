@@ -3,6 +3,8 @@ package iuh.fit.dao;
 import iuh.fit.core.config.DatabaseConfig;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.entity.VanDeKyThuat;
+import iuh.fit.enumeration.KhachHangDongY;
+import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,29 +16,21 @@ import java.util.List;
 
 public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
 
+    private static final String SQL_SELECT = "SELECT maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien, maKhachHang, bienSo FROM PhieuTiepNhan";
+
     public PhieuTiepNhan findById(String maPhieuTiepNhan) throws SQLException {
-        String sqlCha = "SELECT maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien, maKhachHang, bienSo FROM PhieuTiepNhan WHERE maPhieuTiepNhan = ?";
-        try (Connection connection = DatabaseConfig.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sqlCha)) {
-            ps.setString(1, maPhieuTiepNhan);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    return null;
-                }
-                PhieuTiepNhan phieuTiepNhan = mapRow(rs);
-                phieuTiepNhan.setDanhSachVanDeKyThuat(loadDanhSachVanDeKyThuat(connection, maPhieuTiepNhan));
-                return phieuTiepNhan;
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            PhieuTiepNhan phieuTiepNhan = findOne(connection, SQL_SELECT + " WHERE maPhieuTiepNhan = ?", maPhieuTiepNhan);
+            if (phieuTiepNhan == null) {
+                return null;
             }
+            phieuTiepNhan.setDanhSachVanDeKyThuat(loadDanhSachVanDeKyThuat(connection, maPhieuTiepNhan));
+            return phieuTiepNhan;
         }
     }
 
     public List<PhieuTiepNhan> findAll() throws SQLException {
-        String sql = "SELECT maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien, maKhachHang, bienSo FROM PhieuTiepNhan";
-        try (Connection connection = DatabaseConfig.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-            return mapRows(rs);
-        }
+        return findAll(SQL_SELECT);
     }
 
     @Override
@@ -45,25 +39,16 @@ public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
         phieuTiepNhan.setMaPhieuTiepNhan(rs.getString("maPhieuTiepNhan"));
         phieuTiepNhan.setNgayTao(rs.getObject("ngayTao", LocalDateTime.class));
         phieuTiepNhan.setMoTa(rs.getString("moTa"));
-        phieuTiepNhan.setTrangThai(rs.getString("trangThai"));
+        phieuTiepNhan.setTrangThai(TrangThaiPhieuTiepNhan.valueOf(rs.getString("trangThai")));
         phieuTiepNhan.setMaNhanVien(rs.getString("maNhanVien"));
         phieuTiepNhan.setMaKhachHang(rs.getString("maKhachHang"));
         phieuTiepNhan.setBienSo(rs.getString("bienSo"));
         return phieuTiepNhan;
     }
 
-    @Override
-    protected List<PhieuTiepNhan> mapRows(ResultSet rs) throws SQLException {
-        List<PhieuTiepNhan> list = new ArrayList<>();
-        while (rs.next()) {
-            list.add(mapRow(rs));
-        }
-        return list;
-    }
-
     private List<VanDeKyThuat> loadDanhSachVanDeKyThuat(Connection connection, String maPhieuTiepNhan)
             throws SQLException {
-        String sqlCon = "SELECT maVanDe, maPhieuTiepNhan, tieuDe, moTa, mucDoUuTien, giaiPhap, khachHangDongY, ngayTao FROM VanDeKyThuat WHERE maPhieuTiepNhan = ? ORDER BY maVanDe";
+        String sqlCon = "SELECT maVanDe, maPhieuTiepNhan, tieuDe, moTa, mucDoUuTien, giaiPhap, khachHangDongY, ngayTao FROM VanDeKyThuat WHERE maPhieuTiepNhan = ?";
         List<VanDeKyThuat> danhSach = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sqlCon)) {
             ps.setString(1, maPhieuTiepNhan);
@@ -76,7 +61,7 @@ public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
                     vanDe.setMoTa(rs.getString("moTa"));
                     vanDe.setMucDoUuTien(rs.getInt("mucDoUuTien"));
                     vanDe.setGiaiPhap(rs.getString("giaiPhap"));
-                    vanDe.setKhachHangDongY(rs.getString("khachHangDongY"));
+                    vanDe.setKhachHangDongY(KhachHangDongY.valueOf(rs.getString("khachHangDongY")));
                     vanDe.setNgayTao(rs.getObject("ngayTao", LocalDateTime.class));
                     danhSach.add(vanDe);
                 }

@@ -1,5 +1,7 @@
 package iuh.fit.entity;
 
+import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ public class PhieuTiepNhan {
     private String maPhieuTiepNhan;
     private LocalDateTime ngayTao;
     private String moTa;
-    private String trangThai;
+    private TrangThaiPhieuTiepNhan trangThai;
     private String maNhanVien;
     private String maKhachHang;
     private String bienSo;
@@ -17,7 +19,7 @@ public class PhieuTiepNhan {
     public PhieuTiepNhan() {
     }
 
-    public PhieuTiepNhan(String maPhieuTiepNhan, LocalDateTime ngayTao, String moTa, String trangThai,
+    public PhieuTiepNhan(String maPhieuTiepNhan, LocalDateTime ngayTao, String moTa, TrangThaiPhieuTiepNhan trangThai,
             String maNhanVien, String maKhachHang, String bienSo) {
         this.maPhieuTiepNhan = maPhieuTiepNhan;
         this.ngayTao = ngayTao;
@@ -52,11 +54,11 @@ public class PhieuTiepNhan {
         this.moTa = moTa;
     }
 
-    public String getTrangThai() {
+    public TrangThaiPhieuTiepNhan getTrangThai() {
         return trangThai;
     }
 
-    public void setTrangThai(String trangThai) {
+    public void setTrangThai(TrangThaiPhieuTiepNhan trangThai) {
         this.trangThai = trangThai;
     }
 

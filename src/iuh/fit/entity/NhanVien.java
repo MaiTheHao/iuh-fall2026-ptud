@@ -1,5 +1,8 @@
 package iuh.fit.entity;
 
+import iuh.fit.enumeration.TrangThaiNhanVien;
+import iuh.fit.enumeration.VaiTro;
+
 import java.time.LocalDateTime;
 
 public class NhanVien {
@@ -8,15 +11,15 @@ public class NhanVien {
     private String matKhau;
     private String hoTen;
     private String anhDaiDien;
-    private String vaiTro;
-    private String trangThai;
+    private VaiTro vaiTro;
+    private TrangThaiNhanVien trangThai;
     private LocalDateTime ngayTao;
 
     public NhanVien() {
     }
 
     public NhanVien(String maNhanVien, String tenDangNhap, String matKhau, String hoTen, String anhDaiDien,
-            String vaiTro, String trangThai, LocalDateTime ngayTao) {
+            VaiTro vaiTro, TrangThaiNhanVien trangThai, LocalDateTime ngayTao) {
         this.maNhanVien = maNhanVien;
         this.tenDangNhap = tenDangNhap;
         this.matKhau = matKhau;
@@ -67,19 +70,19 @@ public class NhanVien {
         this.anhDaiDien = anhDaiDien;
     }
 
-    public String getVaiTro() {
+    public VaiTro getVaiTro() {
         return vaiTro;
     }
 
-    public void setVaiTro(String vaiTro) {
+    public void setVaiTro(VaiTro vaiTro) {
         this.vaiTro = vaiTro;
     }
 
-    public String getTrangThai() {
+    public TrangThaiNhanVien getTrangThai() {
         return trangThai;
     }
 
-    public void setTrangThai(String trangThai) {
+    public void setTrangThai(TrangThaiNhanVien trangThai) {
         this.trangThai = trangThai;
     }
 

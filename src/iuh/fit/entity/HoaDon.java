@@ -1,5 +1,7 @@
 package iuh.fit.entity;
 
+import iuh.fit.enumeration.TrangThaiHoaDon;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ public class HoaDon {
     private String maHoaDon;
     private String maPhieuTiepNhan;
     private String maVoucher;
-    private String trangThaiHoaDon;
+    private TrangThaiHoaDon trangThaiHoaDon;
     private String lyDoHuy;
     private String ghiChu;
     private LocalDateTime ngayTao;
@@ -18,8 +20,8 @@ public class HoaDon {
     public HoaDon() {
     }
 
-    public HoaDon(String maHoaDon, String maPhieuTiepNhan, String maVoucher, String trangThaiHoaDon, String lyDoHuy,
-            String ghiChu, LocalDateTime ngayTao, LocalDateTime thoiGianThanhToan) {
+    public HoaDon(String maHoaDon, String maPhieuTiepNhan, String maVoucher, TrangThaiHoaDon trangThaiHoaDon,
+            String lyDoHuy, String ghiChu, LocalDateTime ngayTao, LocalDateTime thoiGianThanhToan) {
         this.maHoaDon = maHoaDon;
         this.maPhieuTiepNhan = maPhieuTiepNhan;
         this.maVoucher = maVoucher;
@@ -54,11 +56,11 @@ public class HoaDon {
         this.maVoucher = maVoucher;
     }
 
-    public String getTrangThaiHoaDon() {
+    public TrangThaiHoaDon getTrangThaiHoaDon() {
         return trangThaiHoaDon;
     }
 
-    public void setTrangThaiHoaDon(String trangThaiHoaDon) {
+    public void setTrangThaiHoaDon(TrangThaiHoaDon trangThaiHoaDon) {
         this.trangThaiHoaDon = trangThaiHoaDon;
     }
 
