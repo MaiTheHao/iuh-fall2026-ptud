@@ -8,7 +8,7 @@ import java.util.List;
 
 public final class PhuTungDAO extends BaseDao<PhuTung> {
 
-    private static final String SQL_SELECT = "SELECT maPhuTung, tenPhuTung, moTa, donGiaNhap, soLuongTon FROM PhuTung";
+    private static final String SQL_SELECT = "SELECT maPhuTung, tenPhuTung, moTa, anhUrl, donGiaNhap, soLuongTon FROM PhuTung";
 
     public PhuTung findById(String maPhuTung) throws SQLException {
         return findOne(SQL_SELECT + " WHERE maPhuTung = ?", maPhuTung);
@@ -24,6 +24,7 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
                 rs.getString("maPhuTung"),
                 rs.getString("tenPhuTung"),
                 rs.getString("moTa"),
+                rs.getString("anhUrl"),
                 rs.getDouble("donGiaNhap"),
                 rs.getInt("soLuongTon"));
     }
