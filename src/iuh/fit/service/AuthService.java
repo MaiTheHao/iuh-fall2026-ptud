@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 
 public class AuthService {
 
-    private static final int DO_DAI_MAT_KHAU_TOI_THIEU = 8;
+    private static final int MIN_PASSWORD_LENGTH = 8;
 
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
 
@@ -27,10 +27,8 @@ public class AuthService {
                 || loginDTO.matKhau() == null || loginDTO.matKhau().isBlank()) {
             throw new CredentialsInvalidException();
         }
-        NhanVien nhanVien = nhanVienDAO.login(loginDTO.tenDangNhap(), loginDTO.matKhau());
-        if (nhanVien == null) {
-            throw new CredentialsInvalidException();
-        }
+        NhanVien nhanVien = nhanVienDAO.login(loginDTO.tenDangNhap(), loginDTO.matKhau())
+                .orElseThrow(CredentialsInvalidException::new);
         AppContext.getInstance().setCurrentUser(nhanVien);
         return nhanVien;
     }
@@ -39,10 +37,10 @@ public class AuthService {
         if (registerDTO == null || registerDTO.tenDangNhap() == null || registerDTO.tenDangNhap().isBlank()) {
             throw new CredentialsInvalidException();
         }
-        if (!hopLeMatKhau(registerDTO.matKhau())) {
+        if (!this.isValidPassword(registerDTO.matKhau())) {
             throw new PasswordInvalidException();
         }
-        if (nhanVienDAO.findByTenDangNhap(registerDTO.tenDangNhap()) != null) {
+        if (nhanVienDAO.findByTenDangNhap(registerDTO.tenDangNhap()).isPresent()) {
             throw new UserNameExistsException();
         }
 
@@ -61,33 +59,33 @@ public class AuthService {
     }
 
     public void update(NhanVien nhanVien) throws SQLException {
-        kiemTraTonTai(nhanVien);
+        this.requireExisting(nhanVien);
         nhanVienDAO.update(nhanVien);
     }
 
     public void updateProfile(NhanVien nhanVien) throws SQLException {
-        kiemTraTonTai(nhanVien);
+        this.requireExisting(nhanVien);
         nhanVienDAO.updateProfile(nhanVien);
     }
 
     public void updatePassword(NhanVien nhanVien) throws SQLException {
-        if (nhanVien == null || !hopLeMatKhau(nhanVien.getMatKhau())) {
+        if (nhanVien == null || !this.isValidPassword(nhanVien.getMatKhau())) {
             throw new PasswordInvalidException();
         }
-        kiemTraTonTai(nhanVien);
+        this.requireExisting(nhanVien);
         nhanVienDAO.updatePassword(nhanVien);
     }
 
-    private void kiemTraTonTai(NhanVien nhanVien) throws SQLException {
+    private void requireExisting(NhanVien nhanVien) throws SQLException {
         if (nhanVien == null || nhanVien.getMaNhanVien() == null
-                || nhanVienDAO.findById(nhanVien.getMaNhanVien()) == null) {
+                || nhanVienDAO.findById(nhanVien.getMaNhanVien()).isEmpty()) {
             throw new UserNotFoundException();
         }
     }
 
-    private boolean hopLeMatKhau(String matKhau) {
+    private boolean isValidPassword(String matKhau) {
         return matKhau != null
-                && matKhau.length() >= DO_DAI_MAT_KHAU_TOI_THIEU
+                && matKhau.length() >= MIN_PASSWORD_LENGTH
                 && matKhau.matches(".*[A-Za-z].*")
                 && matKhau.matches(".*\\d.*")
                 && matKhau.matches(".*[^A-Za-z0-9\\s].*");
