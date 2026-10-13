@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Trang Chủ</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-02" class="flex-1 flex items-start justify-end p-2 min-h-0">
+
+          <!-- Một block duy nhất, căn phải 40%, cao full-height -->
+          <div class="swing-panel bg-white !mt-0 flex flex-col min-h-0" style="width: 40%;">
+
+            <!-- 1. Thanh chào -->
+            <div class="flex items-center gap-3 flex-shrink-0">
+              <div class="swing-image-ratio-3-4" style="width: 48px; height: 64px;">
+                <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/6dcdac5d-652a-47f8-8f21-e467687c949f/dll5vuf-44a2d86a-16e7-400a-8433-73389ff63099.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi82ZGNkYWM1ZC02NTJhLTQ3ZjgtOGYyMS1lNDY3Njg3Yzk0OWYvZGxsNXZ1Zi00NGEyZDg2YS0xNmU3LTQwMGEtODQzMy03MzM4OWZmNjMwOTkucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.A5rrKhntFsF3xwV_CxKtP2WlVxtWQyli2YIgJjTNIyU" alt="Avatar" class="swing-image-canvas">
+              </div>
+              <div class="min-w-0">
+                <div class="text-sm font-bold text-zinc-900">Mai Thế Hào</div>
+                <div class="text-[10.5px] text-zinc-600 mt-1">Nhân viên quản lý</div>
+                <div class="text-[10.5px] font-mono text-zinc-700 mt-0.5">NV000001</div>
+              </div>
+            </div>
+
+            <!-- 2. Ca hiện tại -->
+            <div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-zinc-200 flex-shrink-0 text-[11px]">
+              <span class="font-bold text-zinc-700">Ca:</span>
+              <span class="font-mono font-bold text-zinc-900">Ca Chiều | 29/09/2026</span>
+            </div>
+
+            <!-- 3. KPI (gom gọn, không giãn đều) -->
+            <div class="flex-1 min-h-0 flex flex-col mt-1">
+
+              <div class="flex items-center gap-2 py-1.5 border-t border-zinc-200">
+                <span class="dash-kpi-icon"><i data-lucide="banknote"></i></span>
+                <div class="min-w-0 flex-1">
+                  <div class="dash-kpi-label">Doanh thu hôm nay</div>
+                  <div class="dash-kpi-value font-mono">12.500.000 <span class="dash-kpi-unit">₫</span></div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 py-1.5 border-t border-zinc-200">
+                <span class="dash-kpi-icon"><i data-lucide="clipboard-list"></i></span>
+                <div class="min-w-0 flex-1">
+                  <div class="dash-kpi-label">Phiếu tiếp nhận đang xử lý</div>
+                  <div class="dash-kpi-value font-mono">4</div>
+                  <div class="dash-kpi-sub">đang trong xưởng</div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 py-1.5 border-t border-zinc-200">
+                <span class="dash-kpi-icon"><i data-lucide="truck"></i></span>
+                <div class="min-w-0 flex-1">
+                  <div class="dash-kpi-label">Phiếu tiếp nhận chờ bàn giao</div>
+                  <div class="dash-kpi-value font-mono">1</div>
+                  <div class="dash-kpi-sub warn">chờ trả khách</div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 py-1.5 border-t border-zinc-200">
+                <span class="dash-kpi-icon"><i data-lucide="alert-triangle"></i></span>
+                <div class="min-w-0 flex-1">
+                  <div class="dash-kpi-label">Khiếu nại chưa xử lý</div>
+                  <div class="dash-kpi-value font-mono">1</div>
+                  <div class="dash-kpi-sub warn">cần xử lý</div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 py-1.5 border-t border-zinc-200">
+                <span class="dash-kpi-icon"><i data-lucide="receipt"></i></span>
+                <div class="min-w-0 flex-1">
+                  <div class="dash-kpi-label">Hóa đơn chưa thanh toán</div>
+                  <div class="dash-kpi-value font-mono">3</div>
+                  <div class="dash-kpi-sub warn">tổng 1.287.000 ₫</div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+</body>
+</html>
