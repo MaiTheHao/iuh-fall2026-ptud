@@ -13,19 +13,22 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
 
     private static final String SQL_SELECT = "SELECT maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien, maKhachHang, bienSo FROM PhieuTiepNhan";
 
-    public PhieuTiepNhan findById(String maPhieuTiepNhan) throws SQLException {
+    public Optional<PhieuTiepNhan> findById(String maPhieuTiepNhan) throws SQLException {
         try (Connection connection = DatabaseConfig.getConnection()) {
-            PhieuTiepNhan phieuTiepNhan = findOne(connection, SQL_SELECT + " WHERE maPhieuTiepNhan = ?", maPhieuTiepNhan);
-            if (phieuTiepNhan == null) {
-                return null;
+            Optional<PhieuTiepNhan> found = findOne(connection, SQL_SELECT + " WHERE maPhieuTiepNhan = ?",
+                    maPhieuTiepNhan);
+            if (found.isEmpty()) {
+                return Optional.empty();
             }
+            PhieuTiepNhan phieuTiepNhan = found.get();
             phieuTiepNhan.setDanhSachVanDeKyThuat(loadDanhSachVanDeKyThuat(connection, maPhieuTiepNhan));
-            return phieuTiepNhan;
+            return Optional.of(phieuTiepNhan);
         }
     }
 

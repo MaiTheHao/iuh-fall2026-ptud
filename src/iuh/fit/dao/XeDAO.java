@@ -5,12 +5,13 @@ import iuh.fit.entity.Xe;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public final class XeDAO extends BaseDao<Xe> {
 
     private static final String SQL_SELECT = "SELECT bienSo, hangXe, dongXe, doiXe, odo FROM Xe";
 
-    public Xe findById(String bienSo) throws SQLException {
+    public Optional<Xe> findById(String bienSo) throws SQLException {
         return findOne(SQL_SELECT + " WHERE bienSo = ?", bienSo);
     }
 

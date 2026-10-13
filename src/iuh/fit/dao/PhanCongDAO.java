@@ -6,12 +6,13 @@ import iuh.fit.enumeration.CaLamViec;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public final class PhanCongDAO extends BaseDao<PhanCong> {
 
     private static final String SQL_SELECT = "SELECT maPhanCong, maNhanVien, ngay, thang, nam, caLamViec, ghiChu FROM PhanCong";
 
-    public PhanCong findById(String maPhanCong) throws SQLException {
+    public Optional<PhanCong> findById(String maPhanCong) throws SQLException {
         return findOne(SQL_SELECT + " WHERE maPhanCong = ?", maPhanCong);
     }
 
