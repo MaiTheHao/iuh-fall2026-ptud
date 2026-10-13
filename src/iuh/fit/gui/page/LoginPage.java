@@ -1,0 +1,75 @@
+package iuh.fit.gui.page;
+
+import iuh.fit.dto.LoginDTO;
+import iuh.fit.exception.CredentialsInvalidException;
+import iuh.fit.service.AuthService;
+import iuh.fit.util.I18nReaderUtil;
+
+import iuh.fit.gui.theme.Theme;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.sql.SQLException;
+
+/** Màn hình đăng nhập hệ thống. */
+public class LoginPage extends AbstractPage {
+
+    private final AuthService authService = new AuthService();
+    private final JTextField tenDangNhapField = new JTextField(16);
+    private final JPasswordField matKhauField = new JPasswordField(16);
+
+    public LoginPage() {
+        setLayout(new GridBagLayout());
+    }
+
+    @Override
+    public void render() {
+        removeAll();
+
+        JPanel box = Theme.contentPanel(16);
+        box.setLayout(new GridLayout(0, 1, 4, 8));
+        box.add(new JLabel(I18nReaderUtil.get("app.login.title")));
+        box.add(new JLabel(I18nReaderUtil.get("app.login.username")));
+        box.add(tenDangNhapField);
+        box.add(new JLabel(I18nReaderUtil.get("app.login.password")));
+        box.add(matKhauField);
+
+        JPanel actions = new JPanel(new GridLayout(1, 2, 8, 0));
+        JButton dangNhapButton = new JButton(I18nReaderUtil.get("app.login.submit"));
+        dangNhapButton.addActionListener(e -> dangNhap());
+        JButton thoatButton = new JButton(I18nReaderUtil.get("app.login.exit"));
+        thoatButton.addActionListener(e -> System.exit(0));
+        actions.add(dangNhapButton);
+        actions.add(thoatButton);
+        box.add(actions);
+
+        add(box, new GridBagConstraints());
+        revalidate();
+        repaint();
+    }
+
+    @Override
+    public String getTitleKey() {
+        return "app.login.title";
+    }
+
+    private void dangNhap() {
+        String tenDangNhap = tenDangNhapField.getText();
+        String matKhau = new String(matKhauField.getPassword());
+        try {
+            authService.login(new LoginDTO(tenDangNhap, matKhau));
+            goTo(DashboardPage.class);
+        } catch (CredentialsInvalidException e) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorInvalid"));
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+        }
+    }
+}
