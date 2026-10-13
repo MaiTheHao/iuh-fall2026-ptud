@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Tiêu Thụ Dịch Vụ</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-12C" class="flex-1 flex flex-col space-y-2">
+
+          <!-- Bộ lọc (thống kê theo tháng) -->
+          <div class="swing-panel bg-white !mt-0">
+            <span class="swing-panel-legend">Tiêu Thụ Dịch Vụ</span>
+            <div class="flex flex-wrap items-end justify-between gap-2 mt-1">
+              <div class="flex flex-wrap items-end gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold">Tháng:</label>
+                  <select class="font-bold text-xs">
+                    <option selected>Tháng 09/2026</option>
+                    <option>Tháng 08/2026</option>
+                    <option>Tháng 07/2026</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button type="button" class="swing-btn-primary px-3 py-1 text-xs font-bold">
+                   Xem Báo Cáo
+                </button>
+                <button type="button" class="text-[10.5px] px-2 py-0.5 font-semibold">
+                   In
+                </button>
+                <button type="button" class="text-[10.5px] px-2 py-0.5 font-semibold">
+                   Xuất Excel
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Thẻ tổng hợp -->
+          <div class="grid grid-cols-4 gap-2">
+            <div class="swing-panel bg-white !mt-0">
+              <div class="text-[10px] uppercase font-bold text-zinc-500">Tổng lượt dịch vụ</div>
+              <div class="font-mono text-lg font-bold text-black mt-1">170 <span class="text-xs">lượt</span></div>
+            </div>
+            <div class="swing-panel bg-white !mt-0">
+              <div class="text-[10px] uppercase font-bold text-zinc-500">Doanh thu dịch vụ</div>
+              <div class="font-mono text-lg font-bold text-black mt-1">74.300.000 <span class="text-xs">VNĐ</span></div>
+            </div>
+            <div class="swing-panel bg-white !mt-0">
+              <div class="text-[10px] uppercase font-bold text-zinc-500">Dịch vụ dùng nhiều nhất</div>
+              <div class="font-bold text-sm text-black mt-1">Thay dầu động cơ <span class="font-mono">(28)</span></div>
+            </div>
+            <div class="swing-panel bg-white !mt-0">
+              <div class="text-[10px] uppercase font-bold text-zinc-500">Số dịch vụ được sử dụng</div>
+              <div class="font-mono text-lg font-bold text-black mt-1">20</div>
+            </div>
+          </div>
+
+          <!-- Bảng Top 20 dịch vụ tiêu thụ -->
+          <div class="swing-panel bg-white !mt-0 flex flex-col flex-1 min-h-0">
+            <div class="flex items-center justify-between mb-1">
+              <span class="swing-panel-legend">Top 20 Dịch Vụ Tiêu Thụ Trong Tháng</span>
+              <span class="text-[10px] text-zinc-500 font-mono">Tổng: 20</span>
+            </div>
+
+            <div class="overflow-auto mt-2 border border-zinc-400 flex-1 min-h-0">
+              <table class="swing-table" style="table-layout: fixed;">
+                <thead>
+                  <tr>
+                    <th style="width: 11%;">Mã DV</th>
+                    <th style="width: 28%;">Tên Dịch Vụ</th>
+                    <th style="width: 11%; text-align: right;">Số Lượt</th>
+                    <th style="width: 15%; text-align: right;">Đơn Giá</th>
+                    <th style="width: 23%; text-align: right;">Doanh Thu</th>
+                    <th style="width: 12%;">Tỷ Trọng</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="font-mono font-bold">DV000002</td>
+                    <td class="font-bold">Thay dầu động cơ</td>
+                    <td class="font-mono text-right font-bold">28</td>
+                    <td class="font-mono text-right">250.000</td>
+                    <td class="font-mono text-right font-bold">7.000.000</td>
+                    <td class="font-mono text-right">9,4%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000001</td>
+                    <td class="font-bold">Bảo dưỡng định kỳ 5.000 km</td>
+                    <td class="font-mono text-right font-bold">26</td>
+                    <td class="font-mono text-right">450.000</td>
+                    <td class="font-mono text-right font-bold">11.700.000</td>
+                    <td class="font-mono text-right">15,7%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000006</td>
+                    <td class="font-bold">Đảo lốp &amp; cân bằng động</td>
+                    <td class="font-mono text-right font-bold">20</td>
+                    <td class="font-mono text-right">300.000</td>
+                    <td class="font-mono text-right font-bold">6.000.000</td>
+                    <td class="font-mono text-right">8,1%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000010</td>
+                    <td class="font-bold">Kiểm tra tổng quát</td>
+                    <td class="font-mono text-right font-bold">16</td>
+                    <td class="font-mono text-right">200.000</td>
+                    <td class="font-mono text-right font-bold">3.200.000</td>
+                    <td class="font-mono text-right">4,3%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000005</td>
+                    <td class="font-bold">Thay má phanh</td>
+                    <td class="font-mono text-right font-bold">14</td>
+                    <td class="font-mono text-right">350.000</td>
+                    <td class="font-mono text-right font-bold">4.900.000</td>
+                    <td class="font-mono text-right">6,6%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000003</td>
+                    <td class="font-bold">Cân chỉnh thước lái</td>
+                    <td class="font-mono text-right font-bold">12</td>
+                    <td class="font-mono text-right">600.000</td>
+                    <td class="font-mono text-right font-bold">7.200.000</td>
+                    <td class="font-mono text-right">9,7%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000004</td>
+                    <td class="font-bold">Vệ sinh kim phun</td>
+                    <td class="font-mono text-right font-bold">8</td>
+                    <td class="font-mono text-right">800.000</td>
+                    <td class="font-mono text-right font-bold">6.400.000</td>
+                    <td class="font-mono text-right">8,6%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000008</td>
+                    <td class="font-bold">Nạp gas điều hòa</td>
+                    <td class="font-mono text-right font-bold">8</td>
+                    <td class="font-mono text-right">550.000</td>
+                    <td class="font-mono text-right font-bold">4.400.000</td>
+                    <td class="font-mono text-right">5,9%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000007</td>
+                    <td class="font-bold">Sửa chữa hệ thống điện</td>
+                    <td class="font-mono text-right font-bold">7</td>
+                    <td class="font-mono text-right">700.000</td>
+                    <td class="font-mono text-right font-bold">4.900.000</td>
+                    <td class="font-mono text-right">6,6%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000019</td>
+                    <td class="font-bold">Thay lọc gió động cơ</td>
+                    <td class="font-mono text-right font-bold">6</td>
+                    <td class="font-mono text-right">150.000</td>
+                    <td class="font-mono text-right font-bold">900.000</td>
+                    <td class="font-mono text-right">1,2%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000011</td>
+                    <td class="font-bold">Vệ sinh dàn lạnh</td>
+                    <td class="font-mono text-right font-bold">5</td>
+                    <td class="font-mono text-right">650.000</td>
+                    <td class="font-mono text-right font-bold">3.250.000</td>
+                    <td class="font-mono text-right">4,4%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000016</td>
+                    <td class="font-bold">Thay bugi</td>
+                    <td class="font-mono text-right font-bold">5</td>
+                    <td class="font-mono text-right">280.000</td>
+                    <td class="font-mono text-right font-bold">1.400.000</td>
+                    <td class="font-mono text-right">1,9%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000009</td>
+                    <td class="font-bold">Thay dầu hộp số</td>
+                    <td class="font-mono text-right font-bold">4</td>
+                    <td class="font-mono text-right">900.000</td>
+                    <td class="font-mono text-right font-bold">3.600.000</td>
+                    <td class="font-mono text-right">4,8%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000012</td>
+                    <td class="font-bold">Thay curoa cam</td>
+                    <td class="font-mono text-right font-bold">2</td>
+                    <td class="font-mono text-right">1.200.000</td>
+                    <td class="font-mono text-right font-bold">2.400.000</td>
+                    <td class="font-mono text-right">3,2%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000013</td>
+                    <td class="font-bold">Sửa chữa gầm xe</td>
+                    <td class="font-mono text-right font-bold">2</td>
+                    <td class="font-mono text-right">850.000</td>
+                    <td class="font-mono text-right font-bold">1.700.000</td>
+                    <td class="font-mono text-right">2,3%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000018</td>
+                    <td class="font-bold">Cứu hộ &amp; kéo xe</td>
+                    <td class="font-mono text-right font-bold">2</td>
+                    <td class="font-mono text-right">500.000</td>
+                    <td class="font-mono text-right font-bold">1.000.000</td>
+                    <td class="font-mono text-right">1,3%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000020</td>
+                    <td class="font-bold">Kiểm tra phanh ABS</td>
+                    <td class="font-mono text-right font-bold">2</td>
+                    <td class="font-mono text-right">400.000</td>
+                    <td class="font-mono text-right font-bold">800.000</td>
+                    <td class="font-mono text-right">1,1%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000014</td>
+                    <td class="font-bold">Thay bơm nước</td>
+                    <td class="font-mono text-right font-bold">1</td>
+                    <td class="font-mono text-right">950.000</td>
+                    <td class="font-mono text-right font-bold">950.000</td>
+                    <td class="font-mono text-right">1,3%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000015</td>
+                    <td class="font-bold">Đánh bóng &amp; phủ ceramic</td>
+                    <td class="font-mono text-right font-bold">1</td>
+                    <td class="font-mono text-right">1.500.000</td>
+                    <td class="font-mono text-right font-bold">1.500.000</td>
+                    <td class="font-mono text-right">2,0%</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">DV000017</td>
+                    <td class="font-bold">Sơn sửa chấm nhỏ</td>
+                    <td class="font-mono text-right font-bold">1</td>
+                    <td class="font-mono text-right">1.100.000</td>
+                    <td class="font-mono text-right font-bold">1.100.000</td>
+                    <td class="font-mono text-right">1,5%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+</body>
+</html>

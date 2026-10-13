@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Lịch Của Shop</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-05C" class="flex-1 flex flex-col space-y-2">
+
+          <div class="swing-panel bg-white !mt-0 flex flex-col">
+            <div class="flex items-center justify-between">
+              <span class="swing-panel-legend">Lịch Làm Việc Của Shop</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="text-xs py-0.5 px-2" title="Tuần trước"><i data-lucide="chevron-left"></i></button>
+                <span class="font-mono font-bold text-zinc-900">Tuần 40 · 28/09 – 04/10/2026</span>
+                <button type="button" class="text-xs py-0.5 px-2" title="Tuần sau"><i data-lucide="chevron-right"></i></button>
+                <button type="button" class="text-xs py-0.5 px-2 font-bold">Tuần này</button>
+              </div>
+            </div>
+
+            <div class="mt-2 border border-zinc-400">
+              <table class="swing-table week-table">
+                <thead>
+                  <tr>
+                    <th style="width: 100px;">Ca làm việc</th>
+                    <th class="text-center">Thứ 2<br><span class="font-mono text-[10px]">28/09</span></th>
+                    <th class="text-center" style="background-color: var(--swing-accent-soft);">Thứ 3<br><span class="font-mono text-[10px]">29/09</span></th>
+                    <th class="text-center">Thứ 4<br><span class="font-mono text-[10px]">30/09</span></th>
+                    <th class="text-center">Thứ 5<br><span class="font-mono text-[10px]">01/10</span></th>
+                    <th class="text-center">Thứ 6<br><span class="font-mono text-[10px]">02/10</span></th>
+                    <th class="text-center">Thứ 7<br><span class="font-mono text-[10px]">03/10</span></th>
+                    <th class="text-center">Chủ nhật<br><span class="font-mono text-[10px]">04/10</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Ca Sáng -->
+                  <tr>
+                    <td class="font-bold">Ca Sáng</td>
+                    <td>
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Nguyễn Trần Trọng Khang</span>
+                        <span class="shift-chip">Đặng Thanh Quý Bửu</span>
+                      </div>
+                    </td>
+                    <td style="background-color: var(--swing-accent-soft);">
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Nguyễn Minh Quốc</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Nguyễn Trần Trọng Khang</span>
+                      </div>
+                    </td>
+                    <td style="background-color: var(--swing-accent-soft);">
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Đặng Thanh Quý Bửu</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Nguyễn Minh Quốc</span>
+                      </div>
+                    </td>
+                    <td><span class="shift-off">–</span></td>
+                    <td><span class="shift-off">–</span></td>
+                  </tr>
+
+                  <!-- Ca Chiều -->
+                  <tr>
+                    <td class="font-bold">Ca Chiều</td>
+                    <td>
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Nguyễn Minh Quốc</span>
+                      </div>
+                    </td>
+                    <td style="background-color: var(--swing-accent-soft);">
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Nguyễn Trần Trọng Khang</span>
+                        <span class="shift-chip">Đặng Thanh Quý Bửu</span>
+                        <span class="shift-chip">Trần Thắng Hữu Duyên</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Trần Thắng Hữu Duyên</span>
+                      </div>
+                    </td>
+                    <td style="background-color: var(--swing-accent-soft);">
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Nguyễn Trần Trọng Khang</span>
+                        <span class="shift-chip">Nguyễn Minh Quốc</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Đặng Thanh Quý Bửu</span>
+                        <span class="shift-chip">Trần Thắng Hữu Duyên</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="space-y-0.5">
+                        <span class="shift-chip">Nguyễn Trần Trọng Khang</span>
+                      </div>
+                    </td>
+                    <td><span class="shift-off">–</span></td>
+                  </tr>
+
+                  <!-- Cả ngày -->
+                  <tr>
+                    <td class="font-bold">Cả ngày</td>
+                    <td><span class="shift-off">–</span></td>
+                    <td style="background-color: var(--swing-accent-soft);"><span class="shift-off">–</span></td>
+                    <td><span class="shift-off">–</span></td>
+                    <td style="background-color: var(--swing-accent-soft);"><span class="shift-off">–</span></td>
+                    <td><span class="shift-off">–</span></td>
+                    <td><span class="shift-off">–</span></td>
+                    <td><span class="shift-off">–</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 mt-2 text-[10.5px] text-zinc-600">
+              <div class="flex items-center gap-3">
+                <span>Ca Sáng: <b class="font-mono">07:30 – 11:30</b></span>
+                <span>Ca Chiều: <b class="font-mono">13:00 – 17:00</b></span>
+                <span>Cả ngày: <b class="font-mono">07:30 – 17:00</b></span>
+              </div>
+              <span class="font-mono">Tổng lượt gán: 16 · Nhân sự: 4</span>
+            </div>
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+</body>
+</html>
