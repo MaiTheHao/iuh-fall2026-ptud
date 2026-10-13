@@ -14,11 +14,7 @@ import javax.swing.Box;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.KeyStroke;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.util.function.Consumer;
 
 public class LayoutHeader extends JMenuBar {
@@ -86,7 +82,6 @@ public class LayoutHeader extends JMenuBar {
     private void buildSettingsMenu(Consumer<Class<? extends AbstractPage>> onSelect,
             Runnable onToggleLocale, Runnable onLogout) {
         this.menuRegistry.registerMenu(MenuGroup.CAI_DAT, this.settingsMenu);
-        this.settingsMenu.setFont(this.settingsMenu.getFont().deriveFont(Font.BOLD));
 
         this.languageItem.addActionListener(e -> onToggleLocale.run());
         this.settingsMenu.add(this.languageItem);
@@ -103,7 +98,6 @@ public class LayoutHeader extends JMenuBar {
         this.settingsMenu.add(this.accountItem);
         this.settingsMenu.addSeparator();
 
-        this.logoutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
         this.logoutItem.setForeground(Theme.DANGER_TEXT);
         this.logoutItem.addActionListener(e -> onLogout.run());
         this.settingsMenu.add(this.logoutItem);
@@ -115,9 +109,6 @@ public class LayoutHeader extends JMenuBar {
             boolean topLevel) {
         String text = I18nReaderUtil.get(page.getTitleKey());
         JMenuItem item = topLevel ? new TopLevelItem(text) : new JMenuItem(text);
-        if (page.getShortcut() != null) {
-            item.setAccelerator(page.getShortcut());
-        }
         Class<? extends AbstractPage> type = page.getClass();
         item.addActionListener(e -> onSelect.accept(type));
         this.menuRegistry.registerItem(page, item);

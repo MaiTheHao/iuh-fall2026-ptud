@@ -8,7 +8,6 @@ import iuh.fit.gui.theme.Theme;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 
@@ -19,22 +18,16 @@ public abstract class PlaceholderPage extends AbstractPage {
 
     private final MenuGroup group;
     private final String titleKey;
-    private final KeyStroke shortcut;
     private final boolean separatorBefore;
 
     protected PlaceholderPage(MenuGroup group, String titleKey) {
-        this(group, titleKey, null, false);
+        this(group, titleKey, false);
     }
 
-    protected PlaceholderPage(MenuGroup group, String titleKey, KeyStroke shortcut) {
-        this(group, titleKey, shortcut, false);
-    }
-
-    protected PlaceholderPage(MenuGroup group, String titleKey, KeyStroke shortcut, boolean separatorBefore) {
+    protected PlaceholderPage(MenuGroup group, String titleKey, boolean separatorBefore) {
         setLayout(new BorderLayout());
         this.group = group;
         this.titleKey = titleKey;
-        this.shortcut = shortcut;
         this.separatorBefore = separatorBefore;
     }
 
@@ -58,11 +51,6 @@ public abstract class PlaceholderPage extends AbstractPage {
     @Override
     public final MenuGroup getGroup() {
         return this.group;
-    }
-
-    @Override
-    public final KeyStroke getShortcut() {
-        return this.shortcut;
     }
 
     @Override

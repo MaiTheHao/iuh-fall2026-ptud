@@ -3,7 +3,6 @@ package iuh.fit.gui.page;
 import iuh.fit.enumeration.MenuGroup;
 
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 import java.util.function.Consumer;
 
 public abstract class AbstractPage extends JPanel {
@@ -25,10 +24,6 @@ public abstract class AbstractPage extends JPanel {
     public abstract String getTitleKey();
 
     public MenuGroup getGroup() {
-        return null;
-    }
-
-    public KeyStroke getShortcut() {
         return null;
     }
 
