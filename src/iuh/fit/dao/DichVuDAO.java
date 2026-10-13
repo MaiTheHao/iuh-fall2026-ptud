@@ -5,12 +5,13 @@ import iuh.fit.entity.DichVu;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public final class DichVuDAO extends BaseDao<DichVu> {
 
     private static final String SQL_SELECT = "SELECT maDichVu, tenDichVu, moTa, anhUrl, donGia FROM DichVu";
 
-    public DichVu findById(String maDichVu) throws SQLException {
+    public Optional<DichVu> findById(String maDichVu) throws SQLException {
         return findOne(SQL_SELECT + " WHERE maDichVu = ?", maDichVu);
     }
 

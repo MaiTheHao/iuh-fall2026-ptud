@@ -5,12 +5,13 @@ import iuh.fit.entity.PhuTung;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public final class PhuTungDAO extends BaseDao<PhuTung> {
 
     private static final String SQL_SELECT = "SELECT maPhuTung, tenPhuTung, moTa, anhUrl, donGiaNhap, soLuongTon FROM PhuTung";
 
-    public PhuTung findById(String maPhuTung) throws SQLException {
+    public Optional<PhuTung> findById(String maPhuTung) throws SQLException {
         return findOne(SQL_SELECT + " WHERE maPhuTung = ?", maPhuTung);
     }
 

@@ -13,19 +13,21 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public final class HoaDonDAO extends BaseDao<HoaDon> {
 
     private static final String SQL_SELECT = "SELECT maHoaDon, maPhieuTiepNhan, maVoucher, trangThaiHoaDon, lyDoHuy, ghiChu, ngayTao, thoiGianThanhToan FROM HoaDon";
 
-    public HoaDon findById(String maHoaDon) throws SQLException {
+    public Optional<HoaDon> findById(String maHoaDon) throws SQLException {
         try (Connection connection = DatabaseConfig.getConnection()) {
-            HoaDon hoaDon = findOne(connection, SQL_SELECT + " WHERE maHoaDon = ?", maHoaDon);
-            if (hoaDon == null) {
-                return null;
+            Optional<HoaDon> found = findOne(connection, SQL_SELECT + " WHERE maHoaDon = ?", maHoaDon);
+            if (found.isEmpty()) {
+                return Optional.empty();
             }
+            HoaDon hoaDon = found.get();
             hoaDon.setDanhSachChiTietHoaDon(loadDanhSachChiTiet(connection, maHoaDon));
-            return hoaDon;
+            return Optional.of(hoaDon);
         }
     }
 

@@ -6,12 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public final class VoucherDAO extends BaseDao<Voucher> {
 
     private static final String SQL_SELECT = "SELECT maVoucher, tenChuongTrinh, moTa, mucGiam, thoiHanApDung, trangThaiKichHoat FROM Voucher";
 
-    public Voucher findById(String maVoucher) throws SQLException {
+    public Optional<Voucher> findById(String maVoucher) throws SQLException {
         return findOne(SQL_SELECT + " WHERE maVoucher = ?", maVoucher);
     }
 
