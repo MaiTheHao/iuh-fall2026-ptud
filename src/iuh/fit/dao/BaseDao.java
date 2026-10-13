@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class BaseDao<T> {
 
@@ -21,17 +22,17 @@ public abstract class BaseDao<T> {
         return list;
     }
 
-    protected T findOne(String sql, String id) throws SQLException {
+    protected Optional<T> findOne(String sql, String id) throws SQLException {
         try (Connection connection = DatabaseConfig.getConnection()) {
             return findOne(connection, sql, id);
         }
     }
 
-    protected T findOne(Connection connection, String sql, String id) throws SQLException {
+    protected Optional<T> findOne(Connection connection, String sql, String id) throws SQLException {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? mapRow(rs) : null;
+                return rs.next() ? Optional.of(mapRow(rs)) : Optional.empty();
             }
         }
     }
