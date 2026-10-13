@@ -2,25 +2,60 @@
   "app": {
     "title": "Lua Garage",
     "menu": {
-      "dashboard": "Dashboard",
+      "home": "Home",
       "customers": "Customers",
       "vehicles": "Vehicles",
-      "intakeSlips": "Intake Slips",
-      "diagnoses": "Technical Diagnoses",
+      "employees": "Employees",
+      "inventory": "Parts",
+      "servicePriceList": "Services",
+      "vouchers": "Vouchers",
       "shiftAssignment": "Shift Assignment",
       "mySchedule": "My Schedule",
-      "shopSchedule": "Garage-wide Schedule",
-      "inventory": "Parts Inventory",
-      "partsReceipts": "Parts Receipts",
-      "servicePriceList": "Service Price List",
-      "vouchers": "Voucher Management",
-      "invoices": "Invoices",
-      "employees": "Employee Accounts",
-      "revenueReport": "Revenue Report",
-      "partsConsumptionReport": "Monthly Parts Consumption",
-      "serviceConsumptionReport": "Monthly Service Consumption",
+      "shopSchedule": "Shop Schedule",
+      "customerIntake": "Customer Intake",
+      "intakeSlips": "Intake Slip Management",
+      "diagnoses": "Create Diagnosis",
       "complaints": "Complaint Intake",
-      "complaintManagement": "Complaint Management"
+      "complaintManagement": "Complaint Management",
+      "partsReceipts": "Create Receipt",
+      "partsReceiptManagement": "Manage Receipts",
+      "invoices": "Create Invoice",
+      "invoiceManagement": "Manage Invoices",
+      "revenueReport": "Revenue",
+      "partsConsumptionReport": "Parts Consumption",
+      "serviceConsumptionReport": "Service Consumption",
+      "changePassword": "Change Password",
+      "language": "Language",
+      "account": "Account",
+      "logout": "Log Out"
+    },
+    "menuGroup": {
+      "trangChu": "Home",
+      "toChuc": "Organization",
+      "keHoach": "Planning",
+      "tiepNhan": "Intake",
+      "nhapPhuTung": "Parts Receipts",
+      "thanhToan": "Payment",
+      "tongKet": "Reports",
+      "caiDat": "Settings"
+    },
+    "localeName": {
+      "vn": "Tiếng Việt (VI)",
+      "en": "English (EN)"
+    },
+    "login": {
+      "title": "System Login",
+      "username": "Username:",
+      "password": "Password:",
+      "submit": "Sign In",
+      "exit": "Exit",
+      "errorInvalid": "Incorrect username or password.",
+      "errorSystem": "Cannot connect to the system. Please try again."
+    },
+    "dashboard": {
+      "greeting": "Hello",
+      "role": "Role",
+      "code": "Employee code"
     }
   }
 }

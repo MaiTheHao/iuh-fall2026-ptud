@@ -2,25 +2,60 @@
   "app": {
     "title": "Gara Lúa",
     "menu": {
-      "dashboard": "Tổng quan",
+      "home": "Trang chủ",
       "customers": "Khách hàng",
-      "vehicles": "Phương tiện",
-      "intakeSlips": "Phiếu tiếp nhận",
-      "diagnoses": "Chẩn đoán kỹ thuật",
-      "shiftAssignment": "Phân ca làm việc",
-      "mySchedule": "Lịch làm việc của tôi",
-      "shopSchedule": "Lịch làm việc toàn gara",
-      "inventory": "Quản lý phụ tùng",
-      "partsReceipts": "Phiếu nhập phụ tùng",
-      "servicePriceList": "Bảng giá dịch vụ",
-      "vouchers": "Quản lý voucher",
-      "invoices": "Hóa đơn",
-      "employees": "Tài khoản nhân viên",
-      "revenueReport": "Báo cáo doanh thu",
-      "partsConsumptionReport": "Báo cáo tiêu thụ phụ tùng",
-      "serviceConsumptionReport": "Báo cáo tiêu thụ dịch vụ",
+      "vehicles": "Xe",
+      "employees": "Nhân viên",
+      "inventory": "Phụ tùng",
+      "servicePriceList": "Dịch vụ",
+      "vouchers": "Voucher",
+      "shiftAssignment": "Phân công ca",
+      "mySchedule": "Lịch của tôi",
+      "shopSchedule": "Lịch của shop",
+      "customerIntake": "Tiếp nhận khách hàng",
+      "intakeSlips": "Quản lý phiếu tiếp nhận",
+      "diagnoses": "Lập chẩn đoán",
       "complaints": "Tiếp nhận khiếu nại",
-      "complaintManagement": "Quản lý khiếu nại"
+      "complaintManagement": "Quản lý khiếu nại",
+      "partsReceipts": "Lập phiếu",
+      "partsReceiptManagement": "Quản lý phiếu",
+      "invoices": "Lập hóa đơn",
+      "invoiceManagement": "Quản lý hóa đơn",
+      "revenueReport": "Doanh thu",
+      "partsConsumptionReport": "Tiêu thụ phụ tùng",
+      "serviceConsumptionReport": "Tiêu thụ dịch vụ",
+      "changePassword": "Đổi mật khẩu",
+      "language": "Ngôn ngữ",
+      "account": "Tài khoản",
+      "logout": "Đăng xuất"
+    },
+    "menuGroup": {
+      "trangChu": "Trang chủ",
+      "toChuc": "Tổ chức",
+      "keHoach": "Kế hoạch",
+      "tiepNhan": "Tiếp nhận",
+      "nhapPhuTung": "Nhập phụ tùng",
+      "thanhToan": "Thanh toán",
+      "tongKet": "Tổng kết",
+      "caiDat": "Cài đặt"
+    },
+    "localeName": {
+      "vn": "Tiếng Việt (VI)",
+      "en": "English (EN)"
+    },
+    "login": {
+      "title": "Đăng nhập hệ thống",
+      "username": "Tên đăng nhập:",
+      "password": "Mật khẩu:",
+      "submit": "Đăng Nhập",
+      "exit": "Thoát",
+      "errorInvalid": "Tên đăng nhập hoặc mật khẩu không đúng.",
+      "errorSystem": "Không thể kết nối hệ thống. Vui lòng thử lại."
+    },
+    "dashboard": {
+      "greeting": "Xin chào",
+      "role": "Vai trò",
+      "code": "Mã nhân viên"
     }
   }
 }
