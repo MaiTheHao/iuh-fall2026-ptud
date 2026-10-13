@@ -3,12 +3,12 @@ package iuh.fit.gui.layout;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.page.AbstractPage;
 import iuh.fit.gui.page.PageRegistry;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import java.awt.Font;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,8 +34,10 @@ public final class MenuRegistry {
     }
 
     public void setActive(Class<? extends AbstractPage> active) {
-        this.items.forEach((type, item) ->
-                item.setFont(item.getFont().deriveFont(type.equals(active) ? Font.BOLD : Font.PLAIN)));
+        this.items.forEach((type, item) -> item.setForeground(type.equals(active) ? Theme.ACCENT : Theme.INK));
+
+        MenuGroup activeGroup = PageRegistry.getInstance().get(active).getGroup();
+        this.menus.forEach((group, menu) -> menu.setForeground(group == activeGroup ? Theme.ACCENT : Theme.INK));
     }
 
     public void refreshText() {

@@ -10,7 +10,6 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Font;
 
@@ -49,11 +48,6 @@ public class DashboardPage extends AbstractPage {
     @Override
     public MenuGroup getGroup() {
         return MenuGroup.TRANG_CHU;
-    }
-
-    @Override
-    public KeyStroke getShortcut() {
-        return KeyStroke.getKeyStroke("F1");
     }
 
     private JLabel dong(String text, boolean bold) {

@@ -8,6 +8,6 @@ import iuh.fit.enumeration.MenuGroup;
 public class TiepNhanKhieuNaiPage extends PlaceholderPage {
 
     public TiepNhanKhieuNaiPage() {
-        super(MenuGroup.TIEP_NHAN, "app.menu.complaints", null, true);
+        super(MenuGroup.TIEP_NHAN, "app.menu.complaints", true);
     }
 }
