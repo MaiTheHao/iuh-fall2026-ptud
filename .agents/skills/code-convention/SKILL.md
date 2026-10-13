@@ -55,16 +55,20 @@ Entities contain private fields, constructors, getters, and setters only.
 DAOs handle database access and row-to-entity mapping, not business-level data processing.
 
 - **DO:** Provide straightforward retrieval methods such as `findAll()` and `findById(...)`, following existing project conventions.
+- **DO:** Return `Optional<T>` from single-record lookups (`findOne`, `findById`, `findByTenDangNhap`, `login`) so "not found" is explicit; `findAll()` still returns `List<T>`.
 - **DON'T:** Apply business filtering, sorting, or aggregation in DAO methods, or return business-specific precomputed totals.
+- **DON'T:** Return `null` for a single-row lookup; never leak `null` upward to the service.
 
-Services must perform filtering, sorting, and aggregation on retrieved data. Do not encode business rules in SQL `WHERE`, `ORDER BY`, or aggregate expressions.
+Services must perform filtering, sorting, and aggregation on retrieved data. Do not encode business rules in SQL `WHERE`, `ORDER BY`, or aggregate expressions. Services must not return `null`: resolve single lookups with `orElseThrow(...)` or throw a domain exception (`iuh.fit.exception.*`); an empty list is a valid result (e.g. an empty `PaginatedResult`), not an error.
 
 ## 6. Swing UI: i18n and Fixed 16:9 Layout
 
 All user-visible text must be resolved through the project's internationalization resources. The POS interface targets a fixed 16:9 screen, not a responsive layout.
 
 - **DO:** Use `I18nReaderUtil` with valid keys from `src/resources/i18n_vn.json` and `src/resources/i18n_en.json`. Keep both language resources synchronized when adding or changing UI text. Follow existing Swing layout conventions for the fixed target dimensions and aspect ratio.
+- **DO:** Use the bundled `LGoodDatePicker` (`lib/LGoodDatePicker-11.2.1.jar`), e.g. `ManagementPanel.addDateRangeFilter(...)`, for any date input, so users pick dates instead of typing them.
 - **DON'T:** Hard-code user-visible labels, duplicate translated text in source code, or introduce responsive/adaptive reflow and scaling logic.
+- **DON'T:** Ask users to type or hand-parse date strings when a date picker is available; build against `lib/*` (the wildcard includes every jar in `lib/`).
 
 Reuse existing translation keys where appropriate.
 
@@ -88,6 +92,8 @@ Before completing a change, verify:
 - [ ] Business rules and data transformations reside in SERVICE.
 - [ ] Entities remain plain POJOs.
 - [ ] DAOs perform database access and row mapping without business-level filtering, sorting, or aggregation.
+- [ ] DAO single-record lookups return `Optional`, never `null`; services throw domain exceptions instead of returning `null`.
+- [ ] Date inputs use `LGoodDatePicker` (`lib/LGoodDatePicker-11.2.1.jar`), not free-text date strings.
 - [ ] All user-visible strings use valid i18n resources, with both languages synchronized.
 - [ ] Swing layouts target a fixed 16:9 POS screen.
 - [ ] No method comments exist.
