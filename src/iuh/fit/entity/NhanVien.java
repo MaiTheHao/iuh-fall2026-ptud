@@ -10,6 +10,7 @@ public class NhanVien {
     private String tenDangNhap;
     private String matKhau;
     private String hoTen;
+    private String soDienThoai;
     private String anhDaiDien;
     private VaiTro vaiTro;
     private TrangThaiNhanVien trangThai;
@@ -18,12 +19,13 @@ public class NhanVien {
     public NhanVien() {
     }
 
-    public NhanVien(String maNhanVien, String tenDangNhap, String matKhau, String hoTen, String anhDaiDien,
-            VaiTro vaiTro, TrangThaiNhanVien trangThai, LocalDateTime ngayTao) {
+    public NhanVien(String maNhanVien, String tenDangNhap, String matKhau, String hoTen, String soDienThoai,
+            String anhDaiDien, VaiTro vaiTro, TrangThaiNhanVien trangThai, LocalDateTime ngayTao) {
         this.maNhanVien = maNhanVien;
         this.tenDangNhap = tenDangNhap;
         this.matKhau = matKhau;
         this.hoTen = hoTen;
+        this.soDienThoai = soDienThoai;
         this.anhDaiDien = anhDaiDien;
         this.vaiTro = vaiTro;
         this.trangThai = trangThai;
@@ -60,6 +62,14 @@ public class NhanVien {
 
     public void setHoTen(String hoTen) {
         this.hoTen = hoTen;
+    }
+
+    public String getSoDienThoai() {
+        return soDienThoai;
+    }
+
+    public void setSoDienThoai(String soDienThoai) {
+        this.soDienThoai = soDienThoai;
     }
 
     public String getAnhDaiDien() {
