@@ -43,6 +43,66 @@
       "vn": "Tiếng Việt (VI)",
       "en": "English (EN)"
     },
+    "common": {
+      "search": "Tìm nhanh",
+      "add": "Thêm",
+      "save": "Lưu",
+      "clear": "Xóa Trắng",
+      "edit": "Sửa",
+      "delete": "Xóa",
+      "reset": "Đặt lại mật khẩu",
+      "noData": "Không có dữ liệu",
+      "clearFilter": "Xóa lọc",
+      "prev": "‹ Trước",
+      "next": "Sau ›",
+      "pageLabel": "Trang",
+      "count": "Hiển thị"
+    },
+    "enum": {
+      "TrangThaiHoaDon": {
+        "CHO_THANH_TOAN": "Chưa thanh toán",
+        "DA_THANH_TOAN": "Đã thanh toán",
+        "DA_HUY": "Đã hủy"
+      },
+      "TrangThaiPhieuTiepNhan": {
+        "TIEP_NHAN": "Mới",
+        "DANG_XU_LY": "Đang triển khai",
+        "HOAN_THANH": "Hoàn thành",
+        "DA_HUY": "Đã hủy"
+      },
+      "TrangThaiNhanVien": {
+        "HOAT_DONG": "Đang làm việc",
+        "DA_KHOA": "Tạm khóa"
+      },
+      "VaiTro": {
+        "NHAN_VIEN_QUAN_LY": "Quản lý",
+        "NHAN_VIEN_TIEP_NHAN": "Nhân viên tiếp nhận",
+        "NHAN_VIEN_THU_NGAN": "Thu ngân",
+        "NHAN_VIEN_KY_THUAT": "Kỹ thuật viên"
+      },
+      "CaLamViec": {
+        "CA_SANG": "Ca sáng",
+        "CA_CHIEU": "Ca chiều",
+        "CA_NGAY": "Ca ngày"
+      },
+      "LoaiSanPham": {
+        "DICH_VU": "Dịch vụ",
+        "PHU_TUNG": "Phụ tùng"
+      }
+    },
+    "date": {
+      "format": "dd/MM/yyyy",
+      "today": "Hôm nay",
+      "clear": "Xóa"
+    },
+    "khachHang": {
+      "ma": "Mã KH",
+      "sdt": "SĐT",
+      "hoTen": "Họ tên",
+      "ngayTao": "Ngày tạo",
+      "loiSdt": "Số điện thoại phải gồm 10 chữ số.",
+      "loiHoTen": "Họ tên không được để trống."
+    },
     "login": {
       "title": "Đăng nhập hệ thống",
       "username": "Tên đăng nhập:",
