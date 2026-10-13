@@ -45,14 +45,14 @@ INSERT INTO KhachHang (maKhachHang, sdt, hoTen, ngayTao) VALUES
 -- NhanVien (8; covers every VaiTro and both statuses)
 -- ============================================================
 INSERT INTO NhanVien (maNhanVien, tenDangNhap, matKhau, hoTen, anhDaiDien, vaiTro, trangThai, ngayTao) VALUES
-('NV001', 'admin', 'test@123', N'Administrator', NULL, 'NHAN_VIEN_QUAN_LY', 'HOAT_DONG', '2025-11-01T08:00:00'),
-('NV002', 'tiepnhan01', 'test@123', N'Nguyễn Thị Mỹ Quốc', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-03T08:00:00'),
-('NV003', 'thungan01', 'test@123', N'Trần Thị Thanh Bình', NULL, 'NHAN_VIEN_THU_NGAN', 'HOAT_DONG', '2025-11-05T08:00:00'),
-('NV004', 'kythuat01', 'test@123', N'Phạm Nát Bét', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-07T08:00:00'),
-('NV005', 'kythuat02', 'test@123', N'Võ Hoàng Long', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-10T08:00:00'),
-('NV006', 'tiepnhan02', 'test@123', N'Đặng Thùy Dung', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-12T08:00:00'),
-('NV007', 'thungan02', 'test@123', N'Bùi Thanh Tâm', NULL, 'NHAN_VIEN_THU_NGAN', 'DA_KHOA', '2025-11-15T08:00:00'),
-('NV008', 'quanly02', 'test@123', N'Đỗ Quốc Việt', NULL, 'NHAN_VIEN_QUAN_LY', 'DA_KHOA', '2025-11-18T08:00:00');
+('NV011120250001', 'admin', 'test@123', N'Administrator', NULL, 'NHAN_VIEN_QUAN_LY', 'HOAT_DONG', '2025-11-01T08:00:00'),
+('NV031120250002', 'tiepnhan01', 'test@123', N'Nguyễn Thị Mỹ Quốc', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-03T08:00:00'),
+('NV051120250003', 'thungan01', 'test@123', N'Trần Thị Thanh Bình', NULL, 'NHAN_VIEN_THU_NGAN', 'HOAT_DONG', '2025-11-05T08:00:00'),
+('NV071120250004', 'kythuat01', 'test@123', N'Phạm Nát Bét', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-07T08:00:00'),
+('NV101120250005', 'kythuat02', 'test@123', N'Võ Hoàng Long', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-10T08:00:00'),
+('NV121120250006', 'tiepnhan02', 'test@123', N'Đặng Thùy Dung', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-12T08:00:00'),
+('NV151120250007', 'thungan02', 'test@123', N'Bùi Thanh Tâm', NULL, 'NHAN_VIEN_THU_NGAN', 'DA_KHOA', '2025-11-15T08:00:00'),
+('NV181120250008', 'quanly02', 'test@123', N'Đỗ Quốc Việt', NULL, 'NHAN_VIEN_QUAN_LY', 'DA_KHOA', '2025-11-18T08:00:00');
 
 -- ============================================================
 -- PhuTung (15)
@@ -134,16 +134,16 @@ INSERT INTO KhachHang_Xe (maKhachHang, bienSo, ngayTao) VALUES
 -- PhieuNhapPhuTung (10)
 -- ============================================================
 INSERT INTO PhieuNhapPhuTung (maPhieuNhap, ngayTao, maNhanVien, moTa) VALUES
-('PN001', '2026-01-06T09:00:00', 'NV001', N'Nhập dầu và lọc bảo dưỡng định kỳ'),
-('PN002', '2026-01-20T10:15:00', 'NV001', N'Bổ sung vật tư phanh'),
-('PN003', '2026-02-03T14:00:00', 'NV001', N'Nhập ắc quy và vật tư điện'),
-('PN004', '2026-02-18T08:45:00', 'NV001', N'Nhập vật tư vệ sinh và điều hòa'),
-('PN005', '2026-03-02T11:30:00', 'NV001', N'Nhập lọc gió và bugi'),
-('PN006', '2026-03-15T13:20:00', 'NV001', N'Nhập nước làm mát và dầu phanh'),
-('PN007', '2026-04-01T09:40:00', 'NV001', N'Nhập phụ tùng hệ thống treo'),
-('PN008', '2026-04-12T15:10:00', 'NV001', N'Bổ sung gạt mưa'),
-('PN009', '2026-05-05T10:00:00', 'NV001', N'Nhập phụ tùng thay thế thông dụng'),
-('PN010', '2026-05-18T16:25:00', 'NV001', N'Nhập hàng phục vụ mùa bảo dưỡng');
+('PN001', '2026-01-06T09:00:00', 'NV011120250001', N'Nhập dầu và lọc bảo dưỡng định kỳ'),
+('PN002', '2026-01-20T10:15:00', 'NV011120250001', N'Bổ sung vật tư phanh'),
+('PN003', '2026-02-03T14:00:00', 'NV011120250001', N'Nhập ắc quy và vật tư điện'),
+('PN004', '2026-02-18T08:45:00', 'NV011120250001', N'Nhập vật tư vệ sinh và điều hòa'),
+('PN005', '2026-03-02T11:30:00', 'NV011120250001', N'Nhập lọc gió và bugi'),
+('PN006', '2026-03-15T13:20:00', 'NV011120250001', N'Nhập nước làm mát và dầu phanh'),
+('PN007', '2026-04-01T09:40:00', 'NV011120250001', N'Nhập phụ tùng hệ thống treo'),
+('PN008', '2026-04-12T15:10:00', 'NV011120250001', N'Bổ sung gạt mưa'),
+('PN009', '2026-05-05T10:00:00', 'NV011120250001', N'Nhập phụ tùng thay thế thông dụng'),
+('PN010', '2026-05-18T16:25:00', 'NV011120250001', N'Nhập hàng phục vụ mùa bảo dưỡng');
 
 -- ============================================================
 -- ChiTietPhieuNhapPhuTung (20)
@@ -175,41 +175,41 @@ INSERT INTO ChiTietPhieuNhapPhuTung (maPhieuNhap, maPhuTung, soLuong, donGiaNhap
 -- ============================================================
 INSERT INTO PhieuTiepNhan
 (maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien, maKhachHang, bienSo) VALUES
-('TN001', '2026-05-20T08:10:00', N'Bảo dưỡng định kỳ, thay dầu động cơ', 'HOAN_THANH', 'NV002', 'KH001', '51A-123.45'),
-('TN002', '2026-05-20T09:00:00', N'Xe rung khi phanh ở tốc độ cao', 'HOAN_THANH', 'NV002', 'KH002', '51H-234.56'),
-('TN003', '2026-05-21T08:35:00', N'Điều hòa làm lạnh yếu', 'DANG_XU_LY', 'NV006', 'KH003', '60A-345.67'),
-('TN004', '2026-05-21T10:20:00', N'Kiểm tra tiếng kêu ở bánh trước', 'DANG_XU_LY', 'NV002', 'KH004', '51K-456.78'),
-('TN005', '2026-05-22T13:15:00', N'Rửa xe và vệ sinh nội thất', 'HOAN_THANH', 'NV006', 'KH005', '59A-567.89'),
-('TN006', '2026-05-23T08:50:00', N'Đèn báo lỗi động cơ bật sáng', 'DANG_XU_LY', 'NV002', 'KH006', '51G-678.90'),
-('TN007', '2026-05-24T09:30:00', N'Xe khó khởi động vào buổi sáng', 'HOAN_THANH', 'NV006', 'KH007', '61A-789.01'),
-('TN008', '2026-05-25T14:10:00', N'Bảo dưỡng sau chuyến đi dài', 'TIEP_NHAN', 'NV002', 'KH008', '51B-890.12'),
-('TN009', '2026-05-26T11:05:00', N'Kiểm tra hệ thống điện xe điện', 'DANG_XU_LY', 'NV006', 'KH009', '50H-901.23'),
-('TN010', '2026-05-27T08:25:00', N'Kiểm tra phanh và thay dầu phanh', 'HOAN_THANH', 'NV002', 'KH010', '51C-012.34'),
-('TN011', '2026-05-28T10:45:00', N'Xe hao nhiên liệu hơn bình thường', 'DANG_XU_LY', 'NV006', 'KH011', '60K-112.23'),
-('TN012', '2026-05-29T15:00:00', N'Thay gạt mưa và kiểm tra kính', 'DA_HUY', 'NV002', 'KH012', '51D-223.34'),
-('TN013', '2026-05-30T09:15:00', N'Bảo dưỡng định kỳ 30.000 km', 'TIEP_NHAN', 'NV006', 'KH013', '59C-334.45'),
-('TN014', '2026-05-31T13:40:00', N'Động cơ có tiếng gõ nhẹ', 'DANG_XU_LY', 'NV002', 'KH014', '51E-445.56'),
-('TN015', '2026-06-01T08:05:00', N'Kiểm tra tổng quát trước chuyến đi', 'TIEP_NHAN', 'NV006', 'KH015', '60B-556.67');
+('TN001', '2026-05-20T08:10:00', N'Bảo dưỡng định kỳ, thay dầu động cơ', 'HOAN_THANH', 'NV031120250002', 'KH001', '51A-123.45'),
+('TN002', '2026-05-20T09:00:00', N'Xe rung khi phanh ở tốc độ cao', 'HOAN_THANH', 'NV031120250002', 'KH002', '51H-234.56'),
+('TN003', '2026-05-21T08:35:00', N'Điều hòa làm lạnh yếu', 'DANG_XU_LY', 'NV121120250006', 'KH003', '60A-345.67'),
+('TN004', '2026-05-21T10:20:00', N'Kiểm tra tiếng kêu ở bánh trước', 'DANG_XU_LY', 'NV031120250002', 'KH004', '51K-456.78'),
+('TN005', '2026-05-22T13:15:00', N'Rửa xe và vệ sinh nội thất', 'HOAN_THANH', 'NV121120250006', 'KH005', '59A-567.89'),
+('TN006', '2026-05-23T08:50:00', N'Đèn báo lỗi động cơ bật sáng', 'DANG_XU_LY', 'NV031120250002', 'KH006', '51G-678.90'),
+('TN007', '2026-05-24T09:30:00', N'Xe khó khởi động vào buổi sáng', 'HOAN_THANH', 'NV121120250006', 'KH007', '61A-789.01'),
+('TN008', '2026-05-25T14:10:00', N'Bảo dưỡng sau chuyến đi dài', 'TIEP_NHAN', 'NV031120250002', 'KH008', '51B-890.12'),
+('TN009', '2026-05-26T11:05:00', N'Kiểm tra hệ thống điện xe điện', 'DANG_XU_LY', 'NV121120250006', 'KH009', '50H-901.23'),
+('TN010', '2026-05-27T08:25:00', N'Kiểm tra phanh và thay dầu phanh', 'HOAN_THANH', 'NV031120250002', 'KH010', '51C-012.34'),
+('TN011', '2026-05-28T10:45:00', N'Xe hao nhiên liệu hơn bình thường', 'DANG_XU_LY', 'NV121120250006', 'KH011', '60K-112.23'),
+('TN012', '2026-05-29T15:00:00', N'Thay gạt mưa và kiểm tra kính', 'DA_HUY', 'NV031120250002', 'KH012', '51D-223.34'),
+('TN013', '2026-05-30T09:15:00', N'Bảo dưỡng định kỳ 30.000 km', 'TIEP_NHAN', 'NV121120250006', 'KH013', '59C-334.45'),
+('TN014', '2026-05-31T13:40:00', N'Động cơ có tiếng gõ nhẹ', 'DANG_XU_LY', 'NV031120250002', 'KH014', '51E-445.56'),
+('TN015', '2026-06-01T08:05:00', N'Kiểm tra tổng quát trước chuyến đi', 'TIEP_NHAN', 'NV121120250006', 'KH015', '60B-556.67');
 
 -- ============================================================
 -- PhanCong (15)
 -- ============================================================
 INSERT INTO PhanCong (maPhanCong, maNhanVien, ngay, thang, nam, caLamViec, ghiChu) VALUES
-('PC001', 'NV002', 20, 5, 2026, 'CA_SANG', N'Tiếp nhận đầu ngày'),
-('PC002', 'NV006', 20, 5, 2026, 'CA_CHIEU', N'Tiếp nhận ca chiều'),
-('PC003', 'NV004', 20, 5, 2026, 'CA_NGAY', N'Kỹ thuật tổng quát'),
-('PC004', 'NV005', 21, 5, 2026, 'CA_SANG', N'Chuyên hệ thống điện'),
-('PC005', 'NV003', 21, 5, 2026, 'CA_CHIEU', N'Thu ngân ca chiều'),
-('PC006', 'NV002', 22, 5, 2026, 'CA_SANG', N'Tiếp nhận khách hẹn'),
-('PC007', 'NV004', 22, 5, 2026, 'CA_CHIEU', N'Bảo dưỡng định kỳ'),
-('PC008', 'NV005', 23, 5, 2026, 'CA_NGAY', N'Chẩn đoán lỗi động cơ'),
-('PC009', 'NV003', 23, 5, 2026, 'CA_SANG', N'Thu ngân ca sáng'),
-('PC010', 'NV006', 24, 5, 2026, 'CA_CHIEU', N'Tiếp nhận cuối tuần'),
-('PC011', 'NV004', 25, 5, 2026, 'CA_SANG', N'Sửa chữa hệ thống phanh'),
-('PC012', 'NV005', 26, 5, 2026, 'CA_NGAY', N'Kiểm tra điều hòa'),
-('PC013', 'NV003', 27, 5, 2026, 'CA_CHIEU', N'Đối soát hóa đơn'),
-('PC014', 'NV002', 28, 5, 2026, 'CA_SANG', N'Tiếp nhận lịch hẹn'),
-('PC015', 'NV004', 29, 5, 2026, 'CA_NGAY', N'Bảo dưỡng tổng quát');
+('PC001', 'NV031120250002', 20, 5, 2026, 'CA_SANG', N'Tiếp nhận đầu ngày'),
+('PC002', 'NV121120250006', 20, 5, 2026, 'CA_CHIEU', N'Tiếp nhận ca chiều'),
+('PC003', 'NV071120250004', 20, 5, 2026, 'CA_NGAY', N'Kỹ thuật tổng quát'),
+('PC004', 'NV101120250005', 21, 5, 2026, 'CA_SANG', N'Chuyên hệ thống điện'),
+('PC005', 'NV051120250003', 21, 5, 2026, 'CA_CHIEU', N'Thu ngân ca chiều'),
+('PC006', 'NV031120250002', 22, 5, 2026, 'CA_SANG', N'Tiếp nhận khách hẹn'),
+('PC007', 'NV071120250004', 22, 5, 2026, 'CA_CHIEU', N'Bảo dưỡng định kỳ'),
+('PC008', 'NV101120250005', 23, 5, 2026, 'CA_NGAY', N'Chẩn đoán lỗi động cơ'),
+('PC009', 'NV051120250003', 23, 5, 2026, 'CA_SANG', N'Thu ngân ca sáng'),
+('PC010', 'NV121120250006', 24, 5, 2026, 'CA_CHIEU', N'Tiếp nhận cuối tuần'),
+('PC011', 'NV071120250004', 25, 5, 2026, 'CA_SANG', N'Sửa chữa hệ thống phanh'),
+('PC012', 'NV101120250005', 26, 5, 2026, 'CA_NGAY', N'Kiểm tra điều hòa'),
+('PC013', 'NV051120250003', 27, 5, 2026, 'CA_CHIEU', N'Đối soát hóa đơn'),
+('PC014', 'NV031120250002', 28, 5, 2026, 'CA_SANG', N'Tiếp nhận lịch hẹn'),
+('PC015', 'NV071120250004', 29, 5, 2026, 'CA_NGAY', N'Bảo dưỡng tổng quát');
 
 -- ============================================================
 -- HoaDon (15)
