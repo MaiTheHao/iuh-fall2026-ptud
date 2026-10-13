@@ -68,7 +68,7 @@ All user-visible text must be resolved through the project's internationalizatio
 
 Reuse existing translation keys where appropriate.
 
-## 7. Java Comment Conventions
+## 7. Java Conventions
 
 Method comments are prohibited. Class comments are optional and must be written in Vietnamese when present.
 
@@ -76,6 +76,8 @@ Method comments are prohibited. Class comments are optional and must be written 
 - **DON'T:** Add comments to methods, including method-level Javadoc. Do not write class comments in another language.
 
 Comments are not mandatory. Prefer clear naming and straightforward code over unnecessary documentation.
+
+Must use "this." to reference instance variables and methods.
 
 ## Verification Checklist
 
