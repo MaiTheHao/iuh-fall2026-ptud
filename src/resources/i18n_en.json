@@ -43,6 +43,66 @@
       "vn": "Tiếng Việt (VI)",
       "en": "English (EN)"
     },
+    "common": {
+      "search": "Quick search",
+      "add": "Add",
+      "save": "Save",
+      "clear": "Clear",
+      "edit": "Edit",
+      "delete": "Delete",
+      "reset": "Reset password",
+      "noData": "No data",
+      "clearFilter": "Clear filters",
+      "prev": "‹ Prev",
+      "next": "Next ›",
+      "pageLabel": "Page",
+      "count": "Showing"
+    },
+    "enum": {
+      "TrangThaiHoaDon": {
+        "CHO_THANH_TOAN": "Unpaid",
+        "DA_THANH_TOAN": "Paid",
+        "DA_HUY": "Canceled"
+      },
+      "TrangThaiPhieuTiepNhan": {
+        "TIEP_NHAN": "New",
+        "DANG_XU_LY": "In progress",
+        "HOAN_THANH": "Completed",
+        "DA_HUY": "Canceled"
+      },
+      "TrangThaiNhanVien": {
+        "HOAT_DONG": "Working",
+        "DA_KHOA": "Suspended"
+      },
+      "VaiTro": {
+        "NHAN_VIEN_QUAN_LY": "Manager",
+        "NHAN_VIEN_TIEP_NHAN": "Receptionist",
+        "NHAN_VIEN_THU_NGAN": "Cashier",
+        "NHAN_VIEN_KY_THUAT": "Technician"
+      },
+      "CaLamViec": {
+        "CA_SANG": "Morning shift",
+        "CA_CHIEU": "Afternoon shift",
+        "CA_NGAY": "Full day"
+      },
+      "LoaiSanPham": {
+        "DICH_VU": "Service",
+        "PHU_TUNG": "Part"
+      }
+    },
+    "date": {
+      "format": "MM/dd/yyyy",
+      "today": "Today",
+      "clear": "Clear"
+    },
+    "khachHang": {
+      "ma": "Customer ID",
+      "sdt": "Phone",
+      "hoTen": "Full name",
+      "ngayTao": "Created",
+      "loiSdt": "Phone number must have 10 digits.",
+      "loiHoTen": "Full name is required."
+    },
     "login": {
       "title": "System Login",
       "username": "Username:",
