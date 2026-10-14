@@ -88,6 +88,11 @@
       "LoaiSanPham": {
         "DICH_VU": "Dịch vụ",
         "PHU_TUNG": "Phụ tùng"
+      },
+      "TrangThaiKhieuNai": {
+        "CHUA_XU_LY": "Chưa xử lý",
+        "DANG_XU_LY": "Đang xử lý",
+        "DA_XU_LY": "Đã xử lý"
       }
     },
     "date": {

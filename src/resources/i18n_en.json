@@ -88,6 +88,11 @@
       "LoaiSanPham": {
         "DICH_VU": "Service",
         "PHU_TUNG": "Part"
+      },
+      "TrangThaiKhieuNai": {
+        "CHUA_XU_LY": "Pending",
+        "DANG_XU_LY": "In progress",
+        "DA_XU_LY": "Resolved"
       }
     },
     "date": {
