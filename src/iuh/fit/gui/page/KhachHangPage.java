@@ -51,6 +51,7 @@ public class KhachHangPage extends AbstractPage {
         this.addFormRow(panel, "app.khachHang.ma", this.maField);
         this.addFormRow(panel, "app.khachHang.sdt", this.sdtField);
         this.addFormRow(panel, "app.khachHang.hoTen", this.hoTenField);
+        
 
         panel.addTextFilter("app.khachHang.ma", 0);
         panel.addTextFilter("app.khachHang.sdt", 1);
@@ -61,6 +62,7 @@ public class KhachHangPage extends AbstractPage {
         panel.getThemButton().addActionListener(e -> this.lamMoi(panel));
         panel.getLuuButton().addActionListener(e -> this.luu(panel));
         panel.getXoaTrangButton().addActionListener(e -> this.lamMoi(panel));
+        panel.getXoaButton().addActionListener(e -> this.xoa(panel));
         panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
         panel.getPrevButton().addActionListener(e -> this.taiLai(panel, this.trang - 1));
         panel.getNextButton().addActionListener(e -> this.taiLai(panel, this.trang + 1));
@@ -76,7 +78,51 @@ public class KhachHangPage extends AbstractPage {
         this.repaint();
     }
 
-    private void addFormRow(ManagementPanel panel, String labelKey, JTextField field) {
+    
+    private void xoa(ManagementPanel panel) {
+	    int row = panel.getSelectedRow();
+	
+	    try {
+	        if (row < 0) {
+	            throw new IllegalArgumentException(
+	                    "app.khachHang.chuaChonXoa");
+	        }
+	
+	        String maKhachHang = String.valueOf(
+	                panel.getModel().getValueAt(row, 0));
+	
+	        int luaChon = JOptionPane.showConfirmDialog(
+	                this,
+	                I18nReaderUtil.get("app.khachHang.xacNhanXoa"),
+	                I18nReaderUtil.get("app.khachHang.tieuDeXoa"),
+	                JOptionPane.YES_NO_OPTION,
+	                JOptionPane.WARNING_MESSAGE);
+	
+	        if (luaChon != JOptionPane.YES_OPTION) {
+	            return;
+	        }
+	
+	        this.khachHangService.delete(maKhachHang);
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.common.delete_succeed"));
+	        this.lamMoi(panel);
+	        this.taiLai(panel, this.trang);
+	
+	    } catch (IllegalArgumentException e) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get(e.getMessage()));
+	
+	    } catch (SQLException e) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.login.errorSystem"));
+	    }
+	}
+
+
+	private void addFormRow(ManagementPanel panel, String labelKey, JTextField field) {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
         row.setOpaque(false);
         row.add(new JLabel(I18nReaderUtil.get(labelKey)));
@@ -148,8 +194,12 @@ public class KhachHangPage extends AbstractPage {
         try {
             if (ma == null) {
                 this.khachHangService.create(khachHang);
+                JOptionPane.showMessageDialog(
+                        this, I18nReaderUtil.get("app.common.create_succeed"));
             } else {
                 this.khachHangService.update(khachHang);
+                JOptionPane.showMessageDialog(
+                		this, I18nReaderUtil.get("app.common.update_succeed"));
             }
             this.lamMoi(panel);
             this.taiLai(panel, 1);
