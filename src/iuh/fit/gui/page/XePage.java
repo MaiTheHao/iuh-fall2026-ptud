@@ -95,23 +95,27 @@ public class XePage extends AbstractPage {
 		int row = panel.getSelectedRow();
 
 		if (row < 0) {
-			JOptionPane.showMessageDialog(this, "Vui lòng chọn xe cần xóa.");
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.chuaChonXoa"));
 			return;
 		}
 
 		String bienSo = String.valueOf(panel.getModel().getValueAt(row, 0));
 
-		int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa xe có biển số " + bienSo + "?",
-				"Xác nhận xóa", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		int luaChon = JOptionPane.showConfirmDialog(
+                this,
+                I18nReaderUtil.get("app.xe.xacNhanXoa"),
+                I18nReaderUtil.get("app.xe.tieuDeXoa"),
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
 
-		if (confirm != JOptionPane.YES_OPTION) {
-			return;
-		}
+        if (luaChon != JOptionPane.YES_OPTION) {
+            return;
+        }
 
 		try {
 			this.xeService.delete(bienSo);
 
-			JOptionPane.showMessageDialog(this, "Xóa xe thành công.");
+			JOptionPane.showMessageDialog(this, "delete_succeed");
 
 			this.lamMoi(panel);
 			this.taiLai(panel, this.trang);
@@ -234,12 +238,12 @@ public class XePage extends AbstractPage {
 			    this.xeService.create(xe);
 
 			    JOptionPane.showMessageDialog(
-			            this, "Thêm xe thành công.");
+			            this, I18nReaderUtil.get("app.common.create_succeed"));
 			} else {
 			    this.xeService.update(xe);
 
 			    JOptionPane.showMessageDialog(
-			            this, "Cập nhật xe thành công.");
+			            this, I18nReaderUtil.get("app.common.update_succeed"));
 			}
 			this.lamMoi(panel);
 			this.taiLai(panel, 1);
