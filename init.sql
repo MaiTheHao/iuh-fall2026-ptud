@@ -83,8 +83,8 @@ CREATE TABLE KhachHang_Xe (
     bienSo       varchar(15) NOT NULL,
     ngayTao      datetime2(3) DEFAULT sysdatetime() NOT NULL,
     CONSTRAINT PK_KhachHang_Xe PRIMARY KEY (maKhachHang, bienSo),
-    CONSTRAINT FK_KhachHang_Xe_KhachHang FOREIGN KEY (maKhachHang) REFERENCES KhachHang(maKhachHang),
-    CONSTRAINT FK_KhachHang_Xe_Xe        FOREIGN KEY (bienSo)      REFERENCES Xe(bienSo)
+    CONSTRAINT FK_KhachHang_Xe_KhachHang FOREIGN KEY (maKhachHang) REFERENCES KhachHang(maKhachHang) ON DELETE CASCADE,
+    CONSTRAINT FK_KhachHang_Xe_Xe        FOREIGN KEY (bienSo)      REFERENCES Xe(bienSo)          ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -96,7 +96,7 @@ CREATE TABLE PhieuNhapPhuTung (
     maNhanVien   varchar(20)   NOT NULL,
     moTa         nvarchar(255) NULL,
     CONSTRAINT PK_PhieuNhapPhuTung PRIMARY KEY (maPhieuNhap),
-    CONSTRAINT FK_PhieuNhap_NhanVien FOREIGN KEY (maNhanVien) REFERENCES NhanVien(maNhanVien)
+    CONSTRAINT FK_PhieuNhap_NhanVien FOREIGN KEY (maNhanVien) REFERENCES NhanVien(maNhanVien) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -108,8 +108,8 @@ CREATE TABLE ChiTietPhieuNhapPhuTung (
     soLuong      int           NOT NULL,
     donGiaNhap   decimal(18,2) NOT NULL,
     CONSTRAINT PK_ChiTietPhieuNhapPhuTung PRIMARY KEY (maPhieuNhap, maPhuTung),
-    CONSTRAINT FK_ChiTietPhieuNhap_PhieuNhap FOREIGN KEY (maPhieuNhap) REFERENCES PhieuNhapPhuTung(maPhieuNhap),
-    CONSTRAINT FK_ChiTietPhieuNhap_PhuTung   FOREIGN KEY (maPhuTung)   REFERENCES PhuTung(maPhuTung)
+    CONSTRAINT FK_ChiTietPhieuNhap_PhieuNhap FOREIGN KEY (maPhieuNhap) REFERENCES PhieuNhapPhuTung(maPhieuNhap) ON DELETE CASCADE,
+    CONSTRAINT FK_ChiTietPhieuNhap_PhuTung   FOREIGN KEY (maPhuTung)   REFERENCES PhuTung(maPhuTung)           ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -124,9 +124,9 @@ CREATE TABLE PhieuTiepNhan (
     maKhachHang      varchar(20)   NOT NULL,
     bienSo           varchar(15)   NOT NULL,
     CONSTRAINT PK_PhieuTiepNhan PRIMARY KEY (maPhieuTiepNhan),
-    CONSTRAINT FK_PhieuTiepNhan_NhanVien   FOREIGN KEY (maNhanVien)  REFERENCES NhanVien(maNhanVien),
-    CONSTRAINT FK_PhieuTiepNhan_KhachHang  FOREIGN KEY (maKhachHang) REFERENCES KhachHang(maKhachHang),
-    CONSTRAINT FK_PhieuTiepNhan_Xe         FOREIGN KEY (bienSo)      REFERENCES Xe(bienSo)
+    CONSTRAINT FK_PhieuTiepNhan_NhanVien   FOREIGN KEY (maNhanVien)  REFERENCES NhanVien(maNhanVien)   ON DELETE CASCADE,
+    CONSTRAINT FK_PhieuTiepNhan_KhachHang  FOREIGN KEY (maKhachHang) REFERENCES KhachHang(maKhachHang) ON DELETE CASCADE,
+    CONSTRAINT FK_PhieuTiepNhan_Xe         FOREIGN KEY (bienSo)      REFERENCES Xe(bienSo)             ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -141,7 +141,7 @@ CREATE TABLE PhanCong (
     caLamViec    varchar(50)   NOT NULL,
     ghiChu       nvarchar(255) NULL,
     CONSTRAINT PK_PhanCong PRIMARY KEY (maPhanCong),
-    CONSTRAINT FK_PhanCong_NhanVien FOREIGN KEY (maNhanVien) REFERENCES NhanVien(maNhanVien)
+    CONSTRAINT FK_PhanCong_NhanVien FOREIGN KEY (maNhanVien) REFERENCES NhanVien(maNhanVien) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -157,8 +157,8 @@ CREATE TABLE HoaDon (
     ngayTao            datetime2(3)  DEFAULT sysdatetime() NOT NULL,
     thoiGianThanhToan  datetime2(3)  NULL,
     CONSTRAINT PK_HoaDon PRIMARY KEY (maHoaDon),
-    CONSTRAINT FK_HoaDon_PhieuTiepNhan FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan),
-    CONSTRAINT FK_HoaDon_Voucher       FOREIGN KEY (maVoucher)       REFERENCES Voucher(maVoucher)
+    CONSTRAINT FK_HoaDon_PhieuTiepNhan FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan) ON DELETE CASCADE,
+    CONSTRAINT FK_HoaDon_Voucher       FOREIGN KEY (maVoucher)       REFERENCES Voucher(maVoucher)             ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -171,7 +171,7 @@ CREATE TABLE ChiTietHoaDon (
     soLuong       int           NOT NULL,
     donGia        decimal(18,2) NOT NULL,
     CONSTRAINT PK_ChiTietHoaDon PRIMARY KEY (maHoaDon, loaiSanPham, maSanPham),
-    CONSTRAINT FK_ChiTietHoaDon_HoaDon FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon)
+    CONSTRAINT FK_ChiTietHoaDon_HoaDon FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon) ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -188,7 +188,22 @@ CREATE TABLE VanDeKyThuat (
     ngayTao           datetime2(3)  DEFAULT sysdatetime() NOT NULL,
     CONSTRAINT PK_VanDeKyThuat PRIMARY KEY (maVanDe),
     CONSTRAINT FK_VanDeKyThuat_PhieuTiepNhan
-        FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan),
+        FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan) ON DELETE CASCADE,
     CONSTRAINT CK_VanDeKyThuat_MucDoUuTien
         CHECK (mucDoUuTien BETWEEN 1 AND 100),
+);
+
+-- ============================================================
+-- TABLE: KhieuNai
+-- ============================================================
+CREATE TABLE KhieuNai (
+    maKhieuNai       varchar(20)     NOT NULL,
+    maKhachHang      varchar(20)     NOT NULL,
+    maPhieuTiepNhan  varchar(20)     NOT NULL,
+    noiDung          nvarchar(1000) NOT NULL,
+    trangThai        varchar(50)     NOT NULL,
+    ngayTao          datetime2(3) DEFAULT sysdatetime() NOT NULL,
+    CONSTRAINT PK_KhieuNai PRIMARY KEY (maKhieuNai),
+    CONSTRAINT FK_KhieuNai_KhachHang      FOREIGN KEY (maKhachHang)     REFERENCES KhachHang(maKhachHang) ON DELETE CASCADE,
+    CONSTRAINT FK_KhieuNai_PhieuTiepNhan  FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan)
 );

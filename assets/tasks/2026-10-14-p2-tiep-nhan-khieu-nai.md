@@ -32,7 +32,9 @@ SCR-04D hỗ trợ chọn phiếu rồi lập chẩn đoán. SCR-04C chỉ dùng
 
 ### 3.3. Khiếu nại
 
-Bổ sung bảng `KhieuNai` bằng migration mới, có liên kết đến khách hàng và phiếu tiếp nhận. Nội dung khiếu nại là bắt buộc; trạng thái ban đầu là `CHUA_XU_LY`; ngày tạo do hệ thống ghi nhận.
+Bổ sung bảng `KhieuNai` bằng migration mới (`V4__add_khieu_nai.sql`; `V3` đã dành cho cascade), có liên kết đến khách hàng và phiếu tiếp nhận. Nội dung khiếu nại là bắt buộc; trạng thái ban đầu là `CHUA_XU_LY`; ngày tạo do hệ thống ghi nhận.
+
+`KhieuNai` có hai khóa ngoại cùng trỏ về `KhachHang` (trực tiếp) và `PhieuTiepNhan` (gián tiếp qua `KhachHang`). Vì `PhieuTiepNhan` đã `ON DELETE CASCADE` từ `KhachHang`, chỉ được để một khóa ngoại là `ON DELETE CASCADE`: chốt `maKhachHang` CASCADE và `maPhieuTiepNhan` `NO ACTION`, nếu không SQL Server báo lỗi multiple cascade paths (1785).
 
 `KhieuNaiService` xử lý tạo, tìm kiếm, cập nhật và xóa theo nhu cầu nghiệp vụ. SCR-16 dùng service P1 để chọn khách hàng và cho phép gắn khiếu nại với phiếu tiếp nhận. SCR-16B hiển thị danh sách và cho phép cập nhật trạng thái giữa `CHUA_XU_LY`, `DANG_XU_LY` và `DA_XU_LY`.
 
@@ -51,7 +53,7 @@ Bổ sung bảng `KhieuNai` bằng migration mới, có liên kết đến khác
 | Nghiệp vụ | `PhieuTiepNhanService.java`, `VanDeKyThuatService.java`, `KhieuNaiService.java` |
 | Truy cập dữ liệu | `PhieuTiepNhanDAO.java`, `VanDeKyThuatDAO.java`, `KhieuNaiDAO.java` |
 | Mô hình | `KhieuNai.java`, `TrangThaiKhieuNai.java` |
-| Cơ sở dữ liệu | `infra/migrations/V3__add_khieu_nai.sql` |
+| Cơ sở dữ liệu | `infra/migrations/V4__add_khieu_nai.sql` |
 | Điều hướng và ngôn ngữ | `PageRegistry.java`; `i18n_vn.json`, `i18n_en.json` — chỉ bổ sung phần thuộc P2 |
 
 ## 5. Phụ thuộc và lưu ý tích hợp

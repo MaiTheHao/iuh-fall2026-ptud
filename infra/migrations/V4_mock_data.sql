@@ -289,4 +289,25 @@ INSERT INTO VanDeKyThuat
 ('VD014', 'TN014', N'Tiếng gõ động cơ', N'Tiếng gõ nhẹ xuất hiện khi tăng tốc', 80, N'Kiểm tra dầu, bugi và chẩn đoán động cơ trước khi tháo lắp', 'CHUA_XAC_NHAN', '2026-05-31T14:00:00'),
 ('VD015', 'TN015', N'Kiểm tra trước chuyến đi', N'Khách hàng muốn rà soát các hạng mục an toàn', 25, N'Kiểm tra lốp, phanh, đèn, nước làm mát và ắc quy', 'CHUA_XAC_NHAN', '2026-06-01T08:20:00');
 
+-- ============================================================
+-- KhieuNai (15)
+-- trangThai: CHUA_XU_LY, DANG_XU_LY, DA_XU_LY
+-- ============================================================
+INSERT INTO KhieuNai (maKhieuNai, maKhachHang, maPhieuTiepNhan, noiDung, trangThai, ngayTao) VALUES
+('KN001', 'KH001', 'TN001', N'Thời gian chờ đợi lâu, chưa được thông báo tiến độ', 'CHUA_XU_LY', '2026-05-21T09:00:00'),
+('KN002', 'KH002', 'TN002', N'Hóa đơn tính phí cao hơn báo giá ban đầu', 'DANG_XU_LY', '2026-05-22T10:30:00'),
+('KN003', 'KH003', 'TN003', N'Điều hòa sau khi nạp gas vẫn chưa mát', 'CHUA_XU_LY', '2026-05-23T14:15:00'),
+('KN004', 'KH004', 'TN004', N'Tiếng kêu ở bánh trước vẫn còn sau khi kiểm tra', 'DANG_XU_LY', '2026-05-24T08:45:00'),
+('KN005', 'KH005', 'TN005', N'Vệ sinh nội thất chưa sạch, xe vẫn còn mùi', 'DA_XU_LY', '2026-05-25T09:20:00'),
+('KN006', 'KH006', 'TN006', N'Chưa được tư vấn rõ ràng về mã lỗi động cơ', 'CHUA_XU_LY', '2026-05-26T11:10:00'),
+('KN007', 'KH007', 'TN007', N'Xe vẫn khó khởi động sau khi thay ắc quy', 'DANG_XU_LY', '2026-05-27T15:40:00'),
+('KN008', 'KH008', 'TN008', N'Thời gian bảo dưỡng vượt quá hẹn', 'DA_XU_LY', '2026-05-28T08:30:00'),
+('KN009', 'KH009', 'TN009', N'Phụ tùng thay không đúng loại đã báo', 'CHUA_XU_LY', '2026-05-29T13:05:00'),
+('KN010', 'KH010', 'TN010', N'Dầu phanh bị tràn ra ngoài trong quá trình thay', 'DANG_XU_LY', '2026-05-30T10:15:00'),
+('KN011', 'KH011', 'TN011', N'Tình trạng hao nhiên liệu vẫn chưa được khắc phục', 'CHUA_XU_LY', '2026-05-31T09:50:00'),
+('KN012', 'KH012', 'TN012', N'Đã hủy dịch vụ nhưng vẫn bị tính phí', 'DA_XU_LY', '2026-06-01T14:25:00'),
+('KN013', 'KH013', 'TN013', N'Danh mục bảo dưỡng thực hiện thiếu so với báo giá', 'DANG_XU_LY', '2026-06-02T08:40:00'),
+('KN014', 'KH014', 'TN014', N'Tiếng gõ động cơ chưa được xử lý dứt điểm', 'CHUA_XU_LY', '2026-06-03T16:00:00'),
+('KN015', 'KH015', 'TN015', N'Chưa nhận được báo giá trước khi thực hiện dịch vụ', 'DANG_XU_LY', '2026-06-04T11:35:00');
+
 COMMIT TRANSACTION;

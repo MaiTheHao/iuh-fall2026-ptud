@@ -1,4 +1,5 @@
-﻿BEGIN TRANSACTION;
+﻿SET XACT_ABORT ON;
+BEGIN TRANSACTION;
 
 -- ============================================================
 -- DichVu (15)
@@ -41,17 +42,17 @@ INSERT INTO KhachHang (maKhachHang, sdt, hoTen, ngayTao) VALUES
 ('KH015', '0901000015', N'Phạm Anh Khoa', '2026-04-10T14:45:00');
 
 -- ============================================================
--- NhanVien (8)
+-- NhanVien (8; covers every VaiTro and both statuses)
 -- ============================================================
-INSERT INTO NhanVien (maNhanVien, tenDangNhap, matKhau, hoTen, soDienThoai, anhDaiDien, vaiTro, trangThai, ngayTao) VALUES
-('NV011120250001', 'admin', 'test@123', N'Administrator', '0901000001', NULL, 'NHAN_VIEN_QUAN_LY', 'HOAT_DONG', '2025-11-01T08:00:00'),
-('NV031120250002', 'tiepnhan01', 'test@123', N'Nguyễn Thị Mỹ Quốc', '0901000002', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-03T08:00:00'),
-('NV051120250003', 'thungan01', 'test@123', N'Trần Thị Thanh Bình', '0901000003', NULL, 'NHAN_VIEN_THU_NGAN', 'HOAT_DONG', '2025-11-05T08:00:00'),
-('NV071120250004', 'kythuat01', 'test@123', N'Phạm Nát Bét', '0901000004', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-07T08:00:00'),
-('NV101120250005', 'kythuat02', 'test@123', N'Võ Hoàng Long', '0901000005', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-10T08:00:00'),
-('NV121120250006', 'tiepnhan02', 'test@123', N'Đặng Thùy Dung', '0901000006', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-12T08:00:00'),
-('NV151120250007', 'thungan02', 'test@123', N'Bùi Thanh Tâm', '0901000007', NULL, 'NHAN_VIEN_THU_NGAN', 'DA_KHOA', '2025-11-15T08:00:00'),
-('NV181120250008', 'quanly02', 'test@123', N'Đỗ Quốc Việt', '0901000008', NULL, 'NHAN_VIEN_QUAN_LY', 'DA_KHOA', '2025-11-18T08:00:00');
+INSERT INTO NhanVien (maNhanVien, tenDangNhap, matKhau, hoTen, anhDaiDien, vaiTro, trangThai, ngayTao) VALUES
+('NV011120250001', 'admin', 'test@123', N'Administrator', NULL, 'NHAN_VIEN_QUAN_LY', 'HOAT_DONG', '2025-11-01T08:00:00'),
+('NV031120250002', 'tiepnhan01', 'test@123', N'Nguyễn Thị Mỹ Quốc', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-03T08:00:00'),
+('NV051120250003', 'thungan01', 'test@123', N'Trần Thị Thanh Bình', NULL, 'NHAN_VIEN_THU_NGAN', 'HOAT_DONG', '2025-11-05T08:00:00'),
+('NV071120250004', 'kythuat01', 'test@123', N'Phạm Nát Bét', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-07T08:00:00'),
+('NV101120250005', 'kythuat02', 'test@123', N'Võ Hoàng Long', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-10T08:00:00'),
+('NV121120250006', 'tiepnhan02', 'test@123', N'Đặng Thùy Dung', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-12T08:00:00'),
+('NV151120250007', 'thungan02', 'test@123', N'Bùi Thanh Tâm', NULL, 'NHAN_VIEN_THU_NGAN', 'DA_KHOA', '2025-11-15T08:00:00'),
+('NV181120250008', 'quanly02', 'test@123', N'Đỗ Quốc Việt', NULL, 'NHAN_VIEN_QUAN_LY', 'DA_KHOA', '2025-11-18T08:00:00');
 
 -- ============================================================
 -- PhuTung (15)
@@ -75,6 +76,7 @@ INSERT INTO PhuTung (maPhuTung, tenPhuTung, moTa, anhUrl, donGiaNhap, soLuongTon
 
 -- ============================================================
 -- Voucher (10)
+-- mucGiam là tỷ lệ giảm: 0.1000 = 10%
 -- ============================================================
 INSERT INTO Voucher (maVoucher, tenChuongTrinh, moTa, mucGiam, thoiHanApDung, trangThaiKichHoat) VALUES
 ('VC001', N'Khách hàng mới', N'Giảm 10% cho lần sử dụng dịch vụ đầu tiên', 0.1000, '2027-12-31T23:59:59', 1),
@@ -232,6 +234,7 @@ INSERT INTO HoaDon
 
 -- ============================================================
 -- ChiTietHoaDon (30)
+-- maSanPham stores the service/part code according to loaiSanPham.
 -- ============================================================
 INSERT INTO ChiTietHoaDon (maHoaDon, loaiSanPham, maSanPham, soLuong, donGia) VALUES
 ('HD001', 'DICH_VU', 'DV001', 1, 250000.00),
@@ -285,5 +288,26 @@ INSERT INTO VanDeKyThuat
 ('VD013', 'TN013', N'Bảo dưỡng mốc 30.000 km', N'Cần kiểm tra lọc gió, dầu và các hạng mục định kỳ', 40, N'Lập danh sách hạng mục và báo giá trước khi làm', 'CHUA_XAC_NHAN', '2026-05-30T09:30:00'),
 ('VD014', 'TN014', N'Tiếng gõ động cơ', N'Tiếng gõ nhẹ xuất hiện khi tăng tốc', 80, N'Kiểm tra dầu, bugi và chẩn đoán động cơ trước khi tháo lắp', 'CHUA_XAC_NHAN', '2026-05-31T14:00:00'),
 ('VD015', 'TN015', N'Kiểm tra trước chuyến đi', N'Khách hàng muốn rà soát các hạng mục an toàn', 25, N'Kiểm tra lốp, phanh, đèn, nước làm mát và ắc quy', 'CHUA_XAC_NHAN', '2026-06-01T08:20:00');
+
+-- ============================================================
+-- KhieuNai (15)
+-- trangThai: CHUA_XU_LY, DANG_XU_LY, DA_XU_LY
+-- ============================================================
+INSERT INTO KhieuNai (maKhieuNai, maKhachHang, maPhieuTiepNhan, noiDung, trangThai, ngayTao) VALUES
+('KN001', 'KH001', 'TN001', N'Thời gian chờ đợi lâu, chưa được thông báo tiến độ', 'CHUA_XU_LY', '2026-05-21T09:00:00'),
+('KN002', 'KH002', 'TN002', N'Hóa đơn tính phí cao hơn báo giá ban đầu', 'DANG_XU_LY', '2026-05-22T10:30:00'),
+('KN003', 'KH003', 'TN003', N'Điều hòa sau khi nạp gas vẫn chưa mát', 'CHUA_XU_LY', '2026-05-23T14:15:00'),
+('KN004', 'KH004', 'TN004', N'Tiếng kêu ở bánh trước vẫn còn sau khi kiểm tra', 'DANG_XU_LY', '2026-05-24T08:45:00'),
+('KN005', 'KH005', 'TN005', N'Vệ sinh nội thất chưa sạch, xe vẫn còn mùi', 'DA_XU_LY', '2026-05-25T09:20:00'),
+('KN006', 'KH006', 'TN006', N'Chưa được tư vấn rõ ràng về mã lỗi động cơ', 'CHUA_XU_LY', '2026-05-26T11:10:00'),
+('KN007', 'KH007', 'TN007', N'Xe vẫn khó khởi động sau khi thay ắc quy', 'DANG_XU_LY', '2026-05-27T15:40:00'),
+('KN008', 'KH008', 'TN008', N'Thời gian bảo dưỡng vượt quá hẹn', 'DA_XU_LY', '2026-05-28T08:30:00'),
+('KN009', 'KH009', 'TN009', N'Phụ tùng thay không đúng loại đã báo', 'CHUA_XU_LY', '2026-05-29T13:05:00'),
+('KN010', 'KH010', 'TN010', N'Dầu phanh bị tràn ra ngoài trong quá trình thay', 'DANG_XU_LY', '2026-05-30T10:15:00'),
+('KN011', 'KH011', 'TN011', N'Tình trạng hao nhiên liệu vẫn chưa được khắc phục', 'CHUA_XU_LY', '2026-05-31T09:50:00'),
+('KN012', 'KH012', 'TN012', N'Đã hủy dịch vụ nhưng vẫn bị tính phí', 'DA_XU_LY', '2026-06-01T14:25:00'),
+('KN013', 'KH013', 'TN013', N'Danh mục bảo dưỡng thực hiện thiếu so với báo giá', 'DANG_XU_LY', '2026-06-02T08:40:00'),
+('KN014', 'KH014', 'TN014', N'Tiếng gõ động cơ chưa được xử lý dứt điểm', 'CHUA_XU_LY', '2026-06-03T16:00:00'),
+('KN015', 'KH015', 'TN015', N'Chưa nhận được báo giá trước khi thực hiện dịch vụ', 'DANG_XU_LY', '2026-06-04T11:35:00');
 
 COMMIT TRANSACTION;
