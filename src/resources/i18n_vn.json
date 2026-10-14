@@ -1,126 +1,160 @@
 {
-  "app": {
-    "title": "Gara Lúa",
-    "menu": {
-      "home": "Trang chủ",
-      "customers": "Khách hàng",
-      "vehicles": "Xe",
-      "employees": "Nhân viên",
-      "inventory": "Phụ tùng",
-      "servicePriceList": "Dịch vụ",
-      "vouchers": "Voucher",
-      "shiftAssignment": "Phân công ca",
-      "mySchedule": "Lịch của tôi",
-      "shopSchedule": "Lịch của shop",
-      "customerIntake": "Tiếp nhận khách hàng",
-      "intakeSlips": "Quản lý phiếu tiếp nhận",
-      "diagnoses": "Lập chẩn đoán",
-      "complaints": "Tiếp nhận khiếu nại",
-      "complaintManagement": "Quản lý khiếu nại",
-      "partsReceipts": "Lập phiếu",
-      "partsReceiptManagement": "Quản lý phiếu",
-      "invoices": "Lập hóa đơn",
-      "invoiceManagement": "Quản lý hóa đơn",
-      "revenueReport": "Doanh thu",
-      "partsConsumptionReport": "Tiêu thụ phụ tùng",
-      "serviceConsumptionReport": "Tiêu thụ dịch vụ",
-      "changePassword": "Đổi mật khẩu",
-      "language": "Ngôn ngữ",
-      "account": "Tài khoản",
-      "logout": "Đăng xuất"
-    },
-    "menuGroup": {
-      "trangChu": "Trang chủ",
-      "toChuc": "Tổ chức",
-      "keHoach": "Kế hoạch",
-      "tiepNhan": "Tiếp nhận",
-      "nhapPhuTung": "Nhập phụ tùng",
-      "thanhToan": "Thanh toán",
-      "tongKet": "Tổng kết",
-      "caiDat": "Cài đặt"
-    },
-    "localeName": {
-      "vn": "Tiếng Việt (VI)",
-      "en": "English (EN)"
-    },
-    "common": {
-      "search": "Tìm nhanh",
-      "add": "Thêm",
-      "save": "Lưu",
-      "clear": "Xóa Trắng",
-      "edit": "Sửa",
-      "delete": "Xóa",
-      "reset": "Đặt lại mật khẩu",
-      "noData": "Không có dữ liệu",
-      "clearFilter": "Xóa lọc",
-      "prev": "‹ Trước",
-      "next": "Sau ›",
-      "pageLabel": "Trang",
-      "count": "Hiển thị"
-    },
-    "enum": {
-      "TrangThaiHoaDon": {
-        "CHO_THANH_TOAN": "Chưa thanh toán",
-        "DA_THANH_TOAN": "Đã thanh toán",
-        "DA_HUY": "Đã hủy"
-      },
-      "TrangThaiPhieuTiepNhan": {
-        "TIEP_NHAN": "Mới",
-        "DANG_XU_LY": "Đang triển khai",
-        "HOAN_THANH": "Hoàn thành",
-        "DA_HUY": "Đã hủy"
-      },
-      "TrangThaiNhanVien": {
-        "HOAT_DONG": "Đang làm việc",
-        "DA_KHOA": "Tạm khóa"
-      },
-      "VaiTro": {
-        "NHAN_VIEN_QUAN_LY": "Quản lý",
-        "NHAN_VIEN_TIEP_NHAN": "Nhân viên tiếp nhận",
-        "NHAN_VIEN_THU_NGAN": "Thu ngân",
-        "NHAN_VIEN_KY_THUAT": "Kỹ thuật viên"
-      },
-      "CaLamViec": {
-        "CA_SANG": "Ca sáng",
-        "CA_CHIEU": "Ca chiều",
-        "CA_NGAY": "Ca ngày"
-      },
-      "LoaiSanPham": {
-        "DICH_VU": "Dịch vụ",
-        "PHU_TUNG": "Phụ tùng"
-      },
-      "TrangThaiKhieuNai": {
-        "CHUA_XU_LY": "Chưa xử lý",
-        "DANG_XU_LY": "Đang xử lý",
-        "DA_XU_LY": "Đã xử lý"
-      }
-    },
-    "date": {
-      "format": "dd/MM/yyyy",
-      "today": "Hôm nay",
-      "clear": "Xóa"
-    },
-    "khachHang": {
-      "ma": "Mã KH",
-      "sdt": "SĐT",
-      "hoTen": "Họ tên",
-      "ngayTao": "Ngày tạo",
-      "loiSdt": "Số điện thoại phải gồm 10 chữ số.",
-      "loiHoTen": "Họ tên không được để trống."
-    },
-    "login": {
-      "title": "Đăng nhập hệ thống",
-      "username": "Tên đăng nhập:",
-      "password": "Mật khẩu:",
-      "submit": "Đăng Nhập",
-      "exit": "Thoát",
-      "errorInvalid": "Tên đăng nhập hoặc mật khẩu không đúng.",
-      "errorSystem": "Không thể kết nối hệ thống. Vui lòng thử lại."
-    },
-    "dashboard": {
-      "greeting": "Xin chào",
-      "role": "Vai trò",
-      "code": "Mã nhân viên"
-    }
-  }
+	"app": {
+		"title": "Gara Lúa",
+		"menu": {
+			"home": "Trang chủ",
+			"customers": "Khách hàng",
+			"vehicles": "Xe",
+			"employees": "Nhân viên",
+			"inventory": "Phụ tùng",
+			"servicePriceList": "Dịch vụ",
+			"vouchers": "Voucher",
+			"shiftAssignment": "Phân công ca",
+			"mySchedule": "Lịch của tôi",
+			"shopSchedule": "Lịch của shop",
+			"customerIntake": "Tiếp nhận khách hàng",
+			"intakeSlips": "Quản lý phiếu tiếp nhận",
+			"diagnoses": "Lập chẩn đoán",
+			"complaints": "Tiếp nhận khiếu nại",
+			"complaintManagement": "Quản lý khiếu nại",
+			"partsReceipts": "Lập phiếu",
+			"partsReceiptManagement": "Quản lý phiếu",
+			"invoices": "Lập hóa đơn",
+			"invoiceManagement": "Quản lý hóa đơn",
+			"revenueReport": "Doanh thu",
+			"partsConsumptionReport": "Tiêu thụ phụ tùng",
+			"serviceConsumptionReport": "Tiêu thụ dịch vụ",
+			"changePassword": "Đổi mật khẩu",
+			"language": "Ngôn ngữ",
+			"account": "Tài khoản",
+			"logout": "Đăng xuất"
+		},
+		"menuGroup": {
+			"trangChu": "Trang chủ",
+			"toChuc": "Tổ chức",
+			"keHoach": "Kế hoạch",
+			"tiepNhan": "Tiếp nhận",
+			"nhapPhuTung": "Nhập phụ tùng",
+			"thanhToan": "Thanh toán",
+			"tongKet": "Tổng kết",
+			"caiDat": "Cài đặt"
+		},
+		"localeName": {
+			"vn": "Tiếng Việt (VI)",
+			"en": "English (EN)"
+		},
+		"common": {
+			"search": "Tìm nhanh",
+			"add": "Thêm",
+			"save": "Lưu",
+			"clear": "Xóa Trắng",
+			"edit": "Sửa",
+			"delete": "Xóa",
+			"reset": "Đặt lại mật khẩu",
+			"noData": "Không có dữ liệu",
+			"clearFilter": "Xóa lọc",
+			"prev": "‹ Trước",
+			"next": "Sau ›",
+			"pageLabel": "Trang",
+			"count": "Hiển thị"
+		},
+		"enum": {
+			"TrangThaiHoaDon": {
+				"CHO_THANH_TOAN": "Chưa thanh toán",
+				"DA_THANH_TOAN": "Đã thanh toán",
+				"DA_HUY": "Đã hủy"
+			},
+			"TrangThaiPhieuTiepNhan": {
+				"TIEP_NHAN": "Mới",
+				"DANG_XU_LY": "Đang triển khai",
+				"HOAN_THANH": "Hoàn thành",
+				"DA_HUY": "Đã hủy"
+			},
+			"TrangThaiNhanVien": {
+				"HOAT_DONG": "Đang làm việc",
+				"DA_KHOA": "Tạm khóa"
+			},
+			"VaiTro": {
+				"NHAN_VIEN_QUAN_LY": "Quản lý",
+				"NHAN_VIEN_TIEP_NHAN": "Nhân viên tiếp nhận",
+				"NHAN_VIEN_THU_NGAN": "Thu ngân",
+				"NHAN_VIEN_KY_THUAT": "Kỹ thuật viên"
+			},
+			"CaLamViec": {
+				"CA_SANG": "Ca sáng",
+				"CA_CHIEU": "Ca chiều",
+				"CA_NGAY": "Ca ngày"
+			},
+			"LoaiSanPham": {
+				"DICH_VU": "Dịch vụ",
+				"PHU_TUNG": "Phụ tùng"
+			}
+		},
+		"date": {
+			"format": "dd/MM/yyyy",
+			"today": "Hôm nay",
+			"clear": "Xóa"
+		},
+		"khachHang": {
+			"ma": "Mã KH",
+			"sdt": "SĐT",
+			"hoTen": "Họ tên",
+			"ngayTao": "Ngày tạo",
+			"loiSdt": "Số điện thoại phải gồm 10 chữ số.",
+			"loiHoTen": "Họ tên không được để trống.",
+			"chuaChonXoa": "Vui lòng chọn khách hàng cần xóa.",
+			"xacNhanXoa": "Bạn có chắc chắn muốn xóa khách hàng này không?",
+			"tieuDeXoa": "Xác nhận xóa khách hàng"
+		},
+		"xe": {
+			"bienSo": "Biển số",
+			"hangXe": "Hãng xe",
+			"dongXe": "Dòng xe",
+			"doiXe": "Đời xe",
+			"odo": "Số km đã đi",
+			"doiXeTuDen": "Đời xe (từ - đến)",
+			"odoTuDen": "ODO (từ - đến)",
+			"loiBoLocSo": "Giá trị bộ lọc phải là số hợp lệ.",
+			"loiThongTinSo": "Đời xe và ODO phải là số hợp lệ."
+		},
+		"phuTung": {
+			"ma": "Mã phụ tùng",
+			"ten": "Tên phụ tùng",
+			"moTa": "Mô tả",
+			"anhUrl": "Đường dẫn ảnh",
+			"hinhAnh": "Hình Ảnh",
+			"donGia": "Đơn giá nhập",
+			"soLuongTon": "Số lượng tồn",
+			"donGiaTu": "Đơn giá từ",
+			"donGiaDen": "Đơn giá đến",
+			"soLuongTu": "Tồn kho từ",
+			"soLuongDen": "Tồn kho đến",
+			"chonAnh": "Chọn ảnh",
+			"goAnh": "Gỡ ảnh",
+			"chuaCoAnh": "Chưa có ảnh",
+			"loiMa": "Mã phụ tùng không được để trống.",
+			"loiTen": "Tên phụ tùng không được để trống.",
+			"loiDonGia": "Đơn giá phải là số hợp lệ và không âm.",
+			"loiSoLuong": "Số lượng tồn phải là số nguyên không âm.",
+			"loiBoLocSo": "Vui lòng nhập giá trị lọc là số hợp lệ.",
+			"loiKhoangLoc": "Khoảng lọc không hợp lệ. Giá trị từ phải nhỏ hơn hoặc bằng giá trị đến và không được âm.",
+			"chuaChonXoa": "Vui lòng chọn phụ tùng cần xóa.",
+			"xacNhanXoa": "Bạn có chắc chắn muốn xóa phụ tùng này không?",
+			"tieuDeXoa": "Xác nhận xóa phụ tùng"
+		},
+		"login": {
+			"title": "Đăng nhập hệ thống",
+			"username": "Tên đăng nhập:",
+			"password": "Mật khẩu:",
+			"submit": "Đăng Nhập",
+			"exit": "Thoát",
+			"errorInvalid": "Tên đăng nhập hoặc mật khẩu không đúng.",
+			"errorSystem": "Không thể kết nối hệ thống. Vui lòng thử lại."
+		},
+		"dashboard": {
+			"greeting": "Xin chào",
+			"role": "Vai trò",
+			"code": "Mã nhân viên"
+		}
+	}
 }
