@@ -56,7 +56,10 @@
 			"prev": "‹ Trước",
 			"next": "Sau ›",
 			"pageLabel": "Trang",
-			"count": "Hiển thị"
+			"count": "Hiển thị",
+			"create_succeed":  "Thêm thành công",
+			"update_succeed":  "Cập nhật thành công",
+			"delete_succeed":  "Xóa thành công"
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -115,7 +118,10 @@
 			"doiXeTuDen": "Đời xe (từ - đến)",
 			"odoTuDen": "ODO (từ - đến)",
 			"loiBoLocSo": "Giá trị bộ lọc phải là số hợp lệ.",
-			"loiThongTinSo": "Đời xe và ODO phải là số hợp lệ."
+			"loiThongTinSo": "Đời xe và ODO phải là số hợp lệ.",
+			"chuaChonXoa": "Vui lòng chọn xe cần xóa.",
+			"xacNhanXoa": "Bạn có chắc chắn muốn xóa xe có biển số này không?",
+			"tieuDeXoa": "Xác nhận xóa xe"
 		},
 		"phuTung": {
 			"ma": "Mã phụ tùng",
