@@ -5,9 +5,9 @@ import iuh.fit.dto.DanhSachKhachHangCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.util.MaGeneratorUtil;
+import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
-import java.text.Normalizer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -76,7 +76,8 @@ public class KhachHangService {
         }
         if (filter.timNhanh() != null && !filter.timNhanh().isBlank()) {
             String combined = customer.getMaKhachHang() + " " + customer.getSdt() + " " + customer.getHoTen();
-            if (!this.normalize(combined).contains(this.normalize(filter.timNhanh()))) {
+            if (!TextNormalizerUtil.normalize(combined)
+                    .contains(TextNormalizerUtil.normalize(filter.timNhanh()))) {
                 return false;
             }
         }
@@ -87,7 +88,8 @@ public class KhachHangService {
         if (filterValue == null || filterValue.isBlank()) {
             return true;
         }
-        return this.normalize(value).contains(this.normalize(filterValue));
+        return TextNormalizerUtil.normalize(value)
+                .contains(TextNormalizerUtil.normalize(filterValue));
     }
 
     private boolean isEarlierThan(LocalDateTime createdAt, LocalDate bound) {
@@ -96,17 +98,5 @@ public class KhachHangService {
 
     private boolean isLaterThan(LocalDateTime createdAt, LocalDate bound) {
         return bound != null && (createdAt == null || createdAt.toLocalDate().isAfter(bound));
-    }
-
-    private String normalize(String value) {
-        if (value == null) {
-            return "";
-        }
-        return Normalizer.normalize(value, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .replace('đ', 'd')
-                .replace('Đ', 'D')
-                .toLowerCase()
-                .trim();
     }
 }

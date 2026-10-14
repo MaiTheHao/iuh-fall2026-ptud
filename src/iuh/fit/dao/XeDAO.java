@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +21,7 @@ public final class XeDAO extends BaseDao<Xe> {
     public List<Xe> findAll() throws SQLException {
         return findAll(SQL_SELECT);
     }
-    
+
     public boolean existsByBienSo(String bienSo) throws SQLException {
         String sql = "SELECT 1 FROM Xe WHERE bienSo = ?";
 
@@ -36,7 +35,7 @@ public final class XeDAO extends BaseDao<Xe> {
         }
     }
 
-    public void insert(Xe xe) throws SQLException {
+    public boolean insert(Xe xe) throws SQLException {
         String sql = """
                 INSERT INTO Xe (bienSo, hangXe, dongXe, doiXe, odo)
                 VALUES (?, ?, ?, ?, ?)
@@ -50,7 +49,7 @@ public final class XeDAO extends BaseDao<Xe> {
             ps.setInt(4, xe.getDoiXe());
             ps.setInt(5, xe.getOdo());
 
-            ps.executeUpdate();
+            return ps.executeUpdate() > 0;
         }
     }
 
@@ -107,27 +106,5 @@ public final class XeDAO extends BaseDao<Xe> {
                 rs.getString("dongXe"),
                 rs.getInt("doiXe"),
                 rs.getInt("odo"));
-    }
-
-    public List<String> findAllHangXe() throws SQLException {
-        String sql = """
-                SELECT DISTINCT hangXe
-                FROM Xe
-                WHERE hangXe IS NOT NULL
-                ORDER BY hangXe
-                """;
-
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            List<String> danhSachHangXe = new ArrayList<>();
-
-            while (rs.next()) {
-                danhSachHangXe.add(rs.getString("hangXe"));
-            }
-
-            return danhSachHangXe;
-        }
     }
 }

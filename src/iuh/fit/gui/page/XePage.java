@@ -1,4 +1,3 @@
-
 package iuh.fit.gui.page;
 
 import iuh.fit.dto.DanhSachXeCriteria;
@@ -23,85 +22,85 @@ import java.util.List;
 
 public class XePage extends AbstractPage {
 
-	private static final int SO_DONG_MOI_TRANG = 10;
+    private static final int SO_DONG_MOI_TRANG = 10;
 
-	private final XeService xeService = new XeService();
+    private final XeService xeService = new XeService();
 
-	private final JTextField bienSoField = new JTextField(14);
-	private final JTextField hangXeField = new JTextField(14);
-	private final JTextField dongXeField = new JTextField(14);
-	private final JTextField doiXeField = new JTextField(14);
-	private final JTextField odoField = new JTextField(14);
+    private final JTextField bienSoField = new JTextField(14);
+    private final JTextField hangXeField = new JTextField(14);
+    private final JTextField dongXeField = new JTextField(14);
+    private final JTextField doiXeField = new JTextField(14);
+    private final JTextField odoField = new JTextField(14);
 
-	private int trang = 1;
+    private int trang = 1;
 
-	public XePage() {
-		this.setLayout(new BorderLayout());
-	}
+    public XePage() {
+        this.setLayout(new BorderLayout());
+    }
 
-	@Override
-	public void render() {
-		this.removeAll();
-		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    @Override
+    public void render() {
+        this.removeAll();
+        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-		ManagementPanel panel = new ManagementPanel();
+        ManagementPanel panel = new ManagementPanel();
 
-		panel.setHeaders(I18nReaderUtil.get("app.xe.bienSo"), I18nReaderUtil.get("app.xe.hangXe"),
-				I18nReaderUtil.get("app.xe.dongXe"), I18nReaderUtil.get("app.xe.doiXe"),
-				I18nReaderUtil.get("app.xe.odo"));
+        panel.setHeaders(I18nReaderUtil.get("app.xe.bienSo"), I18nReaderUtil.get("app.xe.hangXe"),
+                I18nReaderUtil.get("app.xe.dongXe"), I18nReaderUtil.get("app.xe.doiXe"),
+                I18nReaderUtil.get("app.xe.odo"));
 
-		this.addFormRow(panel, "app.xe.bienSo", this.bienSoField);
-		this.addFormRow(panel, "app.xe.hangXe", this.hangXeField);
-		this.addFormRow(panel, "app.xe.dongXe", this.dongXeField);
-		this.addFormRow(panel, "app.xe.doiXe", this.doiXeField);
-		this.addFormRow(panel, "app.xe.odo", this.odoField);
+        this.addFormRow(panel, "app.xe.bienSo", this.bienSoField);
+        this.addFormRow(panel, "app.xe.hangXe", this.hangXeField);
+        this.addFormRow(panel, "app.xe.dongXe", this.dongXeField);
+        this.addFormRow(panel, "app.xe.doiXe", this.doiXeField);
+        this.addFormRow(panel, "app.xe.odo", this.odoField);
 
-		panel.addTextFilter("app.xe.bienSo", 0);
-		panel.addTextFilter("app.xe.hangXe", 1);
-		panel.addTextFilter("app.xe.dongXe", 2);
-		panel.addRangeFilter("app.xe.doiXeTuDen", 3);
-		panel.addRangeFilter("app.xe.odoTuDen", 5);
+        panel.addTextFilter("app.xe.bienSo", 0);
+        panel.addTextFilter("app.xe.hangXe", 1);
+        panel.addTextFilter("app.xe.dongXe", 2);
+        panel.addRangeFilter("app.xe.doiXeTuDen", 3);
+        panel.addRangeFilter("app.xe.odoTuDen", 5);
 
-		panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
-		panel.getThemButton().addActionListener(e -> this.lamMoi(panel));
+        panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
+        panel.getThemButton().addActionListener(e -> this.lamMoi(panel));
 
-		panel.getLuuButton().addActionListener(e -> this.luu(panel));
+        panel.getLuuButton().addActionListener(e -> this.luu(panel));
 
-		panel.getXoaTrangButton().addActionListener(e -> this.lamMoi(panel));
+        panel.getXoaTrangButton().addActionListener(e -> this.lamMoi(panel));
 
-		panel.getXoaButton().addActionListener(e -> this.xoa(panel));
+        panel.getXoaButton().addActionListener(e -> this.xoa(panel));
 
-		panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
+        panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
 
-		panel.getPrevButton().addActionListener(e -> this.taiLai(panel, this.trang - 1));
+        panel.getPrevButton().addActionListener(e -> this.taiLai(panel, this.trang - 1));
 
-		panel.getNextButton().addActionListener(e -> this.taiLai(panel, this.trang + 1));
+        panel.getNextButton().addActionListener(e -> this.taiLai(panel, this.trang + 1));
 
-		panel.getTable().getSelectionModel().addListSelectionListener(e -> {
-			if (!e.getValueIsAdjusting()) {
-				this.chonDong(panel);
-			}
-		});
-		panel.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		this.taiLai(panel, 1);
+        panel.getTable().getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                this.chonDong(panel);
+            }
+        });
+        panel.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        this.taiLai(panel, 1);
 
-		this.add(panel, BorderLayout.CENTER);
+        this.add(panel, BorderLayout.CENTER);
 
-		this.revalidate();
-		this.repaint();
-	}
+        this.revalidate();
+        this.repaint();
+    }
 
-	private void xoa(ManagementPanel panel) {
-		int row = panel.getSelectedRow();
+    private void xoa(ManagementPanel panel) {
+        int row = panel.getSelectedRow();
 
-		if (row < 0) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.chuaChonXoa"));
-			return;
-		}
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.chuaChonXoa"));
+            return;
+        }
 
-		String bienSo = String.valueOf(panel.getModel().getValueAt(row, 0));
+        String bienSo = String.valueOf(panel.getModel().getValueAt(row, 0));
 
-		int luaChon = JOptionPane.showConfirmDialog(
+        int luaChon = JOptionPane.showConfirmDialog(
                 this,
                 I18nReaderUtil.get("app.xe.xacNhanXoa"),
                 I18nReaderUtil.get("app.xe.tieuDeXoa"),
@@ -112,158 +111,149 @@ public class XePage extends AbstractPage {
             return;
         }
 
-		try {
-			this.xeService.delete(bienSo);
+        try {
+            this.xeService.delete(bienSo);
 
-			JOptionPane.showMessageDialog(this, "delete_succeed");
+            JOptionPane.showMessageDialog(this, "delete_succeed");
 
-			this.lamMoi(panel);
-			this.taiLai(panel, this.trang);
+            this.lamMoi(panel);
+            this.taiLai(panel, this.trang);
 
-		} catch (IllegalArgumentException | IllegalStateException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()));
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+        }
+    }
 
-		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
-		}
-	}
+    private void addFormRow(ManagementPanel panel, String labelKey, JTextField field) {
 
-	private void addFormRow(ManagementPanel panel, String labelKey, JTextField field) {
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+        row.setOpaque(false);
 
-		JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
-		row.setOpaque(false);
+        row.add(new JLabel(I18nReaderUtil.get(labelKey)));
+        row.add(field);
 
-		row.add(new JLabel(I18nReaderUtil.get(labelKey)));
-		row.add(field);
+        panel.getFormPanel().add(row);
+    }
 
-		panel.getFormPanel().add(row);
-	}
+    private void taiLai(ManagementPanel panel, int page) {
+        try {
+            DanhSachXeCriteria tieuChi = new DanhSachXeCriteria(panel.getTextFilter(0), panel.getTextFilter(1),
+                    panel.getTextFilter(2), this.parseInteger(panel.getTextFilter(3)),
+                    this.parseInteger(panel.getTextFilter(4)), this.parseInteger(panel.getTextFilter(5)),
+                    this.parseInteger(panel.getTextFilter(6)), panel.getQuickFilter(), page, SO_DONG_MOI_TRANG);
 
-	private void taiLai(ManagementPanel panel, int page) {
-		try {
-			DanhSachXeCriteria tieuChi = new DanhSachXeCriteria(panel.getTextFilter(0), panel.getTextFilter(1),
-					panel.getTextFilter(2), this.parseInteger(panel.getTextFilter(3)),
-					this.parseInteger(panel.getTextFilter(4)), this.parseInteger(panel.getTextFilter(5)),
-					this.parseInteger(panel.getTextFilter(6)), panel.getQuickFilter(), page, SO_DONG_MOI_TRANG);
+            PaginatedResult<Xe> ketQua = this.xeService.search(tieuChi);
 
-			PaginatedResult<Xe> ketQua = this.xeService.search(tieuChi);
+            List<Object[]> rows = new ArrayList<>();
 
-			List<Object[]> rows = new ArrayList<>();
+            for (Xe xe : ketQua.items()) {
+                rows.add(new Object[] { xe.getBienSo(), xe.getHangXe(), xe.getDongXe(), xe.getDoiXe(), xe.getOdo() });
+            }
 
-			for (Xe xe : ketQua.items()) {
-				rows.add(new Object[] { xe.getBienSo(), xe.getHangXe(), xe.getDongXe(), xe.getDoiXe(), xe.getOdo() });
-			}
+            panel.setRows(rows);
 
-			panel.setRows(rows);
+            panel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
 
-			panel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+            panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
 
-			panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
+            this.trang = ketQua.page();
 
-			this.trang = ketQua.page();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.loiBoLocSo"));
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+        }
+    }
 
-		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.loiBoLocSo"));
-		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
-		}
-	}
+    private Integer parseInteger(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
 
-	private Integer parseInteger(String value) {
-		if (value == null || value.isBlank()) {
-			return null;
-		}
+        return Integer.valueOf(value.trim());
+    }
 
-		return Integer.valueOf(value.trim());
-	}
+    private void chonDong(ManagementPanel panel) {
+        int row = panel.getSelectedRow();
 
-	private Long parseLong(String value) {
-		if (value == null || value.isBlank()) {
-			return null;
-		}
+        if (row < 0) {
+            return;
+        }
 
-		return Long.valueOf(value.trim());
-	}
+        this.bienSoField.setText(String.valueOf(panel.getModel().getValueAt(row, 0)));
 
-	private void chonDong(ManagementPanel panel) {
-		int row = panel.getSelectedRow();
+        this.hangXeField.setText(String.valueOf(panel.getModel().getValueAt(row, 1)));
 
-		if (row < 0) {
-			return;
-		}
+        this.dongXeField.setText(String.valueOf(panel.getModel().getValueAt(row, 2)));
 
-		this.bienSoField.setText(String.valueOf(panel.getModel().getValueAt(row, 0)));
+        this.doiXeField.setText(String.valueOf(panel.getModel().getValueAt(row, 3)));
 
-		this.hangXeField.setText(String.valueOf(panel.getModel().getValueAt(row, 1)));
+        this.odoField.setText(String.valueOf(panel.getModel().getValueAt(row, 4)));
+    }
 
-		this.dongXeField.setText(String.valueOf(panel.getModel().getValueAt(row, 2)));
+    private void lamMoi(ManagementPanel panel) {
+        this.bienSoField.setText("");
+        this.hangXeField.setText("");
+        this.dongXeField.setText("");
+        this.doiXeField.setText("");
+        this.odoField.setText("");
 
-		this.doiXeField.setText(String.valueOf(panel.getModel().getValueAt(row, 3)));
+        panel.getTable().clearSelection();
+        this.hangXeField.requestFocusInWindow();
+    }
 
-		this.odoField.setText(String.valueOf(panel.getModel().getValueAt(row, 4)));
-	}
+    private void luu(ManagementPanel panel) {
+        try {
+            Xe xe = new Xe();
 
-	private void lamMoi(ManagementPanel panel) {
-		this.bienSoField.setText("");
-		this.hangXeField.setText("");
-		this.dongXeField.setText("");
-		this.doiXeField.setText("");
-		this.odoField.setText("");
+            String bienSo = this.bienSoField.getText().trim();
 
-		panel.getTable().clearSelection();
-		this.hangXeField.requestFocusInWindow();
-	}
+            xe.setBienSo(bienSo.isBlank() ? null : bienSo);
+            xe.setHangXe(this.hangXeField.getText().trim());
+            xe.setDongXe(this.dongXeField.getText().trim());
 
-	private void luu(ManagementPanel panel) {
-		try {
-			Xe xe = new Xe();
+            String doiXe = this.doiXeField.getText().trim();
+            String odo = this.odoField.getText().trim();
 
-			String bienSo = this.bienSoField.getText().trim();
+            if (doiXe.isBlank() || odo.isBlank()) {
+                throw new IllegalArgumentException("app.xe.loiThongTinSo");
+            }
 
-			xe.setBienSo(bienSo.isBlank() ? null : bienSo);
-			xe.setHangXe(this.hangXeField.getText().trim());
-			xe.setDongXe(this.dongXeField.getText().trim());
+            xe.setDoiXe(Integer.parseInt(doiXe));
+            xe.setOdo(Integer.parseInt(odo));
 
-			String doiXe = this.doiXeField.getText().trim();
-			String odo = this.odoField.getText().trim();
+            if (!this.xeService.existsByBienSo(bienSo)) {
+                this.xeService.create(xe);
 
-			if (doiXe.isBlank() || odo.isBlank()) {
-				throw new IllegalArgumentException("app.xe.loiThongTinSo");
-			}
+                JOptionPane.showMessageDialog(
+                        this, I18nReaderUtil.get("app.common.create_succeed"));
+            } else {
+                this.xeService.update(xe);
 
-			xe.setDoiXe(Integer.parseInt(doiXe));
-			xe.setOdo(Integer.parseInt(odo));
+                JOptionPane.showMessageDialog(
+                        this, I18nReaderUtil.get("app.common.update_succeed"));
+            }
+            this.lamMoi(panel);
+            this.taiLai(panel, 1);
 
-			if (!this.xeService.existsByBienSo(bienSo)) {
-			    this.xeService.create(xe);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.loiThongTinSo"));
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()));
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+        }
+    }
 
-			    JOptionPane.showMessageDialog(
-			            this, I18nReaderUtil.get("app.common.create_succeed"));
-			} else {
-			    this.xeService.update(xe);
+    @Override
+    public String getTitleKey() {
+        return "app.menu.vehicles";
+    }
 
-			    JOptionPane.showMessageDialog(
-			            this, I18nReaderUtil.get("app.common.update_succeed"));
-			}
-			this.lamMoi(panel);
-			this.taiLai(panel, 1);
-
-		} catch (NumberFormatException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.loiThongTinSo"));
-		} catch (IllegalArgumentException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()));
-		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
-		}
-	}
-
-	@Override
-	public String getTitleKey() {
-		return "app.menu.vehicles";
-	}
-
-	@Override
-	public MenuGroup getGroup() {
-		return MenuGroup.TO_CHUC;
-	}
+    @Override
+    public MenuGroup getGroup() {
+        return MenuGroup.TO_CHUC;
+    }
 }
