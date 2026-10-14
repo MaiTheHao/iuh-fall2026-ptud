@@ -42,8 +42,9 @@ public class ManagementPanel extends JPanel {
     private final JButton themButton = new JButton(I18nReaderUtil.get("app.common.add"));
     private final JButton luuButton = new JButton(I18nReaderUtil.get("app.common.save"));
     private final JButton xoaTrangButton = new JButton(I18nReaderUtil.get("app.common.clear"));
+    private final JButton xoaButton = new JButton(I18nReaderUtil.get("app.common.delete"));
 
-    private final JPanel filterFields = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
+    private final JPanel filterFields = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 2));
     private final Map<Integer, JTextField> textFilters = new LinkedHashMap<>();
     private final Map<Integer, DatePicker[]> dateFilters = new LinkedHashMap<>();
     private final List<JTextField> textInputs = new ArrayList<>();
@@ -52,7 +53,7 @@ public class ManagementPanel extends JPanel {
     private final JLabel countLabel = new JLabel();
     private final JButton clearFilterButton = new JButton(I18nReaderUtil.get("app.common.clearFilter"));
     private final JButton prevButton = new JButton(I18nReaderUtil.get("app.common.prev"));
-    private final JButton nextButton = new JButton(I18nReaderUtil.get("app.common.next"));
+    private final JButton nextButton = new JButton(I18nReaderUtil.get("app.common.next"));	
     private final JLabel pageLabel = new JLabel();
 
     private Runnable filterChangeListener;
@@ -70,7 +71,6 @@ public class ManagementPanel extends JPanel {
         this.formPanel.setPreferredSize(new Dimension(380, 1));
         this.formPanel.add(this.formFields, BorderLayout.NORTH);
         this.formPanel.add(this.buildFooter(), BorderLayout.SOUTH);
-
         this.table.setFillsViewportHeight(true);
         this.table.setRowHeight(24);
 
@@ -91,6 +91,7 @@ public class ManagementPanel extends JPanel {
         footer.add(this.themButton);
         footer.add(this.luuButton);
         footer.add(this.xoaTrangButton);
+        footer.add(this.xoaButton);
         return footer;
     }
 
@@ -106,7 +107,7 @@ public class ManagementPanel extends JPanel {
 
         JPanel panel = new JPanel(new BorderLayout(4, 2));
         panel.setBackground(Theme.BG);
-        panel.add(this.filterFields, BorderLayout.NORTH);
+        panel.add(this.filterFields, BorderLayout.CENTER);
         panel.add(actions, BorderLayout.SOUTH);
         return panel;
     }
@@ -141,6 +142,30 @@ public class ManagementPanel extends JPanel {
         range.add(new JLabel("-"));
         range.add(to);
         this.filterFields.add(this.buildFilterItem(labelKey, range));
+    }
+    
+    public void addRangeFilter(String labelKey, int column ) {
+        JTextField fromField = new JTextField(10);
+        JTextField toField = new JTextField(10);
+
+        this.textFilters.put(column, fromField);
+        this.textFilters.put(column + 1, toField);
+
+        this.textInputs.add(fromField);
+        this.textInputs.add(toField);
+
+        JPanel rangePanel = new JPanel(
+                new FlowLayout(FlowLayout.LEFT, 4, 0)
+        );
+        rangePanel.setOpaque(false);
+
+        rangePanel.add(fromField);
+        rangePanel.add(new JLabel("-"));
+        rangePanel.add(toField);
+
+        this.filterFields.add(
+                this.buildFilterItem(labelKey, rangePanel)
+        );
     }
 
     private DatePicker taoBoChonNgay() {
@@ -242,6 +267,10 @@ public class ManagementPanel extends JPanel {
 
     public JButton getXoaTrangButton() {
         return this.xoaTrangButton;
+    }
+    
+    public JButton getXoaButton() {
+        return this.xoaButton;
     }
 
     public void setHeaders(String... headers) {

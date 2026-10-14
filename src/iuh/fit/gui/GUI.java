@@ -33,7 +33,15 @@ public class GUI {
         frame.setContentPane(layout);
         frame.setSize(1280, 720);
         frame.setResizable(false);
-        frame.setVisible(true);
+
         layout.render();
+
+        frame.setVisible(true);
+
+        SwingUtilities.invokeLater(() -> {
+            frame.invalidate();
+            frame.validate();
+            frame.repaint();
+        });
     }
 }
