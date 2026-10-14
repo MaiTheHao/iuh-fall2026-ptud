@@ -1,126 +1,165 @@
 {
-  "app": {
-    "title": "Lua Garage",
-    "menu": {
-      "home": "Home",
-      "customers": "Customers",
-      "vehicles": "Vehicles",
-      "employees": "Employees",
-      "inventory": "Parts",
-      "servicePriceList": "Services",
-      "vouchers": "Vouchers",
-      "shiftAssignment": "Shift Assignment",
-      "mySchedule": "My Schedule",
-      "shopSchedule": "Shop Schedule",
-      "customerIntake": "Customer Intake",
-      "intakeSlips": "Intake Slip Management",
-      "diagnoses": "Create Diagnosis",
-      "complaints": "Complaint Intake",
-      "complaintManagement": "Complaint Management",
-      "partsReceipts": "Create Receipt",
-      "partsReceiptManagement": "Manage Receipts",
-      "invoices": "Create Invoice",
-      "invoiceManagement": "Manage Invoices",
-      "revenueReport": "Revenue",
-      "partsConsumptionReport": "Parts Consumption",
-      "serviceConsumptionReport": "Service Consumption",
-      "changePassword": "Change Password",
-      "language": "Language",
-      "account": "Account",
-      "logout": "Log Out"
-    },
-    "menuGroup": {
-      "trangChu": "Home",
-      "toChuc": "Organization",
-      "keHoach": "Planning",
-      "tiepNhan": "Intake",
-      "nhapPhuTung": "Parts Receipts",
-      "thanhToan": "Payment",
-      "tongKet": "Reports",
-      "caiDat": "Settings"
-    },
-    "localeName": {
-      "vn": "Tiếng Việt (VI)",
-      "en": "English (EN)"
-    },
-    "common": {
-      "search": "Quick search",
-      "add": "Add",
-      "save": "Save",
-      "clear": "Clear",
-      "edit": "Edit",
-      "delete": "Delete",
-      "reset": "Reset password",
-      "noData": "No data",
-      "clearFilter": "Clear filters",
-      "prev": "‹ Prev",
-      "next": "Next ›",
-      "pageLabel": "Page",
-      "count": "Showing"
-    },
-    "enum": {
-      "TrangThaiHoaDon": {
-        "CHO_THANH_TOAN": "Unpaid",
-        "DA_THANH_TOAN": "Paid",
-        "DA_HUY": "Canceled"
-      },
-      "TrangThaiPhieuTiepNhan": {
-        "TIEP_NHAN": "New",
-        "DANG_XU_LY": "In progress",
-        "HOAN_THANH": "Completed",
-        "DA_HUY": "Canceled"
-      },
-      "TrangThaiNhanVien": {
-        "HOAT_DONG": "Working",
-        "DA_KHOA": "Suspended"
-      },
-      "VaiTro": {
-        "NHAN_VIEN_QUAN_LY": "Manager",
-        "NHAN_VIEN_TIEP_NHAN": "Receptionist",
-        "NHAN_VIEN_THU_NGAN": "Cashier",
-        "NHAN_VIEN_KY_THUAT": "Technician"
-      },
-      "CaLamViec": {
-        "CA_SANG": "Morning shift",
-        "CA_CHIEU": "Afternoon shift",
-        "CA_NGAY": "Full day"
-      },
-      "LoaiSanPham": {
-        "DICH_VU": "Service",
-        "PHU_TUNG": "Part"
-      },
-      "TrangThaiKhieuNai": {
-        "CHUA_XU_LY": "Pending",
-        "DANG_XU_LY": "In progress",
-        "DA_XU_LY": "Resolved"
-      }
-    },
-    "date": {
-      "format": "MM/dd/yyyy",
-      "today": "Today",
-      "clear": "Clear"
-    },
-    "khachHang": {
-      "ma": "Customer ID",
-      "sdt": "Phone",
-      "hoTen": "Full name",
-      "ngayTao": "Created",
-      "loiSdt": "Phone number must have 10 digits.",
-      "loiHoTen": "Full name is required."
-    },
-    "login": {
-      "title": "System Login",
-      "username": "Username:",
-      "password": "Password:",
-      "submit": "Sign In",
-      "exit": "Exit",
-      "errorInvalid": "Incorrect username or password.",
-      "errorSystem": "Cannot connect to the system. Please try again."
-    },
-    "dashboard": {
-      "greeting": "Hello",
-      "role": "Role",
-      "code": "Employee code"
-    }
-  }
+	"app": {
+		"title": "Lua Garage",
+		"menu": {
+			"home": "Home",
+			"customers": "Customers",
+			"vehicles": "Vehicles",
+			"employees": "Employees",
+			"inventory": "Parts",
+			"servicePriceList": "Services",
+			"vouchers": "Vouchers",
+			"shiftAssignment": "Shift Assignment",
+			"mySchedule": "My Schedule",
+			"shopSchedule": "Shop Schedule",
+			"customerIntake": "Customer Intake",
+			"intakeSlips": "Intake Slip Management",
+			"diagnoses": "Create Diagnosis",
+			"complaints": "Complaint Intake",
+			"complaintManagement": "Complaint Management",
+			"partsReceipts": "Create Receipt",
+			"partsReceiptManagement": "Manage Receipts",
+			"invoices": "Create Invoice",
+			"invoiceManagement": "Manage Invoices",
+			"revenueReport": "Revenue",
+			"partsConsumptionReport": "Parts Consumption",
+			"serviceConsumptionReport": "Service Consumption",
+			"changePassword": "Change Password",
+			"language": "Language",
+			"account": "Account",
+			"logout": "Log Out"
+		},
+		"menuGroup": {
+			"trangChu": "Home",
+			"toChuc": "Organization",
+			"keHoach": "Planning",
+			"tiepNhan": "Intake",
+			"nhapPhuTung": "Parts Receipts",
+			"thanhToan": "Payment",
+			"tongKet": "Reports",
+			"caiDat": "Settings"
+		},
+		"localeName": {
+			"vn": "Tiếng Việt (VI)",
+			"en": "English (EN)"
+		},
+		"common": {
+			"search": "Quick search",
+			"add": "Add",
+			"save": "Save",
+			"clear": "Clear",
+			"edit": "Edit",
+			"delete": "Delete",
+			"reset": "Reset password",
+			"noData": "No data",
+			"clearFilter": "Clear filters",
+			"prev": "‹ Prev",
+			"next": "Next ›",
+			"pageLabel": "Page",
+			"count": "Showing"
+		},
+		"enum": {
+			"TrangThaiHoaDon": {
+				"CHO_THANH_TOAN": "Unpaid",
+				"DA_THANH_TOAN": "Paid",
+				"DA_HUY": "Canceled"
+			},
+			"TrangThaiPhieuTiepNhan": {
+				"TIEP_NHAN": "New",
+				"DANG_XU_LY": "In progress",
+				"HOAN_THANH": "Completed",
+				"DA_HUY": "Canceled"
+			},
+			"TrangThaiNhanVien": {
+				"HOAT_DONG": "Working",
+				"DA_KHOA": "Suspended"
+			},
+			"VaiTro": {
+				"NHAN_VIEN_QUAN_LY": "Manager",
+				"NHAN_VIEN_TIEP_NHAN": "Receptionist",
+				"NHAN_VIEN_THU_NGAN": "Cashier",
+				"NHAN_VIEN_KY_THUAT": "Technician"
+			},
+			"CaLamViec": {
+				"CA_SANG": "Morning shift",
+				"CA_CHIEU": "Afternoon shift",
+				"CA_NGAY": "Full day"
+			},
+			"LoaiSanPham": {
+				"DICH_VU": "Service",
+				"PHU_TUNG": "Part"
+			},
+			"TrangThaiKhieuNai": {
+				"CHUA_XU_LY": "Pending",
+				"DANG_XU_LY": "In progress",
+				"DA_XU_LY": "Resolved"
+			}
+		},
+		"date": {
+			"format": "MM/dd/yyyy",
+			"today": "Today",
+			"clear": "Clear"
+		},
+		"khachHang": {
+			"ma": "Customer ID",
+			"sdt": "Phone",
+			"hoTen": "Full name",
+			"ngayTao": "Created",
+			"loiSdt": "Phone number must have 10 digits.",
+			"loiHoTen": "Full name is required.",
+			"chuaChonXoa": "Please select a customer to delete.",
+			"xacNhanXoa": "Are you sure you want to delete this customer?",
+			"tieuDeXoa": "Confirm Customer Deletion"
+		},
+		"xe": {
+			"bienSo": "License Plate",
+			"hangXe": "Car Make",
+			"dongXe": "Car Model",
+			"doiXe": "Model Year",
+			"odo": "Odometer",
+			"doiXeTuDen": "Model Year (From - To)",
+			"odoTuDen": "Odometer (From - To)",
+			"loiBoLocSo": "Filter values must be valid numbers.",
+			"loiThongTinSo": "Model year and odometer must be valid numbers."
+		},
+		"phuTung": {
+			"ma": "Part ID",
+			"ten": "Part Name",
+			"moTa": "Description",
+			"anhUrl": "Image URL",
+			"hinhAnh": "Image",
+			"donGia": "Purchase Price",
+			"soLuongTon": "Stock Quantity",
+			"donGiaTu": "Price From",
+			"donGiaDen": "Price To",
+			"soLuongTu": "Stock From",
+			"soLuongDen": "Stock To",
+			"chonAnh": "Choose Image",
+			"goAnh": "Remove Image",
+			"chuaCoAnh": "No Image",
+			"loiMa": "Part ID is required.",
+			"loiTen": "Part name is required.",
+			"loiDonGia": "Price must be a valid non-negative number.",
+			"loiSoLuong": "Stock quantity must be a non-negative integer.",
+			"loiBoLocSo": "Please enter valid numeric filter values.",
+			"loiKhoangLoc": "Invalid filter range. The From value must be less than or equal to the To value, and both values must be non-negative.",
+			"chuaChonXoa": "Please select a part to delete.",
+			"xacNhanXoa": "Are you sure you want to delete this part?",
+			"tieuDeXoa": "Confirm Part Deletion"
+		},
+		"login": {
+			"title": "System Login",
+			"username": "Username:",
+			"password": "Password:",
+			"submit": "Sign In",
+			"exit": "Exit",
+			"errorInvalid": "Incorrect username or password.",
+			"errorSystem": "Cannot connect to the system. Please try again."
+		},
+		"dashboard": {
+			"greeting": "Hello",
+			"role": "Role",
+			"code": "Employee code"
+		}
+	}
 }
