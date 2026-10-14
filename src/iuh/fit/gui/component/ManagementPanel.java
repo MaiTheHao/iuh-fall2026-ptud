@@ -53,7 +53,7 @@ public class ManagementPanel extends JPanel {
     private final JLabel countLabel = new JLabel();
     private final JButton clearFilterButton = new JButton(I18nReaderUtil.get("app.common.clearFilter"));
     private final JButton prevButton = new JButton(I18nReaderUtil.get("app.common.prev"));
-    private final JButton nextButton = new JButton(I18nReaderUtil.get("app.common.next"));	
+    private final JButton nextButton = new JButton(I18nReaderUtil.get("app.common.next"));
     private final JLabel pageLabel = new JLabel();
 
     private Runnable filterChangeListener;
@@ -143,8 +143,8 @@ public class ManagementPanel extends JPanel {
         range.add(to);
         this.filterFields.add(this.buildFilterItem(labelKey, range));
     }
-    
-    public void addRangeFilter(String labelKey, int column ) {
+
+    public void addRangeFilter(String labelKey, int column) {
         JTextField fromField = new JTextField(10);
         JTextField toField = new JTextField(10);
 
@@ -268,7 +268,7 @@ public class ManagementPanel extends JPanel {
     public JButton getXoaTrangButton() {
         return this.xoaTrangButton;
     }
-    
+
     public JButton getXoaButton() {
         return this.xoaButton;
     }

@@ -1,13 +1,12 @@
-
 package iuh.fit.service;
 
 import iuh.fit.dao.XeDAO;
 import iuh.fit.dto.DanhSachXeCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.Xe;
+import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
-import java.text.Normalizer;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -25,24 +24,14 @@ public class XeService {
     private static final String ERROR_ODO = "app.xe.loiOdo";
     private static final String ERROR_XE_IN_USE = "app.xe.loiXeDangSuDung";
 
-    public PaginatedResult<Xe> getAll(int page, int pageSize)
-            throws SQLException {
-        return PaginatedResult.of(
-                this.xeDAO.findAll(), page, pageSize);
-    }
-    
-    public List<String> getDanhSachHangXe(int page, int pageSize)
-            throws SQLException {
-        return this.xeDAO.findAllHangXe();
-    }
-
     public PaginatedResult<Xe> search(DanhSachXeCriteria criteria)
             throws SQLException {
         DanhSachXeCriteria filter = criteria == null
-        		? new DanhSachXeCriteria(null, null, null, null, null, null,null, null,1,PaginatedResult.DEFAULT_PAGE_SIZE)
-        		: criteria;
+                ? new DanhSachXeCriteria(null, null, null, null, null, null, null, null, 1,
+                        PaginatedResult.DEFAULT_PAGE_SIZE)
+                : criteria;
 
-        List<Xe> matched = this.xeDAO.findAll().stream() 	
+        List<Xe> matched = this.xeDAO.findAll().stream()
                 .filter(xe -> this.matches(xe, filter))
                 .toList();
 
@@ -60,10 +49,10 @@ public class XeService {
 
         return this.xeDAO.findById(normalized);
     }
-    
+
     public boolean existsByBienSo(String bienSo) throws SQLException {
-    	bienSo = this.normalizeBienSo(bienSo);
-    	return this.xeDAO.existsByBienSo(bienSo);
+        bienSo = this.normalizeBienSo(bienSo);
+        return this.xeDAO.existsByBienSo(bienSo);
     }
 
     public void create(Xe xe) throws SQLException {
@@ -169,24 +158,23 @@ public class XeService {
             return false;
         }
 
-		if (criteria.odoTu() != null
-		        && xe.getOdo() < criteria.odoTu()) {
-		    return false;
-		}
-		
-		if (criteria.odoDen() != null
-		        && xe.getOdo() > criteria.odoDen()) {
-		    return false;
-		}
+        if (criteria.odoTu() != null
+                && xe.getOdo() < criteria.odoTu()) {
+            return false;
+        }
 
+        if (criteria.odoDen() != null
+                && xe.getOdo() > criteria.odoDen()) {
+            return false;
+        }
 
         if (criteria.timNhanh() != null
                 && !criteria.timNhanh().isBlank()) {
             String combined = xe.getBienSo() + " "
                     + xe.getHangXe() + " " + xe.getDongXe();
 
-            if (!this.normalizeText(combined)
-                    .contains(this.normalizeText(criteria.timNhanh()))) {
+            if (!TextNormalizerUtil.normalize(combined)
+                    .contains(TextNormalizerUtil.normalize(criteria.timNhanh()))) {
                 return false;
             }
         }
@@ -199,8 +187,8 @@ public class XeService {
             return true;
         }
 
-        return this.normalizeText(value)
-                .contains(this.normalizeText(filter));
+        return TextNormalizerUtil.normalize(value)
+                .contains(TextNormalizerUtil.normalize(filter));
     }
 
     private String normalizeBienSo(String bienSo) {
@@ -210,18 +198,5 @@ public class XeService {
 
         return bienSo.replaceAll("[\\s.-]", "")
                 .toUpperCase(Locale.ROOT);
-    }
-
-    private String normalizeText(String value) {
-        if (value == null) {
-            return "";
-        }
-
-        return Normalizer.normalize(value, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .replace('đ', 'd')
-                .replace('Đ', 'D')
-                .toLowerCase(Locale.ROOT)
-                .trim();
     }
 }
