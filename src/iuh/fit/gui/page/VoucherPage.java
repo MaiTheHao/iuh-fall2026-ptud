@@ -74,7 +74,7 @@ public class VoucherPage extends AbstractPage {
         this.addFormRow(panel, "app.voucher.moTa", this.moTaField);
         this.addFormRow(panel, "app.voucher.mucGiam", this.mucGiamField);
         JLabel huongDan = new JLabel(
-       		 I18nReaderUtil.get("app.voucher.loiMucGiam")
+       		 I18nReaderUtil.get("app.voucher.huongDanMucGiam")
        	);
 
        	huongDan.setForeground(Color.GRAY);
@@ -85,7 +85,7 @@ public class VoucherPage extends AbstractPage {
                 panel, "app.voucher.thoiHanApDung",
                 this.thoiHanField);
          huongDan = new JLabel(
-        		 I18nReaderUtil.get("app.voucher.huongDan")
+        		 I18nReaderUtil.get("app.voucher.huongDanThoiGian")
         	);
 
         	huongDan.setForeground(Color.GRAY);
