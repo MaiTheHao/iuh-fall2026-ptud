@@ -57,9 +57,9 @@
 			"next": "Sau ›",
 			"pageLabel": "Trang",
 			"count": "Hiển thị",
-			"create_succeed":  "Thêm thành công",
-			"update_succeed":  "Cập nhật thành công",
-			"delete_succeed":  "Xóa thành công"
+			"create_succeed": "Thêm thành công",
+			"update_succeed": "Cập nhật thành công",
+			"delete_succeed": "Xóa thành công"
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -149,6 +149,32 @@
 			"khongTaiDuocAnh": "Không tải được ảnh",
 			"khongCoAnh": "Không có ảnh",
 			"duLieuKhongPhaiAnh": "Dữ liệu nhận được không phải ảnh."
+		},
+		"voucher": {
+			"ma": "Mã voucher",
+			"tenChuongTrinh": "Tên chương trình",
+			"moTa": "Mô tả",
+			"mucGiam": "Mức giảm",
+			"thoiHanApDung": "Thời hạn áp dụng",
+			"trangThaiKichHoat": "Trạng thái",
+			"dangKichHoat": "Đang kích hoạt",
+			"ngungKichHoat": "Ngừng kích hoạt",
+			"xacNhanXoa": "Bạn có chắc muốn xóa voucher này không?",
+			"tieuDeXoa": "Xác nhận xóa voucher",
+			"loiMa": "Mã voucher không hợp lệ.",
+			"duLieuKhongHopLe": "Dữ liệu voucher không hợp lệ.",
+			"loiTen": "Vui lòng nhập tên chương trình.",
+			"tenQuaDai": "Tên chương trình không được vượt quá 100 ký tự.",
+			"moTaQuaDai": "Mô tả không được vượt quá 500 ký tự.",
+			"loiMucGiam": "Mức giảm phải từ 0 đến 1 (ví dụ: nhập 0.1 để giảm 10%).",
+			"loiThoiHan": "Thời hạn áp dụng không hợp lệ. Vui lòng nhập theo định dạng dd/MM/yyyy HH.",
+			"khongTonTai": "Không tìm thấy voucher.",
+			"thamSoPhanTrangKhongHopLe": "Thông tin phân trang không hợp lệ.",
+			"khoangMucGiamKhongHopLe": "Khoảng mức giảm không hợp lệ.",
+			"khoangThoiHanKhongHopLe": "Khoảng thời hạn không hợp lệ.",
+			"loiTrangThai": "Trạng thái không hợp lệ.",
+			"huongDanMucGiam": "Nhập mức giảm từ 0 đến 1. Ví dụ: 0.1 tương ứng giảm 10%.",
+			"huongDanThoiGian": "Nhập theo định dạng ngày/tháng/năm giờ:phút. Ví dụ: 15/10/2026 23:30"
 		},
 		"login": {
 			"title": "Đăng nhập hệ thống",
