@@ -15,6 +15,18 @@ import java.util.stream.Collectors;
 
 public class VoucherService {
 
+	private static final String ERROR_ID = "app.voucher.loiMa";
+	private static final String ERROR_DATA = "app.voucher.duLieuKhongHopLe";
+	private static final String ERROR_PAGINATION = "app.voucher.thamSoPhanTrangKhongHopLe";
+	private static final String ERROR_DISCOUNT = "app.voucher.loiMucGiam";
+	private static final String ERROR_DISCOUNT_RANGE = "app.voucher.khoangMucGiamKhongHopLe";
+	private static final String ERROR_DATE_RANGE = "app.voucher.khoangThoiHanKhongHopLe";
+	private static final String ERROR_NOT_FOUND = "app.voucher.khongTonTai";
+	private static final String ERROR_NAME = "app.voucher.loiTen";
+	private static final String ERROR_NAME_LENGTH = "app.voucher.tenQuaDai";
+	private static final String ERROR_DESCRIPTION = "app.voucher.moTaQuaDai";
+	private static final String ERROR_VALIDITY = "app.voucher.loiThoiHan";
+
     private final VoucherDAO voucherDAO = new VoucherDAO();
 
     public List<Voucher> findAll() throws SQLException {
@@ -25,7 +37,7 @@ public class VoucherService {
             throws SQLException {
 
         if (maVoucher == null || maVoucher.isBlank()) {
-            throw new IllegalArgumentException("voucher.loiMa");
+            throw new IllegalArgumentException(ERROR_ID);
         }
 
         return voucherDAO.findById(maVoucher.trim());
@@ -35,39 +47,30 @@ public class VoucherService {
             DanhSachVoucherCriteria criteria) throws SQLException {
 
         if (criteria == null) {
-            throw new IllegalArgumentException(
-                    "voucher.duLieuKhongHopLe");
+            throw new IllegalArgumentException(ERROR_DATA);
         }
 
         if (criteria.page() < 1 || criteria.pageSize() < 1) {
-            throw new IllegalArgumentException(
-                    "voucher.thamSoPhanTrangKhongHopLe");
+            throw new IllegalArgumentException(ERROR_PAGINATION);
         }
 
-        if (criteria.mucGiamTu() != null
-                && criteria.mucGiamTu() < 0) {
-            throw new IllegalArgumentException(
-                    "voucher.loiMucGiam");
-        }
-
-        if (criteria.mucGiamDen() != null
-                && criteria.mucGiamDen() < 0) {
-            throw new IllegalArgumentException(
-                    "voucher.loiMucGiam");
+        if ((criteria.mucGiamTu() != null
+                    && criteria.mucGiamTu() < 0)
+                || (criteria.mucGiamDen() != null
+                    && criteria.mucGiamDen() < 0)) {
+            throw new IllegalArgumentException(ERROR_DISCOUNT);
         }
 
         if (criteria.mucGiamTu() != null
                 && criteria.mucGiamDen() != null
                 && criteria.mucGiamTu() > criteria.mucGiamDen()) {
-            throw new IllegalArgumentException(
-                    "voucher.khoangMucGiamKhongHopLe");
+            throw new IllegalArgumentException(ERROR_DISCOUNT_RANGE);
         }
 
         if (criteria.thoiHanTu() != null
                 && criteria.thoiHanDen() != null
                 && criteria.thoiHanTu().isAfter(criteria.thoiHanDen())) {
-            throw new IllegalArgumentException(
-                    "voucher.khoangThoiHanKhongHopLe");
+            throw new IllegalArgumentException(ERROR_DATE_RANGE);
         }
 
         List<Voucher> matched = voucherDAO.findAll()
@@ -78,8 +81,7 @@ public class VoucherService {
         return PaginatedResult.of(
                 matched,
                 criteria.page(),
-                criteria.pageSize()
-        );
+                criteria.pageSize());
     }
 
     private boolean matches(
@@ -108,11 +110,12 @@ public class VoucherService {
             }
         }
 
-        if (!TextNormalizerUtil.normalize(
-                criteria.maVoucher()).isEmpty()
+        String maVoucher = TextNormalizerUtil.normalize(
+                criteria.maVoucher());
+
+        if (!maVoucher.isEmpty()
                 && !TextNormalizerUtil.normalize(
-                        voucher.getMaVoucher()).contains(TextNormalizerUtil.normalize(
-                                criteria.maVoucher()))) {
+                        voucher.getMaVoucher()).contains(maVoucher)) {
             return false;
         }
 
@@ -122,12 +125,14 @@ public class VoucherService {
                 return false;
             }
         }
+
         if (criteria.mucGiamDen() != null) {
             if (voucher.getMucGiam() == null
                     || voucher.getMucGiam() > criteria.mucGiamDen()) {
                 return false;
             }
         }
+
         if (voucher.getThoiHanApDung() == null) {
             return false;
         }
@@ -144,6 +149,7 @@ public class VoucherService {
                 && ngayApDung.isAfter(criteria.thoiHanDen())) {
             return false;
         }
+
         if (criteria.trangThaiKichHoat() != null
                 && voucher.isTrangThaiKichHoat()
                         != criteria.trangThaiKichHoat()) {
@@ -152,6 +158,7 @@ public class VoucherService {
 
         return true;
     }
+
     public Voucher create(Voucher voucher) throws SQLException {
         validate(voucher);
 
@@ -169,18 +176,19 @@ public class VoucherService {
 
         return voucher;
     }
+
     public Voucher update(Voucher voucher) throws SQLException {
         validate(voucher);
 
         if (voucher.getMaVoucher() == null
                 || voucher.getMaVoucher().isBlank()) {
-            throw new IllegalArgumentException("voucher.loiMa");
+            throw new IllegalArgumentException(ERROR_ID);
         }
 
         String maVoucher = voucher.getMaVoucher().trim();
 
         if (voucherDAO.findById(maVoucher).isEmpty()) {
-            throw new IllegalArgumentException("voucher.khongTonTai");
+            throw new IllegalArgumentException(ERROR_NOT_FOUND);
         }
 
         voucher.setMaVoucher(maVoucher);
@@ -189,15 +197,16 @@ public class VoucherService {
 
         return voucher;
     }
+
     public void delete(String maVoucher) throws SQLException {
         if (maVoucher == null || maVoucher.isBlank()) {
-            throw new IllegalArgumentException("voucher.loiMa");
+            throw new IllegalArgumentException(ERROR_ID);
         }
 
         String ma = maVoucher.trim();
 
         if (voucherDAO.findById(ma).isEmpty()) {
-            throw new IllegalArgumentException("voucher.khongTonTai");
+            throw new IllegalArgumentException(ERROR_NOT_FOUND);
         }
 
         voucherDAO.delete(ma);
@@ -205,35 +214,32 @@ public class VoucherService {
 
     private void validate(Voucher voucher) {
         if (voucher == null) {
-            throw new IllegalArgumentException(
-                    "voucher.duLieuKhongHopLe");
+            throw new IllegalArgumentException(ERROR_DATA);
         }
 
         if (voucher.getTenChuongTrinh() == null
                 || voucher.getTenChuongTrinh().isBlank()) {
-            throw new IllegalArgumentException("voucher.loiTen");
+            throw new IllegalArgumentException(ERROR_NAME);
         }
 
         if (voucher.getTenChuongTrinh().trim().length() > 100) {
-            throw new IllegalArgumentException("voucher.tenQuaDai");
+            throw new IllegalArgumentException(ERROR_NAME_LENGTH);
         }
 
         if (voucher.getMoTa() != null
                 && voucher.getMoTa().length() > 500) {
-            throw new IllegalArgumentException(
-                    "voucher.moTaQuaDai");
+            throw new IllegalArgumentException(ERROR_DESCRIPTION);
         }
 
         if (voucher.getMucGiam() == null
                 || !Double.isFinite(voucher.getMucGiam())
                 || voucher.getMucGiam() < 0
                 || voucher.getMucGiam() > 1) {
-            throw new IllegalArgumentException("voucher.loiMucGiam");
+            throw new IllegalArgumentException(ERROR_DISCOUNT);
         }
 
         if (voucher.getThoiHanApDung() == null) {
-            throw new IllegalArgumentException(
-                    "voucher.loiThoiHan");
+            throw new IllegalArgumentException(ERROR_VALIDITY);
         }
     }
 }
