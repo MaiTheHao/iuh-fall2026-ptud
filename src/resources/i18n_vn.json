@@ -131,10 +131,6 @@
 			"hinhAnh": "Hình Ảnh",
 			"donGia": "Đơn giá nhập",
 			"soLuongTon": "Số lượng tồn",
-			"donGiaTu": "Đơn giá từ",
-			"donGiaDen": "Đơn giá đến",
-			"soLuongTu": "Tồn kho từ",
-			"soLuongDen": "Tồn kho đến",
 			"chonAnh": "Chọn ảnh",
 			"goAnh": "Gỡ ảnh",
 			"chuaCoAnh": "Chưa có ảnh",
@@ -146,7 +142,13 @@
 			"loiKhoangLoc": "Khoảng lọc không hợp lệ. Giá trị từ phải nhỏ hơn hoặc bằng giá trị đến và không được âm.",
 			"chuaChonXoa": "Vui lòng chọn phụ tùng cần xóa.",
 			"xacNhanXoa": "Bạn có chắc chắn muốn xóa phụ tùng này không?",
-			"tieuDeXoa": "Xác nhận xóa phụ tùng"
+			"tieuDeXoa": "Xác nhận xóa phụ tùng",
+			"donGiaTuDen": "Đơn giá (từ - đến)",
+			"soLuongTuDen": "Số lượng tồn (từ - đến)",
+			"loaiTepAnh": "Tệp hình ảnh (*.png, *.jpg, *.jpeg, *.gif)",
+			"khongTaiDuocAnh": "Không tải được ảnh",
+			"khongCoAnh": "Không có ảnh",
+			"duLieuKhongPhaiAnh": "Dữ liệu nhận được không phải ảnh."
 		},
 		"login": {
 			"title": "Đăng nhập hệ thống",
