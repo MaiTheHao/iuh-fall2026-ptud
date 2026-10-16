@@ -1,4 +1,3 @@
-
 package iuh.fit.service;
 
 import iuh.fit.dao.PhuTungDAO;
@@ -14,142 +13,174 @@ import java.util.Optional;
 
 public class PhuTungService {
 
-	private static final String ERROR_NAME = "app.phuTung.loiTen";
-	private static final String ERROR_PRICE = "app.phuTung.loiDonGia";
-	private static final String ERROR_QUANTITY = "app.phuTung.loiSoLuong";
-	private static final String ERROR_ID = "app.phuTung.khongTimThay";
+    private static final String ERROR_DATA = "app.phuTung.duLieuKhongHopLe";
+    private static final String ERROR_NAME = "app.phuTung.loiTen";
+    private static final String ERROR_PRICE = "app.phuTung.loiDonGia";
+    private static final String ERROR_QUANTITY = "app.phuTung.loiSoLuong";
+    private static final String ERROR_ID = "app.phuTung.khongTimThay";
+    private static final String ERROR_RANGE = "app.phuTung.loiKhoangLoc";
 
-	private final PhuTungDAO phuTungDAO = new PhuTungDAO();
+    private final PhuTungDAO phuTungDAO = new PhuTungDAO();
 
-	public PaginatedResult<PhuTung> getAll(int page, int pageSize) throws SQLException {
+    public PaginatedResult<PhuTung> getAll(int page, int pageSize) throws SQLException {
 
-		return PaginatedResult.of(this.phuTungDAO.findAll(), page, pageSize);
-	}
+        return PaginatedResult.of(this.phuTungDAO.findAll(), page, pageSize);
+    }
 
-	public PaginatedResult<PhuTung> search(DanhSachPhuTungCriteria criteria) throws SQLException {
+    public PaginatedResult<PhuTung> search(DanhSachPhuTungCriteria criteria) throws SQLException {
 
-		DanhSachPhuTungCriteria filter = criteria == null
-				? new DanhSachPhuTungCriteria(null, null, null, null, null, null, null, 1,
-						PaginatedResult.DEFAULT_PAGE_SIZE)
-				: criteria;
+        DanhSachPhuTungCriteria filter = criteria == null
+                ? DanhSachPhuTungCriteria.macDinh()
+                : criteria;
 
-		List<PhuTung> matched = this.phuTungDAO.findAll().stream().filter(item -> this.matches(item, filter)).toList();
+        this.validateFilterRange(filter);
 
-		return PaginatedResult.of(matched, filter.page(), filter.pageSize());
-	}
+        List<PhuTung> matched = this.phuTungDAO.findAll().stream().filter(item -> this.matches(item, filter)).toList();
 
-	public Optional<PhuTung> getById(String maPhuTung) throws SQLException {
+        return PaginatedResult.of(matched, filter);
+    }
 
-		return this.phuTungDAO.findById(maPhuTung);
-	}
+    public Optional<PhuTung> getById(String maPhuTung) throws SQLException {
 
-	public void create(PhuTung phuTung) throws SQLException {
-		this.validate(phuTung);
+        return this.phuTungDAO.findById(maPhuTung);
+    }
 
-		List<String> existingIds = this.phuTungDAO.findAll().stream().map(PhuTung::getMaPhuTung).toList();
+    public void create(PhuTung phuTung) throws SQLException {
+        this.validate(phuTung);
+        phuTung.setSoLuongTon(0);
 
-		phuTung.setMaPhuTung(MaGeneratorUtil.sinhMa("PT", 3, existingIds));
+        List<String> existingIds = this.phuTungDAO.findAll().stream().map(PhuTung::getMaPhuTung).toList();
 
-		this.phuTungDAO.insert(phuTung);
-	}
+        phuTung.setMaPhuTung(MaGeneratorUtil.sinhMa("PT", 3, existingIds));
 
-	public void update(PhuTung phuTung) throws SQLException {
-		this.validate(phuTung);
+        this.phuTungDAO.insert(phuTung);
+    }
 
-		if (phuTung.getMaPhuTung() == null || phuTung.getMaPhuTung().isBlank()) {
-			throw new IllegalArgumentException(ERROR_ID);
-		}
+    public void update(PhuTung phuTung) throws SQLException {
+        this.validate(phuTung);
 
-		Optional<PhuTung> existing = this.phuTungDAO.findById(phuTung.getMaPhuTung());
+        if (phuTung.getMaPhuTung() == null || phuTung.getMaPhuTung().isBlank()) {
+            throw new IllegalArgumentException(ERROR_ID);
+        }
 
-		if (existing.isEmpty()) {
-			throw new IllegalArgumentException(ERROR_ID);
-		}
+        Optional<PhuTung> existing = this.phuTungDAO.findById(phuTung.getMaPhuTung());
 
-		// Không cho phép thay đổi tồn kho khi sửa thông tin.
-		phuTung.setSoLuongTon(existing.get().getSoLuongTon());
+        if (existing.isEmpty()) {
+            throw new IllegalArgumentException(ERROR_ID);
+        }
 
-		this.phuTungDAO.update(phuTung);
-	}
+        // Không cho phép thay đổi tồn kho khi sửa thông tin.
+        phuTung.setSoLuongTon(existing.get().getSoLuongTon());
 
-	public void delete(String maPhuTung) throws SQLException {
-		if (maPhuTung == null || maPhuTung.isBlank() || this.phuTungDAO.findById(maPhuTung).isEmpty()) {
-			throw new IllegalArgumentException(ERROR_ID);
-		}
+        this.phuTungDAO.update(phuTung);
+    }
 
-		this.phuTungDAO.delete(maPhuTung);
-	}
+    public void delete(String maPhuTung) throws SQLException {
+        if (maPhuTung == null || maPhuTung.isBlank() || this.phuTungDAO.findById(maPhuTung).isEmpty()) {
+            throw new IllegalArgumentException(ERROR_ID);
+        }
 
-	public void increaseStock(String maPhuTung, int soLuong) throws SQLException {
+        this.phuTungDAO.delete(maPhuTung);
+    }
 
-		if (maPhuTung == null || maPhuTung.isBlank() || soLuong <= 0) {
-			throw new IllegalArgumentException(ERROR_QUANTITY);
-		}
+    public void increaseStock(String maPhuTung, int soLuong) throws SQLException {
 
-		this.phuTungDAO.increaseStock(maPhuTung, soLuong);
-	}
+        if (maPhuTung == null || maPhuTung.isBlank() || soLuong <= 0) {
+            throw new IllegalArgumentException(ERROR_QUANTITY);
+        }
 
-	private void validate(PhuTung phuTung) {
-		if (phuTung == null || phuTung.getTenPhuTung() == null || phuTung.getTenPhuTung().isBlank()) {
-			throw new IllegalArgumentException(ERROR_NAME);
-		}
+        if (!this.phuTungDAO.increaseStock(maPhuTung, soLuong)) {
+            throw new IllegalArgumentException(ERROR_ID);
+        }
+    }
 
-		if (phuTung.getDonGiaNhap() == null || !Double.isFinite(phuTung.getDonGiaNhap())
-				|| phuTung.getDonGiaNhap() < 0) {
-			throw new IllegalArgumentException(ERROR_PRICE);
-		}
+    private void validateFilterRange(DanhSachPhuTungCriteria filter) {
 
-		if (phuTung.getSoLuongTon() < 0) {
-			throw new IllegalArgumentException(ERROR_QUANTITY);
-		}
-	}
+        if ((filter.donGiaTu() != null && filter.donGiaTu() < 0)
+                || (filter.donGiaDen() != null && filter.donGiaDen() < 0)
+                || (filter.soLuongTu() != null && filter.soLuongTu() < 0)
+                || (filter.soLuongDen() != null && filter.soLuongDen() < 0)) {
+            throw new IllegalArgumentException(ERROR_RANGE);
+        }
 
-	private boolean matches(PhuTung item, DanhSachPhuTungCriteria filter) {
+        if (filter.donGiaTu() != null
+                && filter.donGiaDen() != null
+                && filter.donGiaTu() > filter.donGiaDen()) {
+            throw new IllegalArgumentException(ERROR_RANGE);
+        }
 
-		if (!this.containsText(filter.maPhuTung(), item.getMaPhuTung())) {
-			return false;
-		}
+        if (filter.soLuongTu() != null
+                && filter.soLuongDen() != null
+                && filter.soLuongTu() > filter.soLuongDen()) {
+            throw new IllegalArgumentException(ERROR_RANGE);
+        }
+    }
 
-		if (!this.containsText(filter.tenPhuTung(), item.getTenPhuTung())) {
-			return false;
-		}
+    private void validate(PhuTung phuTung) {
+        if (phuTung == null) {
+            throw new IllegalArgumentException(ERROR_DATA);
+        }
 
-		if (filter.timNhanh() != null && !filter.timNhanh().isBlank()) {
+        if (phuTung.getTenPhuTung() == null || phuTung.getTenPhuTung().isBlank()) {
+            throw new IllegalArgumentException(ERROR_NAME);
+        }
 
-			String combined = item.getMaPhuTung() + " " + item.getTenPhuTung();
+        if (phuTung.getDonGiaNhap() == null || !Double.isFinite(phuTung.getDonGiaNhap())
+                || phuTung.getDonGiaNhap() < 0) {
+            throw new IllegalArgumentException(ERROR_PRICE);
+        }
 
-			if (!TextNormalizerUtil.normalize(combined).contains(TextNormalizerUtil.normalize(filter.timNhanh()))) {
-				return false;
-			}
-		}
+        if (phuTung.getSoLuongTon() < 0) {
+            throw new IllegalArgumentException(ERROR_QUANTITY);
+        }
+    }
 
-		double donGia = item.getDonGiaNhap();
-		int soLuong = item.getSoLuongTon();
+    private boolean matches(PhuTung item, DanhSachPhuTungCriteria filter) {
 
-		if (filter.donGiaTu() != null && donGia < filter.donGiaTu()) {
-			return false;
-		}
+        if (!this.containsText(filter.maPhuTung(), item.getMaPhuTung())) {
+            return false;
+        }
 
-		if (filter.donGiaDen() != null && donGia > filter.donGiaDen()) {
-			return false;
-		}
+        if (!this.containsText(filter.tenPhuTung(), item.getTenPhuTung())) {
+            return false;
+        }
 
-		if (filter.soLuongTu() != null && soLuong < filter.soLuongTu()) {
-			return false;
-		}
+        if (filter.timNhanh() != null && !filter.timNhanh().isBlank()) {
 
-		if (filter.soLuongDen() != null && soLuong > filter.soLuongDen()) {
-			return false;
-		}
+            String combined = item.getMaPhuTung() + " " + item.getTenPhuTung();
 
-		return true;
-	}
+            if (!TextNormalizerUtil.normalize(combined).contains(TextNormalizerUtil.normalize(filter.timNhanh()))) {
+                return false;
+            }
+        }
 
-	private boolean containsText(String filterValue, String value) {
-		if (filterValue == null || filterValue.isBlank()) {
-			return true;
-		}
+        double donGia = item.getDonGiaNhap();
+        int soLuong = item.getSoLuongTon();
 
-		return TextNormalizerUtil.normalize(value).contains(TextNormalizerUtil.normalize(filterValue));
-	}
+        if (filter.donGiaTu() != null && donGia < filter.donGiaTu()) {
+            return false;
+        }
+
+        if (filter.donGiaDen() != null && donGia > filter.donGiaDen()) {
+            return false;
+        }
+
+        if (filter.soLuongTu() != null && soLuong < filter.soLuongTu()) {
+            return false;
+        }
+
+        if (filter.soLuongDen() != null && soLuong > filter.soLuongDen()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean containsText(String filterValue, String value) {
+        if (filterValue == null || filterValue.isBlank()) {
+            return true;
+        }
+
+        return TextNormalizerUtil.normalize(value).contains(TextNormalizerUtil.normalize(filterValue));
+    }
 }
