@@ -5,16 +5,13 @@ import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.KhachHangService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -48,10 +45,9 @@ public class KhachHangPage extends AbstractPage {
                 I18nReaderUtil.get("app.khachHang.ngayTao"));
 
         this.maField.setEnabled(false);
-        this.addFormRow(panel, "app.khachHang.ma", this.maField);
-        this.addFormRow(panel, "app.khachHang.sdt", this.sdtField);
-        this.addFormRow(panel, "app.khachHang.hoTen", this.hoTenField);
-        
+        panel.addFormRow("app.khachHang.ma", this.maField);
+        panel.addFormRow("app.khachHang.sdt", this.sdtField);
+        panel.addFormRow("app.khachHang.hoTen", this.hoTenField);
 
         panel.addTextFilter("app.khachHang.ma", 0);
         panel.addTextFilter("app.khachHang.sdt", 1);
@@ -78,56 +74,32 @@ public class KhachHangPage extends AbstractPage {
         this.repaint();
     }
 
-    
     private void xoa(ManagementPanel panel) {
-	    int row = panel.getSelectedRow();
-	
-	    try {
-	        if (row < 0) {
-	            throw new IllegalArgumentException(
-	                    "app.khachHang.chuaChonXoa");
-	        }
-	
-	        String maKhachHang = String.valueOf(
-	                panel.getModel().getValueAt(row, 0));
-	
-	        int luaChon = JOptionPane.showConfirmDialog(
-	                this,
-	                I18nReaderUtil.get("app.khachHang.xacNhanXoa"),
-	                I18nReaderUtil.get("app.khachHang.tieuDeXoa"),
-	                JOptionPane.YES_NO_OPTION,
-	                JOptionPane.WARNING_MESSAGE);
-	
-	        if (luaChon != JOptionPane.YES_OPTION) {
-	            return;
-	        }
-	
-	        this.khachHangService.delete(maKhachHang);
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.common.delete_succeed"));
-	        this.lamMoi(panel);
-	        this.taiLai(panel, this.trang);
-	
-	    } catch (IllegalArgumentException e) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get(e.getMessage()));
-	
-	    } catch (SQLException e) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.login.errorSystem"));
-	    }
-	}
+        int row = panel.getSelectedRow();
 
+        try {
+            if (row < 0) {
+                throw new IllegalArgumentException(
+                        "app.khachHang.chuaChonXoa");
+            }
 
-	private void addFormRow(ManagementPanel panel, String labelKey, JTextField field) {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
-        row.setOpaque(false);
-        row.add(new JLabel(I18nReaderUtil.get(labelKey)));
-        row.add(field);
-        panel.getFormPanel().add(row);
+            String maKhachHang = String.valueOf(
+                    panel.getModel().getValueAt(row, 0));
+
+            if (!ThongBao.xacNhan(this, "app.khachHang.xacNhanXoa", "app.khachHang.tieuDeXoa")) {
+                return;
+            }
+
+            this.khachHangService.delete(maKhachHang);
+            ThongBao.thongTin(this, "app.common.delete_succeed");
+            this.lamMoi(panel);
+            this.taiLai(panel, this.trang);
+
+        } catch (IllegalArgumentException e) {
+            ThongBao.loi(this, e);
+        } catch (SQLException e) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
     }
 
     private void taiLai(ManagementPanel panel, int page) {
@@ -156,7 +128,7 @@ public class KhachHangPage extends AbstractPage {
             panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
             this.trang = ketQua.page();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+            ThongBao.loi(this, "app.login.errorSystem");
         }
     }
 
@@ -194,19 +166,17 @@ public class KhachHangPage extends AbstractPage {
         try {
             if (ma == null) {
                 this.khachHangService.create(khachHang);
-                JOptionPane.showMessageDialog(
-                        this, I18nReaderUtil.get("app.common.create_succeed"));
+                ThongBao.thongTin(this, "app.common.create_succeed");
             } else {
                 this.khachHangService.update(khachHang);
-                JOptionPane.showMessageDialog(
-                		this, I18nReaderUtil.get("app.common.update_succeed"));
+                ThongBao.thongTin(this, "app.common.update_succeed");
             }
             this.lamMoi(panel);
             this.taiLai(panel, 1);
         } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()));
+            ThongBao.loi(this, e);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+            ThongBao.loi(this, "app.login.errorSystem");
         }
     }
 

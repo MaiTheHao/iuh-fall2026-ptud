@@ -5,17 +5,15 @@ import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.XeService;
 import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +47,11 @@ public class XePage extends AbstractPage {
                 I18nReaderUtil.get("app.xe.dongXe"), I18nReaderUtil.get("app.xe.doiXe"),
                 I18nReaderUtil.get("app.xe.odo"));
 
-        this.addFormRow(panel, "app.xe.bienSo", this.bienSoField);
-        this.addFormRow(panel, "app.xe.hangXe", this.hangXeField);
-        this.addFormRow(panel, "app.xe.dongXe", this.dongXeField);
-        this.addFormRow(panel, "app.xe.doiXe", this.doiXeField);
-        this.addFormRow(panel, "app.xe.odo", this.odoField);
+        panel.addFormRow("app.xe.bienSo", this.bienSoField);
+        panel.addFormRow("app.xe.hangXe", this.hangXeField);
+        panel.addFormRow("app.xe.dongXe", this.dongXeField);
+        panel.addFormRow("app.xe.doiXe", this.doiXeField);
+        panel.addFormRow("app.xe.odo", this.odoField);
 
         panel.addTextFilter("app.xe.bienSo", 0);
         panel.addTextFilter("app.xe.hangXe", 1);
@@ -94,55 +92,39 @@ public class XePage extends AbstractPage {
         int row = panel.getSelectedRow();
 
         if (row < 0) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.chuaChonXoa"));
+            ThongBao.canhBao(this, "app.xe.chuaChonXoa");
             return;
         }
 
         String bienSo = String.valueOf(panel.getModel().getValueAt(row, 0));
 
-        int luaChon = JOptionPane.showConfirmDialog(
-                this,
-                I18nReaderUtil.get("app.xe.xacNhanXoa"),
-                I18nReaderUtil.get("app.xe.tieuDeXoa"),
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
-
-        if (luaChon != JOptionPane.YES_OPTION) {
+        if (!ThongBao.xacNhan(this, "app.xe.xacNhanXoa", "app.xe.tieuDeXoa")) {
             return;
         }
 
         try {
             this.xeService.delete(bienSo);
 
-            JOptionPane.showMessageDialog(this, "delete_succeed");
+            ThongBao.thongTin(this, "app.common.delete_succeed");
 
             this.lamMoi(panel);
             this.taiLai(panel, this.trang);
 
         } catch (IllegalArgumentException | IllegalStateException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()));
+            ThongBao.loi(this, e);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+            ThongBao.loi(this, "app.login.errorSystem");
         }
-    }
-
-    private void addFormRow(ManagementPanel panel, String labelKey, JTextField field) {
-
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
-        row.setOpaque(false);
-
-        row.add(new JLabel(I18nReaderUtil.get(labelKey)));
-        row.add(field);
-
-        panel.getFormPanel().add(row);
     }
 
     private void taiLai(ManagementPanel panel, int page) {
         try {
             DanhSachXeCriteria tieuChi = new DanhSachXeCriteria(panel.getTextFilter(0), panel.getTextFilter(1),
-                    panel.getTextFilter(2), this.parseInteger(panel.getTextFilter(3)),
-                    this.parseInteger(panel.getTextFilter(4)), this.parseInteger(panel.getTextFilter(5)),
-                    this.parseInteger(panel.getTextFilter(6)), panel.getQuickFilter(), page, SO_DONG_MOI_TRANG);
+                    panel.getTextFilter(2), NumberParseUtil.toIntegerOrNull(panel.getTextFilter(3)),
+                    NumberParseUtil.toIntegerOrNull(panel.getTextFilter(4)),
+                    NumberParseUtil.toIntegerOrNull(panel.getTextFilter(5)),
+                    NumberParseUtil.toIntegerOrNull(panel.getTextFilter(6)), panel.getQuickFilter(), page,
+                    SO_DONG_MOI_TRANG);
 
             PaginatedResult<Xe> ketQua = this.xeService.search(tieuChi);
 
@@ -161,18 +143,10 @@ public class XePage extends AbstractPage {
             this.trang = ketQua.page();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.loiBoLocSo"));
+            ThongBao.loi(this, "app.xe.loiBoLocSo");
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+            ThongBao.loi(this, "app.login.errorSystem");
         }
-    }
-
-    private Integer parseInteger(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-
-        return Integer.valueOf(value.trim());
     }
 
     private void chonDong(ManagementPanel panel) {
@@ -227,23 +201,21 @@ public class XePage extends AbstractPage {
             if (!this.xeService.existsByBienSo(bienSo)) {
                 this.xeService.create(xe);
 
-                JOptionPane.showMessageDialog(
-                        this, I18nReaderUtil.get("app.common.create_succeed"));
+                ThongBao.thongTin(this, "app.common.create_succeed");
             } else {
                 this.xeService.update(xe);
 
-                JOptionPane.showMessageDialog(
-                        this, I18nReaderUtil.get("app.common.update_succeed"));
+                ThongBao.thongTin(this, "app.common.update_succeed");
             }
             this.lamMoi(panel);
             this.taiLai(panel, 1);
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.xe.loiThongTinSo"));
+            ThongBao.loi(this, "app.xe.loiThongTinSo");
         } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()));
+            ThongBao.loi(this, e);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+            ThongBao.loi(this, "app.login.errorSystem");
         }
     }
 
