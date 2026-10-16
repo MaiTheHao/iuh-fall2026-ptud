@@ -2,7 +2,7 @@ package iuh.fit.enumeration;
 
 import java.util.Locale;
 
-public enum AppLocale {
+public enum AppLocale implements I18nEnum {
     EN("i18n_en.json", Locale.forLanguageTag("en")),
     VN("i18n_vn.json", Locale.forLanguageTag("vi"));
 
@@ -20,5 +20,10 @@ public enum AppLocale {
 
     public Locale getLocale() {
         return this.locale;
+    }
+
+    @Override
+    public String getI18nKey() {
+        return this == EN ? "app.localeName.en" : "app.localeName.vn";
     }
 }
