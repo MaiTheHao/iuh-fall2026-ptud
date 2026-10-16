@@ -21,6 +21,7 @@ public class DichVuService {
     private static final String ERROR_PRICE = "app.dichVu.loiDonGia";
     private static final String ERROR_ID = "app.dichVu.khongTimThay";
     private static final String ERROR_DATA = "app.dichVu.loiDuLieu";
+    private static final String ERROR_RANGE = "app.dichVu.loiKhoangLoc";
 
     private final DichVuDAO dichVuDAO;
 
@@ -32,57 +33,60 @@ public class DichVuService {
         this.dichVuDAO = Objects.requireNonNull(dichVuDAO);
     }
 
-    /**
-     * Tìm kiếm dịch vụ và phân trang.
-     */
     public PaginatedResult<DichVu> search(
             DanhSachDichVuCriteria criteria) throws SQLException {
 
-        if (criteria == null) {
-            criteria = new DanhSachDichVuCriteria(
-                    "", "", "", null, null,
-                    1, PaginatedResult.DEFAULT_PAGE_SIZE);
+        DanhSachDichVuCriteria filter = criteria == null
+                ? DanhSachDichVuCriteria.macDinh()
+                : criteria;
+
+        if ((filter.donGiaTu() != null && filter.donGiaTu() < 0)
+                || (filter.donGiaDen() != null && filter.donGiaDen() < 0)) {
+            throw new IllegalArgumentException(ERROR_RANGE);
         }
 
-        List<DichVu> danhSach = dichVuDAO.findAll();
+        if (filter.donGiaTu() != null
+                && filter.donGiaDen() != null
+                && filter.donGiaTu() > filter.donGiaDen()) {
+            throw new IllegalArgumentException(ERROR_RANGE);
+        }
 
-        final String ma = normalize(criteria.maDichVu());
-        final String ten = normalize(criteria.tenDichVu());
-        final String timNhanh = normalize(criteria.timNhanh());
+        List<DichVu> danhSach = this.dichVuDAO.findAll();
 
-        final Double giaTu = criteria.donGiaTu();
-        final Double giaDen = criteria.donGiaDen();
+        final String ma = this.normalize(filter.maDichVu());
+        final String ten = this.normalize(filter.tenDichVu());
+        final String timNhanh = this.normalize(filter.timNhanh());
+
+        final Double giaTu = filter.donGiaTu();
+        final Double giaDen = filter.donGiaDen();
 
         List<DichVu> ketQua = danhSach.stream()
-                .filter(dv -> normalize(dv.getMaDichVu()).contains(ma))
-                .filter(dv -> normalize(dv.getTenDichVu()).contains(ten))
+                .filter(dv -> this.normalize(dv.getMaDichVu()).contains(ma))
+                .filter(dv -> this.normalize(dv.getTenDichVu()).contains(ten))
                 .filter(dv -> timNhanh.isEmpty()
-                        || normalize(dv.getMaDichVu() + " "
+                        || this.normalize(dv.getMaDichVu() + " "
                                 + dv.getTenDichVu()).contains(timNhanh))
                 .filter(dv -> giaTu == null || dv.getDonGia() >= giaTu)
                 .filter(dv -> giaDen == null || dv.getDonGia() <= giaDen)
                 .collect(Collectors.toList());
 
-        int pageSize = criteria.pageSize() > 0
-                ? criteria.pageSize()
+        int pageSize = filter.pageSize() > 0
+                ? filter.pageSize()
                 : PaginatedResult.DEFAULT_PAGE_SIZE;
 
         int totalPages = PaginatedResult.totalPages(
                 ketQua.size(), pageSize);
 
         int page = PaginatedResult.clampPage(
-                criteria.page(), totalPages);
+                filter.page(), totalPages);
 
-        return PaginatedResult.of(ketQua, page, pageSize);
+        return PaginatedResult.of(ketQua, filter);
     }
 
-    /**
-     * Thêm dịch vụ mới và tự sinh mã DV.
-     */
     public DichVu create(DichVu dichVu) throws SQLException {
-        validate(dichVu);
+        this.validate(dichVu);
 
-        List<String> existingIds = dichVuDAO.findAll()
+        List<String> existingIds = this.dichVuDAO.findAll()
                 .stream()
                 .map(DichVu::getMaDichVu)
                 .collect(Collectors.toList());
@@ -97,19 +101,16 @@ public class DichVuService {
                 dichVu.getAnhUrl(),
                 dichVu.getDonGia());
 
-        dichVuDAO.insert(dichVuMoi);
+        this.dichVuDAO.insert(dichVuMoi);
         return dichVuMoi;
     }
 
-    /**
-     * Cập nhật dịch vụ.
-     */
     public void update(DichVu dichVu) throws SQLException {
-        validate(dichVu);
+        this.validate(dichVu);
 
         if (dichVu.getMaDichVu() == null
                 || dichVu.getMaDichVu().isBlank()
-                || dichVuDAO.findById(
+                || this.dichVuDAO.findById(
                         dichVu.getMaDichVu()).isEmpty()) {
             throw new IllegalArgumentException(ERROR_ID);
         }
@@ -121,25 +122,18 @@ public class DichVuService {
                 dichVu.getAnhUrl(),
                 dichVu.getDonGia());
 
-        dichVuDAO.update(dichVuCapNhat);
+        this.dichVuDAO.update(dichVuCapNhat);
     }
 
-    /**
-     * Xóa dịch vụ.
-     */
     public void delete(String maDichVu) throws SQLException {
         if (maDichVu == null || maDichVu.isBlank()
-                || dichVuDAO.findById(maDichVu).isEmpty()) {
+                || this.dichVuDAO.findById(maDichVu).isEmpty()) {
             throw new IllegalArgumentException(ERROR_ID);
         }
 
-        dichVuDAO.delete(maDichVu);
+        this.dichVuDAO.delete(maDichVu);
     }
 
-    /**
-     * Kiểm tra dữ liệu trước khi thêm hoặc sửa.
-     * Các lỗi được trả về dưới dạng key i18n.
-     */
     private void validate(DichVu dichVu) {
         if (dichVu == null) {
             throw new IllegalArgumentException(ERROR_DATA);
