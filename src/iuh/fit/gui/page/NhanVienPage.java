@@ -6,741 +6,457 @@ import iuh.fit.entity.NhanVien;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiNhanVien;
 import iuh.fit.enumeration.VaiTro;
+import iuh.fit.gui.component.AnhField;
+import iuh.fit.gui.component.AnhTableCellRenderer;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.NhanVienService;
 import iuh.fit.util.I18nReaderUtil;
-import iuh.fit.util.MaGeneratorUtil;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-
-import java.io.File;
-import java.io.IOException;
-
-import java.net.URI;
-import java.net.URLConnection;
-
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class NhanVienPage extends AbstractPage {
 
-	private static final long serialVersionUID = 1L;
-	private static final int PAGE_SIZE = 10;
+    private static final long serialVersionUID = 1L;
+    private static final int PAGE_SIZE = 10;
 
-	private final NhanVienService nhanVienService = new NhanVienService();
+    private final NhanVienService nhanVienService = new NhanVienService();
 
-	private ManagementPanel managementPanel;
+    private final AnhField anhField = new AnhField(
+            "app.nhanVien.anhUrl",
+            "app.nhanVien.chonAnh",
+            "app.nhanVien.goAnh",
+            "app.nhanVien.chuaCoAnh",
+            "app.nhanVien.khongTaiDuocAnh",
+            "app.nhanVien.loaiTepAnh",
+            "app.nhanVien.duLieuKhongPhaiAnh");
 
-	private final JTextField txtMaNhanVien = new JTextField(14);
-	private final JTextField txtTenDangNhap = new JTextField(14);
-	private final JPasswordField txtMatKhau = new JPasswordField(14);
-	private final JTextField txtHoTen = new JTextField(14);
-	private final JTextField txtSoDienThoai = new JTextField(14);
-	private final JTextField txtAnhDaiDien = new JTextField(14);
+    private ManagementPanel managementPanel;
 
-	private final JLabel lblAnhPreview = new JLabel(I18nReaderUtil.get("app.phuTung.chuaCoAnh"), SwingConstants.CENTER);
+    private final JTextField txtMaNhanVien = new JTextField(14);
+    private final JTextField txtTenDangNhap = new JTextField(14);
+    private final JPasswordField txtMatKhau = new JPasswordField(14);
+    private final JTextField txtHoTen = new JTextField(14);
+    private final JTextField txtSoDienThoai = new JTextField(14);
 
-	private JComboBox<VaiTro> cboVaiTro;
-	private JComboBox<TrangThaiNhanVien> cboTrangThai;
+    private JComboBox<VaiTro> cboVaiTro;
+    private JComboBox<TrangThaiNhanVien> cboTrangThai;
 
-	private boolean dangSua = false;
-	private String maNhanVienDangSua;
+    private boolean dangSua = false;
+    private String maNhanVienDangSua;
 
-	private PaginatedResult<NhanVien> ketQua;
-	private int trangHienTai = 1;
+    private PaginatedResult<NhanVien> ketQua;
+    private int trangHienTai = 1;
 
-	public NhanVienPage() {
-		setLayout(new BorderLayout());
-	}
+    public NhanVienPage() {
+        setLayout(new BorderLayout());
+    }
 
-	@Override
-	public void render() {
-		removeAll();
+    @Override
+    public void render() {
+        removeAll();
 
-		setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-		managementPanel = new ManagementPanel();
+        managementPanel = new ManagementPanel();
 
-		managementPanel.setHeaders(I18nReaderUtil.get("app.phuTung.hinhAnh"),
-				I18nReaderUtil.get("app.nhanVien.maNhanVien"), I18nReaderUtil.get("app.nhanVien.hoTen"),
-				I18nReaderUtil.get("app.nhanVien.soDienThoai"), I18nReaderUtil.get("app.nhanVien.vaiTro"),
-				I18nReaderUtil.get("app.nhanVien.trangThai"));
+        managementPanel.setHeaders(I18nReaderUtil.get("app.nhanVien.hinhAnh"),
+                I18nReaderUtil.get("app.nhanVien.maNhanVien"), I18nReaderUtil.get("app.nhanVien.hoTen"),
+                I18nReaderUtil.get("app.nhanVien.soDienThoai"), I18nReaderUtil.get("app.nhanVien.vaiTro"),
+                I18nReaderUtil.get("app.nhanVien.trangThai"));
 
-		khoiTaoForm();
-		khoiTaoBoLoc();
-		ganSuKien();
+        khoiTaoForm();
+        khoiTaoBoLoc();
+        ganSuKien();
 
-		add(managementPanel, BorderLayout.CENTER);
+        add(managementPanel, BorderLayout.CENTER);
 
-		trangHienTai = 1;
-		taiLaiDanhSach();
+        trangHienTai = 1;
+        taiLaiDanhSach();
 
-		revalidate();
-		repaint();
-	}
+        revalidate();
+        repaint();
+    }
 
-	@Override
-	public String getTitleKey() {
-		return "app.menu.employees";
-	}
+    @Override
+    public String getTitleKey() {
+        return "app.menu.employees";
+    }
 
-	@Override
-	public MenuGroup getGroup() {
-		return MenuGroup.TO_CHUC;
-	}
+    @Override
+    public MenuGroup getGroup() {
+        return MenuGroup.TO_CHUC;
+    }
 
-	// ==================== FORM ====================
+    @Override
+    public boolean hasSeparatorBefore() {
+        return true;
+    }
 
-	private void khoiTaoForm() {
-		JPanel form = managementPanel.getFormPanel();
+    // ==================== FORM ====================
 
-		form.removeAll();
+    private void khoiTaoForm() {
+        JPanel form = this.managementPanel.getFormPanel();
 
-		txtMaNhanVien.setEditable(false);
-		txtMaNhanVien.setFocusable(false);
-		txtTenDangNhap.setEnabled(true);
-		txtMatKhau.setEnabled(true);
+        form.removeAll();
 
-		addFormRow(managementPanel, "app.nhanVien.maNhanVien", txtMaNhanVien);
+        this.txtMaNhanVien.setEditable(false);
+        this.txtMaNhanVien.setFocusable(false);
+        this.txtTenDangNhap.setEnabled(true);
+        this.txtMatKhau.setEnabled(true);
 
-		addFormRow(managementPanel, "app.nhanVien.tenDangNhap", txtTenDangNhap);
+        this.managementPanel.addFormRow("app.nhanVien.maNhanVien", this.txtMaNhanVien);
 
-		addFormRow(managementPanel, "app.nhanVien.matKhau", txtMatKhau);
+        this.managementPanel.addFormRow("app.nhanVien.tenDangNhap", this.txtTenDangNhap);
 
-		addFormRow(managementPanel, "app.nhanVien.hoTen", txtHoTen);
+        this.managementPanel.addFormRow("app.nhanVien.matKhau", this.txtMatKhau);
 
-		addFormRow(managementPanel, "app.nhanVien.soDienThoai", txtSoDienThoai);
+        this.managementPanel.addFormRow("app.nhanVien.hoTen", this.txtHoTen);
 
-		cboVaiTro = new JComboBox<>(VaiTro.values());
+        this.managementPanel.addFormRow("app.nhanVien.soDienThoai", this.txtSoDienThoai);
 
-		addFormRow(managementPanel, "app.nhanVien.vaiTro", cboVaiTro);
+        this.cboVaiTro = new JComboBox<>(VaiTro.values());
 
-		cboTrangThai = new JComboBox<>(TrangThaiNhanVien.values());
+        this.managementPanel.addFormRow("app.nhanVien.vaiTro", this.cboVaiTro);
 
-		addFormRow(managementPanel, "app.nhanVien.trangThai", cboTrangThai);
+        this.cboTrangThai = new JComboBox<>(TrangThaiNhanVien.values());
 
-		// Đường dẫn ảnh đại diện.
-		addFormRow(managementPanel, "app.phuTung.anhUrl", txtAnhDaiDien);
+        this.managementPanel.addFormRow("app.nhanVien.trangThai", this.cboTrangThai);
 
-		txtAnhDaiDien.addActionListener(e -> hienThiAnh(txtAnhDaiDien.getText().trim()));
+        form.add(this.anhField);
 
-		// Các nút chọn và gỡ ảnh.
-		JPanel nutAnhPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+        form.revalidate();
+        form.repaint();
 
-		nutAnhPanel.setOpaque(false);
+        this.lamMoiForm();
+    }
 
-		JButton btnChonAnh = new JButton(I18nReaderUtil.get("app.phuTung.chonAnh"));
+    // ==================== BỘ LỌC ====================
 
-		JButton btnGoAnh = new JButton(I18nReaderUtil.get("app.phuTung.goAnh"));
+    private void khoiTaoBoLoc() {
+        this.managementPanel.addTextFilter("app.nhanVien.maNhanVien", 0);
 
-		btnChonAnh.addActionListener(e -> chonAnh());
-		btnGoAnh.addActionListener(e -> goAnh());
-		nutAnhPanel.add(btnChonAnh);
-		nutAnhPanel.add(btnGoAnh);
+        this.managementPanel.addTextFilter("app.nhanVien.hoTen", 1);
 
-		form.add(nutAnhPanel);
+        this.managementPanel.addTextFilter("app.nhanVien.soDienThoai", 2);
 
-		// Khu vực xem trước ảnh.
-		lblAnhPreview.setPreferredSize(new Dimension(180, 120));
+        this.managementPanel.addComboBoxFilter("app.nhanVien.vaiTro", 3, VaiTro.values());
 
-		lblAnhPreview.setBorder(BorderFactory.createEtchedBorder());
+        this.managementPanel.addComboBoxFilter("app.nhanVien.trangThai", 4, TrangThaiNhanVien.values());
 
-		JPanel previewPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+        this.managementPanel.addDateRangeFilter("app.nhanVien.ngayTao", 5);
 
-		previewPanel.setOpaque(false);
-		previewPanel.add(lblAnhPreview);
+        this.managementPanel.setFilterChangeListener(() -> {
+            this.trangHienTai = 1;
+            this.taiLaiDanhSach();
+        });
+    }
 
-		form.add(previewPanel);
+    private String layGiaTriBoLoc(int index) {
+        String value = this.managementPanel.getTextFilter(index);
 
-		form.revalidate();
-		form.repaint();
+        if (value == null || value.isBlank()) {
+            return null;
+        }
 
-		lamMoiForm();
-	}
+        return value.trim();
+    }
 
-	/**
-	 * Tạo một dòng form giống cách bố trí của PhuTungPage.
-	 */
-	private void addFormRow(ManagementPanel panel, String labelKey, Component component) {
+    private String layTimNhanh() {
+        String value = this.managementPanel.getQuickFilter();
 
-		JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+        if (value == null || value.isBlank()) {
+            return null;
+        }
 
-		row.setOpaque(false);
+        return value.trim();
+    }
 
-		row.add(new JLabel(I18nReaderUtil.get(labelKey)));
-		row.add(component);
+    // ==================== SỰ KIỆN ====================
 
-		panel.getFormPanel().add(row);
-	}
+    private void ganSuKien() {
+        this.managementPanel.getThemButton().addActionListener(e -> this.lamMoiForm());
 
-	// ==================== XỬ LÝ ẢNH ====================
+        this.managementPanel.getLuuButton().addActionListener(e -> this.luu());
 
-	private void chonAnh() {
-		JFileChooser chooser = new JFileChooser();
+        this.managementPanel.getXoaTrangButton().addActionListener(e -> this.lamMoiForm());
 
-		chooser.setDialogTitle(I18nReaderUtil.get("app.phuTung.chonAnh"));
+        this.managementPanel.getXoaButton().addActionListener(e -> this.xoa());
 
-		chooser.setFileFilter(
-				new FileNameExtensionFilter(I18nReaderUtil.get("app.phuTung.loaiTepAnh"), "png", "jpg", "jpeg", "gif"));
+        this.managementPanel.getClearFilterButton().addActionListener(e -> {
+            this.trangHienTai = 1;
+            this.managementPanel.clearFilters();
+            this.taiLaiDanhSach();
+        });
 
-		int result = chooser.showOpenDialog(this);
+        this.managementPanel.getPrevButton().addActionListener(e -> {
+            if (this.trangHienTai > 1) {
+                this.trangHienTai--;
+                this.taiLaiDanhSach();
+            }
+        });
 
-		if (result == JFileChooser.APPROVE_OPTION) {
-			File file = chooser.getSelectedFile();
+        this.managementPanel.getNextButton().addActionListener(e -> {
+            if (this.ketQua != null && this.trangHienTai < this.ketQua.totalPages()) {
+                this.trangHienTai++;
+                this.taiLaiDanhSach();
+            }
+        });
 
-			txtAnhDaiDien.setText(file.getAbsolutePath());
+        this.managementPanel.getTable().getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                this.chonDong();
+            }
+        });
+    }
 
-			hienThiAnh(file.getAbsolutePath());
-		}
-	}
+    // ==================== TẢI DANH SÁCH ====================
 
-	private void goAnh() {
-		txtAnhDaiDien.setText("");
-		lblAnhPreview.setIcon(null);
+    private void taiLaiDanhSach() {
+        try {
+            DanhSachNhanVienCriteria criteria =
+                    new DanhSachNhanVienCriteria(
+                            this.layGiaTriBoLoc(0),
+                            this.layGiaTriBoLoc(1),
+                            this.layGiaTriBoLoc(2),
+                            this.managementPanel.getComboFilter(3),
+                            this.managementPanel.getComboFilter(4),
+                            this.layTimNhanh(),
+                            this.managementPanel.getDateFilterFrom(5),
+                            this.managementPanel.getDateFilterTo(5),
+                            this.trangHienTai,
+                            PAGE_SIZE
+                    );
 
-		lblAnhPreview.setText(I18nReaderUtil.get("app.phuTung.chuaCoAnh"));
-	}
+            this.ketQua = this.nhanVienService.search(criteria);
 
-	/**
-	 * Hiển thị ảnh từ đường dẫn file hoặc URL.
-	 */
-	private void hienThiAnh(String duongDan) {
-		if (duongDan == null || duongDan.isBlank()) {
-			goAnh();
-			return;
-		}
+            if (this.ketQua == null) {
+                return;
+            }
 
-		try {
-			BufferedImage bufferedImage;
+            if (this.ketQua.totalPages() > 0 && this.trangHienTai > this.ketQua.totalPages()) {
 
-			if (duongDan.startsWith("https://") || duongDan.startsWith("http://")) {
+                this.trangHienTai = this.ketQua.totalPages();
+                this.taiLaiDanhSach();
+                return;
+            }
 
-				URLConnection connection = URI.create(duongDan.trim()).toURL().openConnection();
+            this.hienThiDanhSach();
 
-				connection.setConnectTimeout(5000);
-				connection.setReadTimeout(10000);
+        } catch (SQLException ex) {
+            ThongBao.loi(this, "app.nhanVien.loiTaiDanhSach");
+        }
+    }
 
-				try (var input = connection.getInputStream()) {
-					bufferedImage = ImageIO.read(input);
-				}
+    private void hienThiDanhSach() {
+        if (this.ketQua == null) {
+            return;
+        }
 
-			} else {
-				bufferedImage = ImageIO.read(new File(duongDan.trim()));
-			}
+        List<Object[]> rows = new ArrayList<>();
 
-			if (bufferedImage == null) {
-				throw new IOException(I18nReaderUtil.get("app.phuTung.duLieuKhongPhaiAnh"));
-			}
+        for (NhanVien nv : this.ketQua.items()) {
+            rows.add(new Object[] { nv.getAnhDaiDien(), nv.getMaNhanVien(), nv.getHoTen(),
+                    nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai(),
+                    nv.getVaiTro() == null ? "" : nv.getVaiTro().getI18NBusinessName(),
+                    nv.getTrangThai() == null ? "" : nv.getTrangThai().getI18NBusinessName() });
+        }
 
-			Image image = bufferedImage.getScaledInstance(180, 120, Image.SCALE_SMOOTH);
+        this.managementPanel.setRows(rows);
 
-			lblAnhPreview.setText("");
-			lblAnhPreview.setIcon(new ImageIcon(image));
+        this.cauHinhCotAnh();
 
-		} catch (Exception ex) {
-			lblAnhPreview.setIcon(null);
+        int from = this.ketQua.fromIndex();
 
-			lblAnhPreview.setText(I18nReaderUtil.get("app.phuTung.khongTaiDuocAnh"));
+        this.managementPanel.setCount(from, this.ketQua.toIndex(), this.ketQua.totalItems());
 
-			System.err.println(I18nReaderUtil.get("app.phuTung.khongCoAnh") + ": " + duongDan);
+        this.managementPanel.setPage(this.ketQua.page(), Math.max(1, this.ketQua.totalPages()));
 
-			ex.printStackTrace();
-		}
-	}
+        this.trangHienTai = this.ketQua.page();
+    }
 
-	// ==================== BỘ LỌC ====================
+    // ==================== CỘT ẢNH ====================
 
-	private void khoiTaoBoLoc() {
-		managementPanel.addTextFilter("app.nhanVien.maNhanVien", 0);
+    private void cauHinhCotAnh() {
+        AnhTableCellRenderer.ganVao(this.managementPanel, 0,
+                "app.nhanVien.chuaCoAnh", "app.nhanVien.khongTaiDuocAnh");
+    }
 
-		managementPanel.addTextFilter("app.nhanVien.hoTen", 1);
+    // ==================== CHỌN NHÂN VIÊN ====================
 
-		managementPanel.addTextFilter("app.nhanVien.soDienThoai", 2);
+    private void chonDong() {
+        JTable table = this.managementPanel.getTable();
 
-		managementPanel.addComboBoxFilter("app.nhanVien.vaiTro", 3, VaiTro.values());
+        int selectedRow = table.getSelectedRow();
 
-		managementPanel.addComboBoxFilter("app.nhanVien.trangThai", 4, TrangThaiNhanVien.values());
+        if (selectedRow < 0) {
+            return;
+        }
 
-		managementPanel.addDateRangeFilter("app.nhanVien.ngayTao", 5);
+        int modelRow = table.convertRowIndexToModel(selectedRow);
 
-		managementPanel.setFilterChangeListener(() -> {
-			trangHienTai = 1;
-			taiLaiDanhSach();
-		});
-	}
+        TableModel model = table.getModel();
 
-	private String layGiaTriBoLoc(int index) {
-		String value = managementPanel.getTextFilter(index);
+        // Cột 0 là ảnh, cột 1 là mã nhân viên.
+        String ma = String.valueOf(model.getValueAt(modelRow, 1));
 
-		if (value == null || value.isBlank()) {
-			return null;
-		}
+        try {
+            NhanVien nv = this.nhanVienService.getById(ma);
 
-		return value.trim();
-	}
+            this.dangSua = true;
+            this.maNhanVienDangSua = nv.getMaNhanVien();
 
-	private String layTimNhanh() {
-		String value = managementPanel.getQuickFilter();
+            this.txtMaNhanVien.setText(nv.getMaNhanVien());
+            this.txtTenDangNhap.setText(nv.getTenDangNhap());
+            this.txtHoTen.setText(nv.getHoTen());
 
-		if (value == null || value.isBlank()) {
-			return null;
-		}
+            this.txtSoDienThoai.setText(nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai());
 
-		return value.trim();
-	}
+            this.anhField.setDuongDan(nv.getAnhDaiDien());
 
-	// ==================== SỰ KIỆN ====================
+            this.cboVaiTro.setSelectedItem(nv.getVaiTro());
+            this.cboTrangThai.setSelectedItem(nv.getTrangThai());
 
-	private void ganSuKien() {
-		managementPanel.getThemButton().addActionListener(e -> lamMoiForm());
+            // Không hiển thị mật khẩu hiện tại.
+            this.txtMatKhau.setText("");
 
-		managementPanel.getLuuButton().addActionListener(e -> luu());
+            // Không cho thay đổi mã và tên đăng nhập.
+            this.txtMaNhanVien.setEnabled(false);
+            this.txtTenDangNhap.setEnabled(false);
 
-		managementPanel.getXoaTrangButton().addActionListener(e -> lamMoiForm());
+            // Không đổi mật khẩu tại form sửa thông tin.
+            this.txtMatKhau.setEnabled(false);
 
-		managementPanel.getXoaButton().addActionListener(e -> xoa());
+        } catch (SQLException | IllegalArgumentException ex) {
+            ThongBao.loi(this, "app.nhanVien.loiLayThongTin");
+        }
+    }
 
-		managementPanel.getClearFilterButton().addActionListener(e -> {
-			trangHienTai = 1;
-			managementPanel.clearFilters();
-			taiLaiDanhSach();
-		});
+    // ==================== THÊM / CẬP NHẬT ====================
 
-		managementPanel.getPrevButton().addActionListener(e -> {
-			if (trangHienTai > 1) {
-				trangHienTai--;
-				taiLaiDanhSach();
-			}
-		});
+    private void luu() {
+        try {
+            String ma = this.txtMaNhanVien.getText().trim();
+            String tenDangNhap = this.txtTenDangNhap.getText().trim();
+            String matKhau = new String(this.txtMatKhau.getPassword());
+            String hoTen = this.txtHoTen.getText().trim();
 
-		managementPanel.getNextButton().addActionListener(e -> {
-			if (ketQua != null && trangHienTai < ketQua.totalPages()) {
-				trangHienTai++;
-				taiLaiDanhSach();
-			}
-		});
+            String soDienThoai = this.txtSoDienThoai.getText().trim();
 
-		managementPanel.getTable().getSelectionModel().addListSelectionListener(e -> {
-			if (!e.getValueIsAdjusting()) {
-				chonDong();
-			}
-		});
-	}
+            String anhDaiDien = this.anhField.getDuongDan();
 
-	// ==================== TẢI DANH SÁCH ====================
+            VaiTro vaiTro = (VaiTro) this.cboVaiTro.getSelectedItem();
 
-	private void taiLaiDanhSach() {
-		try {
-			DanhSachNhanVienCriteria criteria =
-			        new DanhSachNhanVienCriteria(
-			                layGiaTriBoLoc(0),
-			                layGiaTriBoLoc(1),
-			                layGiaTriBoLoc(2),
-			                managementPanel.getComboFilter(3),
-			                managementPanel.getComboFilter(4),
-			                layTimNhanh(),
-			                managementPanel.getDateFilterFrom(5),
-			                managementPanel.getDateFilterTo(5),
-			                trangHienTai,
-			                PAGE_SIZE
-			        );
+            TrangThaiNhanVien trangThai = (TrangThaiNhanVien) this.cboTrangThai.getSelectedItem();
 
-			ketQua = nhanVienService.search(criteria);
+            String dienThoai = soDienThoai.isEmpty() ? null : soDienThoai;
 
-			if (ketQua == null) {
-				return;
-			}
+            String anh = anhDaiDien.isEmpty() ? null : anhDaiDien;
 
-			if (ketQua.totalPages() > 0 && trangHienTai > ketQua.totalPages()) {
+            if (this.dangSua) {
+                NhanVien nv = this.nhanVienService.getById(this.maNhanVienDangSua);
 
-				trangHienTai = ketQua.totalPages();
-				taiLaiDanhSach();
-				return;
-			}
+                nv.setHoTen(hoTen);
+                nv.setSoDienThoai(dienThoai);
+                nv.setAnhDaiDien(anh);
+                nv.setVaiTro(vaiTro);
+                nv.setTrangThai(trangThai);
 
-			hienThiDanhSach();
+                this.nhanVienService.update(nv);
 
-		} catch (SQLException ex) {
-			hienThiLoi("app.nhanVien.loiTaiDanhSach", ex);
-		}
-	}
+                ThongBao.thongTin(this, "app.nhanVien.capNhatThanhCong");
 
-	private void hienThiDanhSach() {
-		if (ketQua == null) {
-			return;
-		}
+            } else {
 
-		List<Object[]> rows = new ArrayList<>();
+                NhanVien nv = new NhanVien(ma, tenDangNhap, matKhau, hoTen, dienThoai, anh, vaiTro, trangThai,
+                        LocalDateTime.now());
 
-		for (NhanVien nv : ketQua.items()) {
-			rows.add(new Object[] { nv.getAnhDaiDien(), nv.getMaNhanVien(), nv.getHoTen(),
-					nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai(), nhanVaiTro(nv.getVaiTro()),
-					nhanTrangThai(nv.getTrangThai()) });
-		}
+                this.nhanVienService.create(nv);
 
-		managementPanel.setRows(rows);
+                ThongBao.thongTin(this, "app.nhanVien.themThanhCong");
+            }
 
-		cauHinhCotAnh();
+            this.lamMoiForm();
 
-		int from = ketQua.totalItems() == 0 ? 0 : ketQua.fromIndex() + 1;
+            this.trangHienTai = 1;
+            this.taiLaiDanhSach();
 
-		managementPanel.setCount(from, ketQua.toIndex(), ketQua.totalItems());
+        } catch (SQLException | IllegalArgumentException ex) {
+            ThongBao.loi(this, ex);
+        }
+    }
 
-		managementPanel.setPage(ketQua.page(), Math.max(1, ketQua.totalPages()));
+    // ==================== XÓA ====================
 
-		trangHienTai = ketQua.page();
-	}
+    private void xoa() {
+        String ma = this.maNhanVienDangSua;
 
-	// ==================== CỘT ẢNH ====================
+        if (ma == null || ma.isBlank()) {
+            ThongBao.loi(this, "app.nhanVien.chonNhanVienCanXoa");
+            return;
+        }
 
-	private void cauHinhCotAnh() {
-		JTable table = managementPanel.getTable();
+        if (!ThongBao.xacNhan(this, "app.nhanVien.xacNhanXoa", "app.common.confirm")) {
+            return;
+        }
 
-		if (table.getColumnCount() == 0) {
-			return;
-		}
+        try {
+            this.nhanVienService.delete(ma);
 
-		TableColumn cotAnh = table.getColumnModel().getColumn(0);
+            ThongBao.thongTin(this, "app.nhanVien.xoaThanhCong");
 
-		cotAnh.setCellRenderer(new AnhRenderer());
-		cotAnh.setPreferredWidth(65);
-		cotAnh.setMinWidth(65);
-		cotAnh.setMaxWidth(80);
+            this.lamMoiForm();
 
-		table.setRowHeight(55);
-	}
+            this.trangHienTai = 1;
+            this.taiLaiDanhSach();
 
-	private static class AnhRenderer extends DefaultTableCellRenderer {
+        } catch (SQLException | IllegalArgumentException ex) {
+            ThongBao.loi(this, ex);
+        }
+    }
 
-		private static final long serialVersionUID = 1L;
+    // ==================== LÀM MỚI ====================
 
-		private static final Map<String, ImageIcon> CACHE = new HashMap<>();
+    private void lamMoiForm() {
+        this.dangSua = false;
+        this.maNhanVienDangSua = null;
 
-		private static final Set<String> LOI_TAI_ANH = new HashSet<>();
+        // Xóa dữ liệu cũ trong form.
+        this.txtMaNhanVien.setText("");
 
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
+        this.txtTenDangNhap.setText("");
+        this.txtMatKhau.setText("");
+        this.txtHoTen.setText("");
+        this.txtSoDienThoai.setText("");
 
-			JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-					column);
+        this.anhField.clear();
 
-			label.setHorizontalAlignment(SwingConstants.CENTER);
+        this.cboVaiTro.setSelectedItem(VaiTro.NHAN_VIEN_TIEP_NHAN);
 
-			label.setVerticalAlignment(SwingConstants.CENTER);
+        this.cboTrangThai.setSelectedItem(TrangThaiNhanVien.HOAT_DONG);
 
-			label.setIcon(null);
-			label.setText("");
+        // Mã nhân viên do hệ thống sinh, không cho nhập tay.
+        this.txtMaNhanVien.setEditable(false);
+        this.txtMaNhanVien.setFocusable(false);
+        this.txtTenDangNhap.setEnabled(true);
+        this.txtMatKhau.setEnabled(true);
 
-			if (value == null || value.toString().isBlank()) {
-				label.setText(I18nReaderUtil.get("app.phuTung.chuaCoAnh"));
+        if (this.managementPanel != null) {
+            this.managementPanel.getTable().clearSelection();
+        }
 
-				return label;
-			}
-
-			String duongDan = value.toString().trim();
-
-			ImageIcon icon = CACHE.get(duongDan);
-
-			if (icon == null && !LOI_TAI_ANH.contains(duongDan)) {
-
-				try {
-					BufferedImage bufferedImage;
-
-					if (duongDan.startsWith("https://") || duongDan.startsWith("http://")) {
-
-						URLConnection connection = URI.create(duongDan).toURL().openConnection();
-
-						connection.setConnectTimeout(3000);
-						connection.setReadTimeout(5000);
-
-						try (var input = connection.getInputStream()) {
-							bufferedImage = ImageIO.read(input);
-						}
-
-					} else {
-						bufferedImage = ImageIO.read(new File(duongDan));
-					}
-
-					if (bufferedImage == null) {
-						throw new IOException(I18nReaderUtil.get("app.phuTung.duLieuKhongPhaiAnh"));
-					}
-
-					Image image = bufferedImage.getScaledInstance(50, 45, Image.SCALE_SMOOTH);
-
-					icon = new ImageIcon(image);
-					CACHE.put(duongDan, icon);
-
-				} catch (Exception ex) {
-					LOI_TAI_ANH.add(duongDan);
-				}
-			}
-
-			if (icon != null) {
-				label.setIcon(icon);
-			} else {
-				label.setText(I18nReaderUtil.get("app.phuTung.khongTaiDuocAnh"));
-			}
-
-			return label;
-		}
-	}
-
-	// ==================== CHỌN NHÂN VIÊN ====================
-
-	private void chonDong() {
-		JTable table = managementPanel.getTable();
-
-		int selectedRow = table.getSelectedRow();
-
-		if (selectedRow < 0) {
-			return;
-		}
-
-		int modelRow = table.convertRowIndexToModel(selectedRow);
-
-		TableModel model = table.getModel();
-
-		// Cột 0 là ảnh, cột 1 là mã nhân viên.
-		String ma = String.valueOf(model.getValueAt(modelRow, 1));
-
-		try {
-			NhanVien nv = nhanVienService.getById(ma);
-
-			dangSua = true;
-			maNhanVienDangSua = nv.getMaNhanVien();
-
-			txtMaNhanVien.setText(nv.getMaNhanVien());
-			txtTenDangNhap.setText(nv.getTenDangNhap());
-			txtHoTen.setText(nv.getHoTen());
-
-			txtSoDienThoai.setText(nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai());
-
-			txtAnhDaiDien.setText(nv.getAnhDaiDien() == null ? "" : nv.getAnhDaiDien());
-
-			hienThiAnh(txtAnhDaiDien.getText().trim());
-
-			cboVaiTro.setSelectedItem(nv.getVaiTro());
-			cboTrangThai.setSelectedItem(nv.getTrangThai());
-
-			// Không hiển thị mật khẩu hiện tại.
-			txtMatKhau.setText("");
-
-			// Không cho thay đổi mã và tên đăng nhập.
-			txtMaNhanVien.setEnabled(false);
-			txtTenDangNhap.setEnabled(false);
-
-			// Không đổi mật khẩu tại form sửa thông tin.
-			txtMatKhau.setEnabled(false);
-
-		} catch (SQLException | IllegalArgumentException ex) {
-			hienThiLoi("app.nhanVien.loiLayThongTin", ex);
-		}
-	}
-
-	// ==================== THÊM / CẬP NHẬT ====================
-
-	private void luu() {
-		try {
-			String ma = txtMaNhanVien.getText().trim();
-			String tenDangNhap = txtTenDangNhap.getText().trim();
-			String matKhau = new String(txtMatKhau.getPassword());
-			String hoTen = txtHoTen.getText().trim();
-
-			String soDienThoai = txtSoDienThoai.getText().trim();
-
-			String anhDaiDien = txtAnhDaiDien.getText().trim();
-
-			VaiTro vaiTro = (VaiTro) cboVaiTro.getSelectedItem();
-
-			TrangThaiNhanVien trangThai = (TrangThaiNhanVien) cboTrangThai.getSelectedItem();
-
-			String dienThoai = soDienThoai.isEmpty() ? null : soDienThoai;
-
-			String anh = anhDaiDien.isEmpty() ? null : anhDaiDien;
-
-			if (dangSua) {
-				NhanVien nv = nhanVienService.getById(maNhanVienDangSua);
-
-				nv.setHoTen(hoTen);
-				nv.setSoDienThoai(dienThoai);
-				nv.setAnhDaiDien(anh);
-				nv.setVaiTro(vaiTro);
-				nv.setTrangThai(trangThai);
-
-				nhanVienService.update(nv);
-
-				thongBao("app.nhanVien.capNhatThanhCong");
-
-			} else {
-
-				NhanVien nv = new NhanVien(ma, tenDangNhap, matKhau, hoTen, dienThoai, anh, vaiTro, trangThai,
-						LocalDateTime.now());
-
-				nhanVienService.create(nv);
-
-				thongBao("app.nhanVien.themThanhCong");
-			}
-
-			lamMoiForm();
-
-			trangHienTai = 1;
-			taiLaiDanhSach();
-
-		} catch (SQLException | IllegalArgumentException ex) {
-			hienThiLoi(ex);
-		}
-	}
-
-	// ==================== XÓA ====================
-
-	private void xoa() {
-		String ma = maNhanVienDangSua;
-
-		if (ma == null || ma.isBlank()) {
-			thongBao("app.nhanVien.chonNhanVienCanXoa");
-			return;
-		}
-
-		int confirm = JOptionPane.showConfirmDialog(this,
-				I18nReaderUtil.get("app.nhanVien.xacNhanXoa") + " " + ma + "?",
-				I18nReaderUtil.get("app.common.confirm"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-		if (confirm != JOptionPane.YES_OPTION) {
-			return;
-		}
-
-		try {
-			nhanVienService.delete(ma);
-
-			thongBao("app.nhanVien.xoaThanhCong");
-
-			lamMoiForm();
-
-			trangHienTai = 1;
-			taiLaiDanhSach();
-
-		} catch (SQLException | IllegalArgumentException ex) {
-			hienThiLoi(ex);
-		}
-	}
-
-	// ==================== LÀM MỚI ====================
-
-	private void lamMoiForm() {
-		dangSua = false;
-		maNhanVienDangSua = null;
-
-		// Xóa dữ liệu cũ trong form.
-		txtMaNhanVien.setText("");
-
-		txtTenDangNhap.setText("");
-		txtMatKhau.setText("");
-		txtHoTen.setText("");
-		txtSoDienThoai.setText("");
-		txtAnhDaiDien.setText("");
-
-		goAnh();
-
-		cboVaiTro.setSelectedItem(VaiTro.NHAN_VIEN_TIEP_NHAN);
-
-		cboTrangThai.setSelectedItem(TrangThaiNhanVien.HOAT_DONG);
-
-		// Mã nhân viên do hệ thống sinh, không cho nhập tay.
-		txtMaNhanVien.setEditable(false);
-		txtMaNhanVien.setFocusable(false);
-		txtTenDangNhap.setEnabled(true);
-		txtMatKhau.setEnabled(true);
-
-		if (managementPanel != null) {
-			managementPanel.getTable().clearSelection();
-		}
-
-		txtMaNhanVien.requestFocusInWindow();
-	}
-
-	// ==================== HIỂN THỊ TÊN ENUM ====================
-
-	private String nhanVaiTro(VaiTro vaiTro) {
-		if (vaiTro == null) {
-			return "";
-		}
-
-		return I18nReaderUtil.get("app.enum.VaiTro." + vaiTro.name());
-	}
-
-	private String nhanTrangThai(TrangThaiNhanVien trangThai) {
-
-		if (trangThai == null) {
-			return "";
-		}
-
-		return I18nReaderUtil.get("app.enum.TrangThaiNhanVien." + trangThai.name());
-	}
-
-	// ==================== THÔNG BÁO ====================
-
-	private void thongBao(String key) {
-		JOptionPane.showMessageDialog(this, I18nReaderUtil.get(key), I18nReaderUtil.get("app.common.notification"),
-				JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	private void hienThiLoi(String key, Exception ex) {
-		String message = I18nReaderUtil.get(key);
-
-		if (message == null || message.isBlank() || message.equals(key)) {
-			message = ex.getMessage();
-		}
-
-		JOptionPane.showMessageDialog(this, message == null ? "" : message, I18nReaderUtil.get("app.common.error"),
-				JOptionPane.ERROR_MESSAGE);
-	}
-
-	private void hienThiLoi(Exception ex) {
-		String message = ex.getMessage();
-
-		if (message != null && message.startsWith("app.")) {
-			String translated = I18nReaderUtil.get(message);
-
-			if (translated != null && !translated.isBlank() && !translated.equals(message)) {
-				message = translated;
-			}
-		}
-
-		if (message == null || message.isBlank()) {
-			message = I18nReaderUtil.get("app.common.error");
-		}
-
-		JOptionPane.showMessageDialog(this, message, I18nReaderUtil.get("app.common.error"), JOptionPane.ERROR_MESSAGE);
-	}
+        this.txtMaNhanVien.requestFocusInWindow();
+    }
 }

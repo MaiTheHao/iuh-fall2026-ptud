@@ -31,7 +31,8 @@ public class DashboardPage extends AbstractPage {
 
         if (nhanVien != null) {
             card.add(dong(I18nReaderUtil.get("app.dashboard.greeting") + ": " + nhanVien.getHoTen(), true));
-            card.add(dong(I18nReaderUtil.get("app.dashboard.role") + ": " + nhanVien.getVaiTro(), false));
+            card.add(dong(I18nReaderUtil.get("app.dashboard.role") + ": "
+                    + (nhanVien.getVaiTro() == null ? "" : nhanVien.getVaiTro().getI18NBusinessName()), false));
             card.add(dong(I18nReaderUtil.get("app.dashboard.code") + ": " + nhanVien.getMaNhanVien(), false));
         }
 
