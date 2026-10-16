@@ -1,6 +1,6 @@
 package iuh.fit.enumeration;
 
-public enum MenuGroup {
+public enum MenuGroup implements I18nEnum {
     TRANG_CHU("app.menuGroup.trangChu"),
     TO_CHUC("app.menuGroup.toChuc"),
     KE_HOACH("app.menuGroup.keHoach"),
@@ -17,6 +17,11 @@ public enum MenuGroup {
     }
 
     public String getTitleKey() {
-        return titleKey;
+        return this.titleKey;
+    }
+
+    @Override
+    public String getI18nKey() {
+        return this.titleKey;
     }
 }
