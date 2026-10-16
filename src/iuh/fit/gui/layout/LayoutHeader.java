@@ -127,8 +127,7 @@ public class LayoutHeader extends JMenuBar {
         this.menuRegistry.refreshText();
 
         AppLocale locale = AppContext.getInstance().getLocale();
-        String localeKey = locale == AppLocale.EN ? "app.localeName.en" : "app.localeName.vn";
-        this.languageItem.setText(I18nReaderUtil.get("app.menu.language") + ": " + I18nReaderUtil.get(localeKey));
+        this.languageItem.setText(I18nReaderUtil.get("app.menu.language") + ": " + locale.getI18NBusinessName());
 
         NhanVien nhanVien = AppContext.getInstance().getCurrentUser();
         String tenDangNhap = nhanVien != null ? nhanVien.getTenDangNhap() : "";

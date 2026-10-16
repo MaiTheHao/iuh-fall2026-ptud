@@ -7,9 +7,10 @@ import iuh.fit.util.I18nReaderUtil;
 
 import iuh.fit.gui.theme.Theme;
 
+import iuh.fit.gui.component.ThongBao;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -67,9 +68,9 @@ public class LoginPage extends AbstractPage {
             authService.login(new LoginDTO(tenDangNhap, matKhau));
             goTo(DashboardPage.class);
         } catch (CredentialsInvalidException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorInvalid"));
+            ThongBao.loi(this, "app.login.errorInvalid");
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.login.errorSystem"));
+            ThongBao.loi(this, "app.login.errorSystem");
         }
     }
 }
