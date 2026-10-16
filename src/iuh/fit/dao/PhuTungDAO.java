@@ -1,4 +1,3 @@
-
 package iuh.fit.dao;
 
 import iuh.fit.core.config.DatabaseConfig;
@@ -13,9 +12,11 @@ import java.util.Optional;
 
 public final class PhuTungDAO extends BaseDao<PhuTung> {
 
-    private static final String SQL_SELECT =
-            "SELECT maPhuTung, tenPhuTung, moTa, anhUrl, "
-            + "donGiaNhap, soLuongTon FROM PhuTung";
+    private static final String SQL_SELECT = """
+            SELECT maPhuTung, tenPhuTung, moTa, anhUrl,
+                   donGiaNhap, soLuongTon
+            FROM PhuTung
+            """;
 
     public Optional<PhuTung> findById(String maPhuTung)
             throws SQLException {
@@ -30,9 +31,7 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
 
     public void insert(PhuTung phuTung) throws SQLException {
         String sql = """
-                INSERT INTO PhuTung
-                    (maPhuTung, tenPhuTung, moTa, anhUrl,
-                     donGiaNhap, soLuongTon)
+                INSERT INTO PhuTung (maPhuTung, tenPhuTung, moTa, anhUrl, donGiaNhap, soLuongTon)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
@@ -74,7 +73,10 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
     }
 
     public void delete(String maPhuTung) throws SQLException {
-        String sql = "DELETE FROM PhuTung WHERE maPhuTung = ?";
+        String sql = """
+                DELETE FROM PhuTung
+                WHERE maPhuTung = ?
+                """;
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -84,7 +86,7 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
         }
     }
 
-    public void increaseStock(String maPhuTung, int soLuong)
+    public boolean increaseStock(String maPhuTung, int soLuong)
             throws SQLException {
 
         String sql = """
@@ -99,10 +101,7 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
             ps.setInt(1, soLuong);
             ps.setString(2, maPhuTung);
 
-            if (ps.executeUpdate() == 0) {
-                throw new IllegalArgumentException(
-                        "app.phuTung.khongTimThay");
-            }
+            return ps.executeUpdate() > 0;
         }
     }
 

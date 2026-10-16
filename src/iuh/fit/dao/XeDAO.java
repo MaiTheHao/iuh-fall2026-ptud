@@ -12,7 +12,10 @@ import java.util.Optional;
 
 public final class XeDAO extends BaseDao<Xe> {
 
-    private static final String SQL_SELECT = "SELECT bienSo, hangXe, dongXe, doiXe, odo FROM Xe";
+    private static final String SQL_SELECT = """
+            SELECT bienSo, hangXe, dongXe, doiXe, odo
+            FROM Xe
+            """;
 
     public Optional<Xe> findById(String bienSo) throws SQLException {
         return findOne(SQL_SELECT + " WHERE bienSo = ?", bienSo);
@@ -23,7 +26,10 @@ public final class XeDAO extends BaseDao<Xe> {
     }
 
     public boolean existsByBienSo(String bienSo) throws SQLException {
-        String sql = "SELECT 1 FROM Xe WHERE bienSo = ?";
+        String sql = """
+                SELECT 1 FROM Xe
+                WHERE bienSo = ?
+                """;
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -74,8 +80,10 @@ public final class XeDAO extends BaseDao<Xe> {
 
     public boolean existsInKhachHangXe(String bienSo)
             throws SQLException {
-        String sql =
-                "SELECT 1 FROM KhachHang_Xe WHERE bienSo = ?";
+        String sql = """
+                SELECT 1 FROM KhachHang_Xe
+                WHERE bienSo = ?
+                """;
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -88,7 +96,10 @@ public final class XeDAO extends BaseDao<Xe> {
     }
 
     public boolean delete(String bienSo) throws SQLException {
-        String sql = "DELETE FROM Xe WHERE bienSo = ?";
+        String sql = """
+                DELETE FROM Xe
+                WHERE bienSo = ?
+                """;
 
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

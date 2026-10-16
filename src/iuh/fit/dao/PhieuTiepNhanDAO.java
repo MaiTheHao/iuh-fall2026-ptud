@@ -17,7 +17,11 @@ import java.util.Optional;
 
 public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
 
-    private static final String SQL_SELECT = "SELECT maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien, maKhachHang, bienSo FROM PhieuTiepNhan";
+    private static final String SQL_SELECT = """
+            SELECT maPhieuTiepNhan, ngayTao, moTa, trangThai,
+                   maNhanVien, maKhachHang, bienSo
+            FROM PhieuTiepNhan
+            """;
 
     public Optional<PhieuTiepNhan> findById(String maPhieuTiepNhan) throws SQLException {
         try (Connection connection = DatabaseConfig.getConnection()) {
@@ -51,7 +55,12 @@ public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
 
     private List<VanDeKyThuat> loadDanhSachVanDeKyThuat(Connection connection, String maPhieuTiepNhan)
             throws SQLException {
-        String sqlCon = "SELECT maVanDe, maPhieuTiepNhan, tieuDe, moTa, mucDoUuTien, giaiPhap, khachHangDongY, ngayTao FROM VanDeKyThuat WHERE maPhieuTiepNhan = ?";
+        String sqlCon = """
+                SELECT maVanDe, maPhieuTiepNhan, tieuDe, moTa,
+                       mucDoUuTien, giaiPhap, khachHangDongY, ngayTao
+                FROM VanDeKyThuat
+                WHERE maPhieuTiepNhan = ?
+                """;
         List<VanDeKyThuat> danhSach = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(sqlCon)) {
             ps.setString(1, maPhieuTiepNhan);

@@ -15,7 +15,10 @@ import java.util.Optional;
 
 public final class KhachHangDAO extends BaseDao<KhachHang> {
 
-    private static final String SQL_SELECT = "SELECT maKhachHang, sdt, hoTen, ngayTao FROM KhachHang";
+    private static final String SQL_SELECT = """
+            SELECT maKhachHang, sdt, hoTen, ngayTao
+            FROM KhachHang
+            """;
 
     public Optional<KhachHang> findById(String maKhachHang) throws SQLException {
         try (Connection conn = DatabaseConfig.getConnection()) {
@@ -34,7 +37,10 @@ public final class KhachHangDAO extends BaseDao<KhachHang> {
     }
 
     public void insert(KhachHang khachHang) throws SQLException {
-        String sql = "INSERT INTO KhachHang (maKhachHang, sdt, hoTen, ngayTao) VALUES (?, ?, ?, ?)";
+        String sql = """
+                INSERT INTO KhachHang (maKhachHang, sdt, hoTen, ngayTao)
+                VALUES (?, ?, ?, ?)
+                """;
         try (Connection conn = DatabaseConfig.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, khachHang.getMaKhachHang());
@@ -46,7 +52,11 @@ public final class KhachHangDAO extends BaseDao<KhachHang> {
     }
 
     public void update(KhachHang khachHang) throws SQLException {
-        String sql = "UPDATE KhachHang SET sdt = ?, hoTen = ? WHERE maKhachHang = ?";
+        String sql = """
+                UPDATE KhachHang
+                SET sdt = ?, hoTen = ?
+                WHERE maKhachHang = ?
+                """;
         try (Connection conn = DatabaseConfig.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, khachHang.getSdt());
@@ -57,7 +67,10 @@ public final class KhachHangDAO extends BaseDao<KhachHang> {
     }
 
     public void delete(String maKhachHang) throws SQLException {
-        String sql = "DELETE FROM KhachHang WHERE maKhachHang = ?";
+        String sql = """
+                DELETE FROM KhachHang
+                WHERE maKhachHang = ?
+                """;
         try (Connection conn = DatabaseConfig.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maKhachHang);
@@ -75,7 +88,12 @@ public final class KhachHangDAO extends BaseDao<KhachHang> {
     }
 
     private List<Xe> loadDanhSachXe(Connection conn, String maKhachHang) throws SQLException {
-        String sql = "SELECT x.bienSo, x.hangXe, x.dongXe, x.doiXe, x.odo FROM Xe x JOIN KhachHang_Xe khx ON khx.bienSo = x.bienSo WHERE khx.maKhachHang = ?";
+        String sql = """
+                SELECT x.bienSo, x.hangXe, x.dongXe, x.doiXe, x.odo
+                FROM Xe x
+                JOIN KhachHang_Xe khx ON khx.bienSo = x.bienSo
+                WHERE khx.maKhachHang = ?
+                """;
         List<Xe> list = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maKhachHang);
