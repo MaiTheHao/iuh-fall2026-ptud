@@ -10,6 +10,7 @@ import iuh.fit.util.TextNormalizerUtil;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,71 +39,53 @@ public class NhanVienService {
     private static final String ERROR_DATA =
             "app.nhanVien.loiDuLieu";
 
-    /**
-     * Lấy toàn bộ danh sách nhân viên.
-     */
-    public List<NhanVien> getAll() throws SQLException {
-        return nhanVienDAO.findAll();
-    }
-
-    /**
-     * Tìm kiếm nhân viên theo tiêu chí và phân trang.
-     */
     public PaginatedResult<NhanVien> search(
             DanhSachNhanVienCriteria criteria) throws SQLException {
 
-    	DanhSachNhanVienCriteria filter = criteria == null
-    	        ? new DanhSachNhanVienCriteria(
-    	                null, null, null, null, null, null,
-    	                null, null,
-    	                1, PaginatedResult.DEFAULT_PAGE_SIZE)
-    	        : criteria;
+        DanhSachNhanVienCriteria filter = criteria == null
+                ? DanhSachNhanVienCriteria.macDinh()
+                : criteria;
 
-        List<NhanVien> matched = nhanVienDAO.findAll()
+        List<NhanVien> matched = this.nhanVienDAO.findAll()
                 .stream()
-                .filter(nv -> matches(
+                .filter(nv -> this.matches(
                         nv.getMaNhanVien(),
                         filter.maNhanVien()))
-                .filter(nv -> matches(
+                .filter(nv -> this.matches(
                         nv.getHoTen(),
                         filter.hoTen()))
-                .filter(nv -> matches(
+                .filter(nv -> this.matches(
                         nv.getSoDienThoai(),
                         filter.soDienThoai()))
-                .filter(nv -> matches(
+                .filter(nv -> this.matches(
                         nv.getVaiTro() == null
                                 ? null : nv.getVaiTro().name(),
                         filter.vaiTro()))
-                .filter(nv -> matches(
+                .filter(nv -> this.matches(
                         nv.getTrangThai() == null
                                 ? null : nv.getTrangThai().name(),
                         filter.trangThai()))
-                .filter(nv -> matchesQuick(
+                .filter(nv -> this.matchesQuick(
                         nv, filter.timNhanh()))
-                .filter(nv -> matchesDateFrom(
+                .filter(nv -> this.matchesDateFrom(
                         nv.getNgayTao(), filter.ngayTaoTu()))
-                .filter(nv -> matchesDateTo(
+                .filter(nv -> this.matchesDateTo(
                         nv.getNgayTao(), filter.ngayTaoDen()))
+                .sorted(Comparator.comparing(NhanVien::getMaNhanVien))
                 .toList();
 
-        return PaginatedResult.of(
-                matched,
-                filter.page(),
-                filter.pageSize());
+        return PaginatedResult.of(matched, filter);
     }
 
-    /**
-     * So khớp bộ lọc riêng theo từng cột.
-     * Không phân biệt chữ hoa, chữ thường và dấu tiếng Việt.
-     */
     private boolean matches(String value, String condition) {
-        if (isBlank(condition)) {
+        if (this.isBlank(condition)) {
             return true;
         }
 
         return TextNormalizerUtil.normalize(value)
                 .contains(TextNormalizerUtil.normalize(condition));
     }
+
     private boolean matchesDateFrom(
             LocalDateTime ngayTao,
             LocalDate tuNgay) {
@@ -120,12 +103,9 @@ public class NhanVienService {
                 || (ngayTao != null
                     && !ngayTao.toLocalDate().isAfter(denNgay));
     }
-    /**
-     * Tìm nhanh theo mã nhân viên, tên đăng nhập, họ tên,
-     * số điện thoại, vai trò và trạng thái.
-     */
+
     private boolean matchesQuick(NhanVien nv, String keyword) {
-        if (isBlank(keyword)) {
+        if (this.isBlank(keyword)) {
             return true;
         }
 
@@ -154,107 +134,94 @@ public class NhanVienService {
                     .contains(key);
     }
 
-    /**
-     * Lấy nhân viên theo mã.
-     */
     public NhanVien getById(String maNhanVien)
             throws SQLException {
 
-        if (isBlank(maNhanVien)) {
+        if (this.isBlank(maNhanVien)) {
             throw new IllegalArgumentException(ERROR_ID_REQUIRED);
         }
 
         Optional<NhanVien> result =
-                nhanVienDAO.findById(maNhanVien.trim());
+                this.nhanVienDAO.findById(maNhanVien.trim());
 
         return result.orElseThrow(
                 () -> new IllegalArgumentException(ERROR_ID));
     }
 
-    /**
-     * Thêm nhân viên mới.
-     */
     public void create(NhanVien nhanVien) throws SQLException {
-        validateCommon(nhanVien);
-        validateCreate(nhanVien);
+        this.validateCommon(nhanVien);
+
         String ma = MaGeneratorUtil.genMaNhanVien(
                 nhanVien.getSoDienThoai()
         );
 
+        nhanVien.setMaNhanVien(ma);
+
+        this.validateCreate(nhanVien);
+
         String username = nhanVien.getTenDangNhap().trim();
 
-        if (nhanVienDAO.findById(ma).isPresent()) {
+        if (this.nhanVienDAO.findById(ma).isPresent()) {
             throw new IllegalArgumentException(ERROR_DATA);
         }
 
-        if (nhanVienDAO.existsByTenDangNhap(username)) {
+        if (this.nhanVienDAO.existsByTenDangNhap(username)) {
             throw new IllegalArgumentException(ERROR_USERNAME_EXISTS);
         }
 
-        nhanVien.setMaNhanVien(ma);
         nhanVien.setTenDangNhap(username);
         nhanVien.setHoTen(nhanVien.getHoTen().trim());
         nhanVien.setSoDienThoai(
-                trimToNull(nhanVien.getSoDienThoai())
+                this.trimToNull(nhanVien.getSoDienThoai())
         );
 
-        nhanVienDAO.insert(nhanVien);
+        this.nhanVienDAO.insert(nhanVien);
     }
 
-    /**
-     * Cập nhật thông tin nhân viên.
-     * Không cập nhật mật khẩu hiện tại.
-     */
     public void update(NhanVien nhanVien) throws SQLException {
-        validateCommon(nhanVien);
+        this.validateCommon(nhanVien);
 
-        if (isBlank(nhanVien.getMaNhanVien())) {
+        if (this.isBlank(nhanVien.getMaNhanVien())) {
             throw new IllegalArgumentException(ERROR_ID_REQUIRED);
         }
 
         String ma = nhanVien.getMaNhanVien().trim();
 
-        getById(ma);
+        this.getById(ma);
 
         nhanVien.setMaNhanVien(ma);
         nhanVien.setHoTen(nhanVien.getHoTen().trim());
         nhanVien.setSoDienThoai(
-                trimToNull(nhanVien.getSoDienThoai()));
+                this.trimToNull(nhanVien.getSoDienThoai()));
 
-        nhanVienDAO.updateInfo(nhanVien);
+        this.nhanVienDAO.updateInfo(nhanVien);
     }
 
-    /**
-     * Xóa nhân viên theo mã.
-     */
     public void delete(String maNhanVien) throws SQLException {
-        if (isBlank(maNhanVien)) {
+        if (this.isBlank(maNhanVien)) {
             throw new IllegalArgumentException(ERROR_ID_REQUIRED);
         }
 
         String ma = maNhanVien.trim();
 
-        getById(ma);
+        this.getById(ma);
 
-        if (!nhanVienDAO.delete(ma)) {
+        if (!this.nhanVienDAO.delete(ma)) {
             throw new IllegalArgumentException(ERROR_ID);
         }
     }
 
-    /**
-     * Kiểm tra các thông tin chung khi thêm hoặc cập nhật.
-     */
     private void validateCommon(NhanVien nv) {
         if (nv == null) {
             throw new IllegalArgumentException(ERROR_DATA);
         }
 
-        if (isBlank(nv.getHoTen())
+        if (this.isBlank(nv.getHoTen())
                 || nv.getHoTen().trim().length() > 50) {
             throw new IllegalArgumentException(ERROR_NAME);
         }
 
-        validatePhone(nv.getSoDienThoai());
+        this.validatePhone(nv.getSoDienThoai());
 
         if (nv.getVaiTro() == null) {
             throw new IllegalArgumentException(ERROR_ROLE);
@@ -265,32 +232,25 @@ public class NhanVienService {
         }
     }
 
-    /**
-     * Kiểm tra các thông tin bắt buộc khi thêm mới.
-     */
     private void validateCreate(NhanVien nv) {
-        if (isBlank(nv.getMaNhanVien())
+        if (nv.getMaNhanVien() == null
                 || nv.getMaNhanVien().trim().length() > 20) {
             throw new IllegalArgumentException(ERROR_ID_REQUIRED);
         }
 
-        if (isBlank(nv.getTenDangNhap())
+        if (this.isBlank(nv.getTenDangNhap())
                 || nv.getTenDangNhap().trim().length() > 30) {
             throw new IllegalArgumentException(ERROR_USERNAME);
         }
 
-        if (isBlank(nv.getMatKhau())
+        if (this.isBlank(nv.getMatKhau())
                 || nv.getMatKhau().length() > 255) {
             throw new IllegalArgumentException(ERROR_PASSWORD);
         }
     }
 
-    /**
-     * Số điện thoại không bắt buộc.
-     * Nếu có nhập, phải gồm 9 hoặc 10 chữ số.
-     */
     private void validatePhone(String phone) {
-        if (isBlank(phone)) {
+        if (this.isBlank(phone)) {
             return;
         }
 
@@ -299,16 +259,10 @@ public class NhanVienService {
         }
     }
 
-    /**
-     * Chuỗi rỗng được chuyển thành null.
-     */
     private String trimToNull(String value) {
-        return isBlank(value) ? null : value.trim();
+        return this.isBlank(value) ? null : value.trim();
     }
 
-    /**
-     * Kiểm tra chuỗi null hoặc chỉ chứa khoảng trắng.
-     */
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
