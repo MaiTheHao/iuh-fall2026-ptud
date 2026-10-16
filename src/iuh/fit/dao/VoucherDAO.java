@@ -1,5 +1,6 @@
 package iuh.fit.dao;
 
+import iuh.fit.core.config.DatabaseConfig;
 import iuh.fit.entity.Voucher;
 
 import java.sql.Connection;
@@ -13,37 +14,30 @@ import java.util.Optional;
 
 public final class VoucherDAO extends BaseDao<Voucher> {
 
-    private static final String SQL_SELECT =
-            "SELECT maVoucher, tenChuongTrinh, moTa, mucGiam, " +
-            "thoiHanApDung, trangThaiKichHoat FROM Voucher";
+    private static final String SQL_SELECT = """
+            SELECT maVoucher, tenChuongTrinh, moTa, mucGiam,
+                   thoiHanApDung, trangThaiKichHoat
+            FROM Voucher
+            """;
 
-    /**
-     * Tìm voucher theo mã.
-     */
     public Optional<Voucher> findById(String maVoucher) throws SQLException {
-        return findOne(
+        return this.findOne(
                 SQL_SELECT + " WHERE maVoucher = ?",
-                maVoucher
-        );
+                maVoucher);
     }
 
-    /**
-     * Lấy toàn bộ voucher.
-     */
     public List<Voucher> findAll() throws SQLException {
-        return findAll(SQL_SELECT);
+        return this.findAll(SQL_SELECT);
     }
 
-    /**
-     * Thêm voucher.
-     */
     public void insert(Voucher voucher) throws SQLException {
-        String sql = "INSERT INTO Voucher " +
-                "(maVoucher, tenChuongTrinh, moTa, mucGiam, " +
-                "thoiHanApDung, trangThaiKichHoat) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = """
+                INSERT INTO Voucher (maVoucher, tenChuongTrinh, moTa, mucGiam,
+                                     thoiHanApDung, trangThaiKichHoat)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """;
 
-        try (Connection conn = iuh.fit.core.config.DatabaseConfig.getConnection();
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, voucher.getMaVoucher());
@@ -63,19 +57,18 @@ public final class VoucherDAO extends BaseDao<Voucher> {
         }
     }
 
-    /**
-     * Cập nhật voucher.
-     */
     public void update(Voucher voucher) throws SQLException {
-        String sql = "UPDATE Voucher SET " +
-                "tenChuongTrinh = ?, " +
-                "moTa = ?, " +
-                "mucGiam = ?, " +
-                "thoiHanApDung = ?, " +
-                "trangThaiKichHoat = ? " +
-                "WHERE maVoucher = ?";
+        String sql = """
+                UPDATE Voucher
+                SET tenChuongTrinh = ?,
+                    moTa = ?,
+                    mucGiam = ?,
+                    thoiHanApDung = ?,
+                    trangThaiKichHoat = ?
+                WHERE maVoucher = ?
+                """;
 
-        try (Connection conn = iuh.fit.core.config.DatabaseConfig.getConnection();
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, voucher.getTenChuongTrinh());
@@ -95,13 +88,13 @@ public final class VoucherDAO extends BaseDao<Voucher> {
         }
     }
 
-    /**
-     * Xóa voucher theo mã.
-     */
     public void delete(String maVoucher) throws SQLException {
-        String sql = "DELETE FROM Voucher WHERE maVoucher = ?";
+        String sql = """
+                DELETE FROM Voucher
+                WHERE maVoucher = ?
+                """;
 
-        try (Connection conn = iuh.fit.core.config.DatabaseConfig.getConnection();
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maVoucher);
@@ -109,9 +102,6 @@ public final class VoucherDAO extends BaseDao<Voucher> {
         }
     }
 
-    /**
-     * Chuyển một dòng dữ liệu SQL thành đối tượng Voucher.
-     */
     @Override
     protected Voucher mapRow(ResultSet rs) throws SQLException {
         return new Voucher(
@@ -120,7 +110,6 @@ public final class VoucherDAO extends BaseDao<Voucher> {
                 rs.getString("moTa"),
                 rs.getDouble("mucGiam"),
                 rs.getObject("thoiHanApDung", LocalDateTime.class),
-                rs.getBoolean("trangThaiKichHoat")
-        );
+                rs.getBoolean("trangThaiKichHoat"));
     }
 }

@@ -10,7 +10,10 @@ import java.util.Optional;
 
 public final class PhanCongDAO extends BaseDao<PhanCong> {
 
-    private static final String SQL_SELECT = "SELECT maPhanCong, maNhanVien, ngay, thang, nam, caLamViec, ghiChu FROM PhanCong";
+    private static final String SQL_SELECT = """
+            SELECT maPhanCong, maNhanVien, ngay, thang, nam, caLamViec, ghiChu
+            FROM PhanCong
+            """;
 
     public Optional<PhanCong> findById(String maPhanCong) throws SQLException {
         return findOne(SQL_SELECT + " WHERE maPhanCong = ?", maPhanCong);

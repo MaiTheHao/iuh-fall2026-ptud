@@ -15,7 +15,10 @@ import java.util.Optional;
 
 public final class PhieuNhapPhuTungDAO extends BaseDao<PhieuNhapPhuTung> {
 
-    private static final String SQL_SELECT = "SELECT maPhieuNhap, ngayTao, maNhanVien, moTa FROM PhieuNhapPhuTung";
+    private static final String SQL_SELECT = """
+            SELECT maPhieuNhap, ngayTao, maNhanVien, moTa
+            FROM PhieuNhapPhuTung
+            """;
 
     public Optional<PhieuNhapPhuTung> findById(String maPhieuNhap) throws SQLException {
         try (Connection connection = DatabaseConfig.getConnection()) {
@@ -45,7 +48,11 @@ public final class PhieuNhapPhuTungDAO extends BaseDao<PhieuNhapPhuTung> {
     }
 
     private List<ChiTietPhieuNhapPhuTung> loadChiTiet(Connection connection, String maPhieuNhap) throws SQLException {
-        String sqlChiTiet = "SELECT maPhieuNhap, maPhuTung, soLuong, donGiaNhap FROM ChiTietPhieuNhapPhuTung WHERE maPhieuNhap = ?";
+        String sqlChiTiet = """
+                SELECT maPhieuNhap, maPhuTung, soLuong, donGiaNhap
+                FROM ChiTietPhieuNhapPhuTung
+                WHERE maPhieuNhap = ?
+                """;
         List<ChiTietPhieuNhapPhuTung> chiTietList = new ArrayList<>();
         try (PreparedStatement psChiTiet = connection.prepareStatement(sqlChiTiet)) {
             psChiTiet.setString(1, maPhieuNhap);
