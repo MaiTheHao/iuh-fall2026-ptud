@@ -61,6 +61,13 @@ DAOs handle database access and row-to-entity mapping, not business-level data p
 
 Services must perform filtering, sorting, and aggregation on retrieved data. Do not encode business rules in SQL `WHERE`, `ORDER BY`, or aggregate expressions. Services must not return `null`: resolve single lookups with `orElseThrow(...)` or throw a domain exception (`iuh.fit.exception.*`); an empty list is a valid result (e.g. an empty `PaginatedResult`), not an error.
 
+SQL statements must use Java Text Blocks so queries stay readable and line-broken by clause.
+
+- **DO:** Write every SQL literal as a text block (`"""…"""`); keep one statement per block, break lines by clause (`SELECT` → `FROM`/`JOIN` → `WHERE` → `ORDER BY`), and keep the opening `"""` after the `=`, the content indented one level deeper, and the closing `"""` on its own line.
+- **DO:** Merge several static `+` fragments of one statement into a single text block, and pass every value through `?` placeholders.
+- **DO:** When a query reuses a shared constant (e.g. `SQL_SELECT`), keep the composition form `SQL_SELECT + " WHERE maX = ?"` — the constant is a text block, the appended clause fragment stays a plain string.
+- **DON'T:** Build a multi-line SQL statement by concatenating string literals, use `String.format(...)`/`.formatted(...)` for SQL, put a text block on a single line, or use manual `\n` escapes inside a text block.
+
 ## 6. Swing UI: i18n and Fixed 16:9 Layout
 
 All user-visible text must be resolved through the project's internationalization resources. The POS interface targets a fixed 16:9 screen, not a responsive layout.
@@ -93,6 +100,7 @@ Before completing a change, verify:
 - [ ] Entities remain plain POJOs.
 - [ ] DAOs perform database access and row mapping without business-level filtering, sorting, or aggregation.
 - [ ] DAO single-record lookups return `Optional`, never `null`; services throw domain exceptions instead of returning `null`.
+- [ ] DAOs write SQL as text blocks — one statement per block, clauses broken by line — never as concatenated multi-line string literals.
 - [ ] Date inputs use `LGoodDatePicker` (`lib/LGoodDatePicker-11.2.1.jar`), not free-text date strings.
 - [ ] All user-visible strings use valid i18n resources, with both languages synchronized.
 - [ ] Swing layouts target a fixed 16:9 POS screen.
