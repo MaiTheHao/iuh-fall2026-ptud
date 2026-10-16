@@ -7,5 +7,9 @@ public record DanhSachDichVuCriteria(
         Double donGiaTu,
         Double donGiaDen,
         int page,
-        int pageSize) {
+        int pageSize) implements DanhSachCriteria {
+
+    public static DanhSachDichVuCriteria macDinh() {
+        return new DanhSachDichVuCriteria(null, null, null, null, null, 1, PaginatedResult.DEFAULT_PAGE_SIZE);
+    }
 }

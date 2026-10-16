@@ -1,4 +1,3 @@
-
 package iuh.fit.dto;
 
 public record DanhSachPhuTungCriteria(
@@ -10,5 +9,9 @@ public record DanhSachPhuTungCriteria(
         Integer soLuongTu,
         Integer soLuongDen,
         int page,
-        int pageSize) {
+        int pageSize) implements DanhSachCriteria {
+
+    public static DanhSachPhuTungCriteria macDinh() {
+        return new DanhSachPhuTungCriteria(null, null, null, null, null, null, null, 1, PaginatedResult.DEFAULT_PAGE_SIZE);
+    }
 }

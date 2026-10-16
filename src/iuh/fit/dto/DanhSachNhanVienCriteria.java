@@ -12,5 +12,9 @@ public record DanhSachNhanVienCriteria(
         LocalDate ngayTaoTu,
         LocalDate ngayTaoDen,
         int page,
-        int pageSize) {
+        int pageSize) implements DanhSachCriteria {
+
+    public static DanhSachNhanVienCriteria macDinh() {
+        return new DanhSachNhanVienCriteria(null, null, null, null, null, null, null, null, 1, PaginatedResult.DEFAULT_PAGE_SIZE);
+    }
 }
