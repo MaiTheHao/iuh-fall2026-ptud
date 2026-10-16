@@ -1,10 +1,9 @@
-
 package iuh.fit.dto;
 
 import java.time.LocalDate;
 
 public record DanhSachVoucherCriteria(
-        String tuKhoa,
+        String timNhanh,
         String maVoucher,
         Double mucGiamTu,
         Double mucGiamDen,
@@ -13,5 +12,19 @@ public record DanhSachVoucherCriteria(
         Boolean trangThaiKichHoat,
         int page,
         int pageSize
-) {
+) implements DanhSachCriteria {
+
+    public static DanhSachVoucherCriteria macDinh() {
+        return new DanhSachVoucherCriteria(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                1,
+                PaginatedResult.DEFAULT_PAGE_SIZE
+        );
+    }
 }
