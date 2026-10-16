@@ -10,88 +10,68 @@ import iuh.fit.util.TextNormalizerUtil;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class VoucherService {
 
-	private static final String ERROR_ID = "app.voucher.loiMa";
-	private static final String ERROR_DATA = "app.voucher.duLieuKhongHopLe";
-	private static final String ERROR_PAGINATION = "app.voucher.thamSoPhanTrangKhongHopLe";
-	private static final String ERROR_DISCOUNT = "app.voucher.loiMucGiam";
-	private static final String ERROR_DISCOUNT_RANGE = "app.voucher.khoangMucGiamKhongHopLe";
-	private static final String ERROR_DATE_RANGE = "app.voucher.khoangThoiHanKhongHopLe";
-	private static final String ERROR_NOT_FOUND = "app.voucher.khongTonTai";
-	private static final String ERROR_NAME = "app.voucher.loiTen";
-	private static final String ERROR_NAME_LENGTH = "app.voucher.tenQuaDai";
-	private static final String ERROR_DESCRIPTION = "app.voucher.moTaQuaDai";
-	private static final String ERROR_VALIDITY = "app.voucher.loiThoiHan";
+    private static final String ERROR_ID = "app.voucher.loiMa";
+    private static final String ERROR_DATA = "app.voucher.duLieuKhongHopLe";
+    private static final String ERROR_PAGINATION = "app.voucher.thamSoPhanTrangKhongHopLe";
+    private static final String ERROR_DISCOUNT = "app.voucher.loiMucGiam";
+    private static final String ERROR_DISCOUNT_RANGE = "app.voucher.khoangMucGiamKhongHopLe";
+    private static final String ERROR_DATE_RANGE = "app.voucher.khoangThoiHanKhongHopLe";
+    private static final String ERROR_NOT_FOUND = "app.voucher.khongTonTai";
+    private static final String ERROR_NAME = "app.voucher.loiTen";
+    private static final String ERROR_NAME_LENGTH = "app.voucher.tenQuaDai";
+    private static final String ERROR_DESCRIPTION = "app.voucher.moTaQuaDai";
+    private static final String ERROR_VALIDITY = "app.voucher.loiThoiHan";
 
     private final VoucherDAO voucherDAO = new VoucherDAO();
-
-    public List<Voucher> findAll() throws SQLException {
-        return voucherDAO.findAll();
-    }
-
-    public Optional<Voucher> findById(String maVoucher)
-            throws SQLException {
-
-        if (maVoucher == null || maVoucher.isBlank()) {
-            throw new IllegalArgumentException(ERROR_ID);
-        }
-
-        return voucherDAO.findById(maVoucher.trim());
-    }
 
     public PaginatedResult<Voucher> search(
             DanhSachVoucherCriteria criteria) throws SQLException {
 
-        if (criteria == null) {
-            throw new IllegalArgumentException(ERROR_DATA);
-        }
+        DanhSachVoucherCriteria filter = criteria == null
+                ? DanhSachVoucherCriteria.macDinh()
+                : criteria;
 
-        if (criteria.page() < 1 || criteria.pageSize() < 1) {
+        if (filter.page() < 1 || filter.pageSize() < 1) {
             throw new IllegalArgumentException(ERROR_PAGINATION);
         }
 
-        if ((criteria.mucGiamTu() != null
-                    && criteria.mucGiamTu() < 0)
-                || (criteria.mucGiamDen() != null
-                    && criteria.mucGiamDen() < 0)) {
+        if ((filter.mucGiamTu() != null && filter.mucGiamTu() < 0)
+                || (filter.mucGiamDen() != null && filter.mucGiamDen() < 0)) {
             throw new IllegalArgumentException(ERROR_DISCOUNT);
         }
 
-        if (criteria.mucGiamTu() != null
-                && criteria.mucGiamDen() != null
-                && criteria.mucGiamTu() > criteria.mucGiamDen()) {
+        if (filter.mucGiamTu() != null
+                && filter.mucGiamDen() != null
+                && filter.mucGiamTu() > filter.mucGiamDen()) {
             throw new IllegalArgumentException(ERROR_DISCOUNT_RANGE);
         }
 
-        if (criteria.thoiHanTu() != null
-                && criteria.thoiHanDen() != null
-                && criteria.thoiHanTu().isAfter(criteria.thoiHanDen())) {
+        if (filter.thoiHanTu() != null
+                && filter.thoiHanDen() != null
+                && filter.thoiHanTu().isAfter(filter.thoiHanDen())) {
             throw new IllegalArgumentException(ERROR_DATE_RANGE);
         }
 
-        List<Voucher> matched = voucherDAO.findAll()
+        List<Voucher> matched = this.voucherDAO.findAll()
                 .stream()
-                .filter(voucher -> matches(voucher, criteria))
+                .filter(voucher -> this.matches(voucher, filter))
                 .collect(Collectors.toList());
 
-        return PaginatedResult.of(
-                matched,
-                criteria.page(),
-                criteria.pageSize());
+        return PaginatedResult.of(matched, filter);
     }
 
     private boolean matches(
             Voucher voucher,
             DanhSachVoucherCriteria criteria) {
 
-        String tuKhoa = criteria.tuKhoa();
+        String timNhanh = criteria.timNhanh();
 
-        if (tuKhoa != null && !tuKhoa.isBlank()) {
-            String keyword = TextNormalizerUtil.normalize(tuKhoa);
+        if (timNhanh != null && !timNhanh.isBlank()) {
+            String keyword = TextNormalizerUtil.normalize(timNhanh);
 
             boolean matchMa = TextNormalizerUtil
                     .normalize(voucher.getMaVoucher())
@@ -133,20 +113,19 @@ public class VoucherService {
             }
         }
 
-        if (voucher.getThoiHanApDung() == null) {
-            return false;
-        }
-
-        LocalDate ngayApDung =
-                voucher.getThoiHanApDung().toLocalDate();
+        LocalDate ngayApDung = voucher.getThoiHanApDung() == null
+                ? null
+                : voucher.getThoiHanApDung().toLocalDate();
 
         if (criteria.thoiHanTu() != null
-                && ngayApDung.isBefore(criteria.thoiHanTu())) {
+                && (ngayApDung == null
+                        || ngayApDung.isBefore(criteria.thoiHanTu()))) {
             return false;
         }
 
         if (criteria.thoiHanDen() != null
-                && ngayApDung.isAfter(criteria.thoiHanDen())) {
+                && (ngayApDung == null
+                        || ngayApDung.isAfter(criteria.thoiHanDen()))) {
             return false;
         }
 
@@ -160,9 +139,9 @@ public class VoucherService {
     }
 
     public Voucher create(Voucher voucher) throws SQLException {
-        validate(voucher);
+        this.validate(voucher);
 
-        List<String> existingIds = voucherDAO.findAll()
+        List<String> existingIds = this.voucherDAO.findAll()
                 .stream()
                 .map(Voucher::getMaVoucher)
                 .collect(Collectors.toList());
@@ -172,13 +151,13 @@ public class VoucherService {
 
         voucher.setMaVoucher(maVoucher);
 
-        voucherDAO.insert(voucher);
+        this.voucherDAO.insert(voucher);
 
         return voucher;
     }
 
     public Voucher update(Voucher voucher) throws SQLException {
-        validate(voucher);
+        this.validate(voucher);
 
         if (voucher.getMaVoucher() == null
                 || voucher.getMaVoucher().isBlank()) {
@@ -187,13 +166,13 @@ public class VoucherService {
 
         String maVoucher = voucher.getMaVoucher().trim();
 
-        if (voucherDAO.findById(maVoucher).isEmpty()) {
+        if (this.voucherDAO.findById(maVoucher).isEmpty()) {
             throw new IllegalArgumentException(ERROR_NOT_FOUND);
         }
 
         voucher.setMaVoucher(maVoucher);
 
-        voucherDAO.update(voucher);
+        this.voucherDAO.update(voucher);
 
         return voucher;
     }
@@ -205,11 +184,11 @@ public class VoucherService {
 
         String ma = maVoucher.trim();
 
-        if (voucherDAO.findById(ma).isEmpty()) {
+        if (this.voucherDAO.findById(ma).isEmpty()) {
             throw new IllegalArgumentException(ERROR_NOT_FOUND);
         }
 
-        voucherDAO.delete(ma);
+        this.voucherDAO.delete(ma);
     }
 
     private void validate(Voucher voucher) {
