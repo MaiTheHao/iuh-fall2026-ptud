@@ -3,6 +3,7 @@ package iuh.fit.gui.page;
 import com.github.lgooddatepicker.components.DateTimePicker;
 import iuh.fit.dto.DanhSachVoucherCriteria;
 import iuh.fit.dto.PaginatedResult;
+import iuh.fit.dto.VoucherFormData;
 import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiKichHoat;
@@ -12,6 +13,7 @@ import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.VoucherService;
 import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.NumberParseUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
 import javax.swing.BorderFactory;
@@ -189,6 +191,30 @@ public class VoucherPage extends AbstractPage {
         }
     }
 
+    private VoucherFormData getFormData() {
+        String ma = this.maField.getText().trim();
+        String moTa = this.moTaField.getText().trim();
+        return new VoucherFormData(
+                ma.isBlank() ? null : ma,
+                this.tenChuongTrinhField.getText().trim(),
+                moTa.isEmpty() ? null : moTa,
+                NumberParseUtil.toDoubleOrNull(this.mucGiamField.getText()),
+                this.thoiHanPicker.getDateTimeStrict(),
+                this.trangThaiField.isSelected());
+    }
+
+    private void validateFormData(VoucherFormData data) {
+        if (data.mucGiam() == null || !Double.isFinite(data.mucGiam()) || data.mucGiam() < 0) {
+            throw new IllegalArgumentException(
+                    "app.voucher.loiMucGiam");
+        }
+
+        if (data.thoiHanApDung() == null) {
+            throw new IllegalArgumentException(
+                    "app.voucher.loiThoiHan");
+        }
+    }
+
     private Double docMucGiam(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -268,36 +294,19 @@ public class VoucherPage extends AbstractPage {
     }
 
     private void luu(ManagementPanel panel) {
-        String ma = this.maField.getText().isBlank()
-                ? null
-                : this.maField.getText().trim();
+        VoucherFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        Voucher voucher = new Voucher(
+                data.maVoucher(),
+                data.tenChuongTrinh(),
+                data.moTa(),
+                data.mucGiam(),
+                data.thoiHanApDung(),
+                data.trangThaiKichHoat());
 
         try {
-            String tenChuongTrinh =
-                    this.tenChuongTrinhField.getText().trim();
-
-            String moTa = this.moTaField.getText().trim();
-
-            Double mucGiam = this.docMucGiam(
-                    this.mucGiamField.getText());
-
-            LocalDateTime thoiHan = this.thoiHanPicker.getDateTimeStrict();
-
-            if (thoiHan == null) {
-                throw new IllegalArgumentException(
-                        "app.voucher.loiThoiHan");
-            }
-
-            Voucher voucher = new Voucher(
-                    ma,
-                    tenChuongTrinh,
-                    moTa.isEmpty() ? null : moTa,
-                    mucGiam,
-                    thoiHan,
-                    this.trangThaiField.isSelected()
-            );
-
-            if (ma == null) {
+            if (data.maVoucher() == null) {
                 this.voucherService.create(voucher);
                 ThongBao.thongTin(this, "app.common.create_succeed");
             } else {

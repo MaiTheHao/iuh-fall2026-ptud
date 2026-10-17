@@ -1,6 +1,7 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.dto.DanhSachNhanVienCriteria;
+import iuh.fit.dto.NhanVienFormData;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.enumeration.MenuGroup;
@@ -355,33 +356,43 @@ public class NhanVienPage extends AbstractPage {
 
     // ==================== THÊM / CẬP NHẬT ====================
 
+    private NhanVienFormData getFormData() {
+        String soDienThoai = this.txtSoDienThoai.getText().trim();
+
+        String anhDaiDien = this.anhField.getDuongDan();
+
+        return new NhanVienFormData(
+                this.txtMaNhanVien.getText().trim(),
+                this.txtTenDangNhap.getText().trim(),
+                new String(this.txtMatKhau.getPassword()),
+                this.txtHoTen.getText().trim(),
+                soDienThoai,
+                anhDaiDien,
+                (VaiTro) this.cboVaiTro.getSelectedItem(),
+                (TrangThaiNhanVien) this.cboTrangThai.getSelectedItem(),
+                this.txtNgayTao.getText().trim());
+    }
+
+    private void validateFormData(NhanVienFormData data) {
+    }
+
     private void luu() {
+        NhanVienFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        String dienThoai = data.soDienThoai().isEmpty() ? null : data.soDienThoai();
+
+        String anh = data.anhDaiDien().isEmpty() ? null : data.anhDaiDien();
+
         try {
-            String ma = this.txtMaNhanVien.getText().trim();
-            String tenDangNhap = this.txtTenDangNhap.getText().trim();
-            String matKhau = new String(this.txtMatKhau.getPassword());
-            String hoTen = this.txtHoTen.getText().trim();
-
-            String soDienThoai = this.txtSoDienThoai.getText().trim();
-
-            String anhDaiDien = this.anhField.getDuongDan();
-
-            VaiTro vaiTro = (VaiTro) this.cboVaiTro.getSelectedItem();
-
-            TrangThaiNhanVien trangThai = (TrangThaiNhanVien) this.cboTrangThai.getSelectedItem();
-
-            String dienThoai = soDienThoai.isEmpty() ? null : soDienThoai;
-
-            String anh = anhDaiDien.isEmpty() ? null : anhDaiDien;
-
             if (this.dangSua) {
                 NhanVien nv = this.nhanVienService.getById(this.maNhanVienDangSua);
 
-                nv.setHoTen(hoTen);
+                nv.setHoTen(data.hoTen());
                 nv.setSoDienThoai(dienThoai);
                 nv.setAnhDaiDien(anh);
-                nv.setVaiTro(vaiTro);
-                nv.setTrangThai(trangThai);
+                nv.setVaiTro(data.vaiTro());
+                nv.setTrangThai(data.trangThai());
 
                 this.nhanVienService.update(nv);
 
@@ -389,8 +400,8 @@ public class NhanVienPage extends AbstractPage {
 
             } else {
 
-                NhanVien nv = new NhanVien(ma, tenDangNhap, matKhau, hoTen, dienThoai, anh, vaiTro, trangThai,
-                        LocalDateTime.now());
+                NhanVien nv = new NhanVien(data.maNhanVien(), data.tenDangNhap(), data.matKhau(), data.hoTen(),
+                        dienThoai, anh, data.vaiTro(), data.trangThai(), LocalDateTime.now());
 
                 this.nhanVienService.create(nv);
 

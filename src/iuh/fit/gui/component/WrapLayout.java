@@ -5,6 +5,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class WrapLayout extends FlowLayout {
 
@@ -26,9 +28,15 @@ public class WrapLayout extends FlowLayout {
                 return;
             }
 
-            int x = insets.left + getHgap();
-            int y = insets.top + getVgap();
-            int rowHeight = 0;
+            List<Component> components = new ArrayList<>();
+            List<Dimension> sizes = new ArrayList<>();
+            List<Integer> rows = new ArrayList<>();
+            List<Integer> rowHeights = new ArrayList<>();
+
+            int x = 0;
+            int row = 0;
+
+            rowHeights.add(0);
 
             for (Component component : target.getComponents()) {
                 if (!component.isVisible()) {
@@ -37,17 +45,39 @@ public class WrapLayout extends FlowLayout {
 
                 Dimension size = component.getPreferredSize();
 
-                if (x > insets.left + getHgap()
-                        && x + size.width > insets.left + getHgap() + maxWidth) {
-                    x = insets.left + getHgap();
-                    y += rowHeight + getVgap();
-                    rowHeight = 0;
+                if (x > 0 && x + size.width > maxWidth) {
+                    row++;
+                    x = 0;
+                    rowHeights.add(0);
                 }
 
-                component.setBounds(x, y, size.width, size.height);
+                components.add(component);
+                sizes.add(size);
+                rows.add(row);
+                rowHeights.set(row, Math.max(rowHeights.get(row), size.height));
 
                 x += size.width + getHgap();
-                rowHeight = Math.max(rowHeight, size.height);
+            }
+
+            int left = insets.left + getHgap();
+            int top = insets.top + getVgap();
+            int currentRow = 0;
+
+            x = left;
+
+            for (int i = 0; i < components.size(); i++) {
+                if (rows.get(i) != currentRow) {
+                    top += rowHeights.get(currentRow) + getVgap();
+                    currentRow = rows.get(i);
+                    x = left;
+                }
+
+                Dimension size = sizes.get(i);
+
+                components.get(i).setBounds(x, top + (rowHeights.get(currentRow) - size.height) / 2,
+                        size.width, size.height);
+
+                x += size.width + getHgap();
             }
         }
     }

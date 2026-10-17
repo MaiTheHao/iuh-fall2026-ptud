@@ -1,6 +1,7 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.dto.DanhSachKhachHangCriteria;
+import iuh.fit.dto.KhachHangFormData;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.enumeration.MenuGroup;
@@ -162,14 +163,29 @@ public class KhachHangPage extends AbstractPage {
         this.sdtField.requestFocusInWindow();
     }
 
+    private KhachHangFormData getFormData() {
+        String ma = this.maField.getText().trim();
+        return new KhachHangFormData(
+                ma.isBlank() ? null : ma,
+                this.sdtField.getText().trim(),
+                this.hoTenField.getText().trim(),
+                this.ngayTaoField.getText().trim());
+    }
+
+    private void validateFormData(KhachHangFormData data) {
+    }
+
     private void luu(ManagementPanel panel) {
+        KhachHangFormData data = this.getFormData();
+        this.validateFormData(data);
+
         KhachHang khachHang = new KhachHang();
-        String ma = this.maField.getText().isBlank() ? null : this.maField.getText();
-        khachHang.setMaKhachHang(ma);
-        khachHang.setSdt(this.sdtField.getText().trim());
-        khachHang.setHoTen(this.hoTenField.getText().trim());
+        khachHang.setMaKhachHang(data.maKhachHang());
+        khachHang.setSdt(data.sdt());
+        khachHang.setHoTen(data.hoTen());
+
         try {
-            if (ma == null) {
+            if (data.maKhachHang() == null) {
                 this.khachHangService.create(khachHang);
                 ThongBao.thongTin(this, "app.common.create_succeed");
             } else {

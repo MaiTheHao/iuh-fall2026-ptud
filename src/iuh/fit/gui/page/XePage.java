@@ -2,6 +2,7 @@ package iuh.fit.gui.page;
 
 import iuh.fit.dto.DanhSachXeCriteria;
 import iuh.fit.dto.PaginatedResult;
+import iuh.fit.dto.XeFormData;
 import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ManagementPanel;
@@ -178,25 +179,35 @@ public class XePage extends AbstractPage {
         this.hangXeField.requestFocusInWindow();
     }
 
+    private XeFormData getFormData() {
+        return new XeFormData(
+                this.bienSoField.getText().trim(),
+                this.hangXeField.getText().trim(),
+                this.dongXeField.getText().trim(),
+                NumberParseUtil.toIntegerOrNull(this.doiXeField.getText()),
+                NumberParseUtil.toIntegerOrNull(this.odoField.getText()));
+    }
+
+    private void validateFormData(XeFormData data) {
+        if (data.doiXe() == null || data.odo() == null) {
+            throw new IllegalArgumentException("app.xe.loiThongTinSo");
+        }
+    }
+
     private void luu(ManagementPanel panel) {
+        XeFormData data = this.getFormData();
+        this.validateFormData(data);
+
         try {
             Xe xe = new Xe();
 
-            String bienSo = this.bienSoField.getText().trim();
+            String bienSo = data.bienSo();
 
             xe.setBienSo(bienSo.isBlank() ? null : bienSo);
-            xe.setHangXe(this.hangXeField.getText().trim());
-            xe.setDongXe(this.dongXeField.getText().trim());
-
-            String doiXe = this.doiXeField.getText().trim();
-            String odo = this.odoField.getText().trim();
-
-            if (doiXe.isBlank() || odo.isBlank()) {
-                throw new IllegalArgumentException("app.xe.loiThongTinSo");
-            }
-
-            xe.setDoiXe(Integer.parseInt(doiXe));
-            xe.setOdo(Integer.parseInt(odo));
+            xe.setHangXe(data.hangXe());
+            xe.setDongXe(data.dongXe());
+            xe.setDoiXe(data.doiXe());
+            xe.setOdo(data.odo());
 
             if (!this.xeService.existsByBienSo(bienSo)) {
                 this.xeService.create(xe);
@@ -210,8 +221,6 @@ public class XePage extends AbstractPage {
             this.lamMoi(panel);
             this.taiLai(panel, 1);
 
-        } catch (NumberFormatException e) {
-            ThongBao.loi(this, "app.xe.loiThongTinSo");
         } catch (IllegalArgumentException e) {
             ThongBao.loi(this, e);
         } catch (SQLException e) {

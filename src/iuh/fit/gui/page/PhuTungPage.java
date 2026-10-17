@@ -2,6 +2,7 @@ package iuh.fit.gui.page;
 
 import iuh.fit.dto.DanhSachPhuTungCriteria;
 import iuh.fit.dto.PaginatedResult;
+import iuh.fit.dto.PhuTungFormData;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.AnhField;
@@ -293,60 +294,51 @@ public class PhuTungPage extends AbstractPage {
         this.maField.requestFocusInWindow();
     }
 
-    private void luu() {
+    private PhuTungFormData getFormData() {
         String ma = this.maField.getText().trim();
-        String ten = this.tenField.getText().trim();
         String moTa = this.moTaField.getText().trim();
         String anhUrl = this.anhField.getDuongDan();
-
-        double donGia;
-        int soLuong;
-
-        if (ten.isBlank()) {
-            ThongBao.loi(this, "app.phuTung.loiTen");
-            return;
-        }
-
-        try {
-            donGia = Double.parseDouble(
-                    this.donGiaField.getText().trim()
-            );
-
-            if (!Double.isFinite(donGia) || donGia < 0) {
-                throw new NumberFormatException();
-            }
-
-        } catch (NumberFormatException e) {
-            ThongBao.loi(this, "app.phuTung.loiDonGia");
-            return;
-        }
-
-        if (this.maField.isEnabled()) {
-            soLuong = 0;
-        } else {
-            Integer parsed = NumberParseUtil.toIntegerOrNull(
-                    this.soLuongField.getText()
-            );
-
-            if (parsed == null || parsed < 0) {
-                ThongBao.loi(this, "app.phuTung.loiSoLuong");
-                return;
-            }
-
-            soLuong = parsed;
-        }
-
-        PhuTung phuTung = new PhuTung(
-                ma,
-                ten,
+        return new PhuTungFormData(
+                ma.isBlank() ? null : ma,
+                this.tenField.getText().trim(),
                 moTa.isBlank() ? null : moTa,
                 anhUrl.isBlank() ? null : anhUrl,
-                donGia,
+                NumberParseUtil.toDoubleOrNull(this.donGiaField.getText()),
+                NumberParseUtil.toIntegerOrNull(this.soLuongField.getText()));
+    }
+
+    private void validateFormData(PhuTungFormData data) {
+        if (data.tenPhuTung().isBlank()) {
+            throw new IllegalArgumentException("app.phuTung.loiTen");
+        }
+
+        if (data.donGiaNhap() == null || !Double.isFinite(data.donGiaNhap()) || data.donGiaNhap() < 0) {
+            throw new IllegalArgumentException("app.phuTung.loiDonGia");
+        }
+
+        if (data.maPhuTung() != null && (data.soLuongTon() == null || data.soLuongTon() < 0)) {
+            throw new IllegalArgumentException("app.phuTung.loiSoLuong");
+        }
+    }
+
+    private void luu() {
+        PhuTungFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        boolean taoMoi = data.maPhuTung() == null;
+        int soLuong = taoMoi ? 0 : data.soLuongTon();
+
+        PhuTung phuTung = new PhuTung(
+                data.maPhuTung(),
+                data.tenPhuTung(),
+                data.moTa(),
+                data.anhUrl(),
+                data.donGiaNhap(),
                 soLuong
         );
 
         try {
-            if (this.maField.isEnabled()) {
+            if (taoMoi) {
                 this.phuTungService.create(phuTung);
                 ThongBao.thongTin(this, "app.common.create_succeed");
             } else {

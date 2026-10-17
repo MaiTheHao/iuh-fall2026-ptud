@@ -1,6 +1,7 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.dto.DanhSachDichVuCriteria;
+import iuh.fit.dto.DichVuFormData;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.DichVu;
 import iuh.fit.enumeration.MenuGroup;
@@ -285,36 +286,42 @@ public class DichVuPage extends AbstractPage {
         this.tenField.requestFocusInWindow();
     }
 
-    private void luu() {
+    private DichVuFormData getFormData() {
         String ma = this.maField.getText().trim();
-        String ten = this.tenField.getText().trim();
         String moTa = this.moTaField.getText().trim();
         String anhUrl = this.anhField.getDuongDan();
-
-        if (ten.isBlank()) {
-            ThongBao.loi(this, "app.dichVu.loiTen");
-            return;
-        }
-
-        Double donGia = NumberParseUtil.toDoubleOrNull(
-                this.donGiaField.getText()
-        );
-
-        if (donGia == null || !Double.isFinite(donGia) || donGia < 0) {
-            ThongBao.loi(this, "app.dichVu.loiDonGia");
-            return;
-        }
-
-        DichVu dichVu = new DichVu(
+        return new DichVuFormData(
                 ma.isBlank() ? null : ma,
-                ten,
+                this.tenField.getText().trim(),
                 moTa.isBlank() ? null : moTa,
                 anhUrl.isBlank() ? null : anhUrl,
-                donGia
+                NumberParseUtil.toDoubleOrNull(this.donGiaField.getText()));
+    }
+
+    private void validateFormData(DichVuFormData data) {
+        if (data.tenDichVu().isBlank()) {
+            throw new IllegalArgumentException("app.dichVu.loiTen");
+        }
+
+        if (data.donGia() == null || !Double.isFinite(data.donGia()) || data.donGia() < 0) {
+            throw new IllegalArgumentException("app.dichVu.loiDonGia");
+        }
+    }
+
+    private void luu() {
+        DichVuFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        DichVu dichVu = new DichVu(
+                data.maDichVu(),
+                data.tenDichVu(),
+                data.moTa(),
+                data.anhUrl(),
+                data.donGia()
         );
 
         try {
-            if (this.maField.isEnabled()) {
+            if (data.maDichVu() == null) {
                 this.dichVuService.create(dichVu);
 
                 ThongBao.thongTin(
