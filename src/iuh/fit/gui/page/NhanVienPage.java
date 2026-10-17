@@ -24,13 +24,14 @@ import javax.swing.table.TableModel;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NhanVienPage extends AbstractPage {
 
     private static final long serialVersionUID = 1L;
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 20;
 
     private final NhanVienService nhanVienService = new NhanVienService();
 
@@ -50,6 +51,7 @@ public class NhanVienPage extends AbstractPage {
     private final JPasswordField txtMatKhau = new JPasswordField(14);
     private final JTextField txtHoTen = new JTextField(14);
     private final JTextField txtSoDienThoai = new JTextField(14);
+    private final JTextField txtNgayTao = new JTextField(14);
 
     private JComboBox<VaiTro> cboVaiTro;
     private JComboBox<TrangThaiNhanVien> cboTrangThai;
@@ -134,6 +136,10 @@ public class NhanVienPage extends AbstractPage {
         this.cboTrangThai = new JComboBox<>(TrangThaiNhanVien.values());
 
         this.managementPanel.addFormRow("app.nhanVien.trangThai", this.cboTrangThai);
+
+        this.txtNgayTao.setEnabled(false);
+
+        this.managementPanel.addFormRow("app.nhanVien.ngayTao", this.txtNgayTao);
 
         form.add(this.anhField);
 
@@ -324,6 +330,9 @@ public class NhanVienPage extends AbstractPage {
 
             this.txtSoDienThoai.setText(nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai());
 
+            this.txtNgayTao.setText(nv.getNgayTao() == null ? ""
+                    : nv.getNgayTao().format(DateTimeFormatter.ofPattern(I18nReaderUtil.get("app.date.format"))));
+
             this.anhField.setDuongDan(nv.getAnhDaiDien());
 
             this.cboVaiTro.setSelectedItem(nv.getVaiTro());
@@ -440,6 +449,7 @@ public class NhanVienPage extends AbstractPage {
         this.txtMatKhau.setText("");
         this.txtHoTen.setText("");
         this.txtSoDienThoai.setText("");
+        this.txtNgayTao.setText("");
 
         this.anhField.clear();
 

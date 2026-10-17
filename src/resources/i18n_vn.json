@@ -60,7 +60,10 @@
 			"delete_succeed": "Xóa thành công",
 			"confirm": "Xác nhận",
 			"notification": "Thông báo",
-			"error": "Lỗi"
+			"error": "Lỗi",
+			"nhapUrl": "Nhập URL",
+			"tieuDeNhapUrl": "Nhập URL ảnh",
+			"urlGoiY": "Dán liên kết ảnh (https://...)"
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -146,7 +149,7 @@
 			"chonNhanVienCanXoa": "Vui lòng chọn nhân viên cần xóa.",
 			"xacNhanXoa": "Bạn có chắc chắn muốn xóa nhân viên",
 			"hinhAnh": "Hình ảnh",
-			"anhUrl": "Đường dẫn ảnh",
+			"anhUrl": "URL ảnh",
 			"chonAnh": "Chọn ảnh",
 			"goAnh": "Gỡ ảnh",
 			"chuaCoAnh": "Chưa có ảnh",
@@ -180,7 +183,7 @@
 			"ma": "Mã phụ tùng",
 			"ten": "Tên phụ tùng",
 			"moTa": "Mô tả",
-			"anhUrl": "Đường dẫn ảnh",
+			"anhUrl": "URL ảnh",
 			"hinhAnh": "Hình Ảnh",
 			"donGia": "Đơn giá nhập",
 			"soLuongTon": "Số lượng tồn",
@@ -207,7 +210,7 @@
 			"ma": "Mã dịch vụ",
 			"ten": "Tên dịch vụ",
 			"moTa": "Mô tả",
-			"anhUrl": "Đường dẫn ảnh",
+			"anhUrl": "URL ảnh",
 			"hinhAnh": "Hình ảnh",
 			"donGia": "Đơn giá",
 			"chonAnh": "Chọn ảnh",

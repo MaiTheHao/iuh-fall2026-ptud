@@ -27,7 +27,7 @@ import java.util.List;
 public class DichVuPage extends AbstractPage {
 
     private static final long serialVersionUID = 1L;
-    private static final int SO_DONG_MOI_TRANG = 10;
+    private static final int SO_DONG_MOI_TRANG = 20;
 
     private final DichVuService dichVuService = new DichVuService();
 

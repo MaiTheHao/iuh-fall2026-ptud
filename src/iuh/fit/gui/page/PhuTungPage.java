@@ -25,7 +25,7 @@ import java.util.List;
 public class PhuTungPage extends AbstractPage {
 
     private static final long serialVersionUID = 1L;
-    private static final int SO_DONG_MOI_TRANG = 10;
+    private static final int SO_DONG_MOI_TRANG = 20;
 
     private final PhuTungService phuTungService =
             new PhuTungService();

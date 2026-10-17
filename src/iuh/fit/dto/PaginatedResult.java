@@ -11,7 +11,7 @@ public record PaginatedResult<T>(
         int pageSize,
         long totalItems) {
 
-    public static final int DEFAULT_PAGE_SIZE = 10;
+    public static final int DEFAULT_PAGE_SIZE = 20;
 
     public static <T> PaginatedResult<T> of(List<T> items, int page, int pageSize) {
         int size = normalizePageSize(pageSize);

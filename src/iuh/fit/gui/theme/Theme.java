@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.UIManager;
 
 /**
@@ -47,6 +49,30 @@ public final class Theme {
                 BorderFactory.createLineBorder(BORDER),
                 BorderFactory.createEmptyBorder(padding, padding, padding, padding)));
         return panel;
+    }
+
+    public static void applyPrimary(JButton button) {
+        button.setBackground(ACCENT);
+        button.setForeground(PANEL);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setFocusPainted(false);
+    }
+
+    public static void applyDanger(JButton button) {
+        button.setBackground(DANGER);
+        button.setForeground(PANEL);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setFocusPainted(false);
+    }
+
+    public static void styleTable(JTable table) {
+        table.getTableHeader().setBackground(BG);
+        table.getTableHeader().setForeground(INK);
+        table.setSelectionBackground(ACCENT_SOFT);
+        table.setSelectionForeground(INK);
+        table.setGridColor(BORDER);
     }
 
     private Theme() {
