@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -52,6 +53,8 @@ public class ManagementPanel extends JPanel {
     private final Map<Integer, DatePicker[]> dateFilters = new LinkedHashMap<>();
     private final List<JTextField> textInputs = new ArrayList<>();
     private final List<DatePicker> datePickers = new ArrayList<>();
+    private final List<JLabel> formLabels = new ArrayList<>();
+    private final List<JLabel> filterLabels = new ArrayList<>();
     private final JTextField quickFilterField = new JTextField(12);
     private final JLabel countLabel = new JLabel();
     private final JButton clearFilterButton = new JButton(I18nReaderUtil.get("app.common.clearFilter"));
@@ -226,11 +229,32 @@ public class ManagementPanel extends JPanel {
     }
 
     private JPanel buildFilterItem(String labelKey, JComponent field) {
-        JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         item.setOpaque(false);
-        item.add(new JLabel(I18nReaderUtil.get(labelKey)));
+        item.add(this.buildFieldLabel(labelKey, this.filterLabels));
         item.add(field);
         return item;
+    }
+
+    private JLabel buildFieldLabel(String labelKey, List<JLabel> labels) {
+        JLabel label = new JLabel(I18nReaderUtil.get(labelKey), SwingConstants.RIGHT);
+        labels.add(label);
+        this.updateFieldLabelWidth(labels);
+        return label;
+    }
+
+    private void updateFieldLabelWidth(List<JLabel> labels) {
+        int width = 0;
+        int height = 0;
+
+        for (JLabel label : labels) {
+            width = Math.max(width, label.getFontMetrics(label.getFont()).stringWidth(label.getText()));
+            height = Math.max(height, label.getPreferredSize().height);
+        }
+
+        for (JLabel label : labels) {
+            label.setPreferredSize(new Dimension(width, height));
+        }
     }
 
     public String getTextFilter(int column) {
@@ -309,7 +333,7 @@ public class ManagementPanel extends JPanel {
     public void addFormRow(String labelKey, Component field) {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
         row.setOpaque(false);
-        row.add(new JLabel(I18nReaderUtil.get(labelKey)));
+        row.add(this.buildFieldLabel(labelKey, this.formLabels));
         row.add(field);
         this.formFields.add(row);
     }
