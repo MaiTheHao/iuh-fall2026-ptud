@@ -9,6 +9,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -68,12 +69,15 @@ public class AnhField extends JPanel {
         nutRow.setOpaque(false);
 
         JButton chonAnhButton = new JButton(I18nReaderUtil.get(keyChonAnh));
+        JButton nhapUrlButton = new JButton(I18nReaderUtil.get("app.common.nhapUrl"));
         JButton goAnhButton = new JButton(I18nReaderUtil.get(keyGoAnh));
 
         chonAnhButton.addActionListener(e -> this.chonAnh());
+        nhapUrlButton.addActionListener(e -> this.nhapUrl());
         goAnhButton.addActionListener(e -> this.clear());
 
         nutRow.add(chonAnhButton);
+        nutRow.add(nhapUrlButton);
         nutRow.add(goAnhButton);
         this.add(nutRow);
 
@@ -121,6 +125,21 @@ public class AnhField extends JPanel {
             File file = chooser.getSelectedFile();
 
             this.setDuongDan(file.getAbsolutePath());
+        }
+    }
+
+    private void nhapUrl() {
+        String ketQua = (String) JOptionPane.showInputDialog(
+                this,
+                I18nReaderUtil.get("app.common.urlGoiY"),
+                I18nReaderUtil.get("app.common.tieuDeNhapUrl"),
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                null,
+                this.duongDanField.getText());
+
+        if (ketQua != null) {
+            this.setDuongDan(ketQua.trim());
         }
     }
 

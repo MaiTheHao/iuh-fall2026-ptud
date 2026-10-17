@@ -77,6 +77,11 @@ public class ManagementPanel extends JPanel {
         this.table.setFillsViewportHeight(true);
         this.table.setRowHeight(24);
 
+        Theme.applyPrimary(this.themButton);
+        Theme.applyPrimary(this.luuButton);
+        Theme.applyDanger(this.xoaButton);
+        Theme.styleTable(this.table);
+
         JPanel listPanel = new JPanel(new BorderLayout(4, 4));
         listPanel.setBackground(Theme.BG);
         listPanel.add(this.buildFilterPanel(), BorderLayout.NORTH);
@@ -306,7 +311,7 @@ public class ManagementPanel extends JPanel {
         row.setOpaque(false);
         row.add(new JLabel(I18nReaderUtil.get(labelKey)));
         row.add(field);
-        this.formPanel.add(row);
+        this.formFields.add(row);
     }
 
     public JButton getThemButton() {

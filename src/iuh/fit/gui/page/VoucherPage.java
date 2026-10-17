@@ -31,7 +31,7 @@ public class VoucherPage extends AbstractPage {
 
     private static final long serialVersionUID = 1L;
 
-    private static final int SO_DONG_MOI_TRANG = 10;
+    private static final int SO_DONG_MOI_TRANG = 20;
 
     private static final DateTimeFormatter DINH_DANG_NGAY_GIO =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");

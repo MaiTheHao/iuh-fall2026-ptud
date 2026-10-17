@@ -9,14 +9,19 @@ import iuh.fit.gui.theme.Theme;
 
 import iuh.fit.gui.component.ThongBao;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 
 /** Màn hình đăng nhập hệ thống. */
@@ -45,11 +50,15 @@ public class LoginPage extends AbstractPage {
         JPanel actions = new JPanel(new GridLayout(1, 2, 8, 0));
         JButton dangNhapButton = new JButton(I18nReaderUtil.get("app.login.submit"));
         dangNhapButton.addActionListener(e -> dangNhap());
+        Theme.applyPrimary(dangNhapButton);
         JButton thoatButton = new JButton(I18nReaderUtil.get("app.login.exit"));
         thoatButton.addActionListener(e -> System.exit(0));
         actions.add(dangNhapButton);
         actions.add(thoatButton);
         box.add(actions);
+
+        this.bindEnter(this.tenDangNhapField);
+        this.bindEnter(this.matKhauField);
 
         add(box, new GridBagConstraints());
         revalidate();
@@ -59,6 +68,17 @@ public class LoginPage extends AbstractPage {
     @Override
     public String getTitleKey() {
         return "app.login.title";
+    }
+
+    private void bindEnter(JTextField field) {
+        field.getInputMap(JComponent.WHEN_FOCUSED)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "dangNhap");
+        field.getActionMap().put("dangNhap", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                LoginPage.this.dangNhap();
+            }
+        });
     }
 
     private void dangNhap() {

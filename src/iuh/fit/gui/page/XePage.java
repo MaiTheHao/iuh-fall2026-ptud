@@ -20,7 +20,7 @@ import java.util.List;
 
 public class XePage extends AbstractPage {
 
-    private static final int SO_DONG_MOI_TRANG = 10;
+    private static final int SO_DONG_MOI_TRANG = 20;
 
     private final XeService xeService = new XeService();
 

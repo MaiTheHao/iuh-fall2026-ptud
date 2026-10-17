@@ -60,7 +60,10 @@
 			"delete_succeed": "Delete succeed",
 			"confirm": "Confirm",
 			"notification": "Notification",
-			"error": "Error"
+			"error": "Error",
+			"nhapUrl": "Enter URL",
+			"tieuDeNhapUrl": "Enter image URL",
+			"urlGoiY": "Paste image link (https://...)"
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -146,7 +149,7 @@
 			"chonNhanVienCanXoa": "Please select an employee to delete.",
 			"xacNhanXoa": "Are you sure you want to delete this employee?",
 			"hinhAnh": "Image",
-			"anhUrl": "Image Path",
+			"anhUrl": "Image URL",
 			"chonAnh": "Choose Image",
 			"goAnh": "Remove Image",
 			"chuaCoAnh": "No Image",
@@ -207,7 +210,7 @@
 		    "ma": "Service ID",
 		    "ten": "Service Name",
 		    "moTa": "Description",
-		    "anhUrl": "Image Path",
+		    "anhUrl": "Image URL",
 		    "hinhAnh": "Image",
 		    "donGia": "Price",
 		    "chonAnh": "Choose Image",

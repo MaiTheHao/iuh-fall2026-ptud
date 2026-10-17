@@ -20,12 +20,13 @@ import java.util.List;
 
 public class KhachHangPage extends AbstractPage {
 
-    private static final int SO_DONG_MOI_TRANG = 10;
+    private static final int SO_DONG_MOI_TRANG = 20;
 
     private final KhachHangService khachHangService = new KhachHangService();
     private final JTextField maField = new JTextField(14);
     private final JTextField sdtField = new JTextField(14);
     private final JTextField hoTenField = new JTextField(14);
+    private final JTextField ngayTaoField = new JTextField(14);
     private int trang = 1;
 
     public KhachHangPage() {
@@ -45,9 +46,11 @@ public class KhachHangPage extends AbstractPage {
                 I18nReaderUtil.get("app.khachHang.ngayTao"));
 
         this.maField.setEnabled(false);
+        this.ngayTaoField.setEnabled(false);
         panel.addFormRow("app.khachHang.ma", this.maField);
         panel.addFormRow("app.khachHang.sdt", this.sdtField);
         panel.addFormRow("app.khachHang.hoTen", this.hoTenField);
+        panel.addFormRow("app.khachHang.ngayTao", this.ngayTaoField);
 
         panel.addTextFilter("app.khachHang.ma", 0);
         panel.addTextFilter("app.khachHang.sdt", 1);
@@ -147,12 +150,14 @@ public class KhachHangPage extends AbstractPage {
         this.maField.setText(String.valueOf(panel.getModel().getValueAt(row, 0)));
         this.sdtField.setText(String.valueOf(panel.getModel().getValueAt(row, 1)));
         this.hoTenField.setText(String.valueOf(panel.getModel().getValueAt(row, 2)));
+        this.ngayTaoField.setText(String.valueOf(panel.getModel().getValueAt(row, 3)));
     }
 
     private void lamMoi(ManagementPanel panel) {
         this.maField.setText("");
         this.sdtField.setText("");
         this.hoTenField.setText("");
+        this.ngayTaoField.setText("");
         panel.getTable().clearSelection();
         this.sdtField.requestFocusInWindow();
     }
