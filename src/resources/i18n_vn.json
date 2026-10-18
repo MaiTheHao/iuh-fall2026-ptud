@@ -233,6 +233,21 @@
 			"khongTimThay": "Không tìm thấy dịch vụ.",
 			"loiDuLieu": "Dữ liệu dịch vụ không hợp lệ."
 		},
+		"phieuTiepNhan": {
+			"ma": "Mã Tiếp Nhận",
+			"thoiGianVao": "Thời Gian Vào",
+			"noiDung": "Nội Dung Yêu Cầu & Mô Tả",
+			"trangThai": "Trạng Thái Tiến Độ",
+			"thongTinTitle": "Thông Tin Phiếu Tiếp Nhận",
+			"danhSachTitle": "Danh Sách Phiếu Tiếp Nhận & Trạng Thái Tiến Độ Xưởng",
+			"loiMa": "Vui lòng chọn một phiếu tiếp nhận từ danh sách để cập nhật.",
+			"capNhatThanhCong": "Cập nhật phiếu tiếp nhận thành công!",
+			"loiCapNhat": "Lỗi khi lưu phiếu tiếp nhận",
+			"loiTaiData": "Lỗi khi tải dữ liệu phiếu tiếp nhận.",
+			"chuaChonXoa": "Vui lòng chọn phiếu tiếp nhận cần xóa.",
+			"xacNhanXoa": "Bạn có chắc chắn muốn xóa phiếu tiếp nhận này không?",
+			"tieuDeXoa": "Xác nhận xóa phiếu tiếp nhận"
+		},
 		"voucher": {
 			"ma": "Mã voucher",
 			"tenChuongTrinh": "Tên chương trình",

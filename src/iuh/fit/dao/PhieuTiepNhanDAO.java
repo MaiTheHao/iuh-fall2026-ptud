@@ -81,4 +81,24 @@ public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
         }
         return danhSach;
     }
+
+	public void insert(PhieuTiepNhan phieu) throws SQLException{
+		String sql = """
+                INSERT INTO PhieuTiepNhan (maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien, maKhachHang, bienSo)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """;
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, phieu.getMaPhieuTiepNhan());
+            ps.setObject(2, phieu.getNgayTao() != null ? phieu.getNgayTao() : LocalDateTime.now());
+            ps.setString(3, phieu.getMoTa());
+            ps.setString(4, phieu.getTrangThai() != null ? phieu.getTrangThai().name() : TrangThaiPhieuTiepNhan.TIEP_NHAN.name());
+            ps.setString(5, phieu.getMaNhanVien());
+            ps.setString(6, phieu.getMaKhachHang());
+            ps.setString(7, phieu.getBienSo());
+            ps.executeUpdate();
+        }
+	}
 }
