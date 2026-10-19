@@ -53,7 +53,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
                 I18nReaderUtil.get("app.phieuNhap.thuKho"),
                 I18nReaderUtil.get("app.phieuNhap.ngayTao"),
                 I18nReaderUtil.get("app.phieuNhap.tongChiPhi"),
-                I18nReaderUtil.get("app.common.edit"),
                 I18nReaderUtil.get("app.common.delete")
         );
 
@@ -81,7 +80,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setRowHeight(34);
 
-        this.cauHinhCotThaoTac(panel, 6, 7);
+        this.cauHinhCotThaoTac(panel, 6);
         this.taiLai(panel, 1);
 
         this.add(panel, BorderLayout.CENTER);
@@ -125,15 +124,11 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         return null;
     }
 
-    private void cauHinhCotThaoTac(ManagementPanel panel, int colSua, int colXoa) {
+    private void cauHinhCotThaoTac(ManagementPanel panel, int colXoa) {
         JTable table = panel.getTable();
 
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
         renderer.setHorizontalAlignment(JLabel.CENTER);
-
-        table.getColumnModel().getColumn(colSua).setCellRenderer(renderer);
-        table.getColumnModel().getColumn(colSua).setPreferredWidth(70);
-        table.getColumnModel().getColumn(colSua).setMaxWidth(80);
 
         table.getColumnModel().getColumn(colXoa).setCellRenderer(renderer);
         table.getColumnModel().getColumn(colXoa).setPreferredWidth(70);
@@ -149,9 +144,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
                     return;
                 }
 
-                if (col == colSua) {
-                    QuanLyPhieuNhapPage.this.suaTheoDong(panel, row);
-                } else if (col == colXoa) {
+                if (col == colXoa) {
                     QuanLyPhieuNhapPage.this.xoaTheoDong(panel, row);
                 }
             }
@@ -172,11 +165,15 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
                 }
             };
 
-            Double minCost = this.chuanHoaSo(panel.getTextFilter(5));
-            Double maxCost = this.chuanHoaSo(panel.getTextFilter(6));
+            Double minCost = this.parseCost(panel.getTextFilter(5));
+            Double maxCost = this.parseCost(panel.getTextFilter(6));
+
+            if ((minCost != null && minCost.isNaN()) || (maxCost != null && maxCost.isNaN())) {
+                return;
+            }
 
             if (minCost != null && maxCost != null && minCost > maxCost) {
-                maxCost = null; 
+                return;
             }
 
             PaginatedResult<PhieuNhapPhuTung> res = this.phieuNhapService.search(
@@ -193,7 +190,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
             List<Object[]> rows = new ArrayList<>(res.items().size());
             int stt = res.fromIndex();
-            String nhanSua = I18nReaderUtil.get("app.common.edit");
             String nhanXoa = I18nReaderUtil.get("app.common.delete");
 
             for (PhieuNhapPhuTung item : res.items()) {
@@ -204,7 +200,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
                         item.getMaNhanVien(),
                         item.getNgayTao() != null ? item.getNgayTao().format(this.dateFormatter) : "",
                         this.currencyFormat.format(this.phieuNhapService.tinhTongChiPhi(item)),
-                        nhanSua,
                         nhanXoa
                 });
             }
@@ -219,20 +214,14 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         }
     }
 
-    private Double chuanHoaSo(String val) {
+    private Double parseCost(String val) {
         if (val == null || val.isBlank()) {
             return null;
         }
-        return NumberParseUtil.toDoubleOrNull(val.trim().replace(",", ""));
-    }
-
-    private void suaTheoDong(ManagementPanel panel, int row) {
-        if (row < 0 || row >= panel.getModel().getRowCount()) {
-            return;
+        if (!val.trim().matches("\\d+")) {
+            return Double.NaN;
         }
-        String ma = NumberParseUtil.textOf(panel.getModel().getValueAt(row, 1));
-        LapPhieuNhapPage.truyenMaPhieu(ma);
-        this.goTo(LapPhieuNhapPage.class);
+        return Double.valueOf(val.trim());
     }
 
     private void xoaTheoDong(ManagementPanel panel, int row) {
@@ -259,7 +248,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
             this.phieuNhapService.delete(maPhieu);
             ThongBao.thongTin(this, "app.common.delete_succeed");
             this.taiLai(panel, this.trang);
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalArgumentException e) {
             ThongBao.loi(this, e);
         } catch (SQLException e) {
             ThongBao.loi(this, "app.login.errorSystem");
