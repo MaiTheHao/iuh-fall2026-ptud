@@ -8,16 +8,26 @@ import iuh.fit.gui.page.LoginPage;
 import iuh.fit.gui.page.PageRegistry;
 import iuh.fit.gui.theme.Theme;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Layout extends JPanel {
+
+    private static Image anhNen;
+    private static boolean daTaiAnh;
 
     private final PageRegistry registry = PageRegistry.getInstance();
     private final CardLayout cardLayout = new CardLayout();
@@ -25,13 +35,45 @@ public class Layout extends JPanel {
     private final LayoutHeader header;
 
     public Layout() {
+        this.setOpaque(true);
         this.setBackground(Theme.BG);
         this.setLayout(new BorderLayout());
-        this.header = new LayoutHeader(this.registry, this::goTo, this::toggleLocale, this::logout);
-        this.content.setBackground(Theme.BG);
+        this.header = new LayoutHeader(this.registry, this::goTo, this::toggleLocale, this::toggleTheme, this::logout);
+        this.content.setOpaque(false);
         this.addPages();
         this.bindShortcuts();
         this.add(this.content, BorderLayout.CENTER);
+    }
+
+    private static Image layAnhNen() {
+        if (!daTaiAnh) {
+            daTaiAnh = true;
+            InputStream luong = Layout.class.getClassLoader().getResourceAsStream("resources/background.jpg");
+            if (luong != null) {
+                try (luong) {
+                    anhNen = ImageIO.read(luong);
+                } catch (IOException e) {
+                    anhNen = null;
+                }
+            }
+        }
+        return anhNen;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Image anh = layAnhNen();
+        if (anh != null) {
+            int rong = this.getWidth();
+            int cao = this.getHeight();
+            double tiLe = Math.max(rong / (double) anh.getWidth(null), cao / (double) anh.getHeight(null));
+            int rongAnh = (int) Math.ceil(anh.getWidth(null) * tiLe);
+            int caoAnh = (int) Math.ceil(anh.getHeight(null) * tiLe);
+            g.drawImage(anh, (rong - rongAnh) / 2, (cao - caoAnh) / 2, rongAnh, caoAnh, this);
+        }
+        g.setColor(Theme.scrim());
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
     }
 
     private void bindShortcuts() {
@@ -47,6 +89,7 @@ public class Layout extends JPanel {
 
     private void addPages() {
         for (AbstractPage page : this.registry.all()) {
+            page.setOpaque(false);
             page.setBackground(Theme.BG);
             page.setNavigator(this::goTo);
             this.content.add(page, cardKey(page.getClass()));
@@ -75,6 +118,23 @@ public class Layout extends JPanel {
     public void logout() {
         AppContext.getInstance().logout();
         this.goTo(LoginPage.class);
+    }
+
+    public void toggleTheme() {
+        boolean dark = !AppContext.getInstance().isDarkMode();
+        Color mauNenCu = Theme.palette().BG();
+        AppContext.getInstance().setDarkMode(dark);
+        Theme.setDarkMode(dark);
+        SwingUtilities.updateComponentTreeUI(this);
+        Theme.capNhatNutMacDinh(this, mauNenCu);
+        for (AbstractPage page : this.registry.all()) {
+            page.setBackground(Theme.BG);
+        }
+        this.setBackground(Theme.BG);
+        this.content.setBackground(Theme.BG);
+        this.header.refreshTheme();
+        this.render();
+        this.repaint();
     }
 
     public void render() {

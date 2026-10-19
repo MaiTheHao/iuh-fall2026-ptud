@@ -7,18 +7,19 @@ import iuh.fit.entity.DichVu;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.AnhField;
 import iuh.fit.gui.component.AnhTableCellRenderer;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.DichVuService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 
 import java.sql.SQLException;
 
@@ -48,6 +49,7 @@ public class DichVuPage extends AbstractPage {
     );
 
     private ManagementPanel panel;
+    private ManagementFormPanel form;
     private int trang = 1;
 
     public DichVuPage() {
@@ -61,8 +63,10 @@ public class DichVuPage extends AbstractPage {
         this.setBorder(
                 BorderFactory.createEmptyBorder(8, 8, 8, 8)
         );
+        this.setBackground(Theme.BG);
 
         this.panel = new ManagementPanel();
+        this.panel.setListTitle("app.dichVu.danhSachTitle");
 
         this.panel.setHeaders(
                 I18nReaderUtil.get("app.dichVu.hinhAnh"),
@@ -72,40 +76,50 @@ public class DichVuPage extends AbstractPage {
                 I18nReaderUtil.get("app.dichVu.donGia")
         );
 
+        this.form = new ManagementFormPanel("app.dichVu.thongTinTitle");
+
         this.khoiTaoForm();
         this.khoiTaoBoLoc();
         this.ganSuKien();
 
         this.taiLai(this.panel, 1);
 
-        this.add(this.panel, BorderLayout.CENTER);
+        JSplitPane split = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                this.form,
+                this.panel
+        );
+        split.setDividerLocation(380);
+        split.setOpaque(false);
+        split.setBorder(null);
+
+        this.add(split, BorderLayout.CENTER);
 
         this.revalidate();
         this.repaint();
     }
 
     private void khoiTaoForm() {
-        this.maField.setEditable(false);
-        this.maField.setEnabled(true);
+        Theme.applyReadOnly(this.maField);
 
-        this.panel.addFormRow(
+        this.form.addField(
                 "app.dichVu.ma",
                 this.maField
         );
 
-        this.panel.addFormRow(
+        this.form.addField(
                 "app.dichVu.ten",
                 this.tenField
         );
 
-        this.panel.addFormRow(
+        this.form.addField(
                 "app.dichVu.moTa",
                 this.moTaField
         );
 
-        this.panel.getFormPanel().add(this.anhField);
+        this.form.addBlock(this.anhField);
 
-        this.panel.addFormRow(
+        this.form.addField(
                 "app.dichVu.donGia",
                 this.donGiaField
         );
@@ -122,19 +136,19 @@ public class DichVuPage extends AbstractPage {
     }
 
     private void ganSuKien() {
-        this.panel.getThemButton().addActionListener(
+        this.form.getNutThem().addActionListener(
                 e -> this.lamMoi()
         );
 
-        this.panel.getLuuButton().addActionListener(
+        this.form.getNutLuu().addActionListener(
                 e -> this.luu()
         );
 
-        this.panel.getXoaTrangButton().addActionListener(
+        this.form.getNutXoaTrang().addActionListener(
                 e -> this.lamMoi()
         );
 
-        this.panel.getXoaButton().addActionListener(
+        this.form.getNutXoa().addActionListener(
                 e -> this.xoa()
         );
 
@@ -269,7 +283,6 @@ public class DichVuPage extends AbstractPage {
                 )
         );
 
-        this.maField.setEnabled(false);
     }
 
     private void lamMoi() {
@@ -277,8 +290,6 @@ public class DichVuPage extends AbstractPage {
         this.tenField.setText("");
         this.moTaField.setText("");
         this.donGiaField.setText("");
-
-        this.maField.setEnabled(true);
 
         this.panel.getTable().clearSelection();
         this.anhField.clear();

@@ -4,21 +4,22 @@ import iuh.fit.dto.DanhSachCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.PhieuNhapPhuTung;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuNhapPhuTungService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
@@ -34,17 +35,24 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(I18nReaderUtil.get("app.date.format") + " HH:mm");
     private int trang = 1;
 
+    private final JTextField maPhieuNhapField = new JTextField();
+    private final JTextField moTaField = new JTextField();
+    private final JTextField thuKhoField = new JTextField();
+    private final JTextField ngayTaoField = new JTextField();
+    private final JTextField tongChiPhiField = new JTextField();
+
     public QuanLyPhieuNhapPage() {
         this.setLayout(new BorderLayout());
-        this.setBorder(BorderFactory.createEmptyBorder(8, 12, 10, 12));
     }
 
     @Override
     public void render() {
         this.removeAll();
+        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBackground(Theme.BG);
 
         ManagementPanel panel = new ManagementPanel();
-        panel.getFormPanel().getParent().setVisible(false);
+        panel.setListTitle("app.phieuNhap.danhSachTitle");
 
         panel.setHeaders(
                 "#",
@@ -59,17 +67,50 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         panel.addTextFilter("app.phieuNhap.maPhieuNhap", 1);
         panel.addTextFilter("app.phieuNhap.moTa", 2);
         panel.addTextFilter("app.phieuNhap.thuKho", 3);
-
-        this.chenDiemNgatHang(panel);
-
         panel.addDateRangeFilter("app.phieuNhap.ngayTao", 4);
         panel.addRangeFilter("app.phieuNhap.tongChiPhi", 5);
 
-        this.tangKichThuocNhan(panel);
+        ManagementFormPanel form = new ManagementFormPanel("app.phieuNhap.thongTinTitle");
 
-        panel.getThemButton().setText(I18nReaderUtil.get("app.phieuNhap.taoPhieuMoi"));
-        panel.getThemButton().addActionListener(e -> this.goTo(LapPhieuNhapPage.class));
-        panel.getXoaButton().addActionListener(e -> this.xoaTheoDongChon(panel));
+        Theme.applyReadOnly(this.maPhieuNhapField);
+        Theme.applyReadOnly(this.moTaField);
+        Theme.applyReadOnly(this.thuKhoField);
+        Theme.applyReadOnly(this.ngayTaoField);
+        Theme.applyReadOnly(this.tongChiPhiField);
+
+        form.addField("app.phieuNhap.maPhieuNhap", this.maPhieuNhapField);
+        form.addField("app.phieuNhap.moTa", this.moTaField);
+        form.addField("app.phieuNhap.thuKho", this.thuKhoField);
+        form.addField("app.phieuNhap.ngayTao", this.ngayTaoField);
+        form.addField("app.phieuNhap.tongChiPhi", this.tongChiPhiField);
+
+        JButton taoMoi = new JButton(I18nReaderUtil.get("app.phieuNhap.taoPhieuMoi"));
+        Theme.applyPrimary(taoMoi);
+        taoMoi.addActionListener(e -> this.goTo(LapPhieuNhapPage.class));
+
+        JButton xoa = new JButton(I18nReaderUtil.get("app.common.delete"));
+        Theme.applyDanger(xoa);
+        xoa.addActionListener(e -> this.xoaTheoDongChon(panel));
+
+        form.thayNut(taoMoi, xoa);
+
+        panel.getTable().getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) {
+                return;
+            }
+
+            int row = panel.getSelectedRow();
+
+            if (row < 0) {
+                return;
+            }
+
+            this.maPhieuNhapField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 1)));
+            this.moTaField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 2)));
+            this.thuKhoField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 3)));
+            this.ngayTaoField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 4)));
+            this.tongChiPhiField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 5)));
+        });
 
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
         panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
@@ -83,45 +124,14 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         this.cauHinhCotThaoTac(panel, 6);
         this.taiLai(panel, 1);
 
-        this.add(panel, BorderLayout.CENTER);
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, panel);
+        split.setDividerLocation(380);
+        split.setOpaque(false);
+        split.setBorder(null);
+        this.add(split, BorderLayout.CENTER);
+
         this.revalidate();
         this.repaint();
-    }
-
-    private void tangKichThuocNhan(Container container) {
-        for (Component c : container.getComponents()) {
-            if (c instanceof JLabel lbl && lbl.getPreferredSize().width > 0) {
-                Dimension d = lbl.getPreferredSize();
-                lbl.setPreferredSize(new Dimension(d.width + 30, d.height));
-            } else if (c instanceof Container sub) {
-                this.tangKichThuocNhan(sub);
-            }
-        }
-    }
-
-    private void chenDiemNgatHang(Container container) {
-        JPanel wrapPanel = this.timWrapPanel(container);
-        if (wrapPanel != null) {
-            JPanel breaker = new JPanel();
-            breaker.setOpaque(false);
-            breaker.setPreferredSize(new Dimension(3000, 1));
-            wrapPanel.add(breaker);
-        }
-    }
-
-    private JPanel timWrapPanel(Container container) {
-        if (container.getLayout() instanceof iuh.fit.gui.component.WrapLayout) {
-            return (JPanel) container;
-        }
-        for (Component child : container.getComponents()) {
-            if (child instanceof Container sub) {
-                JPanel res = this.timWrapPanel(sub);
-                if (res != null) {
-                    return res;
-                }
-            }
-        }
-        return null;
     }
 
     private void cauHinhCotThaoTac(ManagementPanel panel, int colXoa) {
@@ -208,6 +218,12 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
             panel.setCount(res.fromIndex(), res.toIndex(), res.totalItems());
             panel.setPage(res.page(), Math.max(res.totalPages(), 1));
             this.trang = res.page();
+
+            this.maPhieuNhapField.setText("");
+            this.moTaField.setText("");
+            this.thuKhoField.setText("");
+            this.ngayTaoField.setText("");
+            this.tongChiPhiField.setText("");
 
         } catch (SQLException e) {
             ThongBao.loi(this, "app.login.errorSystem");

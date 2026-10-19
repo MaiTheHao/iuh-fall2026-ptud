@@ -26,6 +26,7 @@
 			"serviceConsumptionReport": "Tiêu thụ dịch vụ",
 			"changePassword": "Đổi mật khẩu",
 			"language": "Ngôn ngữ",
+			"darkMode": "Chế độ tối",
 			"account": "Tài khoản",
 			"logout": "Đăng xuất"
 		},
@@ -55,6 +56,7 @@
 			"next": "Sau ›",
 			"pageLabel": "Trang",
 			"count": "Hiển thị",
+			"currencySymbol": "₫",
 			"create_succeed": "Thêm thành công",
 			"update_succeed": "Cập nhật thành công",
 			"delete_succeed": "Xóa thành công",
@@ -121,6 +123,8 @@
 			"clear": "Xóa"
 		},
 		"khachHang": {
+			"thongTinTitle": "Thông Tin Khách Hàng",
+			"danhSachTitle": "Danh Sách Khách Hàng",
 			"ma": "Mã KH",
 			"sdt": "SĐT",
 			"hoTen": "Họ tên",
@@ -134,6 +138,8 @@
 			"trungSdt": "Số điện thoại này đã được dùng cho khách hàng khác."
 		},
 		"nhanVien": {
+			"thongTinTitle": "Thông Tin Nhân Viên",
+			"danhSachTitle": "Danh Sách Nhân Viên",
 			"maNhanVien": "Mã nhân viên",
 			"tenDangNhap": "Tên đăng nhập",
 			"matKhau": "Mật khẩu",
@@ -169,6 +175,8 @@
 			"duLieuKhongPhaiAnh": "Tệp không phải dữ liệu hình ảnh hợp lệ."
 		},
 		"xe": {
+			"thongTinTitle": "Thông Tin Xe",
+			"danhSachTitle": "Danh Sách Xe",
 			"bienSo": "Biển số",
 			"hangXe": "Hãng xe",
 			"dongXe": "Dòng xe",
@@ -193,6 +201,8 @@
 			"loiDongXeQuaDai": "Dòng xe không được vượt quá 50 ký tự."
 		},
 		"phuTung": {
+			"thongTinTitle": "Thông Tin Phụ Tùng",
+			"danhSachTitle": "Danh Sách Phụ Tùng",
 			"ma": "Mã phụ tùng",
 			"ten": "Tên phụ tùng",
 			"moTa": "Mô tả",
@@ -220,6 +230,8 @@
 			"duLieuKhongHopLe": "Dữ liệu phụ tùng không hợp lệ."
 		},
 		"dichVu": {
+			"thongTinTitle": "Thông Tin Dịch Vụ",
+			"danhSachTitle": "Danh Sách Dịch Vụ",
 			"ma": "Mã dịch vụ",
 			"ten": "Tên dịch vụ",
 			"moTa": "Mô tả",
@@ -350,6 +362,8 @@
 			"luuThanhCong": "Lưu khiếu nại thành công:"
 		},
 		"voucher": {
+			"thongTinTitle": "Thông Tin Voucher",
+			"danhSachTitle": "Danh Sách Voucher",
 			"ma": "Mã voucher",
 			"tenChuongTrinh": "Tên chương trình",
 			"moTa": "Mô tả",
@@ -373,6 +387,8 @@
 			"huongDanMucGiam": "Nhập mức giảm từ 0 đến 1. Ví dụ: 0.1 tương ứng giảm 10%."
 		},
 		"phieuNhap": {
+			"thongTinTitle": "Thông Tin Phiếu Nhập",
+			"danhSachTitle": "Danh Sách Phiếu Nhập",
 		    "maPhieuNhap": "Mã phiếu",
 		    "ngayTao": "Ngày tạo",
 		    "thuKho": "Mã thủ kho",
@@ -405,6 +421,17 @@
 			"taoPhieuMoi": "Lập phiếu mới",
 			"thaoTac": "Thao tác"
 		},
+		"chanDoan": {
+			"thongTinTitle": "Thông Tin Phiếu Tiếp Nhận",
+			"danhSachTitle": "Chọn Phiếu Tiếp Nhận",
+			"ma": "Mã Tiếp Nhận",
+			"bienSo": "Biển Số",
+			"khachHang": "Khách Hàng",
+			"trangThai": "Trạng Thái",
+			"thaoTac": "Thao Tác",
+			"chon": "Chọn",
+			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận."
+		},
 		"login": {
 			"title": "Đăng nhập hệ thống",
 			"username": "Tên đăng nhập:",
@@ -416,9 +443,17 @@
 			"errorPhone": "Số điện thoại không hợp lệ."
 		},
 		"dashboard": {
-			"greeting": "Xin chào",
-			"role": "Vai trò",
-			"code": "Mã nhân viên"
+			"shift": "Ca",
+			"noShift": "Chưa phân ca",
+			"revenueToday": "Doanh thu hôm nay",
+			"ticketsInProgress": "Phiếu tiếp nhận đang xử lý",
+			"ticketsInProgressSub": "đang trong xưởng",
+			"ticketsAwaitingHandover": "Phiếu tiếp nhận chờ bàn giao",
+			"ticketsAwaitingHandoverSub": "chờ trả khách",
+			"complaintsPending": "Khiếu nại chưa xử lý",
+			"complaintsPendingSub": "cần xử lý",
+			"invoicesUnpaid": "Hóa đơn chưa thanh toán",
+			"invoicesUnpaidSub": "tổng"
 		}
 	}
 }

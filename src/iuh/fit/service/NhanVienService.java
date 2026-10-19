@@ -196,7 +196,16 @@ public class NhanVienService {
         nhanVien.setSoDienThoai(
                 this.trimToNull(nhanVien.getSoDienThoai()));
 
-        this.nhanVienDAO.updateInfo(nhanVien);
+        if (this.isBlank(nhanVien.getMatKhau())) {
+            this.nhanVienDAO.updateInfo(nhanVien);
+            return;
+        }
+
+        if (nhanVien.getMatKhau().length() > 255) {
+            throw new IllegalArgumentException(ERROR_PASSWORD);
+        }
+
+        this.nhanVienDAO.update(nhanVien);
     }
 
     public void delete(String maNhanVien) throws SQLException {

@@ -8,6 +8,7 @@ import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiKichHoat;
 import iuh.fit.gui.component.BoChonNgayGio;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
@@ -19,6 +20,7 @@ import iuh.fit.util.TextNormalizerUtil;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
@@ -57,8 +59,10 @@ public class VoucherPage extends AbstractPage {
     public void render() {
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBackground(Theme.BG);
 
         ManagementPanel panel = new ManagementPanel();
+        panel.setListTitle("app.voucher.danhSachTitle");
 
         panel.setHeaders(
                 I18nReaderUtil.get("app.voucher.ma"),
@@ -69,20 +73,24 @@ public class VoucherPage extends AbstractPage {
                 I18nReaderUtil.get("app.voucher.trangThaiKichHoat")
         );
 
-        this.maField.setEnabled(false);
+        ManagementFormPanel form =
+                new ManagementFormPanel("app.voucher.thongTinTitle");
 
-        panel.addFormRow("app.voucher.ma", this.maField);
-        panel.addFormRow("app.voucher.tenChuongTrinh", this.tenChuongTrinhField);
-        panel.addFormRow("app.voucher.moTa", this.moTaField);
-        panel.addFormRow("app.voucher.mucGiam", this.mucGiamField);
+        Theme.applyReadOnly(this.maField);
+
+        form.addField("app.voucher.ma", this.maField);
+        form.addField("app.voucher.tenChuongTrinh", this.tenChuongTrinhField);
+        form.addField("app.voucher.moTa", this.moTaField);
+        form.addField("app.voucher.mucGiam", this.mucGiamField);
 
         JLabel huongDan = new JLabel(
                 I18nReaderUtil.get("app.voucher.huongDanMucGiam"));
-        huongDan.setForeground(Theme.INK);
-        panel.getFormPanel().add(huongDan);
+        huongDan.setForeground(Theme.chuTrenAnh());
+        form.addBlock(huongDan);
 
-        panel.addFormRow("app.voucher.thoiHanApDung", this.thoiHanPicker);
-        panel.addFormRow("app.voucher.trangThaiKichHoat", this.trangThaiField);
+        form.addField("app.voucher.thoiHanApDung", this.thoiHanPicker);
+        BoChonNgayGio.apDungMau(this.thoiHanPicker);
+        form.addField("app.voucher.trangThaiKichHoat", this.trangThaiField);
 
         panel.addTextFilter("app.voucher.ma", 3);
         panel.addRangeFilter("app.voucher.mucGiam", 4);
@@ -92,10 +100,10 @@ public class VoucherPage extends AbstractPage {
                 TrangThaiKichHoat.values());
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
 
-        panel.getThemButton().addActionListener(e -> this.lamMoi(panel));
-        panel.getLuuButton().addActionListener(e -> this.luu(panel));
-        panel.getXoaTrangButton().addActionListener(e -> this.lamMoi(panel));
-        panel.getXoaButton().addActionListener(e -> this.xoa(panel));
+        form.getNutThem().addActionListener(e -> this.lamMoi(panel));
+        form.getNutLuu().addActionListener(e -> this.luu(panel));
+        form.getNutXoaTrang().addActionListener(e -> this.lamMoi(panel));
+        form.getNutXoa().addActionListener(e -> this.xoa(panel));
 
         panel.getClearFilterButton().addActionListener(
                 e -> panel.clearFilters());
@@ -115,7 +123,16 @@ public class VoucherPage extends AbstractPage {
 
         this.taiLai(panel, 1);
 
-        this.add(panel, BorderLayout.CENTER);
+        JSplitPane split = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                form,
+                panel
+        );
+        split.setDividerLocation(380);
+        split.setOpaque(false);
+        split.setBorder(null);
+
+        this.add(split, BorderLayout.CENTER);
         this.revalidate();
         this.repaint();
     }

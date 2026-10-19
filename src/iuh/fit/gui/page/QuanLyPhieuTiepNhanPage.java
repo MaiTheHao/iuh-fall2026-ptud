@@ -6,6 +6,7 @@ import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
@@ -13,23 +14,13 @@ import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -44,6 +35,8 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
     private static final int SO_DONG_MOI_TRANG = 20;
 
+    private static final DateTimeFormatter NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
 
     // Form fields (Left Panel)
@@ -54,12 +47,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
     private final JTextArea moTaArea = new JTextArea(4, 20);
     private final JComboBox<TrangThaiPhieuTiepNhan> trangThaiCombo = new JComboBox<>(TrangThaiPhieuTiepNhan.values());
 
-    // Left Bottom Buttons
-    private final JButton themButton = new JButton();
-    private final JButton luuButton = new JButton();
-    private final JButton huyButton = new JButton();
-    private final JButton xoaTrangButton = new JButton();
-
+    private ManagementFormPanel form;
     private ManagementPanel managementPanel;
     private List<PhieuTiepNhanView> danhSachHienTai = new ArrayList<>();
     private int trang = 1;
@@ -73,18 +61,10 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
     public void render() {
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBackground(Theme.BG);
 
-        // =========================================================
-        // Right Panel: ManagementPanel Setup
-        // =========================================================
         this.managementPanel = new ManagementPanel();
-
-        TitledBorder rightBorder = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Theme.BORDER),
-                I18nReaderUtil.get("app.phieuTiepNhan.danhSachTitle")
-        );
-        rightBorder.setTitleFont(rightBorder.getTitleFont().deriveFont(Font.BOLD));
-        this.managementPanel.setBorder(rightBorder);
+        this.managementPanel.setListTitle("app.phieuTiepNhan.danhSachTitle");
 
         this.managementPanel.setHeaders(
                 I18nReaderUtil.get("app.phieuTiepNhan.ma"),
@@ -96,7 +76,6 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                 I18nReaderUtil.get("app.phieuTiepNhan.trangThai")
         );
 
-        // Safe Filter Configuration using existing i18n keys
         this.managementPanel.addTextFilter("app.phieuTiepNhan.ma", 0);
         this.managementPanel.addTextFilter("app.xe.bienSo", 1);
         this.managementPanel.addTextFilter("app.khachHang.hoTen", 2);
@@ -107,56 +86,34 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
         this.managementPanel.setFilterChangeListener(() -> this.taiLaiData(1));
 
-        // Safe component removal from ManagementPanel default left area
-        if (this.managementPanel.getLayout() instanceof BorderLayout) {
-            Component west = ((BorderLayout) this.managementPanel.getLayout()).getLayoutComponent(BorderLayout.WEST);
-            if (west != null) {
-                west.setVisible(false);
-            }
-        }
+        this.form = new ManagementFormPanel("app.phieuTiepNhan.thongTinTitle");
 
-        // =========================================================
-        // Left Panel (Form + Action Buttons)
-        // =========================================================
-        JPanel leftPanel = new JPanel(new BorderLayout(0, 10));
-        leftPanel.setOpaque(false);
-        leftPanel.setPreferredSize(new Dimension(380, 0));
+        Theme.applyReadOnly(this.maPhieuField);
+        Theme.applyReadOnly(this.bienSoField);
+        Theme.applyReadOnly(this.khachHangField);
+        Theme.applyReadOnly(this.sdtField);
 
-        JPanel leftFormPanel = this.createLeftFormPanel();
-        JPanel leftButtonPanel = this.createLeftButtonPanel();
+        this.form.addField("app.phieuTiepNhan.maPhieu", this.maPhieuField);
+        this.form.addField("app.phieuTiepNhan.bienSo", this.bienSoField);
+        this.form.addField("app.phieuTiepNhan.khachHang", this.khachHangField);
+        this.form.addField("app.phieuTiepNhan.dienThoai", this.sdtField);
 
-        JPanel formWrapper = new JPanel(new BorderLayout());
-        formWrapper.setOpaque(false);
-        formWrapper.add(leftFormPanel, BorderLayout.NORTH);
+        this.moTaArea.setLineWrap(true);
+        this.moTaArea.setWrapStyleWord(true);
+        JScrollPane scrollMoTa = new JScrollPane(this.moTaArea);
+        scrollMoTa.setPreferredSize(new Dimension(200, 100));
+        this.form.addField("app.phieuTiepNhan.noiDungYeuCau", scrollMoTa);
 
-        JScrollPane scrollForm = new JScrollPane(formWrapper);
-        scrollForm.setBorder(null);
-        scrollForm.setOpaque(false);
-        scrollForm.getViewport().setOpaque(false);
+        this.form.addField("app.phieuTiepNhan.trangThaiTienDo", this.trangThaiCombo);
+        this.trangThaiCombo.setRenderer(ManagementPanel.taoBoHienThiI18n());
 
-        leftPanel.add(scrollForm, BorderLayout.CENTER);
-        leftPanel.add(leftButtonPanel, BorderLayout.SOUTH);
-
-        // =========================================================
-        // SplitPane Setup
-        // =========================================================
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, this.managementPanel);
-        splitPane.setDividerLocation(380);
-        splitPane.setOpaque(false);
-        splitPane.setBorder(null);
-
-        // Action Listeners
-        this.themButton.setText(I18nReaderUtil.get("app.common.add"));
-        this.luuButton.setText(I18nReaderUtil.get("app.phieuTiepNhan.luu"));
-        this.huyButton.setText(I18nReaderUtil.get("app.phieuTiepNhan.huyPhieu"));
-        this.xoaTrangButton.setText(I18nReaderUtil.get("app.phieuTiepNhan.xoaTrang"));
-
-        this.clearActionListeners(this.themButton, this.luuButton, this.huyButton, this.xoaTrangButton);
-
-        this.themButton.addActionListener(e -> this.goTo(TiepNhanKhachHangPage.class));
-        this.luuButton.addActionListener(e -> this.luuPhieuTiepNhan());
-        this.huyButton.addActionListener(e -> this.huyPhieu());
-        this.xoaTrangButton.addActionListener(e -> this.lamMoiForm());
+        this.form.getNutLuu().setText(I18nReaderUtil.get("app.phieuTiepNhan.luu"));
+        this.form.getNutLuu().addActionListener(e -> this.luuPhieuTiepNhan());
+        this.form.getNutXoa().setText(I18nReaderUtil.get("app.phieuTiepNhan.huyPhieu"));
+        this.form.getNutXoa().addActionListener(e -> this.huyPhieu());
+        this.form.getNutXoaTrang().setText(I18nReaderUtil.get("app.phieuTiepNhan.xoaTrang"));
+        this.form.getNutXoaTrang().addActionListener(e -> this.lamMoiForm());
+        this.form.getNutThem().addActionListener(e -> this.goTo(TiepNhanKhachHangPage.class));
 
         this.managementPanel.getClearFilterButton().addActionListener(e -> this.managementPanel.clearFilters());
         this.managementPanel.getPrevButton().addActionListener(e -> this.taiLaiData(this.trang - 1));
@@ -168,94 +125,17 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
             }
         });
 
-        this.add(splitPane, BorderLayout.CENTER);
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
+        split.setDividerLocation(380);
+        split.setOpaque(false);
+        split.setBorder(null);
+
+        this.add(split, BorderLayout.CENTER);
+
+        this.lamMoiForm();
         this.taiLaiData(1);
         this.revalidate();
         this.repaint();
-    }
-
-    private JPanel createLeftFormPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setOpaque(false);
-
-        TitledBorder border = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Theme.BORDER),
-                I18nReaderUtil.get("app.phieuTiepNhan.thongTinTitle")
-        );
-        border.setTitleFont(border.getTitleFont().deriveFont(Font.BOLD));
-        panel.setBorder(border);
-
-        JPanel formContent = new JPanel(new GridBagLayout());
-        formContent.setOpaque(false);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 5, 4, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-
-        this.maPhieuField.setEnabled(false);
-        this.bienSoField.setEditable(false);
-        this.khachHangField.setEditable(false);
-        this.sdtField.setEditable(false);
-
-        this.addFormRow(formContent, "app.phieuTiepNhan.maPhieu", this.maPhieuField, gbc, 0);
-        this.addFormRow(formContent, "app.phieuTiepNhan.bienSo", this.bienSoField, gbc, 1);
-        this.addFormRow(formContent, "app.phieuTiepNhan.khachHang", this.khachHangField, gbc, 2);
-        this.addFormRow(formContent, "app.phieuTiepNhan.dienThoai", this.sdtField, gbc, 3);
-
-        gbc.gridx = 0;
-        gbc.gridy = 8;
-        gbc.gridwidth = 2;
-        JLabel lblMoTa = new JLabel(I18nReaderUtil.get("app.phieuTiepNhan.noiDungYeuCau"));
-        lblMoTa.setFont(lblMoTa.getFont().deriveFont(Font.BOLD));
-        formContent.add(lblMoTa, gbc);
-
-        gbc.gridy = 9;
-        this.moTaArea.setLineWrap(true);
-        this.moTaArea.setWrapStyleWord(true);
-        JScrollPane scrollMoTa = new JScrollPane(this.moTaArea);
-        scrollMoTa.setPreferredSize(new Dimension(200, 100));
-        formContent.add(scrollMoTa, gbc);
-
-        gbc.gridy = 10;
-        JLabel lblTrangThai = new JLabel(I18nReaderUtil.get("app.phieuTiepNhan.trangThaiTienDo"));
-        lblTrangThai.setFont(lblTrangThai.getFont().deriveFont(Font.BOLD));
-        formContent.add(lblTrangThai, gbc);
-
-        gbc.gridy = 11;
-        formContent.add(this.trangThaiCombo, gbc);
-
-        panel.add(formContent, BorderLayout.NORTH);
-        return panel;
-    }
-
-    private JPanel createLeftButtonPanel() {
-        JPanel panel = new JPanel(new GridLayout(2, 2, 6, 6));
-        panel.setOpaque(false);
-
-        this.luuButton.setBackground(Theme.ACCENT);
-        this.luuButton.setForeground(Theme.PANEL);
-
-        Theme.applyDanger(this.huyButton);
-
-        panel.add(this.themButton);
-        panel.add(this.luuButton);
-        panel.add(this.huyButton);
-        panel.add(this.xoaTrangButton);
-
-        return panel;
-    }
-
-    private void addFormRow(JPanel parent, String labelKey, JTextField field, GridBagConstraints gbc, int row) {
-        gbc.gridx = 0;
-        gbc.gridy = row * 2;
-        gbc.gridwidth = 2;
-        JLabel label = new JLabel(I18nReaderUtil.get(labelKey));
-        label.setFont(label.getFont().deriveFont(Font.BOLD));
-        parent.add(label, gbc);
-
-        gbc.gridy = row * 2 + 1;
-        parent.add(field, gbc);
     }
 
     private void taiLaiData(int page) {
@@ -286,7 +166,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                         view.bienSo(),
                         view.tenKhachHang(),
                         view.sdt(),
-                        view.ngayTao() != null ? view.ngayTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : "",
+                        view.ngayTao() != null ? view.ngayTao().format(NGAY_GIO) : "",
                         view.moTa(),
                         view.trangThai() == null ? "" : view.trangThai().getI18NBusinessName()
                 });
@@ -319,7 +199,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         this.moTaArea.setText(view.moTa() == null ? "" : view.moTa());
         this.trangThaiCombo.setSelectedItem(view.trangThai());
 
-        this.huyButton.setEnabled(view.trangThai() != TrangThaiPhieuTiepNhan.DA_HUY);
+        this.form.getNutXoa().setEnabled(view.trangThai() != TrangThaiPhieuTiepNhan.DA_HUY);
     }
 
     private void lamMoiForm() {
@@ -330,7 +210,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         this.moTaArea.setText("");
         this.trangThaiCombo.setSelectedIndex(0);
         this.managementPanel.getTable().clearSelection();
-        this.huyButton.setEnabled(true);
+        this.form.getNutXoa().setEnabled(true);
     }
 
     private void luuPhieuTiepNhan() {

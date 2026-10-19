@@ -1,5 +1,6 @@
 package iuh.fit.gui.component;
 
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.imageio.ImageIO;
@@ -57,7 +58,9 @@ public class AnhField extends JPanel {
 
         JPanel duongDanRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
         duongDanRow.setOpaque(false);
-        duongDanRow.add(new JLabel(I18nReaderUtil.get(keyNhan)));
+        JLabel nhanLabel = new JLabel(I18nReaderUtil.get(keyNhan));
+        nhanLabel.setForeground(Theme.chuTrenAnh());
+        duongDanRow.add(nhanLabel);
         duongDanRow.add(this.duongDanField);
         this.add(duongDanRow);
 
@@ -82,7 +85,8 @@ public class AnhField extends JPanel {
         this.add(nutRow);
 
         this.previewLabel.setPreferredSize(new Dimension(180, 120));
-        this.previewLabel.setBorder(BorderFactory.createEtchedBorder());
+        this.previewLabel.setForeground(Theme.chuTrenAnh());
+        this.previewLabel.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
         this.previewLabel.setIcon(null);
         this.previewLabel.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
 

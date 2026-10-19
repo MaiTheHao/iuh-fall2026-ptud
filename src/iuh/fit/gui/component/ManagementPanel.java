@@ -6,7 +6,6 @@ import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -18,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -25,6 +25,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -33,8 +34,6 @@ import java.util.Map;
 
 public class ManagementPanel extends JPanel {
 
-    private final JPanel formPanel = new JPanel(new BorderLayout());
-    private final JPanel formFields = new JPanel();
     private final Map<Integer, JComboBox<Object>> comboFilters = new LinkedHashMap<>();
     private final DefaultTableModel model = new DefaultTableModel() {
         @Override
@@ -43,17 +42,10 @@ public class ManagementPanel extends JPanel {
         }
     };
     private final JTable table = new JTable(this.model);
-    private final JButton themButton = new JButton(I18nReaderUtil.get("app.common.add"));
-    private final JButton luuButton = new JButton(I18nReaderUtil.get("app.common.save"));
-    private final JButton xoaTrangButton = new JButton(I18nReaderUtil.get("app.common.clear"));
-    private final JButton xoaButton = new JButton(I18nReaderUtil.get("app.common.delete"));
 
     private final JPanel filterFields = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 2));
     private final Map<Integer, JTextField> textFilters = new LinkedHashMap<>();
     private final Map<Integer, DatePicker[]> dateFilters = new LinkedHashMap<>();
-    private final List<JTextField> textInputs = new ArrayList<>();
-    private final List<DatePicker> datePickers = new ArrayList<>();
-    private final List<JLabel> formLabels = new ArrayList<>();
     private final List<JLabel> filterLabels = new ArrayList<>();
     private final JTextField quickFilterField = new JTextField(12);
     private final JLabel countLabel = new JLabel();
@@ -63,61 +55,45 @@ public class ManagementPanel extends JPanel {
     private final JLabel pageLabel = new JLabel();
 
     private Runnable filterChangeListener;
+    private boolean dangXoaLoc;
 
     public ManagementPanel() {
         this.setLayout(new BorderLayout(4, 4));
-        this.setBackground(Theme.BG);
+        this.setOpaque(false);
 
-        this.formFields.setLayout(new BoxLayout(this.formFields, BoxLayout.Y_AXIS));
-        this.formFields.setBackground(Theme.PANEL);
-        this.formFields.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-
-        this.formPanel.setBackground(Theme.PANEL);
-        this.formPanel.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
-        this.formPanel.setPreferredSize(new Dimension(380, 1));
-        this.formPanel.add(this.formFields, BorderLayout.NORTH);
-        this.formPanel.add(this.buildFooter(), BorderLayout.SOUTH);
         this.table.setFillsViewportHeight(true);
         this.table.setRowHeight(24);
 
-        Theme.applyPrimary(this.themButton);
-        Theme.applyPrimary(this.luuButton);
-        Theme.applyDanger(this.xoaButton);
         Theme.styleTable(this.table);
 
+        this.attachTextListener(this.quickFilterField);
+
         JPanel listPanel = new JPanel(new BorderLayout(4, 4));
-        listPanel.setBackground(Theme.BG);
+        listPanel.setOpaque(false);
         listPanel.add(this.buildFilterPanel(), BorderLayout.NORTH);
         listPanel.add(new JScrollPane(this.table), BorderLayout.CENTER);
         listPanel.add(this.buildPaginationPanel(), BorderLayout.SOUTH);
 
-        this.add(this.formPanel, BorderLayout.WEST);
         this.add(listPanel, BorderLayout.CENTER);
     }
 
-    private JPanel buildFooter() {
-        JPanel footer = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 6));
-        footer.setBackground(Theme.PANEL);
-        footer.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.BORDER));
-        footer.add(this.themButton);
-        footer.add(this.luuButton);
-        footer.add(this.xoaTrangButton);
-        footer.add(this.xoaButton);
-        return footer;
-    }
-
     private JPanel buildFilterPanel() {
-        this.filterFields.setBackground(Theme.BG);
+        this.filterFields.setOpaque(false);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
-        actions.setBackground(Theme.BG);
-        actions.add(new JLabel(I18nReaderUtil.get("app.common.search")));
+        actions.setOpaque(false);
+
+        JLabel searchLabel = new JLabel(I18nReaderUtil.get("app.common.search"));
+        searchLabel.setForeground(Theme.chuTrenAnh());
+        actions.add(searchLabel);
+
+        this.countLabel.setForeground(Theme.chuTrenAnh());
         actions.add(this.quickFilterField);
         actions.add(this.countLabel);
         actions.add(this.clearFilterButton);
 
         JPanel panel = new JPanel(new BorderLayout(4, 2));
-        panel.setBackground(Theme.BG);
+        panel.setOpaque(false);
         panel.add(this.filterFields, BorderLayout.CENTER);
         panel.add(actions, BorderLayout.SOUTH);
         return panel;
@@ -125,7 +101,8 @@ public class ManagementPanel extends JPanel {
 
     private JPanel buildPaginationPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 2));
-        panel.setBackground(Theme.BG);
+        panel.setOpaque(false);
+        this.pageLabel.setForeground(Theme.chuTrenAnh());
         panel.add(this.prevButton);
         panel.add(this.pageLabel);
         panel.add(this.nextButton);
@@ -135,7 +112,7 @@ public class ManagementPanel extends JPanel {
     public JTextField addTextFilter(String labelKey, int column) {
         JTextField field = new JTextField(10);
         this.textFilters.put(column, field);
-        this.textInputs.add(field);
+        this.attachTextListener(field);
         this.filterFields.add(this.buildFilterItem(labelKey, field));
         return field;
     }
@@ -150,24 +127,7 @@ public class ManagementPanel extends JPanel {
             combo.addItem(value);
         }
 
-        combo.setRenderer(new DefaultListCellRenderer() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
-
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-                if (value == null) {
-                    setText(I18nReaderUtil.get("app.common.all"));
-                } else if (value instanceof I18nEnum i18nEnum) {
-                    setText(i18nEnum.getI18NBusinessName());
-                }
-
-                return this;
-            }
-        });
+        combo.setRenderer(taoBoHienThiI18n());
 
         comboFilters.put(column, combo);
 
@@ -197,15 +157,10 @@ public class ManagementPanel extends JPanel {
         DatePicker from = BoChonNgayGio.taoBoChonNgay();
         DatePicker to = BoChonNgayGio.taoBoChonNgay();
         this.dateFilters.put(column, new DatePicker[] { from, to });
-        this.datePickers.add(from);
-        this.datePickers.add(to);
+        this.attachDateListener(from);
+        this.attachDateListener(to);
 
-        JPanel range = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
-        range.setOpaque(false);
-        range.add(from);
-        range.add(new JLabel("-"));
-        range.add(to);
-        this.filterFields.add(this.buildFilterItem(labelKey, range));
+        this.filterFields.add(this.buildRangeItem(labelKey, from, to));
     }
 
     public void addRangeFilter(String labelKey, int column) {
@@ -215,44 +170,51 @@ public class ManagementPanel extends JPanel {
         this.textFilters.put(column, fromField);
         this.textFilters.put(column + 1, toField);
 
-        this.textInputs.add(fromField);
-        this.textInputs.add(toField);
+        this.attachTextListener(fromField);
+        this.attachTextListener(toField);
 
-        JPanel rangePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-        rangePanel.setOpaque(false);
+        this.filterFields.add(this.buildRangeItem(labelKey, fromField, toField));
+    }
 
-        rangePanel.add(fromField);
-        rangePanel.add(new JLabel("-"));
-        rangePanel.add(toField);
+    private JPanel buildRangeItem(String labelKey, JComponent from, JComponent to) {
+        JPanel range = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        range.setOpaque(false);
+        range.add(from);
 
-        this.filterFields.add(this.buildFilterItem(labelKey, rangePanel));
+        JLabel separator = new JLabel("-");
+        separator.setForeground(Theme.chuTrenAnh());
+        range.add(separator);
+
+        range.add(to);
+        return this.buildFilterItem(labelKey, range);
     }
 
     private JPanel buildFilterItem(String labelKey, JComponent field) {
         JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         item.setOpaque(false);
-        item.add(this.buildFieldLabel(labelKey, this.filterLabels));
+        item.add(this.buildFieldLabel(labelKey));
         item.add(field);
         return item;
     }
 
-    private JLabel buildFieldLabel(String labelKey, List<JLabel> labels) {
+    private JLabel buildFieldLabel(String labelKey) {
         JLabel label = new JLabel(I18nReaderUtil.get(labelKey), SwingConstants.RIGHT);
-        labels.add(label);
-        this.updateFieldLabelWidth(labels);
+        label.setForeground(Theme.chuTrenAnh());
+        this.filterLabels.add(label);
+        this.updateFieldLabelWidth();
         return label;
     }
 
-    private void updateFieldLabelWidth(List<JLabel> labels) {
+    private void updateFieldLabelWidth() {
         int width = 0;
         int height = 0;
 
-        for (JLabel label : labels) {
+        for (JLabel label : this.filterLabels) {
             width = Math.max(width, label.getFontMetrics(label.getFont()).stringWidth(label.getText()));
             height = Math.max(height, label.getPreferredSize().height);
         }
 
-        for (JLabel label : labels) {
+        for (JLabel label : this.filterLabels) {
             label.setPreferredSize(new Dimension(width, height));
         }
     }
@@ -290,22 +252,26 @@ public class ManagementPanel extends JPanel {
 
     public void setFilterChangeListener(Runnable listener) {
         this.filterChangeListener = listener;
-        for (JTextField field : this.textInputs) {
-            this.attachTextListener(field);
-        }
-        for (DatePicker picker : this.datePickers) {
-            this.attachDateListener(picker);
-        }
-        this.attachTextListener(this.quickFilterField);
     }
 
     public void clearFilters() {
-        this.textFilters.values().forEach(field -> field.setText(""));
-        this.datePickers.forEach(DatePicker::clear);
-        this.quickFilterField.setText("");
-        this.comboFilters.values().forEach(
-                combo -> combo.setSelectedIndex(0)
-        );
+        this.dangXoaLoc = true;
+
+        try {
+            this.textFilters.values().forEach(field -> field.setText(""));
+
+            for (DatePicker[] pickers : this.dateFilters.values()) {
+                pickers[0].clear();
+                pickers[1].clear();
+            }
+
+            this.quickFilterField.setText("");
+            this.comboFilters.values().forEach(combo -> combo.setSelectedIndex(0));
+        } finally {
+            this.dangXoaLoc = false;
+        }
+
+        this.fireFilterChange();
     }
 
     public void setCount(long from, long to, long total) {
@@ -326,32 +292,33 @@ public class ManagementPanel extends JPanel {
         return this.model;
     }
 
-    public JPanel getFormPanel() {
-        return this.formFields;
+    public void setListTitle(String titleKey) {
+        TitledBorder border = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Theme.BORDER), I18nReaderUtil.get(titleKey));
+        border.setTitleFont(border.getTitleFont().deriveFont(Font.BOLD));
+        border.setTitleColor(Theme.chuTrenAnh());
+        this.setBorder(border);
     }
 
-    public void addFormRow(String labelKey, Component field) {
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
-        row.setOpaque(false);
-        row.add(this.buildFieldLabel(labelKey, this.formLabels));
-        row.add(field);
-        this.formFields.add(row);
-    }
+    public static DefaultListCellRenderer taoBoHienThiI18n() {
+        return new DefaultListCellRenderer() {
+            private static final long serialVersionUID = 1L;
 
-    public JButton getThemButton() {
-        return this.themButton;
-    }
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
 
-    public JButton getLuuButton() {
-        return this.luuButton;
-    }
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-    public JButton getXoaTrangButton() {
-        return this.xoaTrangButton;
-    }
+                if (value == null) {
+                    setText(I18nReaderUtil.get("app.common.all"));
+                } else if (value instanceof I18nEnum i18nEnum) {
+                    setText(i18nEnum.getI18NBusinessName());
+                }
 
-    public JButton getXoaButton() {
-        return this.xoaButton;
+                return this;
+            }
+        };
     }
 
     public void setHeaders(String... headers) {
@@ -393,8 +360,10 @@ public class ManagementPanel extends JPanel {
     }
 
     private void fireFilterChange() {
-        if (this.filterChangeListener != null) {
-            this.filterChangeListener.run();
+        if (this.dangXoaLoc || this.filterChangeListener == null) {
+            return;
         }
+
+        this.filterChangeListener.run();
     }
 }

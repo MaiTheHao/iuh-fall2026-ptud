@@ -114,12 +114,13 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
         // Container chính bao bọc toàn bộ Form
         JPanel mainContainer = new JPanel(new BorderLayout(0, 10));
-        mainContainer.setBackground(Theme.BG);
+        mainContainer.setOpaque(false);
         TitledBorder mainBorder = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Theme.BORDER),
                 I18nReaderUtil.get("app.khieuNai.tiepNhanTitle")
         );
         mainBorder.setTitleFont(mainBorder.getTitleFont().deriveFont(Font.BOLD, 14f));
+        mainBorder.setTitleColor(Theme.chuTrenAnh());
         mainContainer.setBorder(BorderFactory.createCompoundBorder(
                 mainBorder,
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
@@ -127,7 +128,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
         // -- VÙNG FORM (NORTH) --
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setBackground(Theme.BG);
+        formPanel.setOpaque(false);
         GridBagConstraints gbcForm = new GridBagConstraints();
         gbcForm.fill = GridBagConstraints.BOTH;
         gbcForm.weightx = 0.5; // Chia đều 50% cho 2 cột
@@ -154,7 +155,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
         // -- VÙNG NÚT BẤM (SOUTH) --
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        buttonPanel.setBackground(Theme.BG);
+        buttonPanel.setOpaque(false);
         buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.BORDER)); // Đường line mờ phân cách
         buttonPanel.add(Box.createVerticalStrut(50)); // Tạo khoảng cách với đường line
 
@@ -312,7 +313,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
     private JPanel createKhachHangPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(Theme.BG);
+        panel.setOpaque(false);
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Theme.BORDER),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
@@ -327,6 +328,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         JLabel lblTitle = new JLabel(I18nReaderUtil.get("app.khieuNai.khachHangTitle"));
         lblTitle.setFont(lblTitle.getFont().deriveFont(Font.BOLD));
+        lblTitle.setForeground(Theme.chuTrenAnh());
         panel.add(lblTitle, gbc);
 
         // Khoảng cách
@@ -337,6 +339,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         gbc.gridy = 2; gbc.gridwidth = 2;
         JLabel lblSdt = new JLabel(I18nReaderUtil.get("app.khieuNai.sdt"));
         lblSdt.setFont(lblSdt.getFont().deriveFont(Font.BOLD));
+        lblSdt.setForeground(Theme.chuTrenAnh());
         panel.add(lblSdt, gbc);
 
         // Nhập SĐT + Nút Tìm Khách
@@ -352,10 +355,11 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         gbc.gridx = 0; gbc.gridy = 4; gbc.gridwidth = 2; gbc.weightx = 1.0; gbc.insets = new Insets(10, 0, 5, 0);
         JLabel lblHoTen = new JLabel(I18nReaderUtil.get("app.khieuNai.hoTen"));
         lblHoTen.setFont(lblHoTen.getFont().deriveFont(Font.BOLD));
+        lblHoTen.setForeground(Theme.chuTrenAnh());
         panel.add(lblHoTen, gbc);
 
         gbc.gridy = 5; gbc.insets = new Insets(0, 0, 0, 0);
-        this.hoTenField.setEditable(false);
+        Theme.applyReadOnly(this.hoTenField);
         panel.add(this.hoTenField, gbc);
 
         return panel;
@@ -363,7 +367,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
     private JPanel createPhieuTiepNhanPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(Theme.BG);
+        panel.setOpaque(false);
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Theme.BORDER),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
@@ -378,6 +382,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         gbc.gridx = 0; gbc.gridy = 0;
         JLabel lblTitle = new JLabel(I18nReaderUtil.get("app.khieuNai.phieuTitle"));
         lblTitle.setFont(lblTitle.getFont().deriveFont(Font.BOLD));
+        lblTitle.setForeground(Theme.chuTrenAnh());
         panel.add(lblTitle, gbc);
 
         // Khoảng cách
@@ -388,6 +393,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         gbc.gridy = 2;
         JLabel lblPhieu = new JLabel(I18nReaderUtil.get("app.khieuNai.phieuTiepNhan") + " (*):");
         lblPhieu.setFont(lblPhieu.getFont().deriveFont(Font.BOLD));
+        lblPhieu.setForeground(Theme.chuTrenAnh());
         panel.add(lblPhieu, gbc);
 
         gbc.gridy = 3;
@@ -397,10 +403,11 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         gbc.gridy = 4; gbc.insets = new Insets(10, 0, 5, 0);
         JLabel lblNoiDung = new JLabel(I18nReaderUtil.get("app.khieuNai.noiDungBanDau"));
         lblNoiDung.setFont(lblNoiDung.getFont().deriveFont(Font.BOLD));
+        lblNoiDung.setForeground(Theme.chuTrenAnh());
         panel.add(lblNoiDung, gbc);
 
         gbc.gridy = 5; gbc.insets = new Insets(0, 0, 0, 0);
-        this.noiDungBanDauField.setEditable(false);
+        Theme.applyReadOnly(this.noiDungBanDauField);
         panel.add(this.noiDungBanDauField, gbc);
 
         return panel;
@@ -408,7 +415,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
     private JPanel createNoiDungPanel() {
         JPanel panel = new JPanel(new BorderLayout(0, 5));
-        panel.setBackground(Theme.BG);
+        panel.setOpaque(false);
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Theme.BORDER),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
@@ -416,6 +423,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
         JLabel lblNoiDungKhieuNai = new JLabel(I18nReaderUtil.get("app.khieuNai.noiDungKhieuNai"));
         lblNoiDungKhieuNai.setFont(lblNoiDungKhieuNai.getFont().deriveFont(Font.BOLD));
+        lblNoiDungKhieuNai.setForeground(Theme.chuTrenAnh());
 
         this.noiDungKhieuNaiArea.setLineWrap(true);
         this.noiDungKhieuNaiArea.setWrapStyleWord(true);

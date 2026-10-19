@@ -12,7 +12,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public final class HoaDonDAO extends BaseDao<HoaDon> {
@@ -21,6 +23,11 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
             SELECT maHoaDon, maPhieuTiepNhan, maVoucher, trangThaiHoaDon,
                    lyDoHuy, ghiChu, ngayTao, thoiGianThanhToan
             FROM HoaDon
+            """;
+
+    private static final String SQL_SELECT_CHI_TIET = """
+            SELECT maHoaDon, loaiSanPham, maSanPham, soLuong, donGia
+            FROM ChiTietHoaDon
             """;
 
     public Optional<HoaDon> findById(String maHoaDon) throws SQLException {
@@ -39,6 +46,27 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         return findAll(SQL_SELECT);
     }
 
+    public List<HoaDon> findAllWithDetails() throws SQLException {
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            List<HoaDon> hoaDons;
+
+            try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT);
+                    ResultSet rs = ps.executeQuery()) {
+                hoaDons = this.mapRows(rs);
+            }
+
+            Map<String, List<ChiTietHoaDon>> chiTietTheoHoaDon =
+                    this.loadChiTietTheoHoaDon(connection);
+
+            for (HoaDon hoaDon : hoaDons) {
+                hoaDon.setDanhSachChiTietHoaDon(
+                        chiTietTheoHoaDon.getOrDefault(hoaDon.getMaHoaDon(), new ArrayList<>()));
+            }
+
+            return hoaDons;
+        }
+    }
+
     @Override
     protected HoaDon mapRow(ResultSet rs) throws SQLException {
         HoaDon hoaDon = new HoaDon();
@@ -53,27 +81,43 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         return hoaDon;
     }
 
+    private Map<String, List<ChiTietHoaDon>> loadChiTietTheoHoaDon(Connection connection) throws SQLException {
+        Map<String, List<ChiTietHoaDon>> chiTietTheoHoaDon = new HashMap<>();
+
+        try (PreparedStatement psChiTiet = connection.prepareStatement(SQL_SELECT_CHI_TIET);
+                ResultSet rsChiTiet = psChiTiet.executeQuery()) {
+            while (rsChiTiet.next()) {
+                ChiTietHoaDon chiTiet = this.mapChiTiet(rsChiTiet);
+                chiTietTheoHoaDon
+                        .computeIfAbsent(chiTiet.getMaHoaDon(), ma -> new ArrayList<>())
+                        .add(chiTiet);
+            }
+        }
+
+        return chiTietTheoHoaDon;
+    }
+
     private List<ChiTietHoaDon> loadDanhSachChiTiet(Connection connection, String maHoaDon) throws SQLException {
-        String sqlChiTiet = """
-                SELECT maHoaDon, loaiSanPham, maSanPham, soLuong, donGia
-                FROM ChiTietHoaDon
-                WHERE maHoaDon = ?
-                """;
+        String sqlChiTiet = SQL_SELECT_CHI_TIET + " WHERE maHoaDon = ?";
         List<ChiTietHoaDon> chiTietList = new ArrayList<>();
         try (PreparedStatement psChiTiet = connection.prepareStatement(sqlChiTiet)) {
             psChiTiet.setString(1, maHoaDon);
             try (ResultSet rsChiTiet = psChiTiet.executeQuery()) {
                 while (rsChiTiet.next()) {
-                    ChiTietHoaDon chiTiet = new ChiTietHoaDon();
-                    chiTiet.setMaHoaDon(rsChiTiet.getString("maHoaDon"));
-                    chiTiet.setLoaiSanPham(LoaiSanPham.valueOf(rsChiTiet.getString("loaiSanPham")));
-                    chiTiet.setMaSanPham(rsChiTiet.getString("maSanPham"));
-                    chiTiet.setSoLuong(rsChiTiet.getInt("soLuong"));
-                    chiTiet.setDonGia(rsChiTiet.getDouble("donGia"));
-                    chiTietList.add(chiTiet);
+                    chiTietList.add(this.mapChiTiet(rsChiTiet));
                 }
             }
         }
         return chiTietList;
+    }
+
+    private ChiTietHoaDon mapChiTiet(ResultSet rsChiTiet) throws SQLException {
+        ChiTietHoaDon chiTiet = new ChiTietHoaDon();
+        chiTiet.setMaHoaDon(rsChiTiet.getString("maHoaDon"));
+        chiTiet.setLoaiSanPham(LoaiSanPham.valueOf(rsChiTiet.getString("loaiSanPham")));
+        chiTiet.setMaSanPham(rsChiTiet.getString("maSanPham"));
+        chiTiet.setSoLuong(rsChiTiet.getInt("soLuong"));
+        chiTiet.setDonGia(rsChiTiet.getDouble("donGia"));
+        return chiTiet;
     }
 }

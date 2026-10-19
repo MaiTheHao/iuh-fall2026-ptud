@@ -67,6 +67,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     @Override
     public void render() {
         this.removeAll();
+        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setLayout(new BorderLayout(10, 10));
 
         this.timKhachButton.setText(I18nReaderUtil.get("app.tiepNhan.timKhach"));
@@ -74,8 +75,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         this.lamMoiButton.setText(I18nReaderUtil.get("app.tiepNhan.lamMoi"));
         this.luuButton.setText(I18nReaderUtil.get("app.tiepNhan.luu"));
 
-        JPanel contentPanel = Theme.contentPanel(10);
-        contentPanel.setLayout(new BorderLayout(10, 10));
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setOpaque(false);
 
         // Top Panel: Khách Hàng & Phương Tiện
         JPanel pnlTop = new JPanel(new GridLayout(1, 2, 10, 0));
@@ -118,6 +119,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
         JLabel lblMoTa = new JLabel(I18nReaderUtil.get("app.tiepNhan.moTa"));
         lblMoTa.setFont(lblMoTa.getFont().deriveFont(Font.BOLD));
+        lblMoTa.setForeground(Theme.chuTrenAnh());
 
         this.moTaArea.setLineWrap(true);
         this.moTaArea.setWrapStyleWord(true);
@@ -128,12 +130,9 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         pnlButtons.setOpaque(false);
 
-        this.luuButton.setBackground(Theme.ACCENT);
-        this.luuButton.setForeground(Theme.PANEL);
-        this.timKhachButton.setBackground(Theme.ACCENT);
-        this.timKhachButton.setForeground(Theme.PANEL);
-        this.timXeButton.setBackground(Theme.ACCENT);
-        this.timXeButton.setForeground(Theme.PANEL);
+        Theme.applyPrimary(this.luuButton);
+        Theme.applyPrimary(this.timKhachButton);
+        Theme.applyPrimary(this.timXeButton);
 
         pnlButtons.add(this.lamMoiButton);
         pnlButtons.add(this.luuButton);
@@ -308,6 +307,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         panel.setOpaque(false);
         TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Theme.BORDER), title);
         border.setTitleFont(border.getTitleFont().deriveFont(Font.BOLD));
+        border.setTitleColor(Theme.chuTrenAnh());
         panel.setBorder(border);
         return panel;
     }
@@ -327,6 +327,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
         JLabel lbl = new JLabel(label);
         lbl.setFont(lbl.getFont().deriveFont(Font.BOLD));
+        lbl.setForeground(Theme.chuTrenAnh());
         parent.add(lbl, gbc);
 
         gbc.gridx = 1;
@@ -345,6 +346,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         panel.setOpaque(false);
         JLabel lbl = new JLabel(labelText);
         lbl.setFont(lbl.getFont().deriveFont(Font.BOLD));
+        lbl.setForeground(Theme.chuTrenAnh());
         panel.add(lbl, BorderLayout.NORTH);
         panel.add(field, BorderLayout.CENTER);
         return panel;

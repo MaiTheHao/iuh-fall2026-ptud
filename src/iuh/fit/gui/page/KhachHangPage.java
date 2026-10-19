@@ -5,12 +5,15 @@ import iuh.fit.dto.KhachHangFormData;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.KhachHangService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
@@ -38,20 +41,24 @@ public class KhachHangPage extends AbstractPage {
     public void render() {
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBackground(Theme.BG);
 
         ManagementPanel panel = new ManagementPanel();
+        panel.setListTitle("app.khachHang.danhSachTitle");
         panel.setHeaders(
                 I18nReaderUtil.get("app.khachHang.ma"),
                 I18nReaderUtil.get("app.khachHang.sdt"),
                 I18nReaderUtil.get("app.khachHang.hoTen"),
                 I18nReaderUtil.get("app.khachHang.ngayTao"));
 
-        this.maField.setEnabled(false);
-        this.ngayTaoField.setEnabled(false);
-        panel.addFormRow("app.khachHang.ma", this.maField);
-        panel.addFormRow("app.khachHang.sdt", this.sdtField);
-        panel.addFormRow("app.khachHang.hoTen", this.hoTenField);
-        panel.addFormRow("app.khachHang.ngayTao", this.ngayTaoField);
+        ManagementFormPanel form = new ManagementFormPanel("app.khachHang.thongTinTitle");
+
+        Theme.applyReadOnly(this.maField);
+        Theme.applyReadOnly(this.ngayTaoField);
+        form.addField("app.khachHang.ma", this.maField);
+        form.addField("app.khachHang.sdt", this.sdtField);
+        form.addField("app.khachHang.hoTen", this.hoTenField);
+        form.addField("app.khachHang.ngayTao", this.ngayTaoField);
 
         panel.addTextFilter("app.khachHang.ma", 0);
         panel.addTextFilter("app.khachHang.sdt", 1);
@@ -59,10 +66,10 @@ public class KhachHangPage extends AbstractPage {
         panel.addDateRangeFilter("app.khachHang.ngayTao", 3);
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
 
-        panel.getThemButton().addActionListener(e -> this.lamMoi(panel));
-        panel.getLuuButton().addActionListener(e -> this.luu(panel));
-        panel.getXoaTrangButton().addActionListener(e -> this.lamMoi(panel));
-        panel.getXoaButton().addActionListener(e -> this.xoa(panel));
+        form.getNutThem().addActionListener(e -> this.lamMoi(panel));
+        form.getNutLuu().addActionListener(e -> this.luu(panel));
+        form.getNutXoaTrang().addActionListener(e -> this.lamMoi(panel));
+        form.getNutXoa().addActionListener(e -> this.xoa(panel));
         panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
         panel.getPrevButton().addActionListener(e -> this.taiLai(panel, this.trang - 1));
         panel.getNextButton().addActionListener(e -> this.taiLai(panel, this.trang + 1));
@@ -73,7 +80,13 @@ public class KhachHangPage extends AbstractPage {
         });
 
         this.taiLai(panel, 1);
-        this.add(panel, BorderLayout.CENTER);
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, panel);
+        split.setDividerLocation(380);
+        split.setOpaque(false);
+        split.setBorder(null);
+
+        this.add(split, BorderLayout.CENTER);
         this.revalidate();
         this.repaint();
     }
