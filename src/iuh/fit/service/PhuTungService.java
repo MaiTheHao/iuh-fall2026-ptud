@@ -8,6 +8,7 @@ import iuh.fit.util.MaGeneratorUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,9 +50,7 @@ public class PhuTungService {
         this.validate(phuTung);
         phuTung.setSoLuongTon(0);
 
-        List<String> existingIds = this.phuTungDAO.findAll().stream().map(PhuTung::getMaPhuTung).toList();
-
-        phuTung.setMaPhuTung(MaGeneratorUtil.sinhMa("PT", 3, existingIds));
+        phuTung.setMaPhuTung(MaGeneratorUtil.sinhMa("PT", LocalDateTime.now()));
 
         this.phuTungDAO.insert(phuTung);
     }

@@ -1,6 +1,7 @@
 package iuh.fit.service;
 
 import iuh.fit.dao.KhachHangDAO;
+import iuh.fit.dao.TransactionScope;
 import iuh.fit.dto.DanhSachKhachHangCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.KhachHang;
@@ -11,11 +12,14 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public class KhachHangService {
 
     private static final String ERROR_PHONE = "app.khachHang.loiSdt";
     private static final String ERROR_FULL_NAME = "app.khachHang.loiHoTen";
+    private static final String ERROR_FULL_NAME_TOO_LONG = "app.khachHang.loiHoTenQuaDai";
+    private static final String ERROR_DUPLICATE_PHONE = "app.khachHang.trungSdt";
 
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
 
@@ -33,11 +37,29 @@ public class KhachHangService {
     }
 
     public void create(KhachHang customer) throws SQLException {
-        this.validate(customer);
-        List<String> existingIds = this.khachHangDAO.findAll().stream().map(KhachHang::getMaKhachHang).toList();
-        customer.setMaKhachHang(MaGeneratorUtil.sinhMa("KH", 3, existingIds));
-        customer.setNgayTao(LocalDateTime.now());
+        this.chuanBiTao(customer);
         this.khachHangDAO.insert(customer);
+    }
+
+    public void create(TransactionScope scope, KhachHang customer) throws SQLException {
+        this.chuanBiTao(customer);
+        this.khachHangDAO.insert(scope, customer);
+    }
+
+    public Optional<KhachHang> getBySdt(String sdt) throws SQLException {
+        String sdtChuanHoa = sdt == null ? "" : sdt.trim();
+        if (sdtChuanHoa.isEmpty()) {
+            return Optional.empty();
+        }
+        return this.khachHangDAO.findBySdt(sdtChuanHoa);
+    }
+
+    public Optional<KhachHang> getBySdt(TransactionScope scope, String sdt) throws SQLException {
+        String sdtChuanHoa = sdt == null ? "" : sdt.trim();
+        if (sdtChuanHoa.isEmpty()) {
+            return Optional.empty();
+        }
+        return this.khachHangDAO.findBySdt(scope, sdtChuanHoa);
     }
 
     public void update(KhachHang customer) throws SQLException {
@@ -53,9 +75,22 @@ public class KhachHangService {
         if (customer == null || customer.getHoTen() == null || customer.getHoTen().isBlank()) {
             throw new IllegalArgumentException(ERROR_FULL_NAME);
         }
+        if (customer.getHoTen().trim().length() > 50) {
+            throw new IllegalArgumentException(ERROR_FULL_NAME_TOO_LONG);
+        }
         if (customer.getSdt() == null || !customer.getSdt().matches("\\d{10}")) {
             throw new IllegalArgumentException(ERROR_PHONE);
         }
+    }
+
+    private void chuanBiTao(KhachHang customer) throws SQLException {
+        this.validate(customer);
+        if (this.khachHangDAO.existsBySdt(customer.getSdt())) {
+            throw new IllegalArgumentException(ERROR_DUPLICATE_PHONE);
+        }
+        LocalDateTime now = LocalDateTime.now();
+        customer.setMaKhachHang(MaGeneratorUtil.sinhMa("KH", now));
+        customer.setNgayTao(now);
     }
 
     private boolean matches(KhachHang customer, DanhSachKhachHangCriteria filter) {

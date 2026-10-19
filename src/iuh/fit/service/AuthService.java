@@ -8,6 +8,7 @@ import iuh.fit.entity.NhanVien;
 import iuh.fit.enumeration.TrangThaiNhanVien;
 import iuh.fit.exception.CredentialsInvalidException;
 import iuh.fit.exception.PasswordInvalidException;
+import iuh.fit.exception.PhoneInvalidException;
 import iuh.fit.exception.UserNameExistsException;
 import iuh.fit.exception.UserNotFoundException;
 import iuh.fit.util.MaGeneratorUtil;
@@ -45,15 +46,20 @@ public class AuthService {
         }
 
         NhanVien nhanVien = new NhanVien();
-        nhanVien.setMaNhanVien(MaGeneratorUtil.genMaNhanVien(registerDTO.soDienThoai()));
+        String soDienThoai = registerDTO.soDienThoai();
+        if (soDienThoai == null || !soDienThoai.trim().matches("\\d{9,10}")) {
+            throw new PhoneInvalidException();
+        }
+        LocalDateTime now = LocalDateTime.now();
+        nhanVien.setMaNhanVien(MaGeneratorUtil.sinhMaNhanVien(soDienThoai, now));
         nhanVien.setTenDangNhap(registerDTO.tenDangNhap());
         nhanVien.setMatKhau(registerDTO.matKhau());
         nhanVien.setHoTen(registerDTO.hoTen());
-        nhanVien.setSoDienThoai(registerDTO.soDienThoai());
+        nhanVien.setSoDienThoai(soDienThoai.trim());
         nhanVien.setAnhDaiDien(null);
         nhanVien.setVaiTro(registerDTO.vaiTro());
         nhanVien.setTrangThai(TrangThaiNhanVien.HOAT_DONG);
-        nhanVien.setNgayTao(LocalDateTime.now());
+        nhanVien.setNgayTao(now);
         nhanVienDAO.register(nhanVien);
         return nhanVien;
     }

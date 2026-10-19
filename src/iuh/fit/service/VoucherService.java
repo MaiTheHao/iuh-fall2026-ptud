@@ -9,6 +9,7 @@ import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -141,13 +142,8 @@ public class VoucherService {
     public Voucher create(Voucher voucher) throws SQLException {
         this.validate(voucher);
 
-        List<String> existingIds = this.voucherDAO.findAll()
-                .stream()
-                .map(Voucher::getMaVoucher)
-                .collect(Collectors.toList());
-
         String maVoucher = MaGeneratorUtil.sinhMa(
-                "VC", 3, existingIds);
+                "VC", LocalDateTime.now());
 
         voucher.setMaVoucher(maVoucher);
 

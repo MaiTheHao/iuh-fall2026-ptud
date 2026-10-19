@@ -1,5 +1,6 @@
 package iuh.fit.service;
 
+import iuh.fit.dao.TransactionScope;
 import iuh.fit.dao.XeDAO;
 import iuh.fit.dto.DanhSachXeCriteria;
 import iuh.fit.dto.PaginatedResult;
@@ -20,6 +21,8 @@ public class XeService {
     private static final String ERROR_DUPLICATE = "app.xe.loiTrungBienSo";
     private static final String ERROR_HANG_XE = "app.xe.loiHangXe";
     private static final String ERROR_DONG_XE = "app.xe.loiDongXe";
+    private static final String ERROR_HANG_XE_TOO_LONG = "app.xe.loiHangXeQuaDai";
+    private static final String ERROR_DONG_XE_TOO_LONG = "app.xe.loiDongXeQuaDai";
     private static final String ERROR_DOI_XE = "app.xe.loiDoiXe";
     private static final String ERROR_ODO = "app.xe.loiOdo";
     private static final String ERROR_XE_IN_USE = "app.xe.loiXeDangSuDung";
@@ -50,36 +53,67 @@ public class XeService {
         return this.xeDAO.findById(normalized);
     }
 
+    public Optional<Xe> getByBienSo(TransactionScope scope, String bienSo)
+            throws SQLException {
+        String normalized = this.normalizeBienSo(bienSo);
+
+        if (normalized.isBlank()) {
+            return Optional.empty();
+        }
+
+        return this.xeDAO.findById(scope, normalized);
+    }
+
     public boolean existsByBienSo(String bienSo) throws SQLException {
         bienSo = this.normalizeBienSo(bienSo);
         return this.xeDAO.existsByBienSo(bienSo);
     }
 
-    public void create(Xe xe) throws SQLException {
-        this.validate(xe);
+    public boolean existsByBienSo(TransactionScope scope, String bienSo) throws SQLException {
+        bienSo = this.normalizeBienSo(bienSo);
+        return this.xeDAO.existsByBienSo(scope, bienSo);
+    }
 
-        String bienSo = this.normalizeBienSo(xe.getBienSo());
+    public void create(Xe xe) throws SQLException {
+        String bienSo = this.chuanBi(xe);
 
         if (this.xeDAO.existsByBienSo(bienSo)) {
             throw new IllegalArgumentException(ERROR_DUPLICATE);
         }
 
-        xe.setBienSo(bienSo);
         this.xeDAO.insert(xe);
     }
 
-    public void update(Xe xe) throws SQLException {
-        this.validate(xe);
+    public void create(TransactionScope scope, Xe xe) throws SQLException {
+        String bienSo = this.chuanBi(xe);
 
-        String bienSo = this.normalizeBienSo(xe.getBienSo());
+        if (this.xeDAO.existsByBienSo(scope, bienSo)) {
+            throw new IllegalArgumentException(ERROR_DUPLICATE);
+        }
+
+        this.xeDAO.insert(scope, xe);
+    }
+
+    public void update(Xe xe) throws SQLException {
+        String bienSo = this.chuanBi(xe);
 
         if (!this.xeDAO.existsByBienSo(bienSo)) {
             throw new IllegalArgumentException(ERROR_XE_NOT_FOUND);
         }
 
-        xe.setBienSo(bienSo);
-
         if (!this.xeDAO.update(xe)) {
+            throw new IllegalArgumentException(ERROR_XE_NOT_FOUND);
+        }
+    }
+
+    public void update(TransactionScope scope, Xe xe) throws SQLException {
+        String bienSo = this.chuanBi(xe);
+
+        if (!this.xeDAO.existsByBienSo(scope, bienSo)) {
+            throw new IllegalArgumentException(ERROR_XE_NOT_FOUND);
+        }
+
+        if (!this.xeDAO.update(scope, xe)) {
             throw new IllegalArgumentException(ERROR_XE_NOT_FOUND);
         }
     }
@@ -104,6 +138,30 @@ public class XeService {
         }
     }
 
+    public List<String> getDanhSachHangXe() throws SQLException {
+        return this.xeDAO.findAll().stream()
+                .map(Xe::getHangXe)
+                .map(this::normalizeTenXe)
+                .filter(name -> !name.isEmpty())
+                .distinct()
+                .sorted()
+                .toList();
+    }
+
+    public List<String> getDanhSachDongXe(String hangXe) throws SQLException {
+        String chuanHoa = this.normalizeTenXe(hangXe);
+
+        return this.xeDAO.findAll().stream()
+                .filter(xe -> chuanHoa.isEmpty()
+                        || chuanHoa.equals(this.normalizeTenXe(xe.getHangXe())))
+                .map(Xe::getDongXe)
+                .map(this::normalizeTenXe)
+                .filter(name -> !name.isEmpty())
+                .distinct()
+                .sorted()
+                .toList();
+    }
+
     private void validate(Xe xe) {
         if (xe == null) {
             throw new IllegalArgumentException(
@@ -120,8 +178,16 @@ public class XeService {
             throw new IllegalArgumentException(ERROR_HANG_XE);
         }
 
+        if (xe.getHangXe().trim().length() > 50) {
+            throw new IllegalArgumentException(ERROR_HANG_XE_TOO_LONG);
+        }
+
         if (xe.getDongXe() == null || xe.getDongXe().isBlank()) {
             throw new IllegalArgumentException(ERROR_DONG_XE);
+        }
+
+        if (xe.getDongXe().trim().length() > 50) {
+            throw new IllegalArgumentException(ERROR_DONG_XE_TOO_LONG);
         }
 
         int currentYear = java.time.Year.now().getValue();
@@ -133,6 +199,17 @@ public class XeService {
         if (xe.getOdo() < 0) {
             throw new IllegalArgumentException(ERROR_ODO);
         }
+    }
+
+    private String chuanBi(Xe xe) {
+        this.validate(xe);
+
+        xe.setHangXe(this.normalizeTenXe(xe.getHangXe()));
+        xe.setDongXe(this.normalizeTenXe(xe.getDongXe()));
+
+        String bienSo = this.normalizeBienSo(xe.getBienSo());
+        xe.setBienSo(bienSo);
+        return bienSo;
     }
 
     private boolean matches(Xe xe, DanhSachXeCriteria criteria) {
@@ -198,5 +275,13 @@ public class XeService {
 
         return bienSo.replaceAll("[\\s.-]", "")
                 .toUpperCase(Locale.ROOT);
+    }
+
+    private String normalizeTenXe(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        return value.trim().toUpperCase(Locale.ROOT);
     }
 }

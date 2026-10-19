@@ -21,6 +21,15 @@ public final class ThongBao {
         );
     }
 
+    public static void thongTin(Component parent, String key, String giaTriThem) {
+        JOptionPane.showMessageDialog(
+                parent,
+                dich(key) + " " + giaTriThem,
+                dich("app.common.notification"),
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
     public static void canhBao(Component parent, String key) {
         JOptionPane.showMessageDialog(
                 parent,

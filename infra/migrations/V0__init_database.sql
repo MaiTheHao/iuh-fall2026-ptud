@@ -189,5 +189,5 @@ CREATE TABLE VanDeKyThuat (
     CONSTRAINT FK_VanDeKyThuat_PhieuTiepNhan
         FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan),
     CONSTRAINT CK_VanDeKyThuat_MucDoUuTien
-        CHECK (mucDoUuTien BETWEEN 1 AND 100),
+        CHECK (mucDoUuTien BETWEEN 1 AND 100)
 );

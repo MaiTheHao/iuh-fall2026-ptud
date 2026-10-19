@@ -8,6 +8,7 @@ import iuh.fit.util.MaGeneratorUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -86,13 +87,8 @@ public class DichVuService {
     public DichVu create(DichVu dichVu) throws SQLException {
         this.validate(dichVu);
 
-        List<String> existingIds = this.dichVuDAO.findAll()
-                .stream()
-                .map(DichVu::getMaDichVu)
-                .collect(Collectors.toList());
-
         String maDichVu = MaGeneratorUtil.sinhMa(
-                "DV", 3, existingIds);
+                "DV", LocalDateTime.now());
 
         DichVu dichVuMoi = new DichVu(
                 maDichVu,

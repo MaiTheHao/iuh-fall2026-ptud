@@ -44,15 +44,15 @@ INSERT INTO KhachHang (maKhachHang, sdt, hoTen, ngayTao) VALUES
 -- ============================================================
 -- NhanVien (8; covers every VaiTro and both statuses)
 -- ============================================================
-INSERT INTO NhanVien (maNhanVien, tenDangNhap, matKhau, hoTen, anhDaiDien, vaiTro, trangThai, ngayTao) VALUES
-('NV011120250001', 'admin', 'test@123', N'Administrator', NULL, 'NHAN_VIEN_QUAN_LY', 'HOAT_DONG', '2025-11-01T08:00:00'),
-('NV031120250002', 'tiepnhan01', 'test@123', N'Nguyễn Thị Mỹ Quốc', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-03T08:00:00'),
-('NV051120250003', 'thungan01', 'test@123', N'Trần Thị Thanh Bình', NULL, 'NHAN_VIEN_THU_NGAN', 'HOAT_DONG', '2025-11-05T08:00:00'),
-('NV071120250004', 'kythuat01', 'test@123', N'Phạm Nát Bét', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-07T08:00:00'),
-('NV101120250005', 'kythuat02', 'test@123', N'Võ Hoàng Long', NULL, 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-10T08:00:00'),
-('NV121120250006', 'tiepnhan02', 'test@123', N'Đặng Thùy Dung', NULL, 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-12T08:00:00'),
-('NV151120250007', 'thungan02', 'test@123', N'Bùi Thanh Tâm', NULL, 'NHAN_VIEN_THU_NGAN', 'DA_KHOA', '2025-11-15T08:00:00'),
-('NV181120250008', 'quanly02', 'test@123', N'Đỗ Quốc Việt', NULL, 'NHAN_VIEN_QUAN_LY', 'DA_KHOA', '2025-11-18T08:00:00');
+INSERT INTO NhanVien (maNhanVien, tenDangNhap, matKhau, hoTen, anhDaiDien, soDienThoai, vaiTro, trangThai, ngayTao) VALUES
+('NV011120250001', 'admin', 'test@123', N'Administrator', NULL, '0000000001', 'NHAN_VIEN_QUAN_LY', 'HOAT_DONG', '2025-11-01T08:00:00'),
+('NV031120250002', 'tiepnhan01', 'test@123', N'Nguyễn Thị Mỹ Quốc', NULL, '0000000002', 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-03T08:00:00'),
+('NV051120250003', 'thungan01', 'test@123', N'Trần Thị Thanh Bình', NULL, '0000000003', 'NHAN_VIEN_THU_NGAN', 'HOAT_DONG', '2025-11-05T08:00:00'),
+('NV071120250004', 'kythuat01', 'test@123', N'Phạm Nát Bét', NULL, '0000000004', 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-07T08:00:00'),
+('NV101120250005', 'kythuat02', 'test@123', N'Võ Hoàng Long', NULL, '0000000005', 'NHAN_VIEN_KY_THUAT', 'HOAT_DONG', '2025-11-10T08:00:00'),
+('NV121120250006', 'tiepnhan02', 'test@123', N'Đặng Thùy Dung', NULL, '0000000006', 'NHAN_VIEN_TIEP_NHAN', 'HOAT_DONG', '2025-11-12T08:00:00'),
+('NV151120250007', 'thungan02', 'test@123', N'Bùi Thanh Tâm', NULL, '0000000007', 'NHAN_VIEN_THU_NGAN', 'DA_KHOA', '2025-11-15T08:00:00'),
+('NV181120250008', 'quanly02', 'test@123', N'Đỗ Quốc Việt', NULL, '0000000008', 'NHAN_VIEN_QUAN_LY', 'DA_KHOA', '2025-11-18T08:00:00');
 
 -- ============================================================
 -- PhuTung (15)
@@ -94,41 +94,41 @@ INSERT INTO Voucher (maVoucher, tenChuongTrinh, moTa, mucGiam, thoiHanApDung, tr
 -- Xe (15)
 -- ============================================================
 INSERT INTO Xe (bienSo, hangXe, dongXe, doiXe, odo) VALUES
-('51A-123.45', N'Toyota', N'Vios', 2021, 45200),
-('51H-234.56', N'Honda', N'City', 2022, 31800),
-('60A-345.67', N'Hyundai', N'Accent', 2020, 68500),
-('51K-456.78', N'Mazda', N'Mazda 3', 2023, 19200),
-('59A-567.89', N'Kia', N'Seltos', 2022, 36700),
-('51G-678.90', N'Toyota', N'Corolla Cross', 2024, 8500),
-('61A-789.01', N'Ford', N'Ranger', 2021, 73400),
-('51B-890.12', N'Mitsubishi', N'Xpander', 2020, 81000),
-('50H-901.23', N'VinFast', N'VF e34', 2023, 22500),
-('51C-012.34', N'Honda', N'CR-V', 2019, 96500),
-('60K-112.23', N'Toyota', N'Fortuner', 2018, 112000),
-('51D-223.34', N'Mazda', N'CX-5', 2021, 54800),
-('59C-334.45', N'Hyundai', N'Tucson', 2022, 29400),
-('51E-445.56', N'Kia', N'Morning', 2017, 124000),
-('60B-556.67', N'Suzuki', N'XL7', 2023, 17300);
+('51A12345', N'Toyota', N'Vios', 2021, 45200),
+('51H23456', N'Honda', N'City', 2022, 31800),
+('60A34567', N'Hyundai', N'Accent', 2020, 68500),
+('51K45678', N'Mazda', N'Mazda 3', 2023, 19200),
+('59A56789', N'Kia', N'Seltos', 2022, 36700),
+('51G67890', N'Toyota', N'Corolla Cross', 2024, 8500),
+('61A78901', N'Ford', N'Ranger', 2021, 73400),
+('51B89012', N'Mitsubishi', N'Xpander', 2020, 81000),
+('50H90123', N'VinFast', N'VF e34', 2023, 22500),
+('51C01234', N'Honda', N'CR-V', 2019, 96500),
+('60K11223', N'Toyota', N'Fortuner', 2018, 112000),
+('51D22334', N'Mazda', N'CX-5', 2021, 54800),
+('59C33445', N'Hyundai', N'Tucson', 2022, 29400),
+('51E44556', N'Kia', N'Morning', 2017, 124000),
+('60B55667', N'Suzuki', N'XL7', 2023, 17300);
 
 -- ============================================================
 -- KhachHang_Xe (15)
 -- ============================================================
 INSERT INTO KhachHang_Xe (maKhachHang, bienSo, ngayTao) VALUES
-('KH001', '51A-123.45', '2026-01-05T08:30:00'),
-('KH002', '51H-234.56', '2026-01-08T09:30:00'),
-('KH003', '60A-345.67', '2026-01-12T10:15:00'),
-('KH004', '51K-456.78', '2026-01-18T14:20:00'),
-('KH005', '59A-567.89', '2026-01-22T11:40:00'),
-('KH006', '51G-678.90', '2026-02-02T09:00:00'),
-('KH007', '61A-789.01', '2026-02-10T13:15:00'),
-('KH008', '51B-890.12', '2026-02-16T16:40:00'),
-('KH009', '50H-901.23', '2026-02-20T09:25:00'),
-('KH010', '51C-012.34', '2026-03-01T10:55:00'),
-('KH011', '60K-112.23', '2026-03-08T15:30:00'),
-('KH012', '51D-223.34', '2026-03-12T08:50:00'),
-('KH013', '59C-334.45', '2026-03-20T12:35:00'),
-('KH014', '51E-445.56', '2026-04-02T10:10:00'),
-('KH015', '60B-556.67', '2026-04-10T15:00:00');
+('KH001', '51A12345', '2026-01-05T08:30:00'),
+('KH002', '51H23456', '2026-01-08T09:30:00'),
+('KH003', '60A34567', '2026-01-12T10:15:00'),
+('KH004', '51K45678', '2026-01-18T14:20:00'),
+('KH005', '59A56789', '2026-01-22T11:40:00'),
+('KH006', '51G67890', '2026-02-02T09:00:00'),
+('KH007', '61A78901', '2026-02-10T13:15:00'),
+('KH008', '51B89012', '2026-02-16T16:40:00'),
+('KH009', '50H90123', '2026-02-20T09:25:00'),
+('KH010', '51C01234', '2026-03-01T10:55:00'),
+('KH011', '60K11223', '2026-03-08T15:30:00'),
+('KH012', '51D22334', '2026-03-12T08:50:00'),
+('KH013', '59C33445', '2026-03-20T12:35:00'),
+('KH014', '51E44556', '2026-04-02T10:10:00'),
+('KH015', '60B55667', '2026-04-10T15:00:00');
 
 -- ============================================================
 -- PhieuNhapPhuTung (10)
@@ -175,21 +175,21 @@ INSERT INTO ChiTietPhieuNhapPhuTung (maPhieuNhap, maPhuTung, soLuong, donGiaNhap
 -- ============================================================
 INSERT INTO PhieuTiepNhan
 (maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien, maKhachHang, bienSo) VALUES
-('TN001', '2026-05-20T08:10:00', N'Bảo dưỡng định kỳ, thay dầu động cơ', 'HOAN_THANH', 'NV031120250002', 'KH001', '51A-123.45'),
-('TN002', '2026-05-20T09:00:00', N'Xe rung khi phanh ở tốc độ cao', 'HOAN_THANH', 'NV031120250002', 'KH002', '51H-234.56'),
-('TN003', '2026-05-21T08:35:00', N'Điều hòa làm lạnh yếu', 'DANG_XU_LY', 'NV121120250006', 'KH003', '60A-345.67'),
-('TN004', '2026-05-21T10:20:00', N'Kiểm tra tiếng kêu ở bánh trước', 'DANG_XU_LY', 'NV031120250002', 'KH004', '51K-456.78'),
-('TN005', '2026-05-22T13:15:00', N'Rửa xe và vệ sinh nội thất', 'HOAN_THANH', 'NV121120250006', 'KH005', '59A-567.89'),
-('TN006', '2026-05-23T08:50:00', N'Đèn báo lỗi động cơ bật sáng', 'DANG_XU_LY', 'NV031120250002', 'KH006', '51G-678.90'),
-('TN007', '2026-05-24T09:30:00', N'Xe khó khởi động vào buổi sáng', 'HOAN_THANH', 'NV121120250006', 'KH007', '61A-789.01'),
-('TN008', '2026-05-25T14:10:00', N'Bảo dưỡng sau chuyến đi dài', 'TIEP_NHAN', 'NV031120250002', 'KH008', '51B-890.12'),
-('TN009', '2026-05-26T11:05:00', N'Kiểm tra hệ thống điện xe điện', 'DANG_XU_LY', 'NV121120250006', 'KH009', '50H-901.23'),
-('TN010', '2026-05-27T08:25:00', N'Kiểm tra phanh và thay dầu phanh', 'HOAN_THANH', 'NV031120250002', 'KH010', '51C-012.34'),
-('TN011', '2026-05-28T10:45:00', N'Xe hao nhiên liệu hơn bình thường', 'DANG_XU_LY', 'NV121120250006', 'KH011', '60K-112.23'),
-('TN012', '2026-05-29T15:00:00', N'Thay gạt mưa và kiểm tra kính', 'DA_HUY', 'NV031120250002', 'KH012', '51D-223.34'),
-('TN013', '2026-05-30T09:15:00', N'Bảo dưỡng định kỳ 30.000 km', 'TIEP_NHAN', 'NV121120250006', 'KH013', '59C-334.45'),
-('TN014', '2026-05-31T13:40:00', N'Động cơ có tiếng gõ nhẹ', 'DANG_XU_LY', 'NV031120250002', 'KH014', '51E-445.56'),
-('TN015', '2026-06-01T08:05:00', N'Kiểm tra tổng quát trước chuyến đi', 'TIEP_NHAN', 'NV121120250006', 'KH015', '60B-556.67');
+('TN001', '2026-05-20T08:10:00', N'Bảo dưỡng định kỳ, thay dầu động cơ', 'HOAN_THANH', 'NV031120250002', 'KH001', '51A12345'),
+('TN002', '2026-05-20T09:00:00', N'Xe rung khi phanh ở tốc độ cao', 'HOAN_THANH', 'NV031120250002', 'KH002', '51H23456'),
+('TN003', '2026-05-21T08:35:00', N'Điều hòa làm lạnh yếu', 'DANG_XU_LY', 'NV121120250006', 'KH003', '60A34567'),
+('TN004', '2026-05-21T10:20:00', N'Kiểm tra tiếng kêu ở bánh trước', 'DANG_XU_LY', 'NV031120250002', 'KH004', '51K45678'),
+('TN005', '2026-05-22T13:15:00', N'Rửa xe và vệ sinh nội thất', 'HOAN_THANH', 'NV121120250006', 'KH005', '59A56789'),
+('TN006', '2026-05-23T08:50:00', N'Đèn báo lỗi động cơ bật sáng', 'DANG_XU_LY', 'NV031120250002', 'KH006', '51G67890'),
+('TN007', '2026-05-24T09:30:00', N'Xe khó khởi động vào buổi sáng', 'HOAN_THANH', 'NV121120250006', 'KH007', '61A78901'),
+('TN008', '2026-05-25T14:10:00', N'Bảo dưỡng sau chuyến đi dài', 'TIEP_NHAN', 'NV031120250002', 'KH008', '51B89012'),
+('TN009', '2026-05-26T11:05:00', N'Kiểm tra hệ thống điện xe điện', 'DANG_XU_LY', 'NV121120250006', 'KH009', '50H90123'),
+('TN010', '2026-05-27T08:25:00', N'Kiểm tra phanh và thay dầu phanh', 'HOAN_THANH', 'NV031120250002', 'KH010', '51C01234'),
+('TN011', '2026-05-28T10:45:00', N'Xe hao nhiên liệu hơn bình thường', 'DANG_XU_LY', 'NV121120250006', 'KH011', '60K11223'),
+('TN012', '2026-05-29T15:00:00', N'Thay gạt mưa và kiểm tra kính', 'DA_HUY', 'NV031120250002', 'KH012', '51D22334'),
+('TN013', '2026-05-30T09:15:00', N'Bảo dưỡng định kỳ 30.000 km', 'TIEP_NHAN', 'NV121120250006', 'KH013', '59C33445'),
+('TN014', '2026-05-31T13:40:00', N'Động cơ có tiếng gõ nhẹ', 'DANG_XU_LY', 'NV031120250002', 'KH014', '51E44556'),
+('TN015', '2026-06-01T08:05:00', N'Kiểm tra tổng quát trước chuyến đi', 'TIEP_NHAN', 'NV121120250006', 'KH015', '60B55667');
 
 -- ============================================================
 -- PhanCong (15)
