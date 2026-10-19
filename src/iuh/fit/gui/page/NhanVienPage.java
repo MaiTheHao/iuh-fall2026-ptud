@@ -9,15 +9,17 @@ import iuh.fit.enumeration.TrangThaiNhanVien;
 import iuh.fit.enumeration.VaiTro;
 import iuh.fit.gui.component.AnhField;
 import iuh.fit.gui.component.AnhTableCellRenderer;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.NhanVienService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
-import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableModel;
@@ -46,6 +48,7 @@ public class NhanVienPage extends AbstractPage {
             "app.nhanVien.duLieuKhongPhaiAnh");
 
     private ManagementPanel managementPanel;
+    private ManagementFormPanel form;
 
     private final JTextField txtMaNhanVien = new JTextField(14);
     private final JTextField txtTenDangNhap = new JTextField(14);
@@ -72,19 +75,27 @@ public class NhanVienPage extends AbstractPage {
         removeAll();
 
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBackground(Theme.BG);
 
         managementPanel = new ManagementPanel();
+        this.managementPanel.setListTitle("app.nhanVien.danhSachTitle");
 
         managementPanel.setHeaders(I18nReaderUtil.get("app.nhanVien.hinhAnh"),
                 I18nReaderUtil.get("app.nhanVien.maNhanVien"), I18nReaderUtil.get("app.nhanVien.hoTen"),
                 I18nReaderUtil.get("app.nhanVien.soDienThoai"), I18nReaderUtil.get("app.nhanVien.vaiTro"),
                 I18nReaderUtil.get("app.nhanVien.trangThai"));
 
+        this.form = new ManagementFormPanel("app.nhanVien.thongTinTitle");
+
         khoiTaoForm();
         khoiTaoBoLoc();
         ganSuKien();
 
-        add(managementPanel, BorderLayout.CENTER);
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
+        split.setDividerLocation(380);
+        split.setOpaque(false);
+        split.setBorder(null);
+        this.add(split, BorderLayout.CENTER);
 
         trangHienTai = 1;
         taiLaiDanhSach();
@@ -111,41 +122,36 @@ public class NhanVienPage extends AbstractPage {
     // ==================== FORM ====================
 
     private void khoiTaoForm() {
-        JPanel form = this.managementPanel.getFormPanel();
-
-        form.removeAll();
-
-        this.txtMaNhanVien.setEditable(false);
+        Theme.applyReadOnly(this.txtMaNhanVien);
         this.txtMaNhanVien.setFocusable(false);
-        this.txtTenDangNhap.setEnabled(true);
-        this.txtMatKhau.setEnabled(true);
+        Theme.applyEditable(this.txtTenDangNhap);
+        Theme.applyEditable(this.txtMatKhau);
 
-        this.managementPanel.addFormRow("app.nhanVien.maNhanVien", this.txtMaNhanVien);
+        this.form.addField("app.nhanVien.maNhanVien", this.txtMaNhanVien);
 
-        this.managementPanel.addFormRow("app.nhanVien.tenDangNhap", this.txtTenDangNhap);
+        this.form.addField("app.nhanVien.tenDangNhap", this.txtTenDangNhap);
 
-        this.managementPanel.addFormRow("app.nhanVien.matKhau", this.txtMatKhau);
+        this.form.addField("app.nhanVien.matKhau", this.txtMatKhau);
 
-        this.managementPanel.addFormRow("app.nhanVien.hoTen", this.txtHoTen);
+        this.form.addField("app.nhanVien.hoTen", this.txtHoTen);
 
-        this.managementPanel.addFormRow("app.nhanVien.soDienThoai", this.txtSoDienThoai);
+        this.form.addField("app.nhanVien.soDienThoai", this.txtSoDienThoai);
 
         this.cboVaiTro = new JComboBox<>(VaiTro.values());
+        this.cboVaiTro.setRenderer(ManagementPanel.taoBoHienThiI18n());
 
-        this.managementPanel.addFormRow("app.nhanVien.vaiTro", this.cboVaiTro);
+        this.form.addField("app.nhanVien.vaiTro", this.cboVaiTro);
 
         this.cboTrangThai = new JComboBox<>(TrangThaiNhanVien.values());
+        this.cboTrangThai.setRenderer(ManagementPanel.taoBoHienThiI18n());
 
-        this.managementPanel.addFormRow("app.nhanVien.trangThai", this.cboTrangThai);
+        this.form.addField("app.nhanVien.trangThai", this.cboTrangThai);
 
-        this.txtNgayTao.setEnabled(false);
+        Theme.applyReadOnly(this.txtNgayTao);
 
-        this.managementPanel.addFormRow("app.nhanVien.ngayTao", this.txtNgayTao);
+        this.form.addField("app.nhanVien.ngayTao", this.txtNgayTao);
 
-        form.add(this.anhField);
-
-        form.revalidate();
-        form.repaint();
+        this.form.addBlock(this.anhField);
 
         this.lamMoiForm();
     }
@@ -194,13 +200,13 @@ public class NhanVienPage extends AbstractPage {
     // ==================== SỰ KIỆN ====================
 
     private void ganSuKien() {
-        this.managementPanel.getThemButton().addActionListener(e -> this.lamMoiForm());
+        this.form.getNutThem().addActionListener(e -> this.lamMoiForm());
 
-        this.managementPanel.getLuuButton().addActionListener(e -> this.luu());
+        this.form.getNutLuu().addActionListener(e -> this.luu());
 
-        this.managementPanel.getXoaTrangButton().addActionListener(e -> this.lamMoiForm());
+        this.form.getNutXoaTrang().addActionListener(e -> this.lamMoiForm());
 
-        this.managementPanel.getXoaButton().addActionListener(e -> this.xoa());
+        this.form.getNutXoa().addActionListener(e -> this.xoa());
 
         this.managementPanel.getClearFilterButton().addActionListener(e -> {
             this.trangHienTai = 1;
@@ -327,6 +333,7 @@ public class NhanVienPage extends AbstractPage {
 
             this.txtMaNhanVien.setText(nv.getMaNhanVien());
             this.txtTenDangNhap.setText(nv.getTenDangNhap());
+            this.txtMatKhau.setText("");
             this.txtHoTen.setText(nv.getHoTen());
 
             this.txtSoDienThoai.setText(nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai());
@@ -339,15 +346,8 @@ public class NhanVienPage extends AbstractPage {
             this.cboVaiTro.setSelectedItem(nv.getVaiTro());
             this.cboTrangThai.setSelectedItem(nv.getTrangThai());
 
-            // Không hiển thị mật khẩu hiện tại.
-            this.txtMatKhau.setText("");
-
             // Không cho thay đổi mã và tên đăng nhập.
-            this.txtMaNhanVien.setEnabled(false);
-            this.txtTenDangNhap.setEnabled(false);
-
-            // Không đổi mật khẩu tại form sửa thông tin.
-            this.txtMatKhau.setEnabled(false);
+            Theme.applyReadOnly(this.txtTenDangNhap);
 
         } catch (SQLException | IllegalArgumentException ex) {
             ThongBao.loi(this, "app.nhanVien.loiLayThongTin");
@@ -393,6 +393,7 @@ public class NhanVienPage extends AbstractPage {
                 nv.setAnhDaiDien(anh);
                 nv.setVaiTro(data.vaiTro());
                 nv.setTrangThai(data.trangThai());
+                nv.setMatKhau(data.matKhau().isBlank() ? null : data.matKhau());
 
                 this.nhanVienService.update(nv);
 
@@ -469,15 +470,15 @@ public class NhanVienPage extends AbstractPage {
         this.cboTrangThai.setSelectedItem(TrangThaiNhanVien.HOAT_DONG);
 
         // Mã nhân viên do hệ thống sinh, không cho nhập tay.
-        this.txtMaNhanVien.setEditable(false);
+        Theme.applyReadOnly(this.txtMaNhanVien);
         this.txtMaNhanVien.setFocusable(false);
-        this.txtTenDangNhap.setEnabled(true);
-        this.txtMatKhau.setEnabled(true);
+        Theme.applyEditable(this.txtTenDangNhap);
+        Theme.applyEditable(this.txtMatKhau);
 
         if (this.managementPanel != null) {
             this.managementPanel.getTable().clearSelection();
         }
 
-        this.txtMaNhanVien.requestFocusInWindow();
+        this.txtTenDangNhap.requestFocusInWindow();
     }
 }

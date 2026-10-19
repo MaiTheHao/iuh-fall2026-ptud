@@ -4,23 +4,19 @@ import iuh.fit.dto.DanhSachKhachHangCriteria;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.KhachHangService;
 import iuh.fit.service.PhieuTiepNhanService;
+import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +26,15 @@ public class LapChanDoanPage extends AbstractPage {
     
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
     private final KhachHangService khachHangService = new KhachHangService();
-    private LapChanDoanFilterPanel managementPanel;
+    private ManagementPanel managementPanel;
+    private ManagementFormPanel form;
+
+    private final JTextField maField = new JTextField();
+    private final JTextField bienSoField = new JTextField();
+    private final JTextField khachHangField = new JTextField();
+    private final JTextField trangThaiField = new JTextField();
+
+    private int trang = 1;
 
     public LapChanDoanPage() {
         this.setLayout(new BorderLayout());
@@ -41,39 +45,67 @@ public class LapChanDoanPage extends AbstractPage {
     public void render() {
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBackground(Theme.BG);
 
-        // Khởi tạo Panel tùy chỉnh cho Lập Chẩn Đoán (ẩn form trái, cấu hình filter)
-        this.managementPanel = new LapChanDoanFilterPanel();
-
-        TitledBorder rightBorder = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Theme.BORDER),
-                "Chọn Phiếu Tiếp Nhận"
-        );
-        rightBorder.setTitleFont(rightBorder.getTitleFont().deriveFont(Font.BOLD));
-        this.managementPanel.setBorder(rightBorder);
+        this.managementPanel = new ManagementPanel();
+        this.managementPanel.setListTitle("app.chanDoan.danhSachTitle");
 
         this.managementPanel.setHeaders(
-                "Mã Tiếp Nhận",
-                "Biển Số",
-                "Khách Hàng",
-                "Trạng Thái",
-                "Thao Tác"
+                I18nReaderUtil.get("app.chanDoan.ma"),
+                I18nReaderUtil.get("app.chanDoan.bienSo"),
+                I18nReaderUtil.get("app.chanDoan.khachHang"),
+                I18nReaderUtil.get("app.chanDoan.trangThai"),
+                I18nReaderUtil.get("app.chanDoan.thaoTac")
         );
 
-        // Lắng nghe sự thay đổi của ComboBox Trạng Thái để load lại dữ liệu
-        this.managementPanel.filterTrangThaiCombo.addActionListener(e -> this.taiLaiData(1));
-        
-        // Tích hợp tìm kiếm nhanh & load trang
-        this.managementPanel.getClearFilterButton().addActionListener(e -> {
-            this.managementPanel.clearFilters();
-            this.taiLaiData(1);
+        this.managementPanel.addComboBoxFilter("app.chanDoan.trangThai", 3, TrangThaiPhieuTiepNhan.values());
+        this.managementPanel.setFilterChangeListener(() -> this.taiLaiData(1));
+
+        this.managementPanel.getClearFilterButton().addActionListener(e -> this.managementPanel.clearFilters());
+
+        this.managementPanel.getPrevButton().addActionListener(e -> this.taiLaiData(this.trang - 1));
+
+        this.managementPanel.getNextButton().addActionListener(e -> this.taiLaiData(this.trang + 1));
+
+        this.form = new ManagementFormPanel("app.chanDoan.thongTinTitle");
+
+        Theme.applyReadOnly(this.maField);
+        Theme.applyReadOnly(this.bienSoField);
+        Theme.applyReadOnly(this.khachHangField);
+        Theme.applyReadOnly(this.trangThaiField);
+
+        this.form.addField("app.chanDoan.ma", this.maField);
+        this.form.addField("app.chanDoan.bienSo", this.bienSoField);
+        this.form.addField("app.chanDoan.khachHang", this.khachHangField);
+        this.form.addField("app.chanDoan.trangThai", this.trangThaiField);
+
+        this.form.thayNut();
+
+        this.managementPanel.getTable().getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) {
+                return;
+            }
+
+            int row = this.managementPanel.getSelectedRow();
+
+            if (row < 0) {
+                return;
+            }
+
+            this.maField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 0)));
+            this.bienSoField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 1)));
+            this.khachHangField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 2)));
+            this.trangThaiField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 3)));
         });
-        
-        this.add(this.managementPanel, BorderLayout.CENTER);
-        
-        // Lấy dữ liệu từ Database lên bảng lần đầu tiên
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
+        split.setDividerLocation(380);
+        split.setOpaque(false);
+        split.setBorder(null);
+        this.add(split, BorderLayout.CENTER);
+
         this.taiLaiData(1);
-        
+
         this.revalidate();
         this.repaint();
     }
@@ -85,7 +117,7 @@ public class LapChanDoanPage extends AbstractPage {
             List<Object[]> rows = new ArrayList<>();
             
             // Lấy giá trị bộ lọc trạng thái hiện tại
-            Object selectedTrangThai = this.managementPanel.filterTrangThaiCombo.getSelectedItem();
+            Object selectedTrangThai = this.managementPanel.getComboFilterValue(3);
             
             for (PhieuTiepNhan p : danhSach) {
                 // Xử lý Lọc theo ComboBox Trạng Thái
@@ -110,8 +142,8 @@ public class LapChanDoanPage extends AbstractPage {
                         p.getMaPhieuTiepNhan(),
                         p.getBienSo(),
                         tenKH,
-                        p.getTrangThai() != null ? p.getTrangThai().name() : "",
-                        "Chọn" // Cột thao tác
+                        p.getTrangThai() != null ? p.getTrangThai().getI18NBusinessName() : "",
+                        I18nReaderUtil.get("app.chanDoan.chon") // Cột thao tác
                 });
             }
 
@@ -119,9 +151,10 @@ public class LapChanDoanPage extends AbstractPage {
             this.managementPanel.setRows(rows);
             this.managementPanel.setCount(1, rows.size(), rows.size());
             this.managementPanel.setPage(page, 1);
-            
+            this.trang = page;
+
         } catch (Exception e) {
-            ThongBao.loi(this, "Lỗi tải dữ liệu phiếu tiếp nhận: " + e.getMessage());
+            ThongBao.loi(this, "app.chanDoan.loiTaiDanhSach");
         }
     }
 
@@ -133,78 +166,5 @@ public class LapChanDoanPage extends AbstractPage {
     @Override
     public MenuGroup getGroup() {
         return MenuGroup.TIEP_NHAN;
-    }
-}
-
-/**
- * Lớp cấu hình ManagementPanel chuyên biệt cho màn hình Chọn Phiếu Tiếp Nhận
- */
-class LapChanDoanFilterPanel extends ManagementPanel {
-
-    public final JComboBox<Object> filterTrangThaiCombo = new JComboBox<>();
-
-    public LapChanDoanFilterPanel() {
-        super();
-        this.buildCustomLayout();
-    }
-
-    private void buildCustomLayout() {
-        // 1. Ẩn toàn bộ form nhập liệu bên trái (BorderLayout.WEST) để full chiều rộng bảng
-        if (this.getLayout() instanceof BorderLayout bl) {
-            Component west = bl.getLayoutComponent(BorderLayout.WEST);
-            if (west != null) {
-                west.setVisible(false);
-            }
-            
-            // Lấy listPanel ở vị trí CENTER
-            Component center = bl.getLayoutComponent(BorderLayout.CENTER);
-            if (center instanceof JPanel listPanel && listPanel.getLayout() instanceof BorderLayout bl2) {
-                // Lấy vùng chứa Filters (nằm ở NORTH của listPanel)
-                Component north = bl2.getLayoutComponent(BorderLayout.NORTH);
-                
-                if (north instanceof JPanel filterPanel && filterPanel.getLayout() instanceof BorderLayout bl3) {
-                    // Xóa khu vực filter cũ (CENTER của filterPanel), chừa lại vùng Tìm nhanh (SOUTH)
-                    Component oldCenter = bl3.getLayoutComponent(BorderLayout.CENTER);
-                    if (oldCenter != null) {
-                        filterPanel.remove(oldCenter);
-                    }
-                    
-                    // Tạo Lưới Custom cho nhãn Trạng Thái & ComboBox
-                    JPanel grid = new JPanel(new GridBagLayout());
-                    grid.setOpaque(false);
-                    grid.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
-
-                    GridBagConstraints gbc = new GridBagConstraints();
-                    gbc.insets = new Insets(2, 4, 2, 4);
-                    gbc.fill = GridBagConstraints.HORIZONTAL;
-                    gbc.weightx = 1.0;
-
-                    // Thêm Nhãn "Trạng Thái"
-                    gbc.gridx = 0; 
-                    gbc.gridy = 0;
-                    grid.add(new JLabel("Trạng Thái"), gbc);
-
-                    // Thêm ComboBox
-                    gbc.gridy = 1;
-                    this.filterTrangThaiCombo.removeAllItems();
-                    this.filterTrangThaiCombo.addItem("Tất cả"); // Mặc định hiển thị tất cả
-                    for (TrangThaiPhieuTiepNhan tt : TrangThaiPhieuTiepNhan.values()) {
-                        this.filterTrangThaiCombo.addItem(tt);
-                    }
-                    grid.add(this.filterTrangThaiCombo, gbc);
-
-                    // Gắn lại vào phần CENTER của Vùng filter, nó sẽ nằm ngay TRÊN vùng Tìm Nhanh (SOUTH)
-                    filterPanel.add(grid, BorderLayout.CENTER);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void clearFilters() {
-        super.clearFilters(); // Xóa text tìm nhanh
-        if (this.filterTrangThaiCombo.getItemCount() > 0) {
-            this.filterTrangThaiCombo.setSelectedIndex(0); // Reset combobox về "Tất cả"
-        }
     }
 }

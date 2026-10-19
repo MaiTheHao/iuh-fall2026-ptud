@@ -26,6 +26,7 @@
 			"serviceConsumptionReport": "Service Consumption",
 			"changePassword": "Change Password",
 			"language": "Language",
+			"darkMode": "Dark mode",
 			"account": "Account",
 			"logout": "Log Out"
 		},
@@ -55,6 +56,7 @@
 			"next": "Next ›",
 			"pageLabel": "Page",
 			"count": "Showing",
+			"currencySymbol": "₫",
 			"create_succeed": "Create succeed",
 			"update_succeed": "Update succeed",
 			"delete_succeed": "Delete succeed",
@@ -121,6 +123,8 @@
 			"clear": "Clear"
 		},
 		"khachHang": {
+			"thongTinTitle": "Customer Information",
+			"danhSachTitle": "Customer List",
 			"ma": "Customer ID",
 			"sdt": "Phone",
 			"hoTen": "Full name",
@@ -134,6 +138,8 @@
 			"trungSdt": "This phone number is already used by another customer."
 		},
 		"nhanVien": {
+			"thongTinTitle": "Employee Information",
+			"danhSachTitle": "Employee List",
 			"maNhanVien": "Employee ID",
 			"tenDangNhap": "Username",
 			"matKhau": "Password",
@@ -169,6 +175,8 @@
 			"duLieuKhongPhaiAnh": "The file does not contain valid image data."
 		},
 		"xe": {
+			"thongTinTitle": "Vehicle Information",
+			"danhSachTitle": "Vehicle List",
 			"bienSo": "License Plate",
 			"hangXe": "Car Make",
 			"dongXe": "Car Model",
@@ -193,6 +201,8 @@
 			"loiDongXeQuaDai": "Model cannot exceed 50 characters."
 		},
 		"phuTung": {
+			"thongTinTitle": "Part Information",
+			"danhSachTitle": "Part List",
 			"ma": "Part ID",
 			"ten": "Part Name",
 			"moTa": "Description",
@@ -220,6 +230,8 @@
 			"duLieuKhongHopLe": "Invalid part data."
 		},
 		"dichVu": {
+			"thongTinTitle": "Service Information",
+			"danhSachTitle": "Service List",
 		    "ma": "Service ID",
 		    "ten": "Service Name",
 		    "moTa": "Description",
@@ -350,6 +362,8 @@
 			"luuThanhCong": "Complaint saved successfully:"
 		},
 		"voucher": {
+			"thongTinTitle": "Voucher Information",
+			"danhSachTitle": "Voucher List",
 			"ma": "Voucher ID",
 			"tenChuongTrinh": "Program Name",
 			"moTa": "Description",
@@ -373,6 +387,8 @@
 			"tieuDeXoa": "Confirm Voucher Deletion"
 		},
 		"phieuNhap": {
+			"thongTinTitle": "Parts Receipt Information",
+			"danhSachTitle": "Parts Receipt List",
 		    "maPhieuNhap": "Receipt ID",
 		    "ngayTao": "Created Date",
 		    "thuKho": "Warehouse Keeper",
@@ -405,6 +421,17 @@
 			"taoPhieuMoi": "Create New Receipt",
 			"thaoTac": "Action"
 		},
+		"chanDoan": {
+			"thongTinTitle": "Intake Slip Information",
+			"danhSachTitle": "Select Intake Slip",
+			"ma": "Intake Code",
+			"bienSo": "License Plate",
+			"khachHang": "Customer",
+			"trangThai": "Status",
+			"thaoTac": "Action",
+			"chon": "Select",
+			"loiTaiDanhSach": "Failed to load intake slips."
+		},
 		"login": {
 			"title": "System Login",
 			"username": "Username:",
@@ -416,9 +443,17 @@
 			"errorPhone": "Invalid phone number."
 		},
 		"dashboard": {
-			"greeting": "Hello",
-			"role": "Role",
-			"code": "Employee code"
+			"shift": "Shift",
+			"noShift": "No shift assigned",
+			"revenueToday": "Today's revenue",
+			"ticketsInProgress": "Tickets in progress",
+			"ticketsInProgressSub": "in the workshop",
+			"ticketsAwaitingHandover": "Tickets awaiting handover",
+			"ticketsAwaitingHandoverSub": "ready for pickup",
+			"complaintsPending": "Unresolved complaints",
+			"complaintsPendingSub": "needs attention",
+			"invoicesUnpaid": "Unpaid invoices",
+			"invoicesUnpaidSub": "total"
 		}
 	}
 }

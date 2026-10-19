@@ -7,13 +7,16 @@ import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.AnhField;
 import iuh.fit.gui.component.AnhTableCellRenderer;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhuTungService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
 import java.awt.BorderLayout;
@@ -48,6 +51,7 @@ public class PhuTungPage extends AbstractPage {
     );
 
     private ManagementPanel panel;
+    private ManagementFormPanel form;
     private int trang = 1;
 
     public PhuTungPage() {
@@ -60,8 +64,10 @@ public class PhuTungPage extends AbstractPage {
         this.setBorder(
                 BorderFactory.createEmptyBorder(8, 8, 8, 8)
         );
+        this.setBackground(Theme.BG);
 
         this.panel = new ManagementPanel();
+        this.panel.setListTitle("app.phuTung.danhSachTitle");
 
         this.panel.setHeaders(
                 I18nReaderUtil.get("app.phuTung.hinhAnh"),
@@ -72,31 +78,42 @@ public class PhuTungPage extends AbstractPage {
                 I18nReaderUtil.get("app.phuTung.soLuongTon")
         );
 
+        this.form = new ManagementFormPanel("app.phuTung.thongTinTitle");
+
         this.khoiTaoForm();
         this.khoiTaoBoLoc();
         this.ganSuKien();
 
         this.taiLai(this.panel, 1);
 
-        this.add(this.panel, BorderLayout.CENTER);
+        JSplitPane split = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                this.form,
+                this.panel
+        );
+        split.setDividerLocation(380);
+        split.setOpaque(false);
+        split.setBorder(null);
+
+        this.add(split, BorderLayout.CENTER);
 
         this.revalidate();
         this.repaint();
     }
 
     private void khoiTaoForm() {
-        this.maField.setEnabled(true);
+        Theme.applyEditable(this.maField);
 
-        this.panel.addFormRow("app.phuTung.ma", this.maField);
-        this.panel.addFormRow("app.phuTung.ten", this.tenField);
-        this.panel.addFormRow("app.phuTung.moTa", this.moTaField);
+        this.form.addField("app.phuTung.ma", this.maField);
+        this.form.addField("app.phuTung.ten", this.tenField);
+        this.form.addField("app.phuTung.moTa", this.moTaField);
 
-        this.panel.getFormPanel().add(this.anhField);
+        this.form.addBlock(this.anhField);
 
-        this.panel.addFormRow("app.phuTung.donGia", this.donGiaField);
-        this.panel.addFormRow("app.phuTung.soLuongTon", this.soLuongField);
+        this.form.addField("app.phuTung.donGia", this.donGiaField);
+        this.form.addField("app.phuTung.soLuongTon", this.soLuongField);
 
-        this.soLuongField.setEditable(false);
+        Theme.applyReadOnly(this.soLuongField);
     }
 
     private void khoiTaoBoLoc() {
@@ -116,19 +133,19 @@ public class PhuTungPage extends AbstractPage {
     }
 
     private void ganSuKien() {
-        this.panel.getThemButton().addActionListener(
+        this.form.getNutThem().addActionListener(
                 e -> this.lamMoi()
         );
 
-        this.panel.getLuuButton().addActionListener(
+        this.form.getNutLuu().addActionListener(
                 e -> this.luu()
         );
 
-        this.panel.getXoaTrangButton().addActionListener(
+        this.form.getNutXoaTrang().addActionListener(
                 e -> this.lamMoi()
         );
 
-        this.panel.getXoaButton().addActionListener(
+        this.form.getNutXoa().addActionListener(
                 e -> this.xoa()
         );
 
@@ -275,7 +292,7 @@ public class PhuTungPage extends AbstractPage {
                 )
         );
 
-        this.maField.setEnabled(false);
+        Theme.applyReadOnly(this.maField);
     }
 
     private void lamMoi() {
@@ -287,7 +304,7 @@ public class PhuTungPage extends AbstractPage {
 
         this.anhField.clear();
 
-        this.maField.setEnabled(true);
+        Theme.applyEditable(this.maField);
 
         this.panel.getTable().clearSelection();
 

@@ -8,6 +8,7 @@ import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ChonPhuTungDialog;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuNhapPhuTungService;
 import iuh.fit.service.PhuTungService;
 import iuh.fit.util.I18nReaderUtil;
@@ -27,7 +28,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -91,16 +91,20 @@ public class LapPhieuNhapPage extends AbstractPage {
 
 	private JPanel taoPanelThongTin() {
 		JPanel panel = new JPanel(new BorderLayout(0, 8));
-		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
-				I18nReaderUtil.get("app.phieuNhap.thongTinPhieuNhap"), TitledBorder.LEFT, TitledBorder.TOP));
+		panel.setOpaque(false);
+		TitledBorder tieuDe = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Theme.BORDER),
+				I18nReaderUtil.get("app.phieuNhap.thongTinPhieuNhap"), TitledBorder.LEFT, TitledBorder.TOP);
+		tieuDe.setTitleColor(Theme.chuTrenAnh());
+		panel.setBorder(tieuDe);
 
 		JPanel formPanel = new JPanel();
+		formPanel.setOpaque(false);
 		formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
 		formPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-		this.maPhieuField.setEditable(false);
-		this.ngayTaoField.setEditable(false);
-		this.maNhanVienField.setEditable(false);
+		Theme.applyReadOnly(this.maPhieuField);
+		Theme.applyReadOnly(this.ngayTaoField);
+		Theme.applyReadOnly(this.maNhanVienField);
 
 		this.themDongBox(formPanel, "app.phieuNhap.maPhieuNhap", this.maPhieuField);
 		this.themDongBox(formPanel, "app.phieuNhap.ngayTao", this.ngayTaoField);
@@ -109,10 +113,10 @@ public class LapPhieuNhapPage extends AbstractPage {
 		panel.add(formPanel, BorderLayout.NORTH);
 
 		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
+		actionPanel.setOpaque(false);
 		JButton btnReset = new JButton(I18nReaderUtil.get("app.common.clear"));
 		this.btnSave = new JButton(I18nReaderUtil.get("app.phieuNhap.luuPhieuNhap"));
-		this.btnSave.setBackground(Color.BLUE);
-		this.btnSave.setForeground(Color.WHITE);
+		Theme.applyPrimary(this.btnSave);
 
 		btnReset.setPreferredSize(new Dimension(150, 32));
 		this.btnSave.setPreferredSize(new Dimension(150, 32));
@@ -138,6 +142,7 @@ public class LapPhieuNhapPage extends AbstractPage {
 
 	private void themDongBox(JPanel container, String i18nKey, JTextField field) {
 		JLabel label = new JLabel(I18nReaderUtil.get(i18nKey));
+		label.setForeground(Theme.chuTrenAnh());
 		label.setAlignmentX(Component.LEFT_ALIGNMENT);
 		field.setAlignmentX(Component.LEFT_ALIGNMENT);
 		field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
@@ -150,15 +155,18 @@ public class LapPhieuNhapPage extends AbstractPage {
 
 	private JPanel taoPanelChiTiet() {
 		JPanel panel = new JPanel(new BorderLayout(0, 8));
-		panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
-				I18nReaderUtil.get("app.phieuNhap.danhSachChiTiet"), TitledBorder.LEFT, TitledBorder.TOP));
+		panel.setOpaque(false);
+		TitledBorder tieuDe = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Theme.BORDER),
+				I18nReaderUtil.get("app.phieuNhap.danhSachChiTiet"), TitledBorder.LEFT, TitledBorder.TOP);
+		tieuDe.setTitleColor(Theme.chuTrenAnh());
+		panel.setBorder(tieuDe);
 
 		JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+		topBar.setOpaque(false);
 		this.btnAddRow = new JButton(I18nReaderUtil.get("app.phieuNhap.themDong"));
-		this.btnAddRow.setBackground(Color.BLUE);
-		this.btnAddRow.setForeground(Color.WHITE);
+		Theme.applyPrimary(this.btnAddRow);
 		this.btnRemoveRow = new JButton(I18nReaderUtil.get("app.phieuNhap.xoaDong"));
-		this.btnRemoveRow.setForeground(Color.RED);
+		this.btnRemoveRow.setForeground(Theme.DANGER_TEXT);
 
 		this.btnAddRow.addActionListener(e -> this.themDong());
 		this.btnRemoveRow.addActionListener(e -> this.xoaDongDaChon());
@@ -188,9 +196,12 @@ public class LapPhieuNhapPage extends AbstractPage {
 		panel.add(new JScrollPane(this.tableDetails), BorderLayout.CENTER);
 
 		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
+		bottomPanel.setOpaque(false);
 		JLabel lblTitle = new JLabel(I18nReaderUtil.get("app.phieuNhap.tongChiPhi") + ":");
+		lblTitle.setForeground(Theme.chuTrenAnh());
 
 		this.totalCostLabel = new JLabel(this.currencyFormat.format(0));
+		this.totalCostLabel.setForeground(Theme.chuTrenAnh());
 		this.totalCostLabel.setPreferredSize(new Dimension(640, 30));
 
 		bottomPanel.add(lblTitle);

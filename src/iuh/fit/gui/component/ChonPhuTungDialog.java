@@ -1,6 +1,7 @@
 package iuh.fit.gui.component;
 
 import iuh.fit.entity.PhuTung;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
@@ -55,9 +56,11 @@ public final class ChonPhuTungDialog extends JDialog {
 		this.setLocationRelativeTo(owner);
 		this.setLayout(new BorderLayout(8, 8));
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		this.getContentPane().setBackground(Theme.BG);
 
 		this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.table.setRowHeight(26);
+		Theme.styleTable(this.table);
 		this.table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

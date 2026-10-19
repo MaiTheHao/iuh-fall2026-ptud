@@ -5,14 +5,17 @@ import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.XeFormData;
 import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.XeService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
@@ -42,22 +45,27 @@ public class XePage extends AbstractPage {
 
     @Override
     public void render() {
-        this.bienSoField.setEditable(true);
+        Theme.applyEditable(this.bienSoField);
 
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBackground(Theme.BG);
 
         ManagementPanel panel = new ManagementPanel();
+
+        panel.setListTitle("app.xe.danhSachTitle");
 
         panel.setHeaders(I18nReaderUtil.get("app.xe.bienSo"), I18nReaderUtil.get("app.xe.hangXe"),
                 I18nReaderUtil.get("app.xe.dongXe"), I18nReaderUtil.get("app.xe.doiXe"),
                 I18nReaderUtil.get("app.xe.odo"));
 
-        panel.addFormRow("app.xe.bienSo", this.bienSoField);
-        panel.addFormRow("app.xe.hangXe", this.hangXeCombo);
-        panel.addFormRow("app.xe.dongXe", this.dongXeCombo);
-        panel.addFormRow("app.xe.doiXe", this.doiXeField);
-        panel.addFormRow("app.xe.odo", this.odoField);
+        ManagementFormPanel form = new ManagementFormPanel("app.xe.thongTinTitle");
+
+        form.addField("app.xe.bienSo", this.bienSoField);
+        form.addField("app.xe.hangXe", this.hangXeCombo);
+        form.addField("app.xe.dongXe", this.dongXeCombo);
+        form.addField("app.xe.doiXe", this.doiXeField);
+        form.addField("app.xe.odo", this.odoField);
 
         panel.addTextFilter("app.xe.bienSo", 0);
         panel.addTextFilter("app.xe.hangXe", 1);
@@ -66,13 +74,13 @@ public class XePage extends AbstractPage {
         panel.addRangeFilter("app.xe.odoTuDen", 5);
 
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
-        panel.getThemButton().addActionListener(e -> this.lamMoi(panel));
+        form.getNutThem().addActionListener(e -> this.lamMoi(panel));
 
-        panel.getLuuButton().addActionListener(e -> this.luu(panel));
+        form.getNutLuu().addActionListener(e -> this.luu(panel));
 
-        panel.getXoaTrangButton().addActionListener(e -> this.lamMoi(panel));
+        form.getNutXoaTrang().addActionListener(e -> this.lamMoi(panel));
 
-        panel.getXoaButton().addActionListener(e -> this.xoa(panel));
+        form.getNutXoa().addActionListener(e -> this.xoa(panel));
 
         panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
 
@@ -95,7 +103,12 @@ public class XePage extends AbstractPage {
         this.taiLai(panel, 1);
         this.taiGoiYHangXe();
 
-        this.add(panel, BorderLayout.CENTER);
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, panel);
+        split.setDividerLocation(380);
+        split.setOpaque(false);
+        split.setBorder(null);
+
+        this.add(split, BorderLayout.CENTER);
 
         this.revalidate();
         this.repaint();
@@ -170,7 +183,7 @@ public class XePage extends AbstractPage {
         }
 
         this.bienSoField.setText(String.valueOf(panel.getModel().getValueAt(row, 0)));
-        this.bienSoField.setEditable(false);
+        Theme.applyReadOnly(this.bienSoField);
 
         this.hangXeCombo.setSelectedItem(String.valueOf(panel.getModel().getValueAt(row, 1)));
 
@@ -183,7 +196,7 @@ public class XePage extends AbstractPage {
 
     private void lamMoi(ManagementPanel panel) {
         this.bienSoField.setText("");
-        this.bienSoField.setEditable(true);
+        Theme.applyEditable(this.bienSoField);
         this.hangXeCombo.setSelectedItem("");
         this.dongXeCombo.setSelectedItem("");
         this.doiXeField.setText("");
