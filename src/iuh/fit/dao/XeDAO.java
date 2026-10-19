@@ -18,11 +18,15 @@ public final class XeDAO extends BaseDao<Xe> {
             """;
 
     public Optional<Xe> findById(String bienSo) throws SQLException {
-        return findOne(SQL_SELECT + " WHERE bienSo = ?", bienSo);
+        return this.findOne(SQL_SELECT + " WHERE bienSo = ?", bienSo);
+    }
+
+    public Optional<Xe> findById(TransactionScope scope, String bienSo) throws SQLException {
+        return this.findOne(scope, SQL_SELECT + " WHERE bienSo = ?", bienSo);
     }
 
     public List<Xe> findAll() throws SQLException {
-        return findAll(SQL_SELECT);
+        return this.findAll(SQL_SELECT);
     }
 
     public boolean existsByBienSo(String bienSo) throws SQLException {
@@ -41,14 +45,36 @@ public final class XeDAO extends BaseDao<Xe> {
         }
     }
 
+    public boolean existsByBienSo(TransactionScope scope, String bienSo) throws SQLException {
+        String sql = """
+                SELECT 1 FROM Xe
+                WHERE bienSo = ?
+                """;
+
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
+            ps.setString(1, bienSo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     public boolean insert(Xe xe) throws SQLException {
+        try (TransactionScope scope = TransactionScope.begin()) {
+            boolean inserted = this.insert(scope, xe);
+            scope.commit();
+            return inserted;
+        }
+    }
+
+    public boolean insert(TransactionScope scope, Xe xe) throws SQLException {
         String sql = """
                 INSERT INTO Xe (bienSo, hangXe, dongXe, doiXe, odo)
                 VALUES (?, ?, ?, ?, ?)
                 """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             ps.setString(1, xe.getBienSo());
             ps.setString(2, xe.getHangXe());
             ps.setString(3, xe.getDongXe());
@@ -60,14 +86,21 @@ public final class XeDAO extends BaseDao<Xe> {
     }
 
     public boolean update(Xe xe) throws SQLException {
+        try (TransactionScope scope = TransactionScope.begin()) {
+            boolean updated = this.update(scope, xe);
+            scope.commit();
+            return updated;
+        }
+    }
+
+    public boolean update(TransactionScope scope, Xe xe) throws SQLException {
         String sql = """
                 UPDATE Xe
                 SET hangXe = ?, dongXe = ?, doiXe = ?, odo = ?
                 WHERE bienSo = ?
                 """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             ps.setString(1, xe.getHangXe());
             ps.setString(2, xe.getDongXe());
             ps.setInt(3, xe.getDoiXe());
@@ -96,13 +129,20 @@ public final class XeDAO extends BaseDao<Xe> {
     }
 
     public boolean delete(String bienSo) throws SQLException {
+        try (TransactionScope scope = TransactionScope.begin()) {
+            boolean deleted = this.delete(scope, bienSo);
+            scope.commit();
+            return deleted;
+        }
+    }
+
+    private boolean delete(TransactionScope scope, String bienSo) throws SQLException {
         String sql = """
                 DELETE FROM Xe
                 WHERE bienSo = ?
                 """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             ps.setString(1, bienSo);
 
             return ps.executeUpdate() > 0;

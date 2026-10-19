@@ -18,19 +18,20 @@ CREATE TABLE KhachHang (
     sdt          varchar(10)  NOT NULL,
     hoTen        nvarchar(50) NOT NULL,
     ngayTao      datetime2(3) DEFAULT sysdatetime() NOT NULL,
-    CONSTRAINT PK_KhachHang PRIMARY KEY (maKhachHang)
+    CONSTRAINT PK_KhachHang PRIMARY KEY (maKhachHang),
+    CONSTRAINT UQ_KhachHang_sdt UNIQUE (sdt)
 );
 
 -- ============================================================
 -- TABLE: NhanVien
 -- ============================================================
 CREATE TABLE NhanVien (
-    maNhanVien    varchar(20)  NOT NULL,
+    maNhanVien    varchar(64)  NOT NULL,
     tenDangNhap   varchar(30)  NOT NULL,
     matKhau       varchar(255) NOT NULL,
     hoTen         nvarchar(50) NOT NULL,
     anhDaiDien    varchar(500) NULL,
-    soDienThoai varchar(10) NULL,
+    soDienThoai varchar(10) NOT NULL,
     vaiTro        varchar(50)  NOT NULL,
     trangThai     varchar(50)  NOT NULL,
     ngayTao       datetime2(3) DEFAULT sysdatetime() NOT NULL,
@@ -93,7 +94,7 @@ CREATE TABLE KhachHang_Xe (
 CREATE TABLE PhieuNhapPhuTung (
     maPhieuNhap  varchar(20)   NOT NULL,
     ngayTao      datetime2(3)  DEFAULT sysdatetime() NOT NULL,
-    maNhanVien   varchar(20)   NOT NULL,
+    maNhanVien   varchar(64)   NOT NULL,
     moTa         nvarchar(255) NULL,
     CONSTRAINT PK_PhieuNhapPhuTung PRIMARY KEY (maPhieuNhap),
     CONSTRAINT FK_PhieuNhap_NhanVien FOREIGN KEY (maNhanVien) REFERENCES NhanVien(maNhanVien) ON DELETE CASCADE
@@ -116,11 +117,11 @@ CREATE TABLE ChiTietPhieuNhapPhuTung (
 -- TABLE: PhieuTiepNhan
 -- ============================================================
 CREATE TABLE PhieuTiepNhan (
-    maPhieuTiepNhan  varchar(20)   NOT NULL,
+    maPhieuTiepNhan  varchar(64)   NOT NULL,
     ngayTao          datetime2(3)  DEFAULT sysdatetime() NOT NULL,
-    moTa             nvarchar(500) NOT NULL,
+    moTa             nvarchar(max) NOT NULL,
     trangThai        varchar(50)   NOT NULL,
-    maNhanVien       varchar(20)   NOT NULL,
+    maNhanVien       varchar(64)   NOT NULL,
     maKhachHang      varchar(20)   NOT NULL,
     bienSo           varchar(15)   NOT NULL,
     CONSTRAINT PK_PhieuTiepNhan PRIMARY KEY (maPhieuTiepNhan),
@@ -134,7 +135,7 @@ CREATE TABLE PhieuTiepNhan (
 -- ============================================================
 CREATE TABLE PhanCong (
     maPhanCong   varchar(20)   NOT NULL,
-    maNhanVien   varchar(20)   NOT NULL,
+    maNhanVien   varchar(64)   NOT NULL,
     ngay         int           NOT NULL,
     thang        int           NOT NULL,
     nam          int           NOT NULL,
@@ -149,7 +150,7 @@ CREATE TABLE PhanCong (
 -- ============================================================
 CREATE TABLE HoaDon (
     maHoaDon           varchar(20)   NOT NULL,
-    maPhieuTiepNhan    varchar(20)   NOT NULL,
+    maPhieuTiepNhan    varchar(64)   NOT NULL,
     maVoucher          varchar(20)   NULL,
     trangThaiHoaDon    varchar(50)   NOT NULL,
     lyDoHuy            nvarchar(255) NULL,
@@ -179,7 +180,7 @@ CREATE TABLE ChiTietHoaDon (
 -- ============================================================
 CREATE TABLE VanDeKyThuat (
     maVanDe           varchar(20)   NOT NULL,
-    maPhieuTiepNhan   varchar(20)   NOT NULL,
+    maPhieuTiepNhan   varchar(64)   NOT NULL,
     tieuDe            nvarchar(200) NOT NULL,
     moTa              nvarchar(1000) NULL,
     mucDoUuTien       int           NOT NULL,
@@ -190,17 +191,17 @@ CREATE TABLE VanDeKyThuat (
     CONSTRAINT FK_VanDeKyThuat_PhieuTiepNhan
         FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan) ON DELETE CASCADE,
     CONSTRAINT CK_VanDeKyThuat_MucDoUuTien
-        CHECK (mucDoUuTien BETWEEN 1 AND 100),
+        CHECK (mucDoUuTien BETWEEN 1 AND 100)
 );
 
 -- ============================================================
 -- TABLE: KhieuNai
 -- ============================================================
 CREATE TABLE KhieuNai (
-    maKhieuNai       varchar(20)     NOT NULL,
+    maKhieuNai       varchar(64)     NOT NULL,
     maKhachHang      varchar(20)     NOT NULL,
-    maPhieuTiepNhan  varchar(20)     NOT NULL,
-    noiDung          nvarchar(1000) NOT NULL,
+    maPhieuTiepNhan  varchar(64)     NOT NULL,
+    noiDung          nvarchar(max) NOT NULL,
     trangThai        varchar(50)     NOT NULL,
     ngayTao          datetime2(3) DEFAULT sysdatetime() NOT NULL,
     CONSTRAINT PK_KhieuNai PRIMARY KEY (maKhieuNai),

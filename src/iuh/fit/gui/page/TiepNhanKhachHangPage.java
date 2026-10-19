@@ -1,15 +1,15 @@
 package iuh.fit.gui.page;
 
-import iuh.fit.dto.DanhSachKhachHangCriteria;
-import iuh.fit.dto.DanhSachXeCriteria;
-import iuh.fit.entity.KhachHang;
+import iuh.fit.dto.TiepNhanFormData;
 import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.KhachHangService;
-import iuh.fit.service.PhieuTiepNhanService;
+import iuh.fit.service.TiepNhanService;
 import iuh.fit.service.XeService;
+import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -19,6 +19,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -27,37 +29,50 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TiepNhanKhachHangPage extends AbstractPage {
 
     private static final long serialVersionUID = 1L;
 
+    private static final Logger LOGGER = Logger.getLogger(TiepNhanKhachHangPage.class.getName());
+
     private final KhachHangService khachHangService = new KhachHangService();
     private final XeService xeService = new XeService();
-    private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
+    private final TiepNhanService tiepNhanService = new TiepNhanService();
 
     private final JTextField sdtField = new JTextField();
     private final JTextField hoTenField = new JTextField();
     private final JTextField bienSoField = new JTextField();
     private final JTextField hangXeField = new JTextField();
     private final JTextField dongXeField = new JTextField();
+    private final JTextField doiXeField = new JTextField();
     private final JTextField odoField = new JTextField();
     private final JTextArea moTaArea = new JTextArea(5, 50);
 
-    private final JButton timKhachButton = new JButton("Tìm Khách");
-    private final JButton timXeButton = new JButton("Tìm Xe");
-    private final JButton lamMoiButton = new JButton("Làm Mới");
-    private final JButton luuButton = new JButton("Lưu Phiếu Tiếp Nhận");
+    private final JButton timKhachButton = new JButton();
+    private final JButton timXeButton = new JButton();
+    private final JButton lamMoiButton = new JButton();
+    private final JButton luuButton = new JButton();
+
+    private boolean dangCapNhat;
 
     public TiepNhanKhachHangPage() {
         this.setLayout(new BorderLayout());
         this.setBackground(Theme.BG);
+        this.dangKyDocumentListener();
     }
 
     @Override
     public void render() {
         this.removeAll();
         this.setLayout(new BorderLayout(10, 10));
+
+        this.timKhachButton.setText(I18nReaderUtil.get("app.tiepNhan.timKhach"));
+        this.timXeButton.setText(I18nReaderUtil.get("app.tiepNhan.timXe"));
+        this.lamMoiButton.setText(I18nReaderUtil.get("app.tiepNhan.lamMoi"));
+        this.luuButton.setText(I18nReaderUtil.get("app.tiepNhan.luu"));
 
         JPanel contentPanel = Theme.contentPanel(10);
         contentPanel.setLayout(new BorderLayout(10, 10));
@@ -67,26 +82,27 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         pnlTop.setOpaque(false);
 
         // 1. Thông tin Khách Hàng
-        JPanel pnlKhachHang = this.createTitledPanel("1. THÔNG TIN KHÁCH HÀNG");
+        JPanel pnlKhachHang = this.createTitledPanel(I18nReaderUtil.get("app.tiepNhan.tieuDeKhachHang"));
         pnlKhachHang.setLayout(new GridBagLayout());
         GridBagConstraints gbcKH = this.createGbc();
 
-        this.addFormField(pnlKhachHang, "Số điện thoại khách hàng (*):", this.sdtField, this.timKhachButton, gbcKH, 0);
-        this.addFormField(pnlKhachHang, "Họ và tên khách hàng (*):", this.hoTenField, null, gbcKH, 1);
+        this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.sdt"), this.sdtField, this.timKhachButton, gbcKH, 0);
+        this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.hoTen"), this.hoTenField, null, gbcKH, 1);
         pnlTop.add(pnlKhachHang);
 
         // 2. Thông tin Phương Tiện (Xe)
-        JPanel pnlPhuongTien = this.createTitledPanel("2. THÔNG TIN PHƯƠNG TIỆN (XE)");
+        JPanel pnlPhuongTien = this.createTitledPanel(I18nReaderUtil.get("app.tiepNhan.tieuDeXe"));
         pnlPhuongTien.setLayout(new GridBagLayout());
         GridBagConstraints gbcXe = this.createGbc();
 
-        this.addFormField(pnlPhuongTien, "Biển số xe (*):", this.bienSoField, this.timXeButton, gbcXe, 0);
+        this.addFormField(pnlPhuongTien, I18nReaderUtil.get("app.tiepNhan.bienSo"), this.bienSoField, this.timXeButton, gbcXe, 0);
 
-        JPanel pnlChiTietXe = new JPanel(new GridLayout(1, 3, 10, 0));
+        JPanel pnlChiTietXe = new JPanel(new GridLayout(1, 4, 10, 0));
         pnlChiTietXe.setOpaque(false);
-        pnlChiTietXe.add(this.createFieldWithLabel("Hãng xe:", this.hangXeField));
-        pnlChiTietXe.add(this.createFieldWithLabel("Dòng xe:", this.dongXeField));
-        pnlChiTietXe.add(this.createFieldWithLabel("Số ODO hiện tại (Km) (*):", this.odoField));
+        pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.hangXe") + ":", this.hangXeField));
+        pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.dongXe") + ":", this.dongXeField));
+        pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.doiXe") + " (*):", this.doiXeField));
+        pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.tiepNhan.odo"), this.odoField));
 
         gbcXe.gridx = 0;
         gbcXe.gridy = 1;
@@ -100,7 +116,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         pnlMoTa.setOpaque(false);
         pnlMoTa.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        JLabel lblMoTa = new JLabel("Mô Tả Tình Trạng Xe & Yêu Cầu Của Khách Hàng (*):");
+        JLabel lblMoTa = new JLabel(I18nReaderUtil.get("app.tiepNhan.moTa"));
         lblMoTa.setFont(lblMoTa.getFont().deriveFont(Font.BOLD));
 
         this.moTaArea.setLineWrap(true);
@@ -129,7 +145,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         this.add(contentPanel, BorderLayout.CENTER);
 
         // Xóa hết Listener cũ tránh lặp sự kiện
-        this.clearListeners();
+        this.clearActionListeners(this.lamMoiButton, this.timKhachButton, this.timXeButton, this.luuButton);
 
         // Đăng ký đúng Action Listeners
         this.lamMoiButton.addActionListener(e -> this.lamMoiForm());
@@ -141,45 +157,95 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         this.repaint();
     }
 
-	private void clearListeners() {
-        for (var al : this.lamMoiButton.getActionListeners()) this.lamMoiButton.removeActionListener(al);
-        for (var al : this.timKhachButton.getActionListeners()) this.timKhachButton.removeActionListener(al);
-        for (var al : this.timXeButton.getActionListeners()) this.timXeButton.removeActionListener(al);
-        for (var al : this.luuButton.getActionListeners()) this.luuButton.removeActionListener(al);
+    private void dangKyDocumentListener() {
+        this.sdtField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                TiepNhanKhachHangPage.this.xoaHoTenKhiSdtThayDoi();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                TiepNhanKhachHangPage.this.xoaHoTenKhiSdtThayDoi();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                TiepNhanKhachHangPage.this.xoaHoTenKhiSdtThayDoi();
+            }
+        });
+
+        this.bienSoField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                TiepNhanKhachHangPage.this.xoaThongTinXeKhiBienSoThayDoi();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                TiepNhanKhachHangPage.this.xoaThongTinXeKhiBienSoThayDoi();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                TiepNhanKhachHangPage.this.xoaThongTinXeKhiBienSoThayDoi();
+            }
+        });
+    }
+
+    private void xoaHoTenKhiSdtThayDoi() {
+        if (this.dangCapNhat) {
+            return;
+        }
+        this.hoTenField.setText("");
+    }
+
+    private void xoaThongTinXeKhiBienSoThayDoi() {
+        if (this.dangCapNhat) {
+            return;
+        }
+        this.hangXeField.setText("");
+        this.dongXeField.setText("");
+        this.doiXeField.setText("");
+        this.odoField.setText("");
     }
 
     private void timKhachHang() {
         String sdt = this.sdtField.getText().trim();
         if (sdt.isEmpty()) {
-            ThongBao.canhBao(this, "Vui lòng nhập số điện thoại khách hàng để tìm kiếm.");
+            ThongBao.canhBao(this, "app.tiepNhan.loiSdtTrong");
             this.sdtField.requestFocusInWindow();
             return;
         }
 
         try {
-            DanhSachKhachHangCriteria criteria = new DanhSachKhachHangCriteria(null, sdt, null, null, null, null, 1, 10);
-            var result = this.khachHangService.search(criteria);
-            
-            if (result == null || result.items() == null || result.items().isEmpty()) {
-                ThongBao.thongTin(this, "Không tìm thấy khách hàng. Vui lòng nhập thông tin mới.");
-                this.hoTenField.setText("");
-                this.hoTenField.requestFocusInWindow();
-            } else {
-                KhachHang khachHang = result.items().get(0);
-                this.hoTenField.setText(khachHang.getHoTen());
-                this.bienSoField.requestFocusInWindow();
+            var found = this.khachHangService.getBySdt(sdt);
+            this.dangCapNhat = true;
+            try {
+                if (found.isEmpty()) {
+                    ThongBao.thongTin(this, "app.tiepNhan.khongTimThayKhach");
+                    this.hoTenField.setText("");
+                    this.hoTenField.requestFocusInWindow();
+                } else {
+                    this.hoTenField.setText(found.get().getHoTen());
+                    this.bienSoField.requestFocusInWindow();
+                }
+            } finally {
+                this.dangCapNhat = false;
             }
         } catch (SQLException ex) {
-            ThongBao.loi(this, "Lỗi kết nối cơ sở dữ liệu khi tìm khách hàng.");
+            LOGGER.log(Level.SEVERE, "Lỗi tìm khách hàng theo số điện thoại", ex);
+            ThongBao.loi(this, "app.tiepNhan.loiKetNoiKhach");
         } catch (Exception ex) {
-            ThongBao.loi(this, "Lỗi hệ thống: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, "Lỗi hệ thống khi tìm khách hàng", ex);
+            ThongBao.loi(this, I18nReaderUtil.get("app.tiepNhan.loiHeThong") + " " + ex.getMessage());
         }
     }
 
     private void timXe() {
         String rawBienSo = this.bienSoField.getText().trim();
         if (rawBienSo.isEmpty()) {
-            ThongBao.canhBao(this, "Vui lòng nhập biển số xe để tìm kiếm.");
+            ThongBao.canhBao(this, "app.tiepNhan.loiBienSoTrong");
             this.bienSoField.requestFocusInWindow();
             return;
         }
@@ -188,36 +254,53 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         String bienSoChuanHoa = rawBienSo.toUpperCase().replaceAll("\\s+", "");
 
         try {
-        	DanhSachXeCriteria criteria = new DanhSachXeCriteria(rawBienSo, null, null, null, null, null, null, null, 1, 10);
-            var result = this.xeService.search(criteria);
-            
-            if(result == null || result.items() == null || result.items().isEmpty()) {
-            	ThongBao.thongTin(this, "Biển số xe (" + bienSoChuanHoa + ") chưa có trong hệ thống. Vui lòng nhập thông tin xe mới.");
-                this.bienSoField.setText(bienSoChuanHoa);
-                this.hangXeField.setText("");
-                this.dongXeField.setText("");
-                this.odoField.setText("");
-                this.hangXeField.requestFocusInWindow();
-            } else {
-            	Xe xe = result.items().get(0);
-            	this.bienSoField.setText(xe.getBienSo() != null ? xe.getBienSo() : bienSoChuanHoa);
-                this.hangXeField.setText(xe.getHangXe() != null ? xe.getHangXe() : "");
-                this.dongXeField.setText(xe.getDongXe() != null ? xe.getDongXe() : "");
-            	this.odoField.setText(String.valueOf(xe.getOdo()));
-            	this.odoField.requestFocusInWindow();
+            var found = this.xeService.getByBienSo(rawBienSo);
+            this.dangCapNhat = true;
+            try {
+                if (found.isEmpty()) {
+                    ThongBao.thongTin(this, I18nReaderUtil.get("app.tiepNhan.khongTimThayXe")
+                            + " (" + bienSoChuanHoa + ")");
+                    this.bienSoField.setText(bienSoChuanHoa);
+                    this.hangXeField.setText("");
+                    this.dongXeField.setText("");
+                    this.doiXeField.setText("");
+                    this.odoField.setText("");
+                    this.hangXeField.requestFocusInWindow();
+                } else {
+                    Xe xe = found.get();
+                    this.bienSoField.setText(xe.getBienSo() != null ? xe.getBienSo() : bienSoChuanHoa);
+                    this.hangXeField.setText(xe.getHangXe() != null ? xe.getHangXe() : "");
+                    this.dongXeField.setText(xe.getDongXe() != null ? xe.getDongXe() : "");
+                    this.doiXeField.setText(String.valueOf(xe.getDoiXe()));
+                    this.odoField.setText(String.valueOf(xe.getOdo()));
+                    this.odoField.requestFocusInWindow();
+                }
+            } finally {
+                this.dangCapNhat = false;
             }
         } catch (SQLException ex) {
-            ThongBao.loi(this, "Lỗi kết nối cơ sở dữ liệu khi tìm xe.");
+            LOGGER.log(Level.SEVERE, "Lỗi tìm xe theo biển số", ex);
+            ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
         } catch (Exception ex) {
-            ThongBao.loi(this, "Lỗi hệ thống: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, "Lỗi hệ thống khi tìm xe", ex);
+            ThongBao.loi(this, I18nReaderUtil.get("app.tiepNhan.loiHeThong") + " " + ex.getMessage());
         }
     }
-    
-    private void luuPhieuTiepNhan() {
-        if (!this.kiemTraForm()) {
-            return;
-        }
 
+    private void luuPhieuTiepNhan() {
+        try {
+            if (!this.kiemTraForm()) {
+                return;
+            }
+            this.tiepNhanService.tiepNhanKhachHang(this.getFormData());
+            ThongBao.thongTin(this, "app.common.create_succeed");
+            this.lamMoiForm();
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            ThongBao.loi(this, ex);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Lỗi lưu phiếu tiếp nhận", ex);
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
     }
 
     private JPanel createTitledPanel(String title) {
@@ -268,47 +351,69 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     }
 
     private void lamMoiForm() {
-        this.sdtField.setText("");
-        this.hoTenField.setText("");
-        this.bienSoField.setText("");
-        this.hangXeField.setText("");
-        this.dongXeField.setText("");
-        this.odoField.setText("");
-        this.moTaArea.setText("");
+        this.dangCapNhat = true;
+        try {
+            this.sdtField.setText("");
+            this.hoTenField.setText("");
+            this.bienSoField.setText("");
+            this.hangXeField.setText("");
+            this.dongXeField.setText("");
+            this.doiXeField.setText("");
+            this.odoField.setText("");
+            this.moTaArea.setText("");
+        } finally {
+            this.dangCapNhat = false;
+        }
         this.sdtField.requestFocusInWindow();
+    }
+
+    private TiepNhanFormData getFormData() {
+        return new TiepNhanFormData(
+                this.sdtField.getText().trim(),
+                this.hoTenField.getText().trim(),
+                this.bienSoField.getText().trim(),
+                this.hangXeField.getText().trim(),
+                this.dongXeField.getText().trim(),
+                NumberParseUtil.toIntegerOrNull(this.doiXeField.getText()),
+                NumberParseUtil.toIntegerOrNull(this.odoField.getText()),
+                this.moTaArea.getText().trim());
     }
 
     private boolean kiemTraForm() {
         if (this.sdtField.getText().trim().isEmpty()) {
-            ThongBao.thongTin(this, "Vui lòng nhập số điện thoại khách hàng.");
+            ThongBao.thongTin(this, "app.tiepNhan.loiSdtTrong");
             this.sdtField.requestFocusInWindow();
             return false;
         }
         if (this.hoTenField.getText().trim().isEmpty()) {
-            ThongBao.thongTin(this, "Vui lòng nhập họ tên khách hàng.");
+            ThongBao.thongTin(this, "app.tiepNhan.loiHoTenTrong");
             this.hoTenField.requestFocusInWindow();
             return false;
         }
         if (this.bienSoField.getText().trim().isEmpty()) {
-            ThongBao.thongTin(this, "Vui lòng nhập biển số xe.");
+            ThongBao.thongTin(this, "app.tiepNhan.loiBienSoTrong");
             this.bienSoField.requestFocusInWindow();
             return false;
         }
-        if (this.odoField.getText().trim().isEmpty()) {
-            ThongBao.thongTin(this, "Vui lòng nhập số ODO hiện tại.");
-            this.odoField.requestFocusInWindow();
+        try {
+            Integer.valueOf(this.doiXeField.getText().trim());
+        } catch (NumberFormatException e) {
+            ThongBao.thongTin(this, "app.xe.loiDoiXe");
+            this.doiXeField.requestFocusInWindow();
             return false;
         }
-        try {
-            long odo = Long.parseLong(this.odoField.getText().trim());
-            if (odo < 0) throw new NumberFormatException();
-        } catch (NumberFormatException e) {
-            ThongBao.thongTin(this, "Số ODO phải là số nguyên không âm.");
-            this.odoField.requestFocusInWindow();
-            return false;
+        if (!this.odoField.getText().trim().isEmpty()) {
+            try {
+                long odo = Long.parseLong(this.odoField.getText().trim());
+                if (odo < 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                ThongBao.thongTin(this, "app.tiepNhan.loiOdo");
+                this.odoField.requestFocusInWindow();
+                return false;
+            }
         }
         if (this.moTaArea.getText().trim().isEmpty()) {
-            ThongBao.thongTin(this, "Vui lòng mô tả tình trạng xe.");
+            ThongBao.thongTin(this, "app.tiepNhan.loiMoTa");
             this.moTaArea.requestFocusInWindow();
             return false;
         }

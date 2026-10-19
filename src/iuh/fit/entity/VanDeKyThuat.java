@@ -1,6 +1,6 @@
 package iuh.fit.entity;
 
-import iuh.fit.enumeration.KhachHangDongY;
+import iuh.fit.enumeration.TrangThaiVanDeKyThuat;
 
 import java.time.LocalDateTime;
 
@@ -11,14 +11,14 @@ public class VanDeKyThuat {
     private String moTa;
     private int mucDoUuTien;
     private String giaiPhap;
-    private KhachHangDongY khachHangDongY;
+    private TrangThaiVanDeKyThuat khachHangDongY;
     private LocalDateTime ngayTao;
 
     public VanDeKyThuat() {
     }
 
     public VanDeKyThuat(String maVanDe, String maPhieuTiepNhan, String tieuDe, String moTa, int mucDoUuTien,
-            String giaiPhap, KhachHangDongY khachHangDongY, LocalDateTime ngayTao) {
+            String giaiPhap, TrangThaiVanDeKyThuat khachHangDongY, LocalDateTime ngayTao) {
         this.maVanDe = maVanDe;
         this.maPhieuTiepNhan = maPhieuTiepNhan;
         this.tieuDe = tieuDe;
@@ -77,11 +77,11 @@ public class VanDeKyThuat {
         this.giaiPhap = giaiPhap;
     }
 
-    public KhachHangDongY getKhachHangDongY() {
+    public TrangThaiVanDeKyThuat getKhachHangDongY() {
         return khachHangDongY;
     }
 
-    public void setKhachHangDongY(KhachHangDongY khachHangDongY) {
+    public void setKhachHangDongY(TrangThaiVanDeKyThuat khachHangDongY) {
         this.khachHangDongY = khachHangDongY;
     }
 

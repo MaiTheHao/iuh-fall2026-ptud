@@ -12,6 +12,7 @@ import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
@@ -26,8 +27,8 @@ public class XePage extends AbstractPage {
     private final XeService xeService = new XeService();
 
     private final JTextField bienSoField = new JTextField(14);
-    private final JTextField hangXeField = new JTextField(14);
-    private final JTextField dongXeField = new JTextField(14);
+    private final JComboBox<String> hangXeCombo = new JComboBox<>();
+    private final JComboBox<String> dongXeCombo = new JComboBox<>();
     private final JTextField doiXeField = new JTextField(14);
     private final JTextField odoField = new JTextField(14);
 
@@ -35,10 +36,14 @@ public class XePage extends AbstractPage {
 
     public XePage() {
         this.setLayout(new BorderLayout());
+        this.hangXeCombo.setEditable(true);
+        this.dongXeCombo.setEditable(true);
     }
 
     @Override
     public void render() {
+        this.bienSoField.setEditable(true);
+
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
@@ -49,8 +54,8 @@ public class XePage extends AbstractPage {
                 I18nReaderUtil.get("app.xe.odo"));
 
         panel.addFormRow("app.xe.bienSo", this.bienSoField);
-        panel.addFormRow("app.xe.hangXe", this.hangXeField);
-        panel.addFormRow("app.xe.dongXe", this.dongXeField);
+        panel.addFormRow("app.xe.hangXe", this.hangXeCombo);
+        panel.addFormRow("app.xe.dongXe", this.dongXeCombo);
         panel.addFormRow("app.xe.doiXe", this.doiXeField);
         panel.addFormRow("app.xe.odo", this.odoField);
 
@@ -71,6 +76,12 @@ public class XePage extends AbstractPage {
 
         panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
 
+        this.clearActionListeners(this.hangXeCombo);
+        this.hangXeCombo.addActionListener(e -> {
+            this.dongXeCombo.setSelectedItem("");
+            this.taiGoiYDongXe();
+        });
+
         panel.getPrevButton().addActionListener(e -> this.taiLai(panel, this.trang - 1));
 
         panel.getNextButton().addActionListener(e -> this.taiLai(panel, this.trang + 1));
@@ -82,6 +93,7 @@ public class XePage extends AbstractPage {
         });
         panel.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         this.taiLai(panel, 1);
+        this.taiGoiYHangXe();
 
         this.add(panel, BorderLayout.CENTER);
 
@@ -158,10 +170,11 @@ public class XePage extends AbstractPage {
         }
 
         this.bienSoField.setText(String.valueOf(panel.getModel().getValueAt(row, 0)));
+        this.bienSoField.setEditable(false);
 
-        this.hangXeField.setText(String.valueOf(panel.getModel().getValueAt(row, 1)));
+        this.hangXeCombo.setSelectedItem(String.valueOf(panel.getModel().getValueAt(row, 1)));
 
-        this.dongXeField.setText(String.valueOf(panel.getModel().getValueAt(row, 2)));
+        this.dongXeCombo.setSelectedItem(String.valueOf(panel.getModel().getValueAt(row, 2)));
 
         this.doiXeField.setText(String.valueOf(panel.getModel().getValueAt(row, 3)));
 
@@ -170,35 +183,75 @@ public class XePage extends AbstractPage {
 
     private void lamMoi(ManagementPanel panel) {
         this.bienSoField.setText("");
-        this.hangXeField.setText("");
-        this.dongXeField.setText("");
+        this.bienSoField.setEditable(true);
+        this.hangXeCombo.setSelectedItem("");
+        this.dongXeCombo.setSelectedItem("");
         this.doiXeField.setText("");
         this.odoField.setText("");
 
         panel.getTable().clearSelection();
-        this.hangXeField.requestFocusInWindow();
+        this.hangXeCombo.requestFocusInWindow();
+    }
+
+    private String giaTriCombo(JComboBox<String> combo) {
+        Object v = combo.getEditor().getItem();
+        return v == null ? "" : v.toString().trim();
+    }
+
+    private void taiGoiYHangXe() {
+        try {
+            String dangChon = this.giaTriCombo(this.hangXeCombo);
+
+            this.hangXeCombo.removeAllItems();
+
+            for (String h : this.xeService.getDanhSachHangXe()) {
+                this.hangXeCombo.addItem(h);
+            }
+
+            this.hangXeCombo.setSelectedItem(dangChon);
+
+        } catch (SQLException e) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
+    }
+
+    private void taiGoiYDongXe() {
+        try {
+            String dangChon = this.giaTriCombo(this.dongXeCombo);
+
+            this.dongXeCombo.removeAllItems();
+
+            for (String d : this.xeService.getDanhSachDongXe(this.giaTriCombo(this.hangXeCombo))) {
+                this.dongXeCombo.addItem(d);
+            }
+
+            this.dongXeCombo.setSelectedItem(dangChon);
+
+        } catch (SQLException e) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
     }
 
     private XeFormData getFormData() {
         return new XeFormData(
                 this.bienSoField.getText().trim(),
-                this.hangXeField.getText().trim(),
-                this.dongXeField.getText().trim(),
+                this.giaTriCombo(this.hangXeCombo),
+                this.giaTriCombo(this.dongXeCombo),
                 NumberParseUtil.toIntegerOrNull(this.doiXeField.getText()),
                 NumberParseUtil.toIntegerOrNull(this.odoField.getText()));
     }
 
     private void validateFormData(XeFormData data) {
-        if (data.doiXe() == null || data.odo() == null) {
-            throw new IllegalArgumentException("app.xe.loiThongTinSo");
+        if (data.doiXe() == null) {
+            throw new IllegalArgumentException("app.xe.loiDoiXeSo");
         }
     }
 
     private void luu(ManagementPanel panel) {
-        XeFormData data = this.getFormData();
-        this.validateFormData(data);
-
         try {
+            XeFormData data = this.getFormData();
+            this.validateFormData(data);
+
             Xe xe = new Xe();
 
             String bienSo = data.bienSo();
@@ -207,7 +260,7 @@ public class XePage extends AbstractPage {
             xe.setHangXe(data.hangXe());
             xe.setDongXe(data.dongXe());
             xe.setDoiXe(data.doiXe());
-            xe.setOdo(data.odo());
+            xe.setOdo(data.odo() == null ? 0 : data.odo());
 
             if (!this.xeService.existsByBienSo(bienSo)) {
                 this.xeService.create(xe);

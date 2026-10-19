@@ -17,14 +17,14 @@ public abstract class BaseDao<T> {
     protected List<T> mapRows(ResultSet rs) throws SQLException {
         List<T> list = new ArrayList<>();
         while (rs.next()) {
-            list.add(mapRow(rs));
+            list.add(this.mapRow(rs));
         }
         return list;
     }
 
     protected Optional<T> findOne(String sql, String id) throws SQLException {
         try (Connection connection = DatabaseConfig.getConnection()) {
-            return findOne(connection, sql, id);
+            return this.findOne(connection, sql, id);
         }
     }
 
@@ -32,7 +32,7 @@ public abstract class BaseDao<T> {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? Optional.of(mapRow(rs)) : Optional.empty();
+                return rs.next() ? Optional.of(this.mapRow(rs)) : Optional.empty();
             }
         }
     }
@@ -41,7 +41,18 @@ public abstract class BaseDao<T> {
         try (Connection connection = DatabaseConfig.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery()) {
-            return mapRows(rs);
+            return this.mapRows(rs);
+        }
+    }
+
+    protected Optional<T> findOne(TransactionScope scope, String sql, String id) throws SQLException {
+        return this.findOne(scope.getConnection(), sql, id);
+    }
+
+    protected List<T> findAll(TransactionScope scope, String sql) throws SQLException {
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            return this.mapRows(rs);
         }
     }
 }

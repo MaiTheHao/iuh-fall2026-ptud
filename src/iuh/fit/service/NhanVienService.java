@@ -151,11 +151,13 @@ public class NhanVienService {
     public void create(NhanVien nhanVien) throws SQLException {
         this.validateCommon(nhanVien);
 
-        String ma = MaGeneratorUtil.genMaNhanVien(
-                nhanVien.getSoDienThoai()
-        );
+        LocalDateTime now = LocalDateTime.now();
+
+        String ma = MaGeneratorUtil.sinhMaNhanVien(
+                nhanVien.getSoDienThoai(), now);
 
         nhanVien.setMaNhanVien(ma);
+        nhanVien.setNgayTao(now);
 
         this.validateCreate(nhanVien);
 
@@ -234,7 +236,7 @@ public class NhanVienService {
 
     private void validateCreate(NhanVien nv) {
         if (nv.getMaNhanVien() == null
-                || nv.getMaNhanVien().trim().length() > 20) {
+                || nv.getMaNhanVien().trim().length() > 64) {
             throw new IllegalArgumentException(ERROR_ID_REQUIRED);
         }
 
@@ -250,11 +252,7 @@ public class NhanVienService {
     }
 
     private void validatePhone(String phone) {
-        if (this.isBlank(phone)) {
-            return;
-        }
-
-        if (!phone.trim().matches("\\d{9,10}")) {
+        if (phone == null || !phone.trim().matches("\\d{9,10}")) {
             throw new IllegalArgumentException(ERROR_PHONE);
         }
     }
