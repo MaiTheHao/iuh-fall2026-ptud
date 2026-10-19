@@ -119,7 +119,7 @@ public class PhieuNhapPhuTungService {
 
 		String datePrefix = "PN" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		List<String> existingIds = this.phieuNhapDAO.findAll().stream().map(PhieuNhapPhuTung::getMaPhieuNhap).toList();
-		String maPhieuMoi = MaGeneratorUtil.sinhMa(datePrefix, 4, existingIds);
+		String maPhieuMoi = MaGeneratorUtil.sinhMa("PN", LocalDateTime.now());
 
 		phieu.setMaPhieuNhap(maPhieuMoi);
 		phieu.setNgayTao(LocalDateTime.now());
