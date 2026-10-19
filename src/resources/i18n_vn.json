@@ -47,7 +47,6 @@
 			"search": "Tìm nhanh",
 			"add": "Thêm",
 			"save": "Lưu",
-			"edit": "Sửa",
 			"clear": "Xóa Trắng",
 			"delete": "Xóa",
 			"clearFilter": "Xóa lọc",
@@ -64,7 +63,11 @@
 			"error": "Lỗi",
 			"nhapUrl": "Nhập URL",
 			"tieuDeNhapUrl": "Nhập URL ảnh",
-			"urlGoiY": "Dán liên kết ảnh (https://...)"
+			"urlGoiY": "Dán liên kết ảnh (https://...)",
+			"notFound": "Không tìm thấy dữ liệu.",
+			"notLoggedIn": "Phiên đăng nhập không hợp lệ.",
+			"confirmClear": "Bạn có thay đổi chưa lưu. Xóa trắng form?",
+			"cancel": "Hủy"
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -396,13 +399,9 @@
 		    "chuaChonDongXoa": "Vui lòng chọn dòng chi tiết cần xóa.",
 		    "xacNhanXoa": "Bạn có chắc chắn muốn xóa phiếu nhập này không?",
 		    "tieuDeXoa": "Xác nhận xóa phiếu nhập",
-		    "xacNhanHoanTat": "Xác nhận hoàn tất",
-		    "xacNhanHoanTatMsg": "Bạn có chắc chắn muốn xác nhận hoàn tất phiếu nhập này không? Thao tác này sẽ cập nhật tồn kho.",
-		    "tieuDeXacNhan": "Xác nhận phiếu nhập",
-		    "hoanTatThanhCong": "Phiếu nhập đã được xác nhận hoàn tất!",
-			"loiTrungPhuTungTienTo": "Phụ tùng này đã có tại dòng ",
-			"loiTrungPhuTungHauTo": "! Vui lòng chỉnh sửa số lượng tại dòng đó.",
-			"daThemTatCaPhuTung": "Tất cả phụ tùng hiện có đã được thêm vào phiếu! Vui lòng chỉnh sửa số lượng trên bảng.",
+		    "chonPhuTung": "Chọn phụ tùng",
+		    "timPhuTung": "Tìm theo mã hoặc tên",
+		    "khongCoPhuTungPhuHop": "Không tìm thấy phụ tùng phù hợp.",
 			"taoPhieuMoi": "Lập phiếu mới",
 			"thaoTac": "Thao tác"
 		},

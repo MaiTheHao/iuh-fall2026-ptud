@@ -47,7 +47,6 @@
 			"search": "Quick search",
 			"add": "Add",
 			"save": "Save",
-			"edit": "Edit",
 			"clear": "Clear",
 			"delete": "Delete",
 			"clearFilter": "Clear filters",
@@ -64,7 +63,11 @@
 			"error": "Error",
 			"nhapUrl": "Enter URL",
 			"tieuDeNhapUrl": "Enter image URL",
-			"urlGoiY": "Paste image link (https://...)"
+			"urlGoiY": "Paste image link (https://...)",
+			"notFound": "Data not found.",
+			"notLoggedIn": "Invalid session.",
+			"confirmClear": "You have unsaved changes. Clear the form?",
+			"cancel": "Cancel"
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -396,13 +399,9 @@
 		    "chuaChonDongXoa": "Please select a row to delete.",
 		    "xacNhanXoa": "Are you sure you want to delete this receipt?",
 		    "tieuDeXoa": "Confirm Receipt Deletion",
-		    "xacNhanHoanTat": "Confirm Complete",
-		    "xacNhanHoanTatMsg": "Are you sure you want to finalize this receipt? This will update warehouse inventory.",
-		    "tieuDeXacNhan": "Confirm Receipt",
-		    "hoanTatThanhCong": "Receipt has been successfully completed!",
-			"loiTrungPhuTungTienTo": "This part is already added at row ",
-			"loiTrungPhuTungHauTo": "! Please adjust the quantity on that row.",
-			"daThemTatCaPhuTung": "All available parts have been added to the receipt! Please adjust the quantity in the table.",
+		    "chonPhuTung": "Select part",
+		    "timPhuTung": "Search by code or name",
+		    "khongCoPhuTungPhuHop": "No matching parts found.",
 			"taoPhieuMoi": "Create New Receipt",
 			"thaoTac": "Action"
 		},

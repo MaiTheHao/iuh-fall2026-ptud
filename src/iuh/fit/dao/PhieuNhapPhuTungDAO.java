@@ -11,59 +11,63 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public final class PhieuNhapPhuTungDAO extends BaseDao<PhieuNhapPhuTung> {
 
     private static final String SQL_SELECT = """
-            SELECT maPhieuNhap, ngayTao, maNhanVien, moTa
-            FROM PhieuNhapPhuTung
+            SELECT p.maPhieuNhap, p.ngayTao, p.maNhanVien, p.moTa
+            FROM PhieuNhapPhuTung p
             """;
 
-    public Optional<PhieuNhapPhuTung> findById(String maPhieuNhap) throws SQLException {
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            Optional<PhieuNhapPhuTung> found = findOne(connection, SQL_SELECT + " WHERE maPhieuNhap = ?", maPhieuNhap);
-            if (found.isEmpty()) {
-                return Optional.empty();
-            }
-            PhieuNhapPhuTung phieu = found.get();
-            phieu.setDanhSachChiTietPhieuNhap(loadChiTiet(connection, maPhieuNhap));
-            return Optional.of(phieu);
-        }
-    }
+    private static final String SQL_FIND_ALL = """
+            SELECT p.maPhieuNhap, p.ngayTao, p.maNhanVien, p.moTa,
+                   ct.maPhuTung, ct.soLuong, ct.donGiaNhap
+            FROM PhieuNhapPhuTung p
+            LEFT JOIN ChiTietPhieuNhapPhuTung ct ON ct.maPhieuNhap = p.maPhieuNhap
+            """;
 
     public List<PhieuNhapPhuTung> findAll() throws SQLException {
-        List<PhieuNhapPhuTung> list = findAll(SQL_SELECT);
-        if (list.isEmpty()) {
-            return list;
-        }
+        Map<String, PhieuNhapPhuTung> map = new LinkedHashMap<>();
+        try (Connection connection = DatabaseConfig.getConnection();
+                PreparedStatement ps = connection.prepareStatement(SQL_FIND_ALL);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String maPhieuNhap = rs.getString("maPhieuNhap");
+                PhieuNhapPhuTung phieu = map.get(maPhieuNhap);
+                if (phieu == null) {
+                    phieu = this.mapRow(rs);
+                    map.put(maPhieuNhap, phieu);
+                }
 
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            for (PhieuNhapPhuTung phieu : list) {
-                phieu.setDanhSachChiTietPhieuNhap(loadChiTiet(connection, phieu.getMaPhieuNhap()));
+                if (rs.getString("maPhuTung") != null) {
+                    ChiTietPhieuNhapPhuTung chiTiet = new ChiTietPhieuNhapPhuTung();
+                    chiTiet.setMaPhieuNhap(maPhieuNhap);
+                    chiTiet.setMaPhuTung(rs.getString("maPhuTung"));
+                    chiTiet.setSoLuong(rs.getInt("soLuong"));
+                    chiTiet.setDonGiaNhap(rs.getDouble("donGiaNhap"));
+                    phieu.getDanhSachChiTietPhieuNhap().add(chiTiet);
+                }
             }
         }
-        return list;
+        return new ArrayList<>(map.values());
     }
 
-    public boolean existsById(String maPhieuNhap) throws SQLException {
-        String sql = """
-                SELECT 1 FROM PhieuNhapPhuTung
-                WHERE maPhieuNhap = ?
-                """;
-
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maPhieuNhap);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
+    public Optional<PhieuNhapPhuTung> findById(TransactionScope scope, String maPhieuNhap) throws SQLException {
+        Optional<PhieuNhapPhuTung> found = this.findOne(scope, SQL_SELECT + " WHERE p.maPhieuNhap = ?", maPhieuNhap);
+        if (found.isEmpty()) {
+            return Optional.empty();
         }
+        PhieuNhapPhuTung phieu = found.get();
+        phieu.setDanhSachChiTietPhieuNhap(this.loadChiTiet(scope.getConnection(), maPhieuNhap));
+        return Optional.of(phieu);
     }
 
-    public boolean insert(PhieuNhapPhuTung phieu, List<ChiTietPhieuNhapPhuTung> chiTiets) throws SQLException {
+    public boolean insert(TransactionScope scope, PhieuNhapPhuTung phieu, List<ChiTietPhieuNhapPhuTung> chiTiets)
+            throws SQLException {
         String sqlPhieu = """
                 INSERT INTO PhieuNhapPhuTung (maPhieuNhap, ngayTao, maNhanVien, moTa)
                 VALUES (?, ?, ?, ?)
@@ -73,99 +77,32 @@ public final class PhieuNhapPhuTungDAO extends BaseDao<PhieuNhapPhuTung> {
                 VALUES (?, ?, ?, ?)
                 """;
 
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            boolean autoCommit = connection.getAutoCommit();
-            try {
-                connection.setAutoCommit(false);
+        try (PreparedStatement psPhieu = scope.getConnection().prepareStatement(sqlPhieu)) {
+            psPhieu.setString(1, phieu.getMaPhieuNhap());
+            psPhieu.setTimestamp(2,
+                    Timestamp.valueOf(phieu.getNgayTao() != null ? phieu.getNgayTao() : LocalDateTime.now()));
+            psPhieu.setString(3, phieu.getMaNhanVien());
+            psPhieu.setString(4, phieu.getMoTa());
+            psPhieu.executeUpdate();
+        }
 
-                try (PreparedStatement psPhieu = connection.prepareStatement(sqlPhieu)) {
-                    psPhieu.setString(1, phieu.getMaPhieuNhap());
-                    psPhieu.setTimestamp(2, Timestamp.valueOf(phieu.getNgayTao() != null ? phieu.getNgayTao() : LocalDateTime.now()));
-                    psPhieu.setString(3, phieu.getMaNhanVien());
-                    psPhieu.setString(4, phieu.getMoTa());
-                    psPhieu.executeUpdate();
+        if (chiTiets != null && !chiTiets.isEmpty()) {
+            try (PreparedStatement psChiTiet = scope.getConnection().prepareStatement(sqlChiTiet)) {
+                for (ChiTietPhieuNhapPhuTung ct : chiTiets) {
+                    psChiTiet.setString(1, phieu.getMaPhieuNhap());
+                    psChiTiet.setString(2, ct.getMaPhuTung());
+                    psChiTiet.setInt(3, ct.getSoLuong());
+                    psChiTiet.setDouble(4, ct.getDonGiaNhap());
+                    psChiTiet.addBatch();
                 }
-
-                if (chiTiets != null && !chiTiets.isEmpty()) {
-                    try (PreparedStatement psChiTiet = connection.prepareStatement(sqlChiTiet)) {
-                        for (ChiTietPhieuNhapPhuTung ct : chiTiets) {
-                            psChiTiet.setString(1, phieu.getMaPhieuNhap());
-                            psChiTiet.setString(2, ct.getMaPhuTung());
-                            psChiTiet.setInt(3, ct.getSoLuong());
-                            psChiTiet.setDouble(4, ct.getDonGiaNhap());
-                            psChiTiet.addBatch();
-                        }
-                        psChiTiet.executeBatch();
-                    }
-                }
-
-                connection.commit();
-                return true;
-            } catch (SQLException e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                connection.setAutoCommit(autoCommit);
+                psChiTiet.executeBatch();
             }
         }
+
+        return true;
     }
 
-    public boolean update(PhieuNhapPhuTung phieu, List<ChiTietPhieuNhapPhuTung> chiTiets) throws SQLException {
-        String sqlCapNhatPhieu = """
-                UPDATE PhieuNhapPhuTung
-                SET moTa = ?
-                WHERE maPhieuNhap = ?
-                """;
-        String sqlXoaChiTiet = """
-                DELETE FROM ChiTietPhieuNhapPhuTung
-                WHERE maPhieuNhap = ?
-                """;
-        String sqlThemChiTiet = """
-                INSERT INTO ChiTietPhieuNhapPhuTung (maPhieuNhap, maPhuTung, soLuong, donGiaNhap)
-                VALUES (?, ?, ?, ?)
-                """;
-
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            boolean autoCommit = connection.getAutoCommit();
-            try {
-                connection.setAutoCommit(false);
-
-                try (PreparedStatement psPhieu = connection.prepareStatement(sqlCapNhatPhieu)) {
-                    psPhieu.setString(1, phieu.getMoTa());
-                    psPhieu.setString(2, phieu.getMaPhieuNhap());
-                    psPhieu.executeUpdate();
-                }
-
-                try (PreparedStatement psXoa = connection.prepareStatement(sqlXoaChiTiet)) {
-                    psXoa.setString(1, phieu.getMaPhieuNhap());
-                    psXoa.executeUpdate();
-                }
-
-                if (chiTiets != null && !chiTiets.isEmpty()) {
-                    try (PreparedStatement psChiTiet = connection.prepareStatement(sqlThemChiTiet)) {
-                        for (ChiTietPhieuNhapPhuTung ct : chiTiets) {
-                            psChiTiet.setString(1, phieu.getMaPhieuNhap());
-                            psChiTiet.setString(2, ct.getMaPhuTung());
-                            psChiTiet.setInt(3, ct.getSoLuong());
-                            psChiTiet.setDouble(4, ct.getDonGiaNhap());
-                            psChiTiet.addBatch();
-                        }
-                        psChiTiet.executeBatch();
-                    }
-                }
-
-                connection.commit();
-                return true;
-            } catch (SQLException e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                connection.setAutoCommit(autoCommit);
-            }
-        }
-    }
-
-    public boolean delete(String maPhieuNhap) throws SQLException {
+    public boolean delete(TransactionScope scope, String maPhieuNhap) throws SQLException {
         String sqlXoaChiTiet = """
                 DELETE FROM ChiTietPhieuNhapPhuTung
                 WHERE maPhieuNhap = ?
@@ -175,30 +112,14 @@ public final class PhieuNhapPhuTungDAO extends BaseDao<PhieuNhapPhuTung> {
                 WHERE maPhieuNhap = ?
                 """;
 
-        try (Connection connection = DatabaseConfig.getConnection()) {
-            boolean autoCommit = connection.getAutoCommit();
-            try {
-                connection.setAutoCommit(false);
+        try (PreparedStatement psChiTiet = scope.getConnection().prepareStatement(sqlXoaChiTiet)) {
+            psChiTiet.setString(1, maPhieuNhap);
+            psChiTiet.executeUpdate();
+        }
 
-                try (PreparedStatement psChiTiet = connection.prepareStatement(sqlXoaChiTiet)) {
-                    psChiTiet.setString(1, maPhieuNhap);
-                    psChiTiet.executeUpdate();
-                }
-
-                int affected;
-                try (PreparedStatement psPhieu = connection.prepareStatement(sqlXoaPhieu)) {
-                    psPhieu.setString(1, maPhieuNhap);
-                    affected = psPhieu.executeUpdate();
-                }
-
-                connection.commit();
-                return affected > 0;
-            } catch (SQLException e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                connection.setAutoCommit(autoCommit);
-            }
+        try (PreparedStatement psPhieu = scope.getConnection().prepareStatement(sqlXoaPhieu)) {
+            psPhieu.setString(1, maPhieuNhap);
+            return psPhieu.executeUpdate() > 0;
         }
     }
 

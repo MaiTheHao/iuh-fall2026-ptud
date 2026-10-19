@@ -1,45 +1,40 @@
 package iuh.fit.service;
 
+import iuh.fit.core.context.AppContext;
 import iuh.fit.dao.PhieuNhapPhuTungDAO;
+import iuh.fit.dao.TransactionScope;
 import iuh.fit.dto.DanhSachCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.ChiTietPhieuNhapPhuTung;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhieuNhapPhuTung;
-import iuh.fit.enumeration.VaiTro;
 import iuh.fit.util.MaGeneratorUtil;
+import iuh.fit.util.MaRetryUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class PhieuNhapPhuTungService {
 
 	private final PhieuNhapPhuTungDAO phieuNhapDAO = new PhieuNhapPhuTungDAO();
 	private final PhuTungService phuTungService = new PhuTungService();
-	private final NhanVienService nhanVienService = new NhanVienService();
 
 	private static final String ERROR_DATA = "app.phieuNhap.loiDongNhapLieu";
-	private static final String ERROR_EMPLOYEE_REQUIRED = "app.phieuNhap.thuKho";
-	private static final String ERROR_EMPLOYEE_ROLE = "app.phieuNhap.loiVaiTroThuKho";
 	private static final String ERROR_DESCRIPTION = "app.phieuNhap.loiMoTa";
 	private static final String ERROR_DETAILS_EMPTY = "app.phieuNhap.loiTrongChiTiet";
 	private static final String ERROR_PART_REQUIRED = "app.phieuNhap.loiPhuTung";
 	private static final String ERROR_QUANTITY = "app.phieuNhap.loiSoLuong";
 	private static final String ERROR_PRICE = "app.phieuNhap.loiDonGia";
 	private static final String ERROR_ID_REQUIRED = "app.phieuNhap.chuaChonXoa";
-	private static final String ERROR_NOT_FOUND = "app.phieuNhap.khongTimThay";
-
-	public PaginatedResult<PhieuNhapPhuTung> getAll(int page, int pageSize) throws SQLException {
-		return PaginatedResult.of(this.phieuNhapDAO.findAll(), page, pageSize);
-	}
+	private static final String ERROR_NOT_FOUND = "app.common.notFound";
+	private static final String ERROR_NOT_LOGGED_IN = "app.common.notLoggedIn";
 
 	public PaginatedResult<PhieuNhapPhuTung> search(DanhSachCriteria criteria, String tuKhoa, String maPhieuFilter,
 			String maThuKhoFilter, String moTaFilter, LocalDate fromDate, LocalDate toDate, Double minCost,
@@ -56,7 +51,7 @@ public class PhieuNhapPhuTungService {
 		String fMoTa = (moTaFilter != null && !moTaFilter.isBlank()) ? TextNormalizerUtil.normalize(moTaFilter.trim())
 				: null;
 
-		List<PhieuNhapPhuTung> matched = all.stream().filter(item -> {
+		List<PhieuNhapPhuTung> matched = new ArrayList<>(all.stream().filter(item -> {
 			String maPhieu = TextNormalizerUtil.normalize(item.getMaPhieuNhap());
 			String maNV = item.getMaNhanVien() != null ? TextNormalizerUtil.normalize(item.getMaNhanVien()) : "";
 			String moTa = item.getMoTa() != null ? TextNormalizerUtil.normalize(item.getMoTa()) : "";
@@ -88,7 +83,11 @@ public class PhieuNhapPhuTungService {
 			}
 
 			return true;
-		}).toList();
+		}).toList());
+
+		matched.sort(Comparator.comparing(PhieuNhapPhuTung::getNgayTao,
+				Comparator.nullsLast(Comparator.reverseOrder()))
+				.thenComparing(PhieuNhapPhuTung::getMaPhieuNhap, Comparator.reverseOrder()));
 
 		int page = criteria != null ? criteria.page() : 1;
 		int pageSize = criteria != null ? criteria.pageSize() : 10;
@@ -107,59 +106,32 @@ public class PhieuNhapPhuTungService {
 		return tong;
 	}
 
-	public Optional<PhieuNhapPhuTung> getById(String maPhieuNhap) throws SQLException {
-		return (maPhieuNhap == null || maPhieuNhap.isBlank()) ? Optional.empty()
-				: this.phieuNhapDAO.findById(maPhieuNhap.trim());
-	}
-
-	public boolean create(PhieuNhapPhuTung phieu, List<ChiTietPhieuNhapPhuTung> chiTiets, boolean hoanTat)
-			throws SQLException {
+	public boolean create(PhieuNhapPhuTung phieu, List<ChiTietPhieuNhapPhuTung> chiTiets) throws SQLException {
 		this.validate(phieu, chiTiets);
-		List<ChiTietPhieuNhapPhuTung> danhSachGop = this.gopChiTietTrung(chiTiets);
-
-		String datePrefix = "PN" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		List<String> existingIds = this.phieuNhapDAO.findAll().stream().map(PhieuNhapPhuTung::getMaPhieuNhap).toList();
-		String maPhieuMoi = MaGeneratorUtil.sinhMa("PN", LocalDateTime.now());
-
-		phieu.setMaPhieuNhap(maPhieuMoi);
-		phieu.setNgayTao(LocalDateTime.now());
 		phieu.setMoTa(phieu.getMoTa().trim());
-
-		danhSachGop.forEach(ct -> ct.setMaPhieuNhap(maPhieuMoi));
-
-		boolean success = this.phieuNhapDAO.insert(phieu, danhSachGop);
-		if (success && hoanTat) {
-			for (ChiTietPhieuNhapPhuTung ct : danhSachGop) {
-				this.phuTungService.increaseStock(ct.getMaPhuTung(), ct.getSoLuong());
-			}
-		}
-		return success;
-	}
-
-	public boolean update(PhieuNhapPhuTung phieu, List<ChiTietPhieuNhapPhuTung> chiTiets, boolean hoanTat)
-			throws SQLException {
-		if (phieu == null || phieu.getMaPhieuNhap() == null || phieu.getMaPhieuNhap().isBlank()) {
-			throw new IllegalArgumentException(ERROR_ID_REQUIRED);
-		}
-
-		String ma = phieu.getMaPhieuNhap().trim();
-		if (!this.phieuNhapDAO.existsById(ma)) {
-			throw new IllegalArgumentException(ERROR_NOT_FOUND);
-		}
-
-		this.validate(phieu, chiTiets);
 		List<ChiTietPhieuNhapPhuTung> danhSachGop = this.gopChiTietTrung(chiTiets);
-		danhSachGop.forEach(ct -> ct.setMaPhieuNhap(ma));
-
-		phieu.setMoTa(phieu.getMoTa().trim());
-
-		boolean success = this.phieuNhapDAO.update(phieu, danhSachGop);
-		if (success && hoanTat) {
-			for (ChiTietPhieuNhapPhuTung ct : danhSachGop) {
-				this.phuTungService.increaseStock(ct.getMaPhuTung(), ct.getSoLuong());
-			}
+		NhanVien user = AppContext.getInstance().getCurrentUser();
+		if (user == null || user.getMaNhanVien() == null || user.getMaNhanVien().isBlank()) {
+			throw new IllegalArgumentException(ERROR_NOT_LOGGED_IN);
 		}
-		return success;
+
+		LocalDateTime now = LocalDateTime.now();
+		MaRetryUtil.thucHien(lan -> {
+			LocalDateTime thoiDiem = now.plusSeconds(lan);
+			phieu.setNgayTao(thoiDiem);
+			return MaGeneratorUtil.sinhMa("PN", thoiDiem);
+		}, ma -> {
+			phieu.setMaPhieuNhap(ma);
+			phieu.setMaNhanVien(user.getMaNhanVien());
+			try (TransactionScope scope = TransactionScope.begin()) {
+				this.phieuNhapDAO.insert(scope, phieu, danhSachGop);
+				for (ChiTietPhieuNhapPhuTung ct : danhSachGop) {
+					this.phuTungService.increaseStock(scope, ct.getMaPhuTung(), ct.getSoLuong());
+				}
+				scope.commit();
+			}
+		});
+		return true;
 	}
 
 	public boolean delete(String maPhieuNhap) throws SQLException {
@@ -168,10 +140,18 @@ public class PhieuNhapPhuTungService {
 		}
 
 		String ma = maPhieuNhap.trim();
-		if (!this.phieuNhapDAO.existsById(ma)) {
-			throw new IllegalArgumentException(ERROR_NOT_FOUND);
+		try (TransactionScope scope = TransactionScope.begin()) {
+			PhieuNhapPhuTung existing = this.phieuNhapDAO.findById(scope, ma)
+					.orElseThrow(() -> new IllegalArgumentException(ERROR_NOT_FOUND));
+			for (ChiTietPhieuNhapPhuTung ct : existing.getDanhSachChiTietPhieuNhap()) {
+				this.phuTungService.decreaseStock(scope, ct.getMaPhuTung(), ct.getSoLuong());
+			}
+			if (!this.phieuNhapDAO.delete(scope, ma)) {
+				throw new IllegalArgumentException(ERROR_NOT_FOUND);
+			}
+			scope.commit();
 		}
-		return this.phieuNhapDAO.delete(ma);
+		return true;
 	}
 
 	private List<ChiTietPhieuNhapPhuTung> gopChiTietTrung(List<ChiTietPhieuNhapPhuTung> chiTiets) {
@@ -193,19 +173,10 @@ public class PhieuNhapPhuTungService {
 		return new ArrayList<>(map.values());
 	}
 
-	private void validate(PhieuNhapPhuTung phieu, List<ChiTietPhieuNhapPhuTung> chiTiets) throws SQLException {
+	private void validate(PhieuNhapPhuTung phieu, List<ChiTietPhieuNhapPhuTung> chiTiets) {
 		if (phieu == null) {
 			throw new IllegalArgumentException(ERROR_DATA);
 		}
-		if (phieu.getMaNhanVien() == null || phieu.getMaNhanVien().isBlank()) {
-			throw new IllegalArgumentException(ERROR_EMPLOYEE_REQUIRED);
-		}
-
-		NhanVien nv = this.nhanVienService.getById(phieu.getMaNhanVien().trim());
-		if (nv == null || nv.getVaiTro() != VaiTro.NHAN_VIEN_QUAN_LY) {
-			throw new IllegalArgumentException(ERROR_EMPLOYEE_ROLE);
-		}
-
 		if (phieu.getMoTa() == null || phieu.getMoTa().isBlank()) {
 			throw new IllegalArgumentException(ERROR_DESCRIPTION);
 		}
@@ -220,7 +191,7 @@ public class PhieuNhapPhuTungService {
 			if (ct.getSoLuong() <= 0) {
 				throw new IllegalArgumentException(ERROR_QUANTITY);
 			}
-			if (ct.getDonGiaNhap() == null || ct.getDonGiaNhap() < 0) {
+			if (ct.getDonGiaNhap() == null || !Double.isFinite(ct.getDonGiaNhap()) || ct.getDonGiaNhap() < 0) {
 				throw new IllegalArgumentException(ERROR_PRICE);
 			}
 		}

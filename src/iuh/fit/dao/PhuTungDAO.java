@@ -86,18 +86,29 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
         }
     }
 
-    public boolean increaseStock(String maPhuTung, int soLuong)
-            throws SQLException {
-
+    public boolean increaseStock(TransactionScope scope, String maPhuTung, int soLuong) throws SQLException {
         String sql = """
                 UPDATE PhuTung
                 SET soLuongTon = soLuongTon + ?
                 WHERE maPhuTung = ?
                 """;
 
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, soLuong);
+            ps.setString(2, maPhuTung);
 
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public boolean decreaseStock(TransactionScope scope, String maPhuTung, int soLuong) throws SQLException {
+        String sql = """
+                UPDATE PhuTung
+                SET soLuongTon = soLuongTon - ?
+                WHERE maPhuTung = ?
+                """;
+
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             ps.setInt(1, soLuong);
             ps.setString(2, maPhuTung);
 

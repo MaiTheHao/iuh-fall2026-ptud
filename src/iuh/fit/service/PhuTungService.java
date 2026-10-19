@@ -1,6 +1,7 @@
 package iuh.fit.service;
 
 import iuh.fit.dao.PhuTungDAO;
+import iuh.fit.dao.TransactionScope;
 import iuh.fit.dto.DanhSachPhuTungCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.PhuTung;
@@ -9,6 +10,8 @@ import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,13 +85,30 @@ public class PhuTungService {
         this.phuTungDAO.delete(maPhuTung);
     }
 
-    public void increaseStock(String maPhuTung, int soLuong) throws SQLException {
+    public List<PhuTung> getAllForSelection() throws SQLException {
+        List<PhuTung> list = new ArrayList<>(this.phuTungDAO.findAll());
+        list.sort(Comparator.comparing(PhuTung::getMaPhuTung));
+        return list;
+    }
+
+    public void increaseStock(TransactionScope scope, String maPhuTung, int soLuong) throws SQLException {
 
         if (maPhuTung == null || maPhuTung.isBlank() || soLuong <= 0) {
             throw new IllegalArgumentException(ERROR_QUANTITY);
         }
 
-        if (!this.phuTungDAO.increaseStock(maPhuTung, soLuong)) {
+        if (!this.phuTungDAO.increaseStock(scope, maPhuTung, soLuong)) {
+            throw new IllegalArgumentException(ERROR_ID);
+        }
+    }
+
+    public void decreaseStock(TransactionScope scope, String maPhuTung, int soLuong) throws SQLException {
+
+        if (maPhuTung == null || maPhuTung.isBlank() || soLuong <= 0) {
+            throw new IllegalArgumentException(ERROR_QUANTITY);
+        }
+
+        if (!this.phuTungDAO.decreaseStock(scope, maPhuTung, soLuong)) {
             throw new IllegalArgumentException(ERROR_ID);
         }
     }
