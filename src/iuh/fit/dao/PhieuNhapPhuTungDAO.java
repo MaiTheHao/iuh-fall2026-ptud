@@ -34,7 +34,17 @@ public final class PhieuNhapPhuTungDAO extends BaseDao<PhieuNhapPhuTung> {
     }
 
     public List<PhieuNhapPhuTung> findAll() throws SQLException {
-        return findAll(SQL_SELECT);
+        List<PhieuNhapPhuTung> list = findAll(SQL_SELECT);
+        if (list.isEmpty()) {
+            return list;
+        }
+
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            for (PhieuNhapPhuTung phieu : list) {
+                phieu.setDanhSachChiTietPhieuNhap(loadChiTiet(connection, phieu.getMaPhieuNhap()));
+            }
+        }
+        return list;
     }
 
     public boolean existsById(String maPhieuNhap) throws SQLException {
@@ -78,6 +88,61 @@ public final class PhieuNhapPhuTungDAO extends BaseDao<PhieuNhapPhuTung> {
 
                 if (chiTiets != null && !chiTiets.isEmpty()) {
                     try (PreparedStatement psChiTiet = connection.prepareStatement(sqlChiTiet)) {
+                        for (ChiTietPhieuNhapPhuTung ct : chiTiets) {
+                            psChiTiet.setString(1, phieu.getMaPhieuNhap());
+                            psChiTiet.setString(2, ct.getMaPhuTung());
+                            psChiTiet.setInt(3, ct.getSoLuong());
+                            psChiTiet.setDouble(4, ct.getDonGiaNhap());
+                            psChiTiet.addBatch();
+                        }
+                        psChiTiet.executeBatch();
+                    }
+                }
+
+                connection.commit();
+                return true;
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(autoCommit);
+            }
+        }
+    }
+
+    public boolean update(PhieuNhapPhuTung phieu, List<ChiTietPhieuNhapPhuTung> chiTiets) throws SQLException {
+        String sqlCapNhatPhieu = """
+                UPDATE PhieuNhapPhuTung
+                SET moTa = ?
+                WHERE maPhieuNhap = ?
+                """;
+        String sqlXoaChiTiet = """
+                DELETE FROM ChiTietPhieuNhapPhuTung
+                WHERE maPhieuNhap = ?
+                """;
+        String sqlThemChiTiet = """
+                INSERT INTO ChiTietPhieuNhapPhuTung (maPhieuNhap, maPhuTung, soLuong, donGiaNhap)
+                VALUES (?, ?, ?, ?)
+                """;
+
+        try (Connection connection = DatabaseConfig.getConnection()) {
+            boolean autoCommit = connection.getAutoCommit();
+            try {
+                connection.setAutoCommit(false);
+
+                try (PreparedStatement psPhieu = connection.prepareStatement(sqlCapNhatPhieu)) {
+                    psPhieu.setString(1, phieu.getMoTa());
+                    psPhieu.setString(2, phieu.getMaPhieuNhap());
+                    psPhieu.executeUpdate();
+                }
+
+                try (PreparedStatement psXoa = connection.prepareStatement(sqlXoaChiTiet)) {
+                    psXoa.setString(1, phieu.getMaPhieuNhap());
+                    psXoa.executeUpdate();
+                }
+
+                if (chiTiets != null && !chiTiets.isEmpty()) {
+                    try (PreparedStatement psChiTiet = connection.prepareStatement(sqlThemChiTiet)) {
                         for (ChiTietPhieuNhapPhuTung ct : chiTiets) {
                             psChiTiet.setString(1, phieu.getMaPhieuNhap());
                             psChiTiet.setString(2, ct.getMaPhuTung());
