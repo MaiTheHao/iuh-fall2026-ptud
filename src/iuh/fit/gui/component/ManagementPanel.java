@@ -325,6 +325,19 @@ public class ManagementPanel extends JPanel {
         this.model.setColumnIdentifiers(headers);
     }
 
+    public void addActionColumn(String headerKey, ThaoTac... dsThaoTac) {
+        if (dsThaoTac == null || dsThaoTac.length == 0) {
+            return;
+        }
+
+        this.model.addColumn(I18nReaderUtil.get(headerKey));
+
+        int cotModel = this.model.getColumnCount() - 1;
+        int cotView = this.table.convertColumnIndexToView(cotModel);
+
+        ThaoTacTableCellRenderer.ganVao(this.table, cotView, List.of(dsThaoTac));
+    }
+
     public void setRows(List<Object[]> rows) {
         this.model.setRowCount(0);
         for (Object[] row : rows) {

@@ -9,6 +9,7 @@ import iuh.fit.gui.component.AnhField;
 import iuh.fit.gui.component.AnhTableCellRenderer;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.DichVuService;
@@ -76,6 +77,12 @@ public class DichVuPage extends AbstractPage {
                 I18nReaderUtil.get("app.dichVu.donGia")
         );
 
+        this.panel.addActionColumn("app.common.actions",
+                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.sua(row)),
+                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.xoa(row)));
+
         this.form = new ManagementFormPanel("app.dichVu.thongTinTitle");
 
         this.khoiTaoForm();
@@ -137,7 +144,7 @@ public class DichVuPage extends AbstractPage {
 
     private void ganSuKien() {
         this.form.getNutThem().addActionListener(
-                e -> this.lamMoi()
+                e -> this.them()
         );
 
         this.form.getNutLuu().addActionListener(
@@ -149,7 +156,7 @@ public class DichVuPage extends AbstractPage {
         );
 
         this.form.getNutXoa().addActionListener(
-                e -> this.xoa()
+                e -> this.xoa(this.panel.getSelectedRow())
         );
 
         this.panel.getClearFilterButton().addActionListener(
@@ -319,17 +326,47 @@ public class DichVuPage extends AbstractPage {
         }
     }
 
-    private void luu() {
-        DichVuFormData data = this.getFormData();
-        this.validateFormData(data);
-
-        DichVu dichVu = new DichVu(
+    private DichVu taoDichVu(DichVuFormData data) {
+        return new DichVu(
                 data.maDichVu(),
                 data.tenDichVu(),
                 data.moTa(),
                 data.anhUrl(),
                 data.donGia()
         );
+    }
+
+    private void them() {
+        DichVuFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        try {
+            this.dichVuService.create(this.taoDichVu(data));
+
+            ThongBao.thongTin(
+                    this,
+                    "app.common.create_succeed"
+            );
+
+            this.lamMoi();
+            this.taiLai(this.panel, 1);
+
+        } catch (IllegalArgumentException e) {
+            ThongBao.loi(this, e);
+
+        } catch (SQLException e) {
+            ThongBao.loi(
+                    this,
+                    "app.login.errorSystem"
+            );
+        }
+    }
+
+    private void luu() {
+        DichVuFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        DichVu dichVu = this.taoDichVu(data);
 
         try {
             if (data.maDichVu() == null) {
@@ -362,9 +399,12 @@ public class DichVuPage extends AbstractPage {
         }
     }
 
-    private void xoa() {
-        int row = this.panel.getSelectedRow();
+    private void sua(int row) {
+        this.chonDong();
+        this.tenField.requestFocusInWindow();
+    }
 
+    private void xoa(int row) {
         if (row < 0) {
             ThongBao.loi(this, "app.dichVu.chuaChonXoa");
             return;

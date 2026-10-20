@@ -50,6 +50,8 @@
 			"save": "Save",
 			"clear": "Clear",
 			"delete": "Delete",
+			"actions": "Action",
+			"edit": "Edit",
 			"clearFilter": "Clear filters",
 			"all": "All",
 			"prev": "‹ Prev",
@@ -428,7 +430,6 @@
 			"bienSo": "License Plate",
 			"khachHang": "Customer",
 			"trangThai": "Status",
-			"thaoTac": "Action",
 			"chon": "Select",
 			"loiTaiDanhSach": "Failed to load intake slips."
 		},

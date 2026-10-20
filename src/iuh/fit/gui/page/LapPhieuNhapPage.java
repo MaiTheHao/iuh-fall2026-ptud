@@ -7,6 +7,8 @@ import iuh.fit.entity.PhieuNhapPhuTung;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ChonPhuTungDialog;
+import iuh.fit.gui.component.ThaoTac;
+import iuh.fit.gui.component.ThaoTacTableCellRenderer;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuNhapPhuTungService;
@@ -176,7 +178,7 @@ public class LapPhieuNhapPage extends AbstractPage {
 
 		String[] headers = { "#", I18nReaderUtil.get("app.phuTung.ma"), I18nReaderUtil.get("app.phuTung.ten"),
 				I18nReaderUtil.get("app.phieuNhap.soLuong"), I18nReaderUtil.get("app.phieuNhap.donGia"),
-				I18nReaderUtil.get("app.phieuNhap.thanhTien") };
+				I18nReaderUtil.get("app.phieuNhap.thanhTien"), I18nReaderUtil.get("app.common.actions") };
 
 		this.modelDetails = new DefaultTableModel(headers, 0) {
 			@Override
@@ -191,6 +193,9 @@ public class LapPhieuNhapPage extends AbstractPage {
 				.setCellEditor(new SoNguyenCellEditor("app.phieuNhap.loiSoLuong", true));
 		this.tableDetails.getColumnModel().getColumn(4)
 				.setCellEditor(new SoNguyenCellEditor("app.phieuNhap.loiDonGia", false));
+		ThaoTacTableCellRenderer.ganVao(this.tableDetails, 6, List.of(
+				new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+						row -> this.xoaDong(row))));
 		this.modelDetails.addTableModelListener(e -> this.tinhThanhTienDong(e.getFirstRow(), e.getColumn()));
 
 		panel.add(new JScrollPane(this.tableDetails), BorderLayout.CENTER);
@@ -246,7 +251,15 @@ public class LapPhieuNhapPage extends AbstractPage {
 			return;
 		}
 
-		this.modelDetails.removeRow(selectedRow);
+		this.xoaDong(selectedRow);
+	}
+
+	private void xoaDong(int row) {
+		if (row < 0 || row >= this.modelDetails.getRowCount()) {
+			return;
+		}
+
+		this.modelDetails.removeRow(row);
 		for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
 			this.modelDetails.setValueAt(i + 1, i, 0);
 		}

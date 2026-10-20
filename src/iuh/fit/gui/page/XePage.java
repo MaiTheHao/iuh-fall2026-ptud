@@ -7,6 +7,7 @@ import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.XeService;
@@ -59,6 +60,12 @@ public class XePage extends AbstractPage {
                 I18nReaderUtil.get("app.xe.dongXe"), I18nReaderUtil.get("app.xe.doiXe"),
                 I18nReaderUtil.get("app.xe.odo"));
 
+        panel.addActionColumn("app.common.actions",
+                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.sua(panel, row)),
+                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.xoa(panel, row)));
+
         ManagementFormPanel form = new ManagementFormPanel("app.xe.thongTinTitle");
 
         form.addField("app.xe.bienSo", this.bienSoField);
@@ -74,13 +81,13 @@ public class XePage extends AbstractPage {
         panel.addRangeFilter("app.xe.odoTuDen", 5);
 
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
-        form.getNutThem().addActionListener(e -> this.lamMoi(panel));
+        form.getNutThem().addActionListener(e -> this.them(panel));
 
         form.getNutLuu().addActionListener(e -> this.luu(panel));
 
         form.getNutXoaTrang().addActionListener(e -> this.lamMoi(panel));
 
-        form.getNutXoa().addActionListener(e -> this.xoa(panel));
+        form.getNutXoa().addActionListener(e -> this.xoa(panel, panel.getSelectedRow()));
 
         panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
 
@@ -114,9 +121,12 @@ public class XePage extends AbstractPage {
         this.repaint();
     }
 
-    private void xoa(ManagementPanel panel) {
-        int row = panel.getSelectedRow();
+    private void sua(ManagementPanel panel, int row) {
+        this.chonDong(panel);
+        this.hangXeCombo.requestFocusInWindow();
+    }
 
+    private void xoa(ManagementPanel panel, int row) {
         if (row < 0) {
             ThongBao.canhBao(this, "app.xe.chuaChonXoa");
             return;
@@ -260,22 +270,47 @@ public class XePage extends AbstractPage {
         }
     }
 
+    private Xe taoXe(XeFormData data) {
+        Xe xe = new Xe();
+
+        String bienSo = data.bienSo();
+
+        xe.setBienSo(bienSo.isBlank() ? null : bienSo);
+        xe.setHangXe(data.hangXe());
+        xe.setDongXe(data.dongXe());
+        xe.setDoiXe(data.doiXe());
+        xe.setOdo(data.odo() == null ? 0 : data.odo());
+
+        return xe;
+    }
+
+    private void them(ManagementPanel panel) {
+        try {
+            XeFormData data = this.getFormData();
+            this.validateFormData(data);
+
+            this.xeService.create(this.taoXe(data));
+
+            ThongBao.thongTin(this, "app.common.create_succeed");
+
+            this.lamMoi(panel);
+            this.taiLai(panel, 1);
+
+        } catch (IllegalArgumentException e) {
+            ThongBao.loi(this, e);
+        } catch (SQLException e) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
+    }
+
     private void luu(ManagementPanel panel) {
         try {
             XeFormData data = this.getFormData();
             this.validateFormData(data);
 
-            Xe xe = new Xe();
+            Xe xe = this.taoXe(data);
 
-            String bienSo = data.bienSo();
-
-            xe.setBienSo(bienSo.isBlank() ? null : bienSo);
-            xe.setHangXe(data.hangXe());
-            xe.setDongXe(data.dongXe());
-            xe.setDoiXe(data.doiXe());
-            xe.setOdo(data.odo() == null ? 0 : data.odo());
-
-            if (!this.xeService.existsByBienSo(bienSo)) {
+            if (!this.xeService.existsByBienSo(data.bienSo())) {
                 this.xeService.create(xe);
 
                 ThongBao.thongTin(this, "app.common.create_succeed");

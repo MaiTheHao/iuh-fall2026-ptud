@@ -50,6 +50,8 @@
 			"save": "Lưu",
 			"clear": "Xóa Trắng",
 			"delete": "Xóa",
+			"actions": "Thao tác",
+			"edit": "Sửa",
 			"clearFilter": "Xóa lọc",
 			"all": "Tất cả",
 			"prev": "‹ Trước",
@@ -428,7 +430,6 @@
 			"bienSo": "Biển Số",
 			"khachHang": "Khách Hàng",
 			"trangThai": "Trạng Thái",
-			"thaoTac": "Thao Tác",
 			"chon": "Chọn",
 			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận."
 		},

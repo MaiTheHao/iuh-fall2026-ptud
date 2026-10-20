@@ -11,6 +11,7 @@ import iuh.fit.gui.component.AnhField;
 import iuh.fit.gui.component.AnhTableCellRenderer;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.NhanVienService;
@@ -84,6 +85,12 @@ public class NhanVienPage extends AbstractPage {
                 I18nReaderUtil.get("app.nhanVien.maNhanVien"), I18nReaderUtil.get("app.nhanVien.hoTen"),
                 I18nReaderUtil.get("app.nhanVien.soDienThoai"), I18nReaderUtil.get("app.nhanVien.vaiTro"),
                 I18nReaderUtil.get("app.nhanVien.trangThai"));
+
+        this.managementPanel.addActionColumn("app.common.actions",
+                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.sua(row)),
+                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.xoa(row)));
 
         this.form = new ManagementFormPanel("app.nhanVien.thongTinTitle");
 
@@ -200,13 +207,13 @@ public class NhanVienPage extends AbstractPage {
     // ==================== SỰ KIỆN ====================
 
     private void ganSuKien() {
-        this.form.getNutThem().addActionListener(e -> this.lamMoiForm());
+        this.form.getNutThem().addActionListener(e -> this.them());
 
         this.form.getNutLuu().addActionListener(e -> this.luu());
 
         this.form.getNutXoaTrang().addActionListener(e -> this.lamMoiForm());
 
-        this.form.getNutXoa().addActionListener(e -> this.xoa());
+        this.form.getNutXoa().addActionListener(e -> this.xoa(this.managementPanel.getSelectedRow()));
 
         this.managementPanel.getClearFilterButton().addActionListener(e -> {
             this.trangHienTai = 1;
@@ -376,6 +383,32 @@ public class NhanVienPage extends AbstractPage {
     private void validateFormData(NhanVienFormData data) {
     }
 
+    private void them() {
+        NhanVienFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        String dienThoai = data.soDienThoai().isEmpty() ? null : data.soDienThoai();
+
+        String anh = data.anhDaiDien().isEmpty() ? null : data.anhDaiDien();
+
+        try {
+            NhanVien nv = new NhanVien(data.maNhanVien(), data.tenDangNhap(), data.matKhau(), data.hoTen(),
+                    dienThoai, anh, data.vaiTro(), data.trangThai(), LocalDateTime.now());
+
+            this.nhanVienService.create(nv);
+
+            ThongBao.thongTin(this, "app.nhanVien.themThanhCong");
+
+            this.lamMoiForm();
+
+            this.trangHienTai = 1;
+            this.taiLaiDanhSach();
+
+        } catch (SQLException | IllegalArgumentException ex) {
+            ThongBao.loi(this, ex);
+        }
+    }
+
     private void luu() {
         NhanVienFormData data = this.getFormData();
         this.validateFormData(data);
@@ -421,10 +454,21 @@ public class NhanVienPage extends AbstractPage {
 
     // ==================== XÓA ====================
 
-    private void xoa() {
-        String ma = this.maNhanVienDangSua;
+    private void sua(int row) {
+        this.chonDong();
+        this.txtHoTen.requestFocusInWindow();
+    }
 
-        if (ma == null || ma.isBlank()) {
+    private void xoa(int row) {
+        if (row < 0 || row >= this.managementPanel.getModel().getRowCount()) {
+            ThongBao.loi(this, "app.nhanVien.chonNhanVienCanXoa");
+            return;
+        }
+
+        String ma = String.valueOf(
+                this.managementPanel.getModel().getValueAt(row, 1));
+
+        if (ma.isBlank()) {
             ThongBao.loi(this, "app.nhanVien.chonNhanVienCanXoa");
             return;
         }

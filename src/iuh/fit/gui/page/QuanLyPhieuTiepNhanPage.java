@@ -8,6 +8,7 @@ import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuTiepNhanService;
@@ -76,6 +77,12 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                 I18nReaderUtil.get("app.phieuTiepNhan.trangThai")
         );
 
+        this.managementPanel.addActionColumn("app.common.actions",
+                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.suaPhieuTiepNhan(row)),
+                new ThaoTac("ban", "app.phieuTiepNhan.huyPhieu", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.huyPhieu(row)));
+
         this.managementPanel.addTextFilter("app.phieuTiepNhan.ma", 0);
         this.managementPanel.addTextFilter("app.xe.bienSo", 1);
         this.managementPanel.addTextFilter("app.khachHang.hoTen", 2);
@@ -110,7 +117,8 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         this.form.getNutLuu().setText(I18nReaderUtil.get("app.phieuTiepNhan.luu"));
         this.form.getNutLuu().addActionListener(e -> this.luuPhieuTiepNhan());
         this.form.getNutXoa().setText(I18nReaderUtil.get("app.phieuTiepNhan.huyPhieu"));
-        this.form.getNutXoa().addActionListener(e -> this.huyPhieu());
+        this.form.getNutXoa().addActionListener(
+                e -> this.huyPhieu(this.managementPanel.getSelectedRow()));
         this.form.getNutXoaTrang().setText(I18nReaderUtil.get("app.phieuTiepNhan.xoaTrang"));
         this.form.getNutXoaTrang().addActionListener(e -> this.lamMoiForm());
         this.form.getNutThem().addActionListener(e -> this.goTo(TiepNhanKhachHangPage.class));
@@ -238,11 +246,25 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         }
     }
 
-    private void huyPhieu() {
-        if (this.maPhieuField.getText().trim().isBlank()) {
+    private void suaPhieuTiepNhan(int row) {
+        this.chonDong();
+        this.moTaArea.requestFocusInWindow();
+    }
+
+    private void huyPhieu(int row) {
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
             ThongBao.canhBao(this, "app.phieuTiepNhan.loiMa");
             return;
         }
+
+        PhieuTiepNhanView view = this.danhSachHienTai.get(row);
+
+        if (view.trangThai() == TrangThaiPhieuTiepNhan.DA_HUY) {
+            ThongBao.canhBao(this, "app.phieuTiepNhan.loiTrangThaiCuoi");
+            return;
+        }
+
+        this.chonDong();
 
         if (!ThongBao.xacNhan(this, "app.phieuTiepNhan.xacNhanHuy", "app.phieuTiepNhan.tieuDeHuy")) {
             return;
