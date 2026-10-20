@@ -10,6 +10,7 @@ import iuh.fit.enumeration.TrangThaiKichHoat;
 import iuh.fit.gui.component.BoChonNgayGio;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.VoucherService;
@@ -73,6 +74,12 @@ public class VoucherPage extends AbstractPage {
                 I18nReaderUtil.get("app.voucher.trangThaiKichHoat")
         );
 
+        panel.addActionColumn("app.common.actions",
+                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.sua(panel, row)),
+                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.xoa(panel, row)));
+
         ManagementFormPanel form =
                 new ManagementFormPanel("app.voucher.thongTinTitle");
 
@@ -100,10 +107,10 @@ public class VoucherPage extends AbstractPage {
                 TrangThaiKichHoat.values());
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
 
-        form.getNutThem().addActionListener(e -> this.lamMoi(panel));
+        form.getNutThem().addActionListener(e -> this.them(panel));
         form.getNutLuu().addActionListener(e -> this.luu(panel));
         form.getNutXoaTrang().addActionListener(e -> this.lamMoi(panel));
-        form.getNutXoa().addActionListener(e -> this.xoa(panel));
+        form.getNutXoa().addActionListener(e -> this.xoa(panel, panel.getSelectedRow()));
 
         panel.getClearFilterButton().addActionListener(
                 e -> panel.clearFilters());
@@ -310,17 +317,41 @@ public class VoucherPage extends AbstractPage {
         this.tenChuongTrinhField.requestFocusInWindow();
     }
 
-    private void luu(ManagementPanel panel) {
-        VoucherFormData data = this.getFormData();
-        this.validateFormData(data);
-
-        Voucher voucher = new Voucher(
+    private Voucher taoVoucher(VoucherFormData data) {
+        return new Voucher(
                 data.maVoucher(),
                 data.tenChuongTrinh(),
                 data.moTa(),
                 data.mucGiam(),
                 data.thoiHanApDung(),
-                data.trangThaiKichHoat());
+                data.trangThaiKichHoat()
+        );
+    }
+
+    private void them(ManagementPanel panel) {
+        VoucherFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        try {
+            this.voucherService.create(this.taoVoucher(data));
+            ThongBao.thongTin(this, "app.common.create_succeed");
+
+            this.lamMoi(panel);
+            this.taiLai(panel, 1);
+
+        } catch (IllegalArgumentException e) {
+            ThongBao.loi(this, e);
+
+        } catch (SQLException e) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
+    }
+
+    private void luu(ManagementPanel panel) {
+        VoucherFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        Voucher voucher = this.taoVoucher(data);
 
         try {
             if (data.maVoucher() == null) {
@@ -342,9 +373,12 @@ public class VoucherPage extends AbstractPage {
         }
     }
 
-    private void xoa(ManagementPanel panel) {
-        int row = panel.getSelectedRow();
+    private void sua(ManagementPanel panel, int row) {
+        this.chonDong(panel);
+        this.tenChuongTrinhField.requestFocusInWindow();
+    }
 
+    private void xoa(ManagementPanel panel, int row) {
         try {
             if (row < 0) {
                 throw new IllegalArgumentException(

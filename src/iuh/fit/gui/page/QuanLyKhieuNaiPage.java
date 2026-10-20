@@ -8,6 +8,7 @@ import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiKhieuNai;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.KhieuNaiService;
@@ -76,6 +77,12 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
                 I18nReaderUtil.get("app.khieuNai.ngayTao")
         );
 
+        this.managementPanel.addActionColumn("app.common.actions",
+                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.suaKhieuNai(row)),
+                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.xoaKhieuNai(row)));
+
         this.managementPanel.addTextFilter("app.khieuNai.ma", 0);
         this.managementPanel.addTextFilter("app.khieuNai.khachHang", 1);
         this.managementPanel.addTextFilter("app.khieuNai.phieuTiepNhan", 2);
@@ -107,7 +114,8 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
 
         this.form.getNutThem().addActionListener(e -> this.goTo(TiepNhanKhieuNaiPage.class));
         this.form.getNutLuu().addActionListener(e -> this.luuKhieuNai());
-        this.form.getNutXoa().addActionListener(e -> this.xoaKhieuNai());
+        this.form.getNutXoa().addActionListener(
+                e -> this.xoaKhieuNai(this.managementPanel.getSelectedRow()));
         this.form.getNutXoaTrang().setText(I18nReaderUtil.get("app.khieuNai.xoaTrang"));
         this.form.getNutXoaTrang().addActionListener(e -> this.lamMoiForm());
 
@@ -245,16 +253,20 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
         }
     }
 
-    private void xoaKhieuNai() {
+    private void suaKhieuNai(int row) {
+        this.chonDong();
+        this.noiDungArea.requestFocusInWindow();
+    }
+
+    private void xoaKhieuNai(int row) {
         try {
-            int row = this.managementPanel.getSelectedRow();
-            if (row < 0) {
+            if (row < 0 || row >= this.danhSachHienTai.size()) {
                 ThongBao.canhBao(this, "app.khieuNai.chuaChonXoa");
                 return;
             }
 
-            String maKhieuNai = this.maKhieuNaiField.getText().trim();
-            if (maKhieuNai.isBlank()) {
+            String maKhieuNai = this.danhSachHienTai.get(row).maKhieuNai();
+            if (maKhieuNai == null || maKhieuNai.isBlank()) {
                 ThongBao.canhBao(this, "app.khieuNai.chuaChonXoa");
                 return;
             }

@@ -7,6 +7,7 @@ import iuh.fit.entity.KhachHang;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.KhachHangService;
@@ -51,6 +52,12 @@ public class KhachHangPage extends AbstractPage {
                 I18nReaderUtil.get("app.khachHang.hoTen"),
                 I18nReaderUtil.get("app.khachHang.ngayTao"));
 
+        panel.addActionColumn("app.common.actions",
+                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.sua(panel, row)),
+                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.xoa(panel, row)));
+
         ManagementFormPanel form = new ManagementFormPanel("app.khachHang.thongTinTitle");
 
         Theme.applyReadOnly(this.maField);
@@ -66,10 +73,10 @@ public class KhachHangPage extends AbstractPage {
         panel.addDateRangeFilter("app.khachHang.ngayTao", 3);
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
 
-        form.getNutThem().addActionListener(e -> this.lamMoi(panel));
+        form.getNutThem().addActionListener(e -> this.them(panel));
         form.getNutLuu().addActionListener(e -> this.luu(panel));
         form.getNutXoaTrang().addActionListener(e -> this.lamMoi(panel));
-        form.getNutXoa().addActionListener(e -> this.xoa(panel));
+        form.getNutXoa().addActionListener(e -> this.xoa(panel, panel.getSelectedRow()));
         panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
         panel.getPrevButton().addActionListener(e -> this.taiLai(panel, this.trang - 1));
         panel.getNextButton().addActionListener(e -> this.taiLai(panel, this.trang + 1));
@@ -91,9 +98,12 @@ public class KhachHangPage extends AbstractPage {
         this.repaint();
     }
 
-    private void xoa(ManagementPanel panel) {
-        int row = panel.getSelectedRow();
+    private void sua(ManagementPanel panel, int row) {
+        this.chonDong(panel);
+        this.sdtField.requestFocusInWindow();
+    }
 
+    private void xoa(ManagementPanel panel, int row) {
         try {
             if (row < 0) {
                 throw new IllegalArgumentException(
@@ -188,14 +198,36 @@ public class KhachHangPage extends AbstractPage {
     private void validateFormData(KhachHangFormData data) {
     }
 
-    private void luu(ManagementPanel panel) {
-        KhachHangFormData data = this.getFormData();
-        this.validateFormData(data);
-
+    private KhachHang taoKhachHang(KhachHangFormData data) {
         KhachHang khachHang = new KhachHang();
         khachHang.setMaKhachHang(data.maKhachHang());
         khachHang.setSdt(data.sdt());
         khachHang.setHoTen(data.hoTen());
+
+        return khachHang;
+    }
+
+    private void them(ManagementPanel panel) {
+        KhachHangFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        try {
+            this.khachHangService.create(this.taoKhachHang(data));
+            ThongBao.thongTin(this, "app.common.create_succeed");
+            this.lamMoi(panel);
+            this.taiLai(panel, 1);
+        } catch (IllegalArgumentException e) {
+            ThongBao.loi(this, e);
+        } catch (SQLException e) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
+    }
+
+    private void luu(ManagementPanel panel) {
+        KhachHangFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        KhachHang khachHang = this.taoKhachHang(data);
 
         try {
             if (data.maKhachHang() == null) {

@@ -6,6 +6,7 @@ import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.KhachHangService;
@@ -54,9 +55,12 @@ public class LapChanDoanPage extends AbstractPage {
                 I18nReaderUtil.get("app.chanDoan.ma"),
                 I18nReaderUtil.get("app.chanDoan.bienSo"),
                 I18nReaderUtil.get("app.chanDoan.khachHang"),
-                I18nReaderUtil.get("app.chanDoan.trangThai"),
-                I18nReaderUtil.get("app.chanDoan.thaoTac")
+                I18nReaderUtil.get("app.chanDoan.trangThai")
         );
+
+        this.managementPanel.addActionColumn("app.common.actions",
+                new ThaoTac("check", "app.chanDoan.chon", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.chonPhieu(row)));
 
         this.managementPanel.addComboBoxFilter("app.chanDoan.trangThai", 3, TrangThaiPhieuTiepNhan.values());
         this.managementPanel.setFilterChangeListener(() -> this.taiLaiData(1));
@@ -92,10 +96,7 @@ public class LapChanDoanPage extends AbstractPage {
                 return;
             }
 
-            this.maField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 0)));
-            this.bienSoField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 1)));
-            this.khachHangField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 2)));
-            this.trangThaiField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 3)));
+            this.hienThiDong(row);
         });
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
@@ -142,8 +143,7 @@ public class LapChanDoanPage extends AbstractPage {
                         p.getMaPhieuTiepNhan(),
                         p.getBienSo(),
                         tenKH,
-                        p.getTrangThai() != null ? p.getTrangThai().getI18NBusinessName() : "",
-                        I18nReaderUtil.get("app.chanDoan.chon") // Cột thao tác
+                        p.getTrangThai() != null ? p.getTrangThai().getI18NBusinessName() : ""
                 });
             }
 
@@ -156,6 +156,18 @@ public class LapChanDoanPage extends AbstractPage {
         } catch (Exception e) {
             ThongBao.loi(this, "app.chanDoan.loiTaiDanhSach");
         }
+    }
+
+    private void chonPhieu(int row) {
+        this.managementPanel.getTable().setRowSelectionInterval(row, row);
+        this.hienThiDong(row);
+    }
+
+    private void hienThiDong(int row) {
+        this.maField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 0)));
+        this.bienSoField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 1)));
+        this.khachHangField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 2)));
+        this.trangThaiField.setText(NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 3)));
     }
 
     @Override

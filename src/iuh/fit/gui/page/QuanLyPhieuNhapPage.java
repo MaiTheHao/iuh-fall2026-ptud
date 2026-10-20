@@ -6,6 +6,7 @@ import iuh.fit.entity.PhieuNhapPhuTung;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuNhapPhuTungService;
@@ -14,14 +15,10 @@ import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.BorderLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
@@ -60,9 +57,12 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
                 I18nReaderUtil.get("app.phieuNhap.moTa"),
                 I18nReaderUtil.get("app.phieuNhap.thuKho"),
                 I18nReaderUtil.get("app.phieuNhap.ngayTao"),
-                I18nReaderUtil.get("app.phieuNhap.tongChiPhi"),
-                I18nReaderUtil.get("app.common.delete")
+                I18nReaderUtil.get("app.phieuNhap.tongChiPhi")
         );
+
+        panel.addActionColumn("app.common.actions",
+                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.xoaTheoDong(panel, row)));
 
         panel.addTextFilter("app.phieuNhap.maPhieuNhap", 1);
         panel.addTextFilter("app.phieuNhap.moTa", 2);
@@ -121,7 +121,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setRowHeight(34);
 
-        this.cauHinhCotThaoTac(panel, 6);
         this.taiLai(panel, 1);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, panel);
@@ -132,33 +131,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
         this.revalidate();
         this.repaint();
-    }
-
-    private void cauHinhCotThaoTac(ManagementPanel panel, int colXoa) {
-        JTable table = panel.getTable();
-
-        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
-        renderer.setHorizontalAlignment(JLabel.CENTER);
-
-        table.getColumnModel().getColumn(colXoa).setCellRenderer(renderer);
-        table.getColumnModel().getColumn(colXoa).setPreferredWidth(70);
-        table.getColumnModel().getColumn(colXoa).setMaxWidth(80);
-
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int row = table.getSelectedRow();
-                int col = table.getSelectedColumn();
-
-                if (row < 0) {
-                    return;
-                }
-
-                if (col == colXoa) {
-                    QuanLyPhieuNhapPage.this.xoaTheoDong(panel, row);
-                }
-            }
-        });
     }
 
     private void taiLai(ManagementPanel panel, int page) {
@@ -200,7 +172,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
             List<Object[]> rows = new ArrayList<>(res.items().size());
             int stt = res.fromIndex();
-            String nhanXoa = I18nReaderUtil.get("app.common.delete");
 
             for (PhieuNhapPhuTung item : res.items()) {
                 rows.add(new Object[]{
@@ -209,8 +180,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
                         item.getMoTa(),
                         item.getMaNhanVien(),
                         item.getNgayTao() != null ? item.getNgayTao().format(this.dateFormatter) : "",
-                        this.currencyFormat.format(this.phieuNhapService.tinhTongChiPhi(item)),
-                        nhanXoa
+                        this.currencyFormat.format(this.phieuNhapService.tinhTongChiPhi(item))
                 });
             }
 

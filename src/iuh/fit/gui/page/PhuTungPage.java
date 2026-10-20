@@ -9,6 +9,7 @@ import iuh.fit.gui.component.AnhField;
 import iuh.fit.gui.component.AnhTableCellRenderer;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhuTungService;
@@ -78,6 +79,12 @@ public class PhuTungPage extends AbstractPage {
                 I18nReaderUtil.get("app.phuTung.soLuongTon")
         );
 
+        this.panel.addActionColumn("app.common.actions",
+                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.sua(row)),
+                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.xoa(row)));
+
         this.form = new ManagementFormPanel("app.phuTung.thongTinTitle");
 
         this.khoiTaoForm();
@@ -134,7 +141,7 @@ public class PhuTungPage extends AbstractPage {
 
     private void ganSuKien() {
         this.form.getNutThem().addActionListener(
-                e -> this.lamMoi()
+                e -> this.them()
         );
 
         this.form.getNutLuu().addActionListener(
@@ -146,7 +153,7 @@ public class PhuTungPage extends AbstractPage {
         );
 
         this.form.getNutXoa().addActionListener(
-                e -> this.xoa()
+                e -> this.xoa(this.panel.getSelectedRow())
         );
 
         this.panel.getClearFilterButton().addActionListener(
@@ -338,6 +345,36 @@ public class PhuTungPage extends AbstractPage {
         }
     }
 
+    private PhuTung taoPhuTung(PhuTungFormData data, int soLuongTon) {
+        return new PhuTung(
+                data.maPhuTung(),
+                data.tenPhuTung(),
+                data.moTa(),
+                data.anhUrl(),
+                data.donGiaNhap(),
+                soLuongTon
+        );
+    }
+
+    private void them() {
+        PhuTungFormData data = this.getFormData();
+        this.validateFormData(data);
+
+        try {
+            this.phuTungService.create(this.taoPhuTung(data, 0));
+            ThongBao.thongTin(this, "app.common.create_succeed");
+
+            this.lamMoi();
+            this.taiLai(this.panel, 1);
+
+        } catch (IllegalArgumentException e) {
+            ThongBao.loi(this, e);
+
+        } catch (SQLException e) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
+    }
+
     private void luu() {
         PhuTungFormData data = this.getFormData();
         this.validateFormData(data);
@@ -345,14 +382,7 @@ public class PhuTungPage extends AbstractPage {
         boolean taoMoi = data.maPhuTung() == null;
         int soLuong = taoMoi ? 0 : data.soLuongTon();
 
-        PhuTung phuTung = new PhuTung(
-                data.maPhuTung(),
-                data.tenPhuTung(),
-                data.moTa(),
-                data.anhUrl(),
-                data.donGiaNhap(),
-                soLuong
-        );
+        PhuTung phuTung = this.taoPhuTung(data, soLuong);
 
         try {
             if (taoMoi) {
@@ -374,9 +404,12 @@ public class PhuTungPage extends AbstractPage {
         }
     }
 
-    private void xoa() {
-        int row = this.panel.getSelectedRow();
+    private void sua(int row) {
+        this.chonDong();
+        this.tenField.requestFocusInWindow();
+    }
 
+    private void xoa(int row) {
         try {
             if (row < 0) {
                 throw new IllegalArgumentException(
