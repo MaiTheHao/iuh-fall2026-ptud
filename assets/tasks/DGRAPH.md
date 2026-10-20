@@ -1,62 +1,56 @@
-# DGRAPH — Sơ đồ phụ thuộc Gara Ô tô Lúa (Tuần 1: 14/10 – 19/10)
+# DGRAPH — Sơ đồ phụ thuộc Gara Ô tô Lúa
 
-Tài liệu gom **nhiều góc nhìn phụ thuộc** của kế hoạch tuần 1. Mỗi sơ đồ trả lời một câu hỏi khác nhau.
+Trạng thái đối chiếu mã nguồn ngày 21/10/2026. `[DONE]` đã chạy trên dữ liệu thật · `[PARTIAL]` một phần đã có mã · `[TODO]` mới có khung giữ chỗ · `[P1..P4]` lane phụ trách.
 
-- **Chú giải trạng thái:** `[DONE]` đã xong · `[TODO]` chưa làm · `[P1..P4]` lane phụ trách.
-- Sơ đồ dùng mermaid mặc định (không hardcode màu) để tự tương thích theme sáng/tối của IDE.
-- Nguồn: `assets/tasks/2026-10-14-p1..p4-*.md`, `assets/mockui/docs/screen-flow.md`, `src/iuh/fit/**`, `init.sql`.
+Nguồn: `assets/tasks/2026-10-14-p1..p4-*.md`, `assets/mockui/docs/screen-flow.md`, `src/iuh/fit/**`, `infra/migrations/**`.
 
 ---
 
-## 1. Phụ thuộc giữa các plan (lane)
-
-Góc nhìn: **lane nào chặn lane nào**. Kit dùng chung (Wave 0) đã xong nên không còn chặn lane; P1 là nền dữ liệu; P3 cần P2; P4 cần P3.
+## 1. Phụ thuộc giữa các lane
 
 ```mermaid
 flowchart TD
-    p1["P1 To chuc - Quoc<br/>6 man du lieu nen"]
-    p2["P2 Tiep nhan & Khieu nai - Thang<br/>6 man"]
-    p3["P3 Nhap & Thanh toan - Khang<br/>5 man"]
-    p4["P4 Ke hoach & Tong ket - Binh<br/>6 man"]
+    p1["P1 To chuc - Quoc<br/>6/6 man [DONE]"]
+    p2["P2 Tiep nhan & Khieu nai - Thang<br/>4/6 man [PARTIAL]"]
+    p3["P3 Nhap & Thanh toan - Khang<br/>2/5 man [PARTIAL]"]
+    p4["P4 Ke hoach & Tong ket - Binh<br/>0/6 man [TODO]"]
 
-    p1 -->|"KhachHang / Xe / NhanVien"| p2
-    p1 -->|"PhuTung / DichVu / Voucher / NhanVien"| p3
-    p1 -->|"NhanVien"| p4
-    p2 -->|"PhieuTiepNhan + VanDeKyThuat"| p3
-    p3 -->|"HoaDon / ChiTietHoaDon"| p4
+    p1 -->|"KhachHang / Xe / NhanVien - da co"| p2
+    p1 -->|"PhuTung / DichVu / Voucher / NhanVien - da co"| p3
+    p1 -->|"NhanVien - da co"| p4
+    p2 -->|"PhieuTiepNhan - da co"| p3
+    p3 -->|"HoaDon / ChiTietHoaDon - con thieu"| p4
 ```
 
----
+## 2. Contract service liên lane
 
-## 2. Contract service liên lane (ai cấp, ai tiêu thụ)
-
-Góc nhìn: **điểm chạm chéo lane cần chốt chữ ký sớm** để không bị block.
+Nút ghi `chua co` là phần chưa tồn tại trong mã nguồn.
 
 ```mermaid
 flowchart LR
-    subgraph sgP1["P1 cap service"]
+    subgraph sgP1["P1 cap service - da co"]
         khs["KhachHangService"]
         svcXe["XeService"]
         nvs["NhanVienService"]
-        pts["PhuTungService"]
+        pts["PhuTungService<br/>+ increaseStock"]
         dvs["DichVuService"]
         vcs["VoucherService"]
     end
 
     subgraph sgP2["P2"]
         ptns["PhieuTiepNhanService"]
-        vdks["VanDeKyThuatService"]
+        vdks["VanDeKyThuatService - chua co"]
         kns["KhieuNaiService"]
     end
 
     subgraph sgP3["P3"]
         pnps["PhieuNhapPhuTungService"]
-        hds["HoaDonService"]
+        hds["HoaDonService - chua co"]
     end
 
     subgraph sgP4["P4"]
-        pcs["PhanCongService"]
-        bcs["BaoCaoService"]
+        pcs["PhanCongService - chua co"]
+        bcs["BaoCaoService - chua co"]
     end
 
     khs --> ptns
@@ -70,23 +64,19 @@ flowchart LR
     pnps --> bcs
 ```
 
----
-
-## 3. Kiến trúc 3 tầng (GUI → SERVICE → DAO → DB)
-
-Góc nhìn: **chiều phụ thuộc bắt buộc** theo code-convention; entity là POJO dùng chung.
+## 3. Kiến trúc 3 tầng
 
 ```mermaid
 flowchart TD
     gui["iuh.fit.gui.page<br/>XxxPage extends AbstractPage"]
-    comp["iuh.fit.gui.component<br/>ManagementPanel + EnumLabels"]
+    comp["iuh.fit.gui.component<br/>ManagementPanel + BoHienThiI18n"]
     svc["iuh.fit.service<br/>XxxService"]
     dao["iuh.fit.dao<br/>XxxDAO extends BaseDao"]
     db["SQL Server<br/>iuh_ptud_db"]
 
     gui --> comp
     gui -->|"goi"| svc
-    svc -->|"goi"| dao
+    svc -->|"mo TransactionScope"| dao
     dao -->|"JDBC"| db
 
     ent["iuh.fit.entity (POJO)"]
@@ -94,72 +84,66 @@ flowchart TD
     ent -.->|"duoc dung"| svc
     ent -.->|"duoc dung"| dao
     enumx["iuh.fit.enumeration"]
-    enumx -.->|"nhan qua EnumLabels"| comp
+    enumx -.->|"nhan qua I18nEnum"| comp
 ```
 
----
-
-## 4. Bản đồ màn hình theo nhóm menu + trạng thái
-
-Góc nhìn: **25 màn mockup** ánh xạ sang nhóm menu và trạng thái hiện tại. `[DONE]` = đã thật; còn lại thuộc lane.
+## 4. Bản đồ màn hình theo nhóm menu
 
 ```mermaid
 flowchart TD
     subgraph sgAuth["Trang chu & Xac thuc"]
-        scr01["SCR-01 Dang nhap<br/>[DONE] LoginPage"]
-        scr02["SCR-02 Trang chu<br/>[DONE] DashboardPage"]
+        scr01["SCR-01 Dang nhap<br/>[DONE]"]
+        scr02["SCR-02 Trang chu<br/>[DONE]"]
     end
 
-    subgraph sgOrg["To chuc - P1"]
-        scr03["SCR-03 Khach hang"]
-        scr03b["SCR-03B Xe"]
-        scr06["SCR-06 Phu tung"]
-        scr08["SCR-08 Dich vu"]
-        scr09["SCR-09 Voucher"]
-        scr11["SCR-11 Nhan vien"]
+    subgraph sgOrg["To chuc - P1 (6/6)"]
+        scr03["SCR-03 Khach hang<br/>[DONE]"]
+        scr03b["SCR-03B Xe<br/>[DONE]"]
+        scr06["SCR-06 Phu tung<br/>[DONE]"]
+        scr08["SCR-08 Dich vu<br/>[DONE]"]
+        scr09["SCR-09 Voucher<br/>[DONE]"]
+        scr11["SCR-11 Nhan vien<br/>[DONE]"]
     end
 
-    subgraph sgPlan["Ke hoach - P4"]
-        scr05["SCR-05 Phan cong ca"]
-        scr05b["SCR-05B Lich cua toi"]
-        scr05c["SCR-05C Lich cua shop"]
+    subgraph sgIntake["Tiep nhan - P2 (4/6)"]
+        scr04["SCR-04 Tiep nhan khach hang<br/>[DONE]"]
+        scr04b["SCR-04B Quan ly phieu tiep nhan<br/>[DONE]"]
+        scr04c["SCR-04C Xem chan doan<br/>[TODO] - an, khong vao menubar"]
+        scr04d["SCR-04D Lap chan doan<br/>[PARTIAL] - moi chon phieu"]
+        scr16["SCR-16 Tiep nhan khieu nai<br/>[DONE]"]
+        scr16b["SCR-16B Quan ly khieu nai<br/>[DONE]"]
     end
 
-    subgraph sgIntake["Tiep nhan - P2"]
-        scr04["SCR-04 Tiep nhan khach hang"]
-        scr04b["SCR-04B Quan ly phieu tiep nhan"]
-        scr04c["SCR-04C Chan doan<br/>an, khong vao menubar"]
-        scr04d["SCR-04D Lap chan doan"]
-        scr16["SCR-16 Tiep nhan khieu nai"]
-        scr16b["SCR-16B Quan ly khieu nai"]
+    subgraph sgParts["Nhap phu tung - P3 (2/2)"]
+        scr07["SCR-07 Lap phieu nhap<br/>[DONE]"]
+        scr07b["SCR-07B Quan ly phieu nhap<br/>[DONE]"]
     end
 
-    subgraph sgParts["Nhap phu tung - P3"]
-        scr07["SCR-07 Lap phieu nhap"]
-        scr07b["SCR-07B Quan ly phieu nhap"]
+    subgraph sgPay["Thanh toan - P3 (0/2)"]
+        scr10["SCR-10 Lap hoa don<br/>[TODO]"]
+        scr10b["SCR-10B Quan ly hoa don<br/>[TODO]"]
     end
 
-    subgraph sgPay["Thanh toan - P3"]
-        scr10["SCR-10 Lap hoa don"]
-        scr10b["SCR-10B Quan ly hoa don"]
+    subgraph sgPlan["Ke hoach - P4 (0/6)"]
+        scr05["SCR-05 Phan cong ca<br/>[TODO]"]
+        scr05b["SCR-05B Lich cua toi<br/>[TODO]"]
+        scr05c["SCR-05C Lich cua shop<br/>[TODO]"]
     end
 
-    subgraph sgReport["Tong ket - P4"]
-        scr12["SCR-12 Doanh thu"]
-        scr12b["SCR-12B Tieu thu phu tung"]
-        scr12c["SCR-12C Tieu thu dich vu"]
+    subgraph sgReport["Tong ket - P4 (0/3)"]
+        scr12["SCR-12 Doanh thu<br/>[TODO]"]
+        scr12b["SCR-12B Tieu thu phu tung<br/>[TODO]"]
+        scr12c["SCR-12C Tieu thu dich vu<br/>[TODO]"]
     end
 
     subgraph sgSet["Cai dat"]
-        scr15["SCR-15 Doi mat khau<br/>P3"]
+        scr15["SCR-15 Doi mat khau<br/>[TODO] - P3"]
     end
 ```
 
----
+## 5. Điều hướng giữa các màn
 
-## 5. Quan hệ điều hướng giữa màn hình
-
-Góc nhìn: **luồng mở màn** — từ Trang chủ tới các màn, và các cặp "thao tác ↔ quản lý".
+Điều hướng nội bộ dùng `goTo(Class)` của `AbstractPage`.
 
 ```mermaid
 flowchart LR
@@ -191,7 +175,7 @@ flowchart LR
     scr02 --- scr01
 
     scr04 --- scr04b
-    scr04b -.->|"nut !"| scr04c["Chan doan (an)"]
+    scr04b -.->|"can truyen phieu dang chon"| scr04c["Xem chan doan (an)"]
     scr16 --- scr16b
     scr07 --- scr07b
     scr10 --- scr10b
@@ -199,11 +183,9 @@ flowchart LR
     scr05 --- scr05c
 ```
 
----
+## 6. Mô hình dữ liệu
 
-## 6. Mô hình dữ liệu — quan hệ thực thể
-
-Góc nhìn: **khóa ngoại / bản số** giữa các bảng. `KhieuNai` là bảng **mới** (P2).
+Toàn bộ bảng đã tồn tại trong DB (`V0` + `V3`).
 
 ```mermaid
 erDiagram
@@ -224,9 +206,9 @@ erDiagram
     PhieuTiepNhan ||--o{ KhieuNai : "lien quan"
 ```
 
-### 6b. Cụm hóa đơn — thuộc tính & trạng thái
+### 6b. Cụm hóa đơn
 
-Góc nhìn: **giá trị trạng thái thật trong DB** (khác nhãn mockup).
+`HoaDon` không có cột tổng tiền hay tiền giảm; doanh thu phải tính từ `ChiTietHoaDon` rồi áp `Voucher.mucGiam`.
 
 ```mermaid
 erDiagram
@@ -237,6 +219,7 @@ erDiagram
         string trangThaiHoaDon
         string lyDoHuy
         datetime ngayTao
+        datetime thoiGianThanhToan
     }
     ChiTietHoaDon {
         string maHoaDon PK
@@ -255,69 +238,46 @@ erDiagram
     Voucher ||--o{ HoaDon : "giam gia"
 ```
 
-`trangThaiHoaDon` nhận giá trị thật trong DB: `CHO_THANH_TOAN`, `DA_THANH_TOAN`, `DA_HUY` (nhãn hiển thị: Chưa thanh toán / Đã thanh toán / Đã hủy).
+`trangThaiHoaDon`: `CHO_THANH_TOAN`, `DA_THANH_TOAN`, `DA_HUY`. `loaiSanPham`: `DICH_VU`, `PHU_TUNG`. DB không có ràng buộc duy nhất trên `maPhieuTiepNhan` hay tổ hợp nhân viên/ngày/ca của `PhanCong`; service phải kiểm tra trùng.
 
----
-
-## 7. Vòng đời một TaskUnit
-
-Góc nhìn: **định nghĩa done của tuần** — khi nào một màn được coi là xong.
+## 7. Việc còn lại
 
 ```mermaid
-stateDiagram-v2
-    [*] --> ChuaBatDau
-    ChuaBatDau --> DangCode : bat dau unit
-    DangCode --> DaBuild : javac khong loi
-    DaBuild --> DaChayThat : mo man + CRUD chay tren DB
-    DaChayThat --> DaTichHop : ghep service lien lane
-    DaTichHop --> NghiemThu : demo 19/10
-    NghiemThu --> [*]
-    DangCode --> Loi : stacktrace / sai nghiep vu
-    Loi --> DangCode : sua tai cho
-    DaTichHop --> Loi : vo contract lien lane
+flowchart TD
+    subgraph sgP2["P2 con lai"]
+        p2a["VanDeKyThuatDAO + Service<br/>[TODO]"]
+        p2b["SCR-04D bieu mau lap chan doan<br/>[PARTIAL]"]
+        p2c["SCR-04C xem chan doan + dieu huong<br/>[TODO]"]
+        p2a --> p2b --> p2c
+    end
+
+    subgraph sgP3["P3 con lai"]
+        p3a["HoaDonDAO ghi + HoaDonService<br/>[TODO]"]
+        p3b["SCR-10 + SCR-10B<br/>[TODO]"]
+        p3c["SCR-15 doi mat khau<br/>[TODO]"]
+        p3a --> p3b
+    end
+
+    subgraph sgP4["P4 con lai"]
+        p4a["PhanCongDAO ghi + PhanCongService<br/>[TODO]"]
+        p4b["SCR-05 + SCR-05B + SCR-05C<br/>[TODO]"]
+        p4c["BaoCaoDAO + BaoCaoService<br/>[TODO]"]
+        p4d["SCR-12 + SCR-12B + SCR-12C<br/>[TODO]"]
+        p4a --> p4b
+        p4c --> p4d
+    end
+
+    p3a -.->|"chot cong thuc doanh thu"| p4c
 ```
 
----
-
-## 8. Mốc thời gian tuần 1 (14/10 – 19/10)
-
-Góc nhìn: **lịch thực thi** theo ngày, tôn trọng thứ tự phụ thuộc ở mục 1.
-
-```mermaid
-gantt
-    title Tuan 1 - 14/10 den 19/10 (functionality first)
-    dateFormat YYYY-MM-DD
-    axisFormat %d/%m
-
-    section P1 To chuc
-    Service nen + 6 man :p1, 2026-10-14, 4d
-
-    section P2 Tiep nhan
-    KhieuNai + tiep nhan + chan doan :p2, 2026-10-15, 3d
-
-    section P3 Nhap Thanh toan
-    Phieu nhap + hoa don + doi mat khau :p3, 2026-10-15, 3d
-
-    section P4 Ke hoach Tong ket
-    Phan cong ca + bao cao so lieu :p4, 2026-10-15, 3d
-
-    section Tich hop
-    Ghep lien lane + sua loi :int, 2026-10-18, 1d
-    Freeze + demo + walkthrough :demo, 2026-10-19, 1d
-```
-
----
-
-## 9. Trong tuần làm gì / hoãn gì
-
-Góc nhìn: **ranh giới scope** theo "first make it work, then make it right".
+## 8. Trong tuần làm gì / hoãn gì
 
 ```mermaid
 flowchart LR
     subgraph sgIn["Trong tuan - make it work"]
         in1["Man hien du lieu that tu DB"]
         in2["CRUD / luong chinh chay end-to-end"]
-        in3["Dung chung kit + i18n + EnumLabels"]
+        in3["Dung chung kit + i18n + nhan enum"]
         in4["Contract service lien lane"]
     end
 
@@ -336,19 +296,15 @@ flowchart LR
     in3 -.-> hn5
 ```
 
----
-
-## 10. Quy trình nhánh Git
-
-Góc nhìn: **mỗi lane tách nhánh từ `develop`** rồi PR ngược lại `develop`.
+## 9. Quy trình nhánh Git
 
 ```mermaid
 flowchart LR
     dev["develop<br/>nhanh goc - da co"]
-    b1["feat/p1-to-chuc"]
-    b2["feat/p2-tiep-nhan-khieu-nai"]
-    b3["feat/p3-nhap-thanh-toan"]
-    b4["feat/p4-ke-hoach-tong-ket"]
+    b1["feat/p1-to-chuc<br/>[DONE] da gop"]
+    b2["feat/p2-tiep-nhan-khieu-nai<br/>[PARTIAL] da gop mot phan"]
+    b3["feat/p3-nhap-thanh-toan<br/>[PARTIAL] dang lam"]
+    b4["feat/p4-ke-hoach-tong-ket<br/>[TODO]"]
 
     dev -->|"git switch -c"| b1
     dev -->|"git switch -c"| b2
@@ -360,8 +316,6 @@ flowchart LR
     b4 -.->|"rebase + Pull Request"| dev
 ```
 
----
-
 ## Cách đọc nhanh
 
 | Sơ đồ | Trả lời |
@@ -372,7 +326,6 @@ flowchart LR
 | 4 | 25 màn thuộc nhóm nào, lane nào, đã xong chưa |
 | 5 | Điều hướng menu và cặp thao tác ↔ quản lý |
 | 6 | Khóa ngoại / bản số dữ liệu |
-| 7 | Định nghĩa "xong" của một unit trong tuần |
-| 8 | Lịch 14–19/10 |
-| 9 | Việc làm trong tuần vs việc hoãn |
-| 10 | Mỗi lane tách nhánh từ `develop` và PR ngược lại |
+| 7 | Việc còn lại của P2, P3, P4 và thứ tự làm |
+| 8 | Việc làm trong tuần vs việc hoãn |
+| 9 | Mỗi lane tách nhánh từ `develop` và PR ngược lại |

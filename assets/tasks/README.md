@@ -1,98 +1,56 @@
 # Kế hoạch tuần 1 — Gara Ô tô Lúa
 
-Tài liệu này tổng hợp kế hoạch công việc theo bốn nhóm phụ trách (P1–P4), các mốc tích hợp và quy ước chung. Nội dung tập trung vào mục tiêu, quy tắc nghiệp vụ, ranh giới trách nhiệm và tiêu chí nghiệm thu; không thay thế tài liệu thiết kế chi tiết hay sơ đồ phụ thuộc.
+**Cập nhật:** 21/10/2026, đối chiếu trực tiếp với `src/iuh/fit`, `src/resources/i18n_*.json` và `infra/migrations`.
 
-> Nguyên tắc triển khai: làm cho luồng chính hoạt động ổn định trước, sau đó mới hoàn thiện trải nghiệm và tối ưu hiệu năng. Bộ khung giao diện và tiện ích dùng chung (Wave 0) đã hoàn thành, không cần thực hiện lại.
+**Chú giải:** `[DONE]` đã chạy trên dữ liệu thật · `[PARTIAL]` một phần đã có mã · `[TODO]` mới có khung giữ chỗ.
 
 ## 1. Thành viên và phân công
 
 | Nhóm | Người phụ trách | Vai trò | Nhánh |
 |---|---|---|---|
-| Tích hợp chung | Mai Thế Hào | Nhóm trưởng; review, tích hợp và xử lý xung đột ở tệp dùng chung | Tích hợp vào `develop` |
+| Tích hợp chung | Mai Thế Hào | Nhóm trưởng; review, tích hợp, xử lý xung đột tệp dùng chung | `develop` |
 | P1 — Tổ chức | Nguyễn Minh Quốc | Dữ liệu nền | `feat/p1-to-chuc` |
 | P2 — Tiếp nhận và khiếu nại | Trần Nguyễn Hữu Thắng | Tiếp nhận xe, chẩn đoán, khiếu nại | `feat/p2-tiep-nhan-khieu-nai` |
 | P3 — Nhập phụ tùng và thanh toán | Nguyễn Trần Trọng Khang | Phiếu nhập, hóa đơn, đổi mật khẩu | `feat/p3-nhap-thanh-toan` |
 | P4 — Kế hoạch và tổng kết | Đặng Thanh Bình | Phân công ca, lịch làm việc, báo cáo | `feat/p4-ke-hoach-tong-ket` |
 
-## 2. Kế hoạch theo nhóm
+## 2. Trạng thái theo nhóm
 
-| Kế hoạch | Phạm vi chính | Trạng thái theo tài liệu đầu vào |
-|---|---|---|
-| [P1 — Tổ chức](./2026-10-14-p1-to-chuc.md) | Khách hàng, xe, phụ tùng, dịch vụ, voucher, nhân viên | Màn Khách hàng đã có bản mẫu; các màn còn lại cần hoàn thiện/kiểm tra |
-| [P2 — Tiếp nhận và khiếu nại](./2026-10-14-p2-tiep-nhan-khieu-nai.md) | Phiếu tiếp nhận, chẩn đoán kỹ thuật, khiếu nại | Chưa bắt đầu theo tài liệu đầu vào |
-| [P3 — Nhập phụ tùng và thanh toán](./2026-10-14-p3-nhap-thanh-toan.md) | Phiếu nhập, tồn kho, hóa đơn, thanh toán, đổi mật khẩu | Chưa bắt đầu theo tài liệu đầu vào |
-| [P4 — Kế hoạch và tổng kết](./2026-10-14-p4-ke-hoach-tong-ket.md) | Phân công ca, lịch tuần, báo cáo | Chưa bắt đầu theo tài liệu đầu vào |
+| Kế hoạch | Màn | Trạng thái | Việc còn lại |
+|---|---|---|---|
+| [P1 — Tổ chức](./2026-10-14-p1-to-chuc.md) | 6 | `[DONE]` 6/6 | Không còn |
+| [P2 — Tiếp nhận và khiếu nại](./2026-10-14-p2-tiep-nhan-khieu-nai.md) | 6 | `[PARTIAL]` 4/6 | SCR-04C, phần lập chẩn đoán của SCR-04D |
+| [P3 — Nhập phụ tùng và thanh toán](./2026-10-14-p3-nhap-thanh-toan.md) | 5 | `[PARTIAL]` 2/5 | SCR-10, SCR-10B, SCR-15 |
+| [P4 — Kế hoạch và tổng kết](./2026-10-14-p4-ke-hoach-tong-ket.md) | 6 | `[TODO]` 0/6 | Toàn bộ 6 màn |
 
-Sơ đồ phụ thuộc và bản đồ màn hình chi tiết nằm trong [`DGRAPH.md`](./DGRAPH.md). Tài liệu này được giữ nguyên, không chỉnh sửa trong lần cập nhật này.
+Sơ đồ phụ thuộc và bản đồ màn hình: [`DGRAPH.md`](./DGRAPH.md).
 
 ## 3. Nền tảng đã có
 
-Các phần sau được xem là nền dùng chung đã hoàn thành, không đưa lại thành đầu việc riêng trong từng kế hoạch:
+`LoginPage`, `DashboardPage`, `Layout.goTo(Class)`; `ManagementPanel`, `ManagementFormPanel`, `ThaoTac`, `SuaDialog`, `ThongBao`; `I18nEnum` + `BoHienThiI18n` cho nhãn enum, `PaginatedResult`, `DanhSach*Criteria`; `TransactionScope`; `MaGeneratorUtil` + `MaRetryUtil`; `TextNormalizerUtil`, `NumberParseUtil`; `BoChonNgayGio`, `AnhField`, `ChonPhuTungDialog`; i18n `src/resources/i18n_vn.json` + `i18n_en.json` (402 key mỗi tệp, cùng tập key).
 
-- Màn đăng nhập, trang chủ và khung điều hướng chính.
-- `ManagementPanel` cho các màn quản lý danh sách.
-- `EnumLabels` để hiển thị nhãn tiếng Việt cho giá trị enum.
-- Các nhóm i18n dùng chung, DTO `PaginatedResult`, quy ước DAO trả `Optional` khi tìm một bản ghi và bộ chọn ngày `LGoodDatePicker`.
-- Màn Khách hàng của P1 là mẫu tham chiếu về hành vi quản lý danh sách; không cần triển khai lại mẫu này.
+## 4. Quy ước chung
 
-## 4. Quy ước làm việc chung
+Luồng bắt buộc: `GUI → SERVICE → DAO → DB`. GUI không gọi JDBC/DAO; DAO không chứa quy tắc nghiệp vụ và trả `Optional` khi tìm một bản ghi; nghiệp vụ ghi qua nhiều DAO mở `TransactionScope` và truyền scope xuống DAO.
 
-### Kiến trúc
+Giao diện dùng kit chung; văn bản lấy từ i18n; enum cài `I18nEnum` và hiển thị bằng `getI18NBusinessName()`/`BoHienThiI18n`; thêm key phải cập nhật đồng thời `i18n_vn.json` và `i18n_en.json`.
 
-Luồng xử lý thống nhất là `GUI → SERVICE → DAO → DB`.
+Mỗi nhóm làm trên nhánh riêng tách từ `develop`, commit theo Conventional Commits, PR ngược lại `develop`; không commit trực tiếp lên `develop`/`master`. Sửa tệp dùng chung (`PageRegistry`, `i18n_*.json`, `AuthService`) thì báo nhóm trưởng.
 
-- **GUI** nhận thao tác và hiển thị dữ liệu; không gọi JDBC hoặc DAO trực tiếp.
-- **Service** xử lý quy tắc nghiệp vụ, xác thực dữ liệu, điều phối các DAO và service liên quan.
-- **DAO** thực hiện truy vấn, ghi dữ liệu và ánh xạ bản ghi; không chứa phép tính hoặc tổng hợp nghiệp vụ.
-- Khi tìm một bản ghi, DAO trả `Optional`; không dùng `null` để biểu diễn trường hợp không tìm thấy. Danh sách không có dữ liệu là trạng thái hợp lệ.
+## 5. Phụ thuộc
 
-### Giao diện và ngôn ngữ
+- **P1 → P2/P3/P4:** `[DONE]` service dữ liệu nền đã sẵn sàng.
+- **P2 → P3:** `[DONE]` `PhieuTiepNhanService` đã có; P3 không chờ phần chẩn đoán.
+- **P3 → P4:** `[PARTIAL]` phiếu nhập đã xong, hóa đơn chưa có service; P4 vẫn làm được trên dữ liệu mẫu `V4__mock_data.sql`.
 
-- Tận dụng kit dùng chung thay vì tự tạo thành phần trùng chức năng.
-- Nội dung giao diện và thông báo lấy từ i18n; các giá trị enum hiển thị bằng nhãn thân thiện, không hiển thị tên hằng thô.
-- Chỉ bổ sung key thuộc phạm vi của nhóm đang làm trong `i18n_vn.json` và `i18n_en.json`. Sau khi chỉnh sửa, kiểm tra hai tệp có cùng tập key.
-- Các tệp dùng chung như `PageRegistry.java`, `i18n_*.json` và `AuthService.java` cần được chỉnh sửa có giới hạn, trao đổi trước khi thay đổi hợp đồng mà nhóm khác đang sử dụng.
+## 6. Việc còn lại
 
-### Git và tích hợp
-
-Mỗi nhóm làm trên nhánh riêng, tách từ `develop`; không commit trực tiếp lên `develop` hoặc `master`.
-
-```bash
-git switch develop
-git pull
-git switch -c feat/p1-to-chuc
-# Thực hiện thay đổi trong phạm vi nhóm
-git add -A
-git commit -m "feat(org): quan ly du lieu nen"
-git push -u origin feat/p1-to-chuc
-```
-
-Thay tên nhánh và nội dung commit theo nhóm/thay đổi thực tế. Trước khi mở Pull Request, đồng bộ với `develop` theo quy trình của nhóm. Nhóm trưởng phụ trách tích hợp và xử lý xung đột tại các tệp dùng chung. Commit theo Conventional Commits, ví dụ `feat`, `fix`, `refactor`, `docs`, `test` kèm phạm vi phù hợp.
-
-## 5. Phụ thuộc giữa các nhóm
-
-- **P1 → P2:** khách hàng, xe và nhân viên.
-- **P1 → P3:** phụ tùng, dịch vụ, voucher và nhân viên.
-- **P1 → P4:** nhân viên.
-- **P2 → P3:** phiếu tiếp nhận.
-- **P3 → P4:** hóa đơn, chi tiết hóa đơn và dữ liệu phiếu nhập.
-
-Các nhóm cần thống nhất hợp đồng service và kiểu dữ liệu trước khi tích hợp. Không tự viết lại nghiệp vụ đã được nhóm phụ thuộc cung cấp.
-
-## 6. Mốc triển khai
-
-| Thời gian | Trọng tâm |
-|---|---|
-| 14/10 | Dựng/hoàn thiện khung màn hình trên nền kit dùng chung; P1 ưu tiên cung cấp service sớm |
-| 15–17/10 | Hoàn thiện các luồng nghiệp vụ chính và kiểm tra dữ liệu thật |
-| 18/10 | Tích hợp liên nhóm, sửa lỗi và xác minh hợp đồng service |
-| 19/10 | Đóng băng thay đổi, chạy demo đầu-cuối và ghi nhận kết quả |
+| Lane | Việc | Chặn ai |
+|---|---|---|
+| P2 | `VanDeKyThuatDAO` + `VanDeKyThuatService`; biểu mẫu lập chẩn đoán cho SCR-04D; SCR-04C + điều hướng từ SCR-04B | Không chặn lane khác |
+| P3 | `HoaDonService` + phần ghi của `HoaDonDAO`; SCR-10, SCR-10B; SCR-15 đổi mật khẩu | Chặn báo cáo doanh thu của P4 |
+| P4 | Phân công ca, hai màn lịch, ba báo cáo | — |
 
 ## 7. Tiêu chí hoàn thành một màn
 
-- Không còn là trang giữ chỗ và có thể mở từ đúng vị trí điều hướng.
-- Hiển thị dữ liệu thật từ DB qua đúng ba tầng.
-- Luồng nghiệp vụ chính hoạt động đầu-cuối, bao gồm lưu và đọc lại dữ liệu khi phù hợp.
-- Dữ liệu đầu vào được kiểm tra; lỗi được thông báo rõ ràng.
-- Văn bản lấy từ i18n; enum hiển thị bằng nhãn tiếng Việt.
-- Có kiểm tra build và chạy ứng dụng, đồng thời kiểm tra nghiệp vụ quan trọng bằng dữ liệu DB.
+Đã đăng ký trong `PageRegistry` và mở được từ đúng menu; đọc/ghi DB qua đủ ba tầng; luồng chính chạy đầu-cuối; dữ liệu đầu vào được kiểm tra và báo lỗi rõ; văn bản từ i18n, enum hiển thị nhãn tiếng Việt; `javac` sạch và ứng dụng khởi động được.
