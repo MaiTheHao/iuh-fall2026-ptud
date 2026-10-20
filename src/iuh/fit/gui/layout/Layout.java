@@ -11,14 +11,15 @@ import iuh.fit.gui.theme.Theme;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class Layout extends JPanel {
         this.setOpaque(true);
         this.setBackground(Theme.BG);
         this.setLayout(new BorderLayout());
-        this.header = new LayoutHeader(this.registry, this::goTo, this::toggleLocale, this::toggleTheme, this::logout);
+        this.header = new LayoutHeader(this.registry, this::goTo, this::toggleLocale, this::logout);
         this.content.setOpaque(false);
         this.addPages();
         this.bindShortcuts();
@@ -65,15 +66,19 @@ public class Layout extends JPanel {
         super.paintComponent(g);
         Image anh = layAnhNen();
         if (anh != null) {
-            int rong = this.getWidth();
-            int cao = this.getHeight();
-            double tiLe = Math.max(rong / (double) anh.getWidth(null), cao / (double) anh.getHeight(null));
-            int rongAnh = (int) Math.ceil(anh.getWidth(null) * tiLe);
-            int caoAnh = (int) Math.ceil(anh.getHeight(null) * tiLe);
-            g.drawImage(anh, (rong - rongAnh) / 2, (cao - caoAnh) / 2, rongAnh, caoAnh, this);
+            this.veAnhNen(g, anh);
         }
-        g.setColor(Theme.scrim());
+        g.setColor(Theme.phuSangAnh());
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
+    }
+
+    private void veAnhNen(Graphics g, Image anh) {
+        int rong = this.getWidth();
+        int cao = this.getHeight();
+        double tiLe = Math.max(rong / (double) anh.getWidth(null), cao / (double) anh.getHeight(null));
+        int rongAnh = (int) Math.ceil(anh.getWidth(null) * tiLe);
+        int caoAnh = (int) Math.ceil(anh.getHeight(null) * tiLe);
+        g.drawImage(anh, (rong - rongAnh) / 2, (cao - caoAnh) / 2, rongAnh, caoAnh, this);
     }
 
     private void bindShortcuts() {
@@ -110,31 +115,15 @@ public class Layout extends JPanel {
     }
 
     public void toggleLocale() {
-        AppLocale next = AppContext.getInstance().getLocale() == AppLocale.VN ? AppLocale.EN : AppLocale.VN;
-        AppContext.getInstance().setLocale(next);
+        AppContext context = AppContext.getInstance();
+        AppLocale next = context.getLocale() == AppLocale.VN ? AppLocale.EN : AppLocale.VN;
+        context.setLocale(next);
         this.render();
     }
 
     public void logout() {
         AppContext.getInstance().logout();
         this.goTo(LoginPage.class);
-    }
-
-    public void toggleTheme() {
-        boolean dark = !AppContext.getInstance().isDarkMode();
-        Color mauNenCu = Theme.palette().BG();
-        AppContext.getInstance().setDarkMode(dark);
-        Theme.setDarkMode(dark);
-        SwingUtilities.updateComponentTreeUI(this);
-        Theme.capNhatNutMacDinh(this, mauNenCu);
-        for (AbstractPage page : this.registry.all()) {
-            page.setBackground(Theme.BG);
-        }
-        this.setBackground(Theme.BG);
-        this.content.setBackground(Theme.BG);
-        this.header.refreshTheme();
-        this.render();
-        this.repaint();
     }
 
     public void render() {
@@ -144,6 +133,16 @@ public class Layout extends JPanel {
         this.header.refreshText();
         this.header.setActive(page.getClass());
         this.header.setMenuVisible(AppContext.getInstance().getCurrentUser() != null);
+        this.updateWindowState();
+    }
+
+    private void updateWindowState() {
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (window instanceof JFrame frame) {
+            boolean loggedIn = AppContext.getInstance().getCurrentUser() != null;
+            frame.setJMenuBar(loggedIn ? this.header : null);
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        }
     }
 
     private AbstractPage resolveCurrentPage() {

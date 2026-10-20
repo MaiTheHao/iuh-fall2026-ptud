@@ -10,6 +10,9 @@ import java.util.List;
 
 public class WrapLayout extends FlowLayout {
 
+    private record Dong(List<Component> thanhPhan, int rong, int cao) {
+    }
+
     public WrapLayout(int align, int hgap, int vgap) {
         super(align, hgap, vgap);
     }
@@ -28,56 +31,22 @@ public class WrapLayout extends FlowLayout {
                 return;
             }
 
-            List<Component> components = new ArrayList<>();
-            List<Dimension> sizes = new ArrayList<>();
-            List<Integer> rows = new ArrayList<>();
-            List<Integer> rowHeights = new ArrayList<>();
-
-            int x = 0;
-            int row = 0;
-
-            rowHeights.add(0);
-
-            for (Component component : target.getComponents()) {
-                if (!component.isVisible()) {
-                    continue;
-                }
-
-                Dimension size = component.getPreferredSize();
-
-                if (x > 0 && x + size.width > maxWidth) {
-                    row++;
-                    x = 0;
-                    rowHeights.add(0);
-                }
-
-                components.add(component);
-                sizes.add(size);
-                rows.add(row);
-                rowHeights.set(row, Math.max(rowHeights.get(row), size.height));
-
-                x += size.width + getHgap();
-            }
-
             int left = insets.left + getHgap();
             int top = insets.top + getVgap();
-            int currentRow = 0;
 
-            x = left;
+            for (Dong dong : chiaDong(target, maxWidth)) {
+                int x = left;
 
-            for (int i = 0; i < components.size(); i++) {
-                if (rows.get(i) != currentRow) {
-                    top += rowHeights.get(currentRow) + getVgap();
-                    currentRow = rows.get(i);
-                    x = left;
+                for (Component component : dong.thanhPhan()) {
+                    Dimension size = component.getPreferredSize();
+
+                    component.setBounds(x, top + (dong.cao() - size.height) / 2,
+                            size.width, size.height);
+
+                    x += size.width + getHgap();
                 }
 
-                Dimension size = sizes.get(i);
-
-                components.get(i).setBounds(x, top + (rowHeights.get(currentRow) - size.height) / 2,
-                        size.width, size.height);
-
-                x += size.width + getHgap();
+                top += dong.cao() + getVgap();
             }
         }
     }
@@ -95,37 +64,21 @@ public class WrapLayout extends FlowLayout {
             int maxWidth = width - insets.left - insets.right
                     - getHgap() * 2;
 
-            int rowWidth = 0;
-            int rowHeight = 0;
+            List<Dong> dsDong = chiaDong(target, maxWidth);
+            int totalWidth = 0;
             int totalHeight = getVgap() * 2
                     + insets.top + insets.bottom;
-            int totalWidth = 0;
 
-            for (Component component : target.getComponents()) {
-                if (!component.isVisible()) {
-                    continue;
+            for (int i = 0; i < dsDong.size(); i++) {
+                Dong dong = dsDong.get(i);
+
+                totalWidth = Math.max(totalWidth, dong.rong());
+                totalHeight += dong.cao();
+
+                if (i < dsDong.size() - 1) {
+                    totalHeight += getVgap();
                 }
-
-                Dimension size = component.getPreferredSize();
-
-                if (rowWidth > 0
-                        && rowWidth + getHgap() + size.width > maxWidth) {
-                    totalWidth = Math.max(totalWidth, rowWidth);
-                    totalHeight += rowHeight + getVgap();
-                    rowWidth = 0;
-                    rowHeight = 0;
-                }
-
-                if (rowWidth > 0) {
-                    rowWidth += getHgap();
-                }
-
-                rowWidth += size.width;
-                rowHeight = Math.max(rowHeight, size.height);
             }
-
-            totalWidth = Math.max(totalWidth, rowWidth);
-            totalHeight += rowHeight;
 
             return new Dimension(
                     totalWidth + insets.left + insets.right
@@ -133,5 +86,42 @@ public class WrapLayout extends FlowLayout {
                     totalHeight
             );
         }
+    }
+
+    private List<Dong> chiaDong(Container target, int maxWidth) {
+        List<Dong> dsDong = new ArrayList<>();
+        List<Component> thanhPhan = new ArrayList<>();
+        int rong = 0;
+        int cao = 0;
+
+        for (Component component : target.getComponents()) {
+            if (!component.isVisible()) {
+                continue;
+            }
+
+            Dimension size = component.getPreferredSize();
+
+            if (!thanhPhan.isEmpty()
+                    && rong + getHgap() + size.width > maxWidth) {
+                dsDong.add(new Dong(thanhPhan, rong, cao));
+                thanhPhan = new ArrayList<>();
+                rong = 0;
+                cao = 0;
+            }
+
+            if (!thanhPhan.isEmpty()) {
+                rong += getHgap();
+            }
+
+            thanhPhan.add(component);
+            rong += size.width;
+            cao = Math.max(cao, size.height);
+        }
+
+        if (!thanhPhan.isEmpty()) {
+            dsDong.add(new Dong(thanhPhan, rong, cao));
+        }
+
+        return dsDong;
     }
 }

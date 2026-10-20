@@ -8,20 +8,20 @@ import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.SuaDialog;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.PhieuTiepNhanFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.Component;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -40,16 +40,17 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
 
-    // Form fields (Left Panel)
-    private final JTextField maPhieuField = new JTextField();
-    private final JTextField bienSoField = new JTextField();
-    private final JTextField khachHangField = new JTextField();
-    private final JTextField sdtField = new JTextField();
-    private final JTextArea moTaArea = new JTextArea(4, 20);
-    private final JComboBox<TrangThaiPhieuTiepNhan> trangThaiCombo = new JComboBox<>(TrangThaiPhieuTiepNhan.values());
-
     private ManagementFormPanel form;
     private ManagementPanel managementPanel;
+
+    private JTextField boLocMa;
+    private JTextField boLocBienSo;
+    private JTextField boLocHoTen;
+    private JTextField boLocSdt;
+    private JTextField boLocNoiDung;
+    private ManagementPanel.BoLocNgay boLocThoiGianVao;
+    private ManagementPanel.BoLocChon boLocTrangThai;
+    private PhieuTiepNhanFormPanel formPanel;
     private List<PhieuTiepNhanView> danhSachHienTai = new ArrayList<>();
     private int trang = 1;
 
@@ -83,36 +84,21 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                 new ThaoTac("ban", "app.phieuTiepNhan.huyPhieu", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.huyPhieu(row)));
 
-        this.managementPanel.addTextFilter("app.phieuTiepNhan.ma", 0);
-        this.managementPanel.addTextFilter("app.xe.bienSo", 1);
-        this.managementPanel.addTextFilter("app.khachHang.hoTen", 2);
-        this.managementPanel.addTextFilter("app.khachHang.sdt", 3);
-        this.managementPanel.addDateRangeFilter("app.phieuTiepNhan.thoiGianVao", 4);
-        this.managementPanel.addTextFilter("app.phieuTiepNhan.noiDung", 5);
-        this.managementPanel.addComboBoxFilter("app.phieuTiepNhan.trangThai", 6, TrangThaiPhieuTiepNhan.values());
+        this.boLocMa = this.managementPanel.addTextFilter("app.phieuTiepNhan.ma");
+        this.boLocBienSo = this.managementPanel.addTextFilter("app.xe.bienSo");
+        this.boLocHoTen = this.managementPanel.addTextFilter("app.khachHang.hoTen");
+        this.boLocSdt = this.managementPanel.addTextFilter("app.khachHang.sdt");
+        this.boLocThoiGianVao = this.managementPanel.addDateRangeFilter("app.phieuTiepNhan.thoiGianVao");
+        this.boLocNoiDung = this.managementPanel.addTextFilter("app.phieuTiepNhan.noiDung");
+        this.boLocTrangThai = this.managementPanel.addComboBoxFilter("app.phieuTiepNhan.trangThai",
+                TrangThaiPhieuTiepNhan.values());
 
         this.managementPanel.setFilterChangeListener(() -> this.taiLaiData(1));
 
         this.form = new ManagementFormPanel("app.phieuTiepNhan.thongTinTitle");
 
-        Theme.applyReadOnly(this.maPhieuField);
-        Theme.applyReadOnly(this.bienSoField);
-        Theme.applyReadOnly(this.khachHangField);
-        Theme.applyReadOnly(this.sdtField);
-
-        this.form.addField("app.phieuTiepNhan.maPhieu", this.maPhieuField);
-        this.form.addField("app.phieuTiepNhan.bienSo", this.bienSoField);
-        this.form.addField("app.phieuTiepNhan.khachHang", this.khachHangField);
-        this.form.addField("app.phieuTiepNhan.dienThoai", this.sdtField);
-
-        this.moTaArea.setLineWrap(true);
-        this.moTaArea.setWrapStyleWord(true);
-        JScrollPane scrollMoTa = new JScrollPane(this.moTaArea);
-        scrollMoTa.setPreferredSize(new Dimension(200, 100));
-        this.form.addField("app.phieuTiepNhan.noiDungYeuCau", scrollMoTa);
-
-        this.form.addField("app.phieuTiepNhan.trangThaiTienDo", this.trangThaiCombo);
-        this.trangThaiCombo.setRenderer(ManagementPanel.taoBoHienThiI18n());
+        this.formPanel = new PhieuTiepNhanFormPanel();
+        this.form.addBlock(this.formPanel);
 
         this.form.getNutLuu().setText(I18nReaderUtil.get("app.phieuTiepNhan.luu"));
         this.form.getNutLuu().addActionListener(e -> this.luuPhieuTiepNhan());
@@ -134,7 +120,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         });
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
-        split.setDividerLocation(380);
+        split.setDividerLocation(480);
         split.setOpaque(false);
         split.setBorder(null);
 
@@ -148,18 +134,18 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
     private void taiLaiData(int page) {
         try {
-            TrangThaiPhieuTiepNhan trangThai = this.managementPanel.getComboFilterValue(6)
+            TrangThaiPhieuTiepNhan trangThai = this.boLocTrangThai.giaTri()
                     instanceof TrangThaiPhieuTiepNhan value ? value : null;
 
             DanhSachPhieuTiepNhanCriteria tieuChi = new DanhSachPhieuTiepNhanCriteria(
-                    this.managementPanel.getTextFilter(0),
-                    this.managementPanel.getTextFilter(1),
-                    this.managementPanel.getTextFilter(2),
-                    this.managementPanel.getTextFilter(3),
-                    this.managementPanel.getTextFilter(5),
+                    this.boLocMa.getText(),
+                    this.boLocBienSo.getText(),
+                    this.boLocHoTen.getText(),
+                    this.boLocSdt.getText(),
+                    this.boLocNoiDung.getText(),
                     trangThai,
-                    this.managementPanel.getDateFilterFrom(4),
-                    this.managementPanel.getDateFilterTo(4),
+                    this.boLocThoiGianVao.tuNgay(),
+                    this.boLocThoiGianVao.denNgay(),
                     this.managementPanel.getQuickFilter(),
                     Math.max(page, 1),
                     SO_DONG_MOI_TRANG
@@ -199,56 +185,64 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         }
 
         PhieuTiepNhanView view = this.danhSachHienTai.get(row);
-
-        this.maPhieuField.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
-        this.bienSoField.setText(view.bienSo() == null ? "" : view.bienSo());
-        this.khachHangField.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
-        this.sdtField.setText(view.sdt() == null ? "" : view.sdt());
-        this.moTaArea.setText(view.moTa() == null ? "" : view.moTa());
-        this.trangThaiCombo.setSelectedItem(view.trangThai());
-
+        this.formPanel.napDuLieu(view);
         this.form.getNutXoa().setEnabled(view.trangThai() != TrangThaiPhieuTiepNhan.DA_HUY);
     }
 
     private void lamMoiForm() {
-        this.maPhieuField.setText("");
-        this.bienSoField.setText("");
-        this.khachHangField.setText("");
-        this.sdtField.setText("");
-        this.moTaArea.setText("");
-        this.trangThaiCombo.setSelectedIndex(0);
+        this.formPanel.lamMoi();
         this.managementPanel.getTable().clearSelection();
         this.form.getNutXoa().setEnabled(true);
     }
 
     private void luuPhieuTiepNhan() {
-        String maPhieu = this.maPhieuField.getText().trim();
-        if (maPhieu.isBlank()) {
+        PhieuTiepNhan phieu = this.formPanel.layDuLieu();
+
+        if (phieu.getMaPhieuTiepNhan().isBlank()) {
             ThongBao.canhBao(this, "app.phieuTiepNhan.loiMa");
             return;
         }
 
-        try {
-            PhieuTiepNhan phieu = new PhieuTiepNhan();
-            phieu.setMaPhieuTiepNhan(maPhieu);
-            phieu.setMoTa(this.moTaArea.getText().trim());
-            phieu.setTrangThai((TrangThaiPhieuTiepNhan) this.trangThaiCombo.getSelectedItem());
-
-            this.phieuTiepNhanService.update(phieu);
-
-            ThongBao.thongTin(this, "app.common.update_succeed");
-            this.taiLaiData(this.trang);
-        } catch (IllegalArgumentException ex) {
-            ThongBao.loi(this, ex);
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Khong the cap nhat phieu tiep nhan", ex);
-            ThongBao.loi(this, "app.login.errorSystem");
+        if (!this.capNhat(this, phieu)) {
+            return;
         }
+
+        this.taiLaiData(this.trang);
     }
 
     private void suaPhieuTiepNhan(int row) {
-        this.chonDong();
-        this.moTaArea.requestFocusInWindow();
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
+            return;
+        }
+
+        PhieuTiepNhanView view = this.danhSachHienTai.get(row);
+
+        PhieuTiepNhanFormPanel formSua = new PhieuTiepNhanFormPanel();
+        formSua.napDuLieu(view);
+
+        SuaDialog dialog = new SuaDialog(
+                SwingUtilities.getWindowAncestor(this), "app.common.editTitle", formSua);
+        dialog.datXuLyLuu(() -> this.capNhat(dialog, formSua.layDuLieu()));
+
+        if (dialog.hienThiVaChoKetQua()) {
+            this.taiLaiData(this.trang);
+            this.lamMoiForm();
+        }
+    }
+
+    private boolean capNhat(Component parent, PhieuTiepNhan phieu) {
+        try {
+            this.phieuTiepNhanService.update(phieu);
+            ThongBao.thongTin(parent, "app.common.update_succeed");
+            return true;
+        } catch (IllegalArgumentException ex) {
+            ThongBao.loi(parent, ex);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Khong the cap nhat phieu tiep nhan", ex);
+            ThongBao.loi(parent, "app.login.errorSystem");
+        }
+
+        return false;
     }
 
     private void huyPhieu(int row) {
@@ -270,7 +264,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
             return;
         }
 
-        this.trangThaiCombo.setSelectedItem(TrangThaiPhieuTiepNhan.DA_HUY);
+        this.formPanel.setTrangThai(TrangThaiPhieuTiepNhan.DA_HUY);
         this.luuPhieuTiepNhan();
     }
 

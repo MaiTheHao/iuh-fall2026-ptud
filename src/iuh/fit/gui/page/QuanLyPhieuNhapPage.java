@@ -32,6 +32,12 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(I18nReaderUtil.get("app.date.format") + " HH:mm");
     private int trang = 1;
 
+    private JTextField boLocMaPhieuNhap;
+    private JTextField boLocMoTa;
+    private JTextField boLocThuKho;
+    private ManagementPanel.BoLocNgay boLocNgayTao;
+    private ManagementPanel.BoLocKhoang boLocTongChiPhi;
+
     private final JTextField maPhieuNhapField = new JTextField();
     private final JTextField moTaField = new JTextField();
     private final JTextField thuKhoField = new JTextField();
@@ -64,11 +70,11 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
                 new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.xoaTheoDong(panel, row)));
 
-        panel.addTextFilter("app.phieuNhap.maPhieuNhap", 1);
-        panel.addTextFilter("app.phieuNhap.moTa", 2);
-        panel.addTextFilter("app.phieuNhap.thuKho", 3);
-        panel.addDateRangeFilter("app.phieuNhap.ngayTao", 4);
-        panel.addRangeFilter("app.phieuNhap.tongChiPhi", 5);
+        this.boLocMaPhieuNhap = panel.addTextFilter("app.phieuNhap.maPhieuNhap");
+        this.boLocMoTa = panel.addTextFilter("app.phieuNhap.moTa");
+        this.boLocThuKho = panel.addTextFilter("app.phieuNhap.thuKho");
+        this.boLocNgayTao = panel.addDateRangeFilter("app.phieuNhap.ngayTao");
+        this.boLocTongChiPhi = panel.addRangeFilter("app.phieuNhap.tongChiPhi");
 
         ManagementFormPanel form = new ManagementFormPanel("app.phieuNhap.thongTinTitle");
 
@@ -119,12 +125,12 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
         JTable table = panel.getTable();
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        table.setRowHeight(34);
+        table.setRowHeight(42);
 
         this.taiLai(panel, 1);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, panel);
-        split.setDividerLocation(380);
+        split.setDividerLocation(480);
         split.setOpaque(false);
         split.setBorder(null);
         this.add(split, BorderLayout.CENTER);
@@ -147,8 +153,8 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
                 }
             };
 
-            Double minCost = this.parseCost(panel.getTextFilter(5));
-            Double maxCost = this.parseCost(panel.getTextFilter(6));
+            Double minCost = this.parseCost(this.boLocTongChiPhi.tuText());
+            Double maxCost = this.parseCost(this.boLocTongChiPhi.denText());
 
             if ((minCost != null && minCost.isNaN()) || (maxCost != null && maxCost.isNaN())) {
                 return;
@@ -161,11 +167,11 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
             PaginatedResult<PhieuNhapPhuTung> res = this.phieuNhapService.search(
                     criteria,
                     panel.getQuickFilter(),
-                    panel.getTextFilter(1),
-                    panel.getTextFilter(3),
-                    panel.getTextFilter(2),
-                    panel.getDateFilterFrom(4),
-                    panel.getDateFilterTo(4),
+                    this.boLocMaPhieuNhap.getText(),
+                    this.boLocThuKho.getText(),
+                    this.boLocMoTa.getText(),
+                    this.boLocNgayTao.tuNgay(),
+                    this.boLocNgayTao.denNgay(),
                     minCost,
                     maxCost
             );

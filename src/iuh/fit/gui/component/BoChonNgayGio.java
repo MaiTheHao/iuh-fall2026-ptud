@@ -56,19 +56,30 @@ public final class BoChonNgayGio {
         picker.setBackground(p.INPUT_BG());
         apDungMauNut(picker.getComponentToggleCalendarButton(), p);
 
+        apDungMauNenLich(settings, p);
+        apDungMauChuLich(settings, p);
+        apDungMauOText(settings, p);
+
+        settings.setColorBackgroundWeekdayLabels(p.PANEL_ALT(), true);
+        settings.setColorBackgroundWeekNumberLabels(p.PANEL_ALT(), true);
+        settings.setBorderCalendarPopup(BorderFactory.createLineBorder(p.BORDER()));
+    }
+
+    private static void apDungMauNenLich(DatePickerSettings settings, Theme.Palette p) {
         settings.setColor(DatePickerSettings.DateArea.BackgroundOverallCalendarPanel, p.PANEL());
         settings.setColor(DatePickerSettings.DateArea.CalendarBackgroundNormalDates, p.PANEL());
         settings.setColor(DatePickerSettings.DateArea.CalendarBackgroundSelectedDate, p.ACCENT_SOFT());
         settings.setColor(DatePickerSettings.DateArea.CalendarBackgroundVetoedDates, p.DANGER_BG());
         settings.setColor(DatePickerSettings.DateArea.CalendarBorderSelectedDate, p.ACCENT());
-
         settings.setColor(DatePickerSettings.DateArea.BackgroundClearLabel, p.PANEL_ALT());
         settings.setColor(DatePickerSettings.DateArea.BackgroundTodayLabel, p.ACCENT_SOFT());
         settings.setColor(DatePickerSettings.DateArea.BackgroundMonthAndYearMenuLabels, p.PANEL_ALT());
         settings.setColor(DatePickerSettings.DateArea.BackgroundMonthAndYearNavigationButtons, p.PANEL_ALT());
         settings.setColor(DatePickerSettings.DateArea.BackgroundTopLeftLabelAboveWeekNumbers, p.PANEL_ALT());
         settings.setColor(DatePickerSettings.DateArea.BackgroundCalendarPanelLabelsOnHover, p.ACCENT_SOFT());
+    }
 
+    private static void apDungMauChuLich(DatePickerSettings settings, Theme.Palette p) {
         settings.setColor(DatePickerSettings.DateArea.CalendarTextNormalDates, p.INK());
         settings.setColor(DatePickerSettings.DateArea.CalendarTextWeekdays, p.INK());
         settings.setColor(DatePickerSettings.DateArea.TextClearLabel, p.INK());
@@ -79,21 +90,18 @@ public final class BoChonNgayGio {
         settings.setColor(DatePickerSettings.DateArea.CalendarDefaultTextHighlightedDates, p.INK());
         settings.setColor(DatePickerSettings.DateArea.CalendarTextWeekNumbers, p.INK_MUTED());
         settings.setColor(DatePickerSettings.DateArea.CalendarDefaultBackgroundHighlightedDates, p.ACCENT_SOFT());
+    }
 
+    private static void apDungMauOText(DatePickerSettings settings, Theme.Palette p) {
         settings.setColor(DatePickerSettings.DateArea.TextFieldBackgroundValidDate, p.INPUT_BG());
         settings.setColor(DatePickerSettings.DateArea.TextFieldBackgroundInvalidDate, p.INPUT_BG());
         settings.setColor(DatePickerSettings.DateArea.TextFieldBackgroundVetoedDate, p.INPUT_BG());
         settings.setColor(DatePickerSettings.DateArea.TextFieldBackgroundDisallowedEmptyDate, p.INPUT_BG());
         settings.setColor(DatePickerSettings.DateArea.TextFieldBackgroundDisabled, p.PANEL_ALT());
-
         settings.setColor(DatePickerSettings.DateArea.DatePickerTextValidDate, p.INK());
         settings.setColor(DatePickerSettings.DateArea.DatePickerTextInvalidDate, p.DANGER());
         settings.setColor(DatePickerSettings.DateArea.DatePickerTextVetoedDate, p.INK_MUTED());
         settings.setColor(DatePickerSettings.DateArea.DatePickerTextDisabled, p.INK_MUTED());
-
-        settings.setColorBackgroundWeekdayLabels(p.PANEL_ALT(), true);
-        settings.setColorBackgroundWeekNumberLabels(p.PANEL_ALT(), true);
-        settings.setBorderCalendarPopup(BorderFactory.createLineBorder(p.BORDER()));
     }
 
     public static void apDungMau(TimePicker picker) {

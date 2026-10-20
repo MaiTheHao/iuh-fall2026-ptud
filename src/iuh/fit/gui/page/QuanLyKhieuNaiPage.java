@@ -8,20 +8,20 @@ import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiKhieuNai;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.SuaDialog;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.KhieuNaiFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.KhieuNaiService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.Component;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -43,15 +43,18 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
 
     private final KhieuNaiService khieuNaiService = new KhieuNaiService();
 
-    private final JTextField maKhieuNaiField = new JTextField();
-    private final JTextField khachHangField = new JTextField();
-    private final JTextField phieuTiepNhanField = new JTextField();
-    private final JTextArea noiDungArea = new JTextArea(4, 20);
-    private final JComboBox<TrangThaiKhieuNai> trangThaiCombo = new JComboBox<>(TrangThaiKhieuNai.values());
-
     private ManagementFormPanel form;
     private ManagementPanel managementPanel;
+    private KhieuNaiFormPanel formPanel;
     private List<KhieuNaiView> danhSachHienTai = List.of();
+
+    private JTextField boLocMa;
+    private JTextField boLocKhachHang;
+    private JTextField boLocPhieuTiepNhan;
+    private JTextField boLocNoiDung;
+    private ManagementPanel.BoLocChon boLocTrangThai;
+    private ManagementPanel.BoLocNgay boLocNgayTao;
+
     private int trang = 1;
 
     public QuanLyKhieuNaiPage() {
@@ -83,34 +86,20 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
                 new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.xoaKhieuNai(row)));
 
-        this.managementPanel.addTextFilter("app.khieuNai.ma", 0);
-        this.managementPanel.addTextFilter("app.khieuNai.khachHang", 1);
-        this.managementPanel.addTextFilter("app.khieuNai.phieuTiepNhan", 2);
-        this.managementPanel.addTextFilter("app.khieuNai.noiDung", 3);
-        this.managementPanel.addComboBoxFilter(
-                "app.khieuNai.trangThai", 4, TrangThaiKhieuNai.values());
-        this.managementPanel.addDateRangeFilter("app.khieuNai.ngayTaoTuDen", 5);
+        this.boLocMa = this.managementPanel.addTextFilter("app.khieuNai.ma");
+        this.boLocKhachHang = this.managementPanel.addTextFilter("app.khieuNai.khachHang");
+        this.boLocPhieuTiepNhan = this.managementPanel.addTextFilter("app.khieuNai.phieuTiepNhan");
+        this.boLocNoiDung = this.managementPanel.addTextFilter("app.khieuNai.noiDung");
+        this.boLocTrangThai = this.managementPanel.addComboBoxFilter(
+                "app.khieuNai.trangThai", TrangThaiKhieuNai.values());
+        this.boLocNgayTao = this.managementPanel.addDateRangeFilter("app.khieuNai.ngayTaoTuDen");
 
         this.managementPanel.setFilterChangeListener(() -> this.taiLai(1));
 
         this.form = new ManagementFormPanel("app.khieuNai.thongTinTitle");
 
-        Theme.applyReadOnly(this.maKhieuNaiField);
-        Theme.applyReadOnly(this.khachHangField);
-        Theme.applyReadOnly(this.phieuTiepNhanField);
-
-        this.form.addField("app.khieuNai.ma", this.maKhieuNaiField);
-        this.form.addField("app.khieuNai.khachHang", this.khachHangField);
-        this.form.addField("app.khieuNai.phieuTiepNhan", this.phieuTiepNhanField);
-
-        this.noiDungArea.setLineWrap(true);
-        this.noiDungArea.setWrapStyleWord(true);
-        JScrollPane scrollNoiDung = new JScrollPane(this.noiDungArea);
-        scrollNoiDung.setPreferredSize(new Dimension(200, 100));
-        this.form.addField("app.khieuNai.noiDung", scrollNoiDung);
-
-        this.form.addField("app.khieuNai.trangThai", this.trangThaiCombo);
-        this.trangThaiCombo.setRenderer(ManagementPanel.taoBoHienThiI18n());
+        this.formPanel = new KhieuNaiFormPanel();
+        this.form.addBlock(this.formPanel);
 
         this.form.getNutThem().addActionListener(e -> this.goTo(TiepNhanKhieuNaiPage.class));
         this.form.getNutLuu().addActionListener(e -> this.luuKhieuNai());
@@ -133,7 +122,7 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
         });
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
-        split.setDividerLocation(380);
+        split.setDividerLocation(480);
         split.setOpaque(false);
         split.setBorder(null);
 
@@ -148,17 +137,17 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
 
     private void taiLai(int page) {
         try {
-            TrangThaiKhieuNai trangThai = this.managementPanel.getComboFilterValue(4)
+            TrangThaiKhieuNai trangThai = this.boLocTrangThai.giaTri()
                     instanceof TrangThaiKhieuNai value ? value : null;
 
             DanhSachKhieuNaiCriteria tieuChi = new DanhSachKhieuNaiCriteria(
-                    this.managementPanel.getTextFilter(0),
-                    this.managementPanel.getTextFilter(1),
-                    this.managementPanel.getTextFilter(2),
-                    this.managementPanel.getTextFilter(3),
+                    this.boLocMa.getText(),
+                    this.boLocKhachHang.getText(),
+                    this.boLocPhieuTiepNhan.getText(),
+                    this.boLocNoiDung.getText(),
                     trangThai,
-                    this.managementPanel.getDateFilterFrom(5),
-                    this.managementPanel.getDateFilterTo(5),
+                    this.boLocNgayTao.tuNgay(),
+                    this.boLocNgayTao.denNgay(),
                     this.managementPanel.getQuickFilter(),
                     Math.max(page, 1),
                     SO_DONG_MOI_TRANG
@@ -203,59 +192,64 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
             return;
         }
 
-        KhieuNaiView view = this.danhSachHienTai.get(row);
-
-        this.maKhieuNaiField.setText(view.maKhieuNai() == null ? "" : view.maKhieuNai());
-        this.khachHangField.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
-        this.phieuTiepNhanField.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
-        this.noiDungArea.setText(view.noiDung() == null ? "" : view.noiDung());
-        this.trangThaiCombo.setSelectedItem(view.trangThai());
+        this.formPanel.napDuLieu(this.danhSachHienTai.get(row));
     }
 
     private void lamMoiForm() {
-        this.maKhieuNaiField.setText("");
-        this.khachHangField.setText("");
-        this.phieuTiepNhanField.setText("");
-        this.noiDungArea.setText("");
-        this.trangThaiCombo.setSelectedIndex(0);
+        this.formPanel.lamMoi();
         this.managementPanel.getTable().clearSelection();
     }
 
     private void luuKhieuNai() {
-        try {
-            int row = this.managementPanel.getSelectedRow();
-            String maKhieuNai = this.maKhieuNaiField.getText().trim();
+        int row = this.managementPanel.getSelectedRow();
+        KhieuNaiUpdateFormData data = this.formPanel.layDuLieu();
 
-            if (row < 0 || maKhieuNai.isBlank()) {
-                ThongBao.canhBao(this, "app.khieuNai.loiMa");
-                return;
-            }
-
-            TrangThaiKhieuNai trangThai = (TrangThaiKhieuNai) this.trangThaiCombo.getSelectedItem();
-            KhieuNaiUpdateFormData data = new KhieuNaiUpdateFormData(
-                    maKhieuNai,
-                    this.noiDungArea.getText(),
-                    trangThai
-            );
-
-            this.khieuNaiService.update(data);
-            ThongBao.thongTin(this, "app.common.update_succeed");
-
-            this.taiLai(this.trang);
-            this.lamMoiForm();
-
-        } catch (IllegalArgumentException ex) {
-            ThongBao.loi(this, ex);
-
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Khong the cap nhat khieu nai", ex);
-            ThongBao.loi(this, "app.login.errorSystem");
+        if (row < 0 || data.maKhieuNai().isBlank()) {
+            ThongBao.canhBao(this, "app.khieuNai.loiMa");
+            return;
         }
+
+        if (!this.capNhat(this, data)) {
+            return;
+        }
+
+        this.taiLai(this.trang);
+        this.lamMoiForm();
     }
 
     private void suaKhieuNai(int row) {
-        this.chonDong();
-        this.noiDungArea.requestFocusInWindow();
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
+            return;
+        }
+
+        KhieuNaiView view = this.danhSachHienTai.get(row);
+
+        KhieuNaiFormPanel formSua = new KhieuNaiFormPanel();
+        formSua.napDuLieu(view);
+
+        SuaDialog dialog = new SuaDialog(
+                SwingUtilities.getWindowAncestor(this), "app.common.editTitle", formSua);
+        dialog.datXuLyLuu(() -> this.capNhat(dialog, formSua.layDuLieu()));
+
+        if (dialog.hienThiVaChoKetQua()) {
+            this.taiLai(this.trang);
+            this.lamMoiForm();
+        }
+    }
+
+    private boolean capNhat(Component parent, KhieuNaiUpdateFormData data) {
+        try {
+            this.khieuNaiService.update(data);
+            ThongBao.thongTin(parent, "app.common.update_succeed");
+            return true;
+        } catch (IllegalArgumentException ex) {
+            ThongBao.loi(parent, ex);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Khong the cap nhat khieu nai", ex);
+            ThongBao.loi(parent, "app.login.errorSystem");
+        }
+
+        return false;
     }
 
     private void xoaKhieuNai(int row) {

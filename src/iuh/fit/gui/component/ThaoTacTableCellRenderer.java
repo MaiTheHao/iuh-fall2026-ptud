@@ -8,6 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -15,12 +16,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,21 +33,55 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
 
     private static final long serialVersionUID = 1L;
 
-    private static final int KHOANG_CACH = 4;
-    private static final int KICH_THUOC_ICON = 14;
+    private static final String CHIA_KHOA = "thaoTacTableCellRenderer";
 
-    private final List<ThaoTac> dsThaoTac;
-    private final List<JButton> dsNut;
+    private static final int KHOANG_CACH = 6;
+    private static final int KICH_THUOC_ICON = 22;
 
+    private final List<ThaoTac> dsThaoTac = new ArrayList<>();
+    private final List<JButton> dsNut = new ArrayList<>();
+
+    private TableColumn cotThaoTac;
     private int dongDangTro = -1;
     private int thaoTacDangTro = -1;
 
-    public ThaoTacTableCellRenderer(List<ThaoTac> dsThaoTac) {
-        this.dsThaoTac = List.copyOf(dsThaoTac);
-        this.dsNut = new ArrayList<>(this.dsThaoTac.size());
-
-        this.setLayout(new GridLayout(1, Math.max(1, this.dsThaoTac.size()), KHOANG_CACH, 0));
+    private ThaoTacTableCellRenderer(List<ThaoTac> dsThaoTac) {
         this.setOpaque(true);
+        this.datThaoTac(dsThaoTac);
+    }
+
+    public static void ganVao(JTable table, int cot, List<ThaoTac> dsThaoTac) {
+        if (table == null || dsThaoTac == null || dsThaoTac.isEmpty()
+                || cot < 0 || cot >= table.getColumnCount()) {
+            return;
+        }
+
+        if (table.getClientProperty(CHIA_KHOA) instanceof ThaoTacTableCellRenderer daCo) {
+            daCo.cotThaoTac = table.getColumnModel().getColumn(cot);
+            daCo.cotThaoTac.setCellRenderer(daCo);
+            daCo.datThaoTac(dsThaoTac);
+            daCo.datKichThuocCot(dsThaoTac.size());
+            table.repaint();
+            return;
+        }
+
+        ThaoTacTableCellRenderer renderer = new ThaoTacTableCellRenderer(dsThaoTac);
+        renderer.cotThaoTac = table.getColumnModel().getColumn(cot);
+        renderer.cotThaoTac.setCellRenderer(renderer);
+        renderer.datKichThuocCot(dsThaoTac.size());
+
+        table.putClientProperty(CHIA_KHOA, renderer);
+        table.setDefaultRenderer(ThaoTac.class, renderer);
+        table.setRowHeight(Math.max(table.getRowHeight(), 44));
+
+        caiDatSuKien(table, renderer);
+    }
+
+    private void datThaoTac(List<ThaoTac> dsMoi) {
+        this.dsThaoTac.clear();
+        this.dsThaoTac.addAll(dsMoi);
+        this.dsNut.clear();
+        this.removeAll();
 
         for (ThaoTac thaoTac : this.dsThaoTac) {
             JButton nut = new JButton();
@@ -56,31 +92,43 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
             nut.setOpaque(true);
             nut.setMargin(new Insets(0, 0, 0, 0));
             nut.setRolloverEnabled(false);
-            nut.setPreferredSize(new Dimension(28, 24));
+            nut.setPreferredSize(new Dimension(40, 36));
             nut.getAccessibleContext().setAccessibleName(
                     I18nReaderUtil.get(thaoTac.tooltipKey()));
             this.dsNut.add(nut);
             this.add(nut);
         }
+
+        this.setLayout(new GridLayout(1, Math.max(1, this.dsThaoTac.size()), KHOANG_CACH, 0));
+        this.revalidate();
     }
 
-    public static void ganVao(JTable table, int cot, List<ThaoTac> dsThaoTac) {
-        if (table == null || dsThaoTac == null || dsThaoTac.isEmpty()
-                || cot < 0 || cot >= table.getColumnCount()) {
-            return;
+    private void datKichThuocCot(int soLuong) {
+        int rongTieuDe = this.doRongTieuDe();
+        int toiThieu = Math.max(44 * soLuong + 6, rongTieuDe);
+        int uuTien = Math.max(52 * soLuong + 10, toiThieu);
+        int toiDa = Math.max(60 * soLuong + 12, uuTien);
+
+        this.cotThaoTac.setMinWidth(toiThieu);
+        this.cotThaoTac.setMaxWidth(toiDa);
+        this.cotThaoTac.setPreferredWidth(uuTien);
+    }
+
+    private int doRongTieuDe() {
+        Object tieuDe = this.cotThaoTac == null ? null : this.cotThaoTac.getHeaderValue();
+
+        if (tieuDe == null) {
+            return 0;
         }
 
-        ThaoTacTableCellRenderer renderer = new ThaoTacTableCellRenderer(dsThaoTac);
-        TableColumn cotThaoTac = table.getColumnModel().getColumn(cot);
+        Font font = UIManager.getFont("TableHeader.font");
+        FontMetrics metrics = this.getFontMetrics(font == null ? this.getFont() : font);
 
-        cotThaoTac.setCellRenderer(renderer);
-        cotThaoTac.setPreferredWidth(32 * dsThaoTac.size() + 8);
-        cotThaoTac.setMinWidth(28 * dsThaoTac.size() + 4);
-        cotThaoTac.setMaxWidth(40 * dsThaoTac.size() + 12);
+        return metrics.stringWidth(tieuDe.toString()) + 28;
+    }
 
-        table.setRowHeight(Math.max(table.getRowHeight(), 30));
-
-        table.addMouseListener(new MouseAdapter() {
+    private static void caiDatSuKien(JTable table, ThaoTacTableCellRenderer renderer) {
+        var chuot = new MouseAdapter() {
             private int dongNhan = -1;
             private int thaoTacNhan = -1;
 
@@ -91,7 +139,7 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
                 }
 
                 this.dongNhan = table.rowAtPoint(e.getPoint());
-                this.thaoTacNhan = timThaoTac(table, e, cotThaoTac, dsThaoTac.size());
+                this.thaoTacNhan = renderer.timThaoTac(table, e);
             }
 
             @Override
@@ -101,12 +149,11 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
                 }
 
                 int dong = table.rowAtPoint(e.getPoint());
-                int thaoTac = timThaoTac(table, e, cotThaoTac, dsThaoTac.size());
+                int thaoTac = renderer.timThaoTac(table, e);
 
                 if (dong >= 0 && dong == this.dongNhan
                         && thaoTac >= 0 && thaoTac == this.thaoTacNhan) {
-                    table.setRowSelectionInterval(dong, dong);
-                    dsThaoTac.get(thaoTac).khiChon()
+                    renderer.dsThaoTac.get(thaoTac).khiChon()
                             .accept(table.convertRowIndexToModel(dong));
                 }
 
@@ -116,39 +163,63 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
 
             @Override
             public void mouseExited(MouseEvent e) {
-                renderer.dongDangTro = -1;
-                renderer.thaoTacDangTro = -1;
+                renderer.datDangTro(-1, -1);
                 table.repaint();
                 table.setToolTipText(null);
                 table.setCursor(null);
             }
-        });
 
-        table.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
+                int cotView = table.convertColumnIndexToView(renderer.cotThaoTac.getModelIndex());
                 int dong = table.rowAtPoint(e.getPoint());
-                int thaoTac = timThaoTac(table, e, cotThaoTac, dsThaoTac.size());
+                int thaoTac = renderer.timThaoTac(table, e);
 
-                renderer.dongDangTro = thaoTac >= 0 ? dong : -1;
-                renderer.thaoTacDangTro = thaoTac;
-                table.repaint();
+                if (dong < 0 || thaoTac < 0) {
+                    dong = -1;
+                    thaoTac = -1;
+                }
+
+                if (dong != renderer.dongDangTro || thaoTac != renderer.thaoTacDangTro) {
+                    if (renderer.dongDangTro >= 0) {
+                        table.repaint(table.getCellRect(renderer.dongDangTro, cotView, true));
+                    }
+
+                    renderer.datDangTro(dong, thaoTac);
+
+                    if (dong >= 0) {
+                        table.repaint(table.getCellRect(dong, cotView, true));
+                    }
+                }
 
                 table.setToolTipText(thaoTac >= 0
-                        ? I18nReaderUtil.get(dsThaoTac.get(thaoTac).tooltipKey())
+                        ? I18nReaderUtil.get(renderer.dsThaoTac.get(thaoTac).tooltipKey())
                         : null);
 
                 table.setCursor(thaoTac >= 0
                         ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
                         : null);
             }
-        });
+        };
+
+        table.addMouseListener(chuot);
+        table.addMouseMotionListener(chuot);
+        table.getModel().addTableModelListener(e -> renderer.datDangTro(-1, -1));
     }
 
-    private static int timThaoTac(JTable table, MouseEvent e, TableColumn cot, int soLuong) {
+    private void datDangTro(int dong, int thaoTac) {
+        this.dongDangTro = dong;
+        this.thaoTacDangTro = thaoTac;
+    }
+
+    private int timThaoTac(JTable table, MouseEvent e) {
+        if (this.cotThaoTac == null) {
+            return -1;
+        }
+
         int cotView = table.columnAtPoint(e.getPoint());
 
-        if (cotView < 0 || table.getColumnModel().getColumn(cotView) != cot) {
+        if (cotView < 0 || table.getColumnModel().getColumn(cotView) != this.cotThaoTac) {
             return -1;
         }
 
@@ -158,18 +229,22 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
             return -1;
         }
 
+        int soLuong = this.dsNut.size();
         Rectangle o = table.getCellRect(dong, cotView, false);
         int x = e.getX() - o.x;
-        int trongSo = o.width - KHOANG_CACH * (soLuong - 1);
+        int khoangCach = ((GridLayout) this.getLayout()).getHgap();
+        int trongSo = o.width - khoangCach * (soLuong - 1);
 
-        if (x < 0 || trongSo <= 0) {
+        if (soLuong <= 0 || x < 0 || trongSo <= 0) {
             return -1;
         }
 
+        // Chia ô theo đúng công thức GridLayout(1, soLuong, khoangCach, 0) đang đặt các nút.
         int rong = trongSo / soLuong;
 
         for (int i = 0; i < soLuong; i++) {
-            int batDau = i * (rong + KHOANG_CACH);
+            int batDau = i * (rong + khoangCach);
+
             if (x >= batDau && x < batDau + rong) {
                 return i;
             }
@@ -188,24 +263,19 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
         for (int i = 0; i < this.dsThaoTac.size(); i++) {
             ThaoTac thaoTac = this.dsThaoTac.get(i);
             JButton nut = this.dsNut.get(i);
+            boolean nguyHiem = thaoTac.kieu() == ThaoTac.KieuThaoTac.NGUY_HIEM;
 
-            Color mauIcon = thaoTac.kieu() == ThaoTac.KieuThaoTac.NGUY_HIEM
-                    ? Theme.palette().DANGER()
-                    : Theme.palette().INK();
-
-            nut.setIcon(new LucideIcon(thaoTac.iconName(), KICH_THUOC_ICON, mauIcon));
+            nut.setIcon(new LucideIcon(thaoTac.iconName(), KICH_THUOC_ICON,
+                    nguyHiem ? Theme.palette().DANGER() : Theme.palette().INK()));
 
             boolean dangTro = row == this.dongDangTro && i == this.thaoTacDangTro;
-
-            if (dangTro) {
-                nut.setBackground(thaoTac.kieu() == ThaoTac.KieuThaoTac.NGUY_HIEM
-                        ? Theme.palette().DANGER_BG()
-                        : Theme.palette().ACCENT_SOFT());
-            } else {
-                nut.setBackground(nen);
-            }
+            nut.setBackground(dangTro ? mauNenKhiTro(nguyHiem) : nen);
         }
 
         return this;
+    }
+
+    private static Color mauNenKhiTro(boolean nguyHiem) {
+        return nguyHiem ? Theme.palette().DANGER_BG() : Theme.palette().ACCENT_SOFT();
     }
 }

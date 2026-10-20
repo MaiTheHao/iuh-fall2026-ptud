@@ -5,51 +5,37 @@ import iuh.fit.util.I18nReaderUtil;
 import javax.swing.JOptionPane;
 
 import java.awt.Component;
+import java.text.MessageFormat;
 
 public final class ThongBao {
+
+    private static final String KEY_THONG_BAO = "app.common.notification";
+    private static final String KEY_LOI = "app.common.error";
+    private static final String KEY_LOI_KHONG_XAC_DINH = "app.common.loiKhongXacDinh";
 
     private ThongBao() {
         throw new AssertionError("Utility class");
     }
 
     public static void thongTin(Component parent, String key) {
-        JOptionPane.showMessageDialog(
-                parent,
-                dich(key),
-                dich("app.common.notification"),
-                JOptionPane.INFORMATION_MESSAGE
-        );
+        hienThi(parent, dich(key), KEY_THONG_BAO, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public static void thongTin(Component parent, String key, String giaTriThem) {
-        JOptionPane.showMessageDialog(
-                parent,
-                dich(key) + " " + giaTriThem,
-                dich("app.common.notification"),
-                JOptionPane.INFORMATION_MESSAGE
-        );
+    public static void thongTinDinhDang(Component parent, String key, Object... args) {
+        hienThi(parent, dinhDang(dich(key), args), KEY_THONG_BAO, JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void canhBao(Component parent, String key) {
-        JOptionPane.showMessageDialog(
-                parent,
-                dich(key),
-                dich("app.common.notification"),
-                JOptionPane.WARNING_MESSAGE
-        );
+        hienThi(parent, dich(key), KEY_THONG_BAO, JOptionPane.WARNING_MESSAGE);
     }
 
     public static void loi(Component parent, String key) {
-        JOptionPane.showMessageDialog(
-                parent,
-                dich(key),
-                dich("app.common.error"),
-                JOptionPane.ERROR_MESSAGE
-        );
+        hienThi(parent, dich(key), KEY_LOI, JOptionPane.ERROR_MESSAGE);
     }
 
     public static void loi(Component parent, Exception ex) {
-        loi(parent, ex == null ? null : ex.getMessage());
+        String key = ex == null ? null : ex.getMessage();
+        loi(parent, key == null || key.isBlank() ? KEY_LOI_KHONG_XAC_DINH : key);
     }
 
     public static boolean xacNhan(Component parent, String keyNoiDung, String keyTieuDe) {
@@ -60,6 +46,17 @@ public final class ThongBao {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         ) == JOptionPane.YES_OPTION;
+    }
+
+    private static void hienThi(Component parent, String noiDung, String keyTieuDe, int messageType) {
+        JOptionPane.showMessageDialog(parent, noiDung, dich(keyTieuDe), messageType);
+    }
+
+    private static String dinhDang(String pattern, Object... args) {
+        if (args == null || args.length == 0) {
+            return pattern;
+        }
+        return MessageFormat.format(pattern, args);
     }
 
     private static String dich(String text) {

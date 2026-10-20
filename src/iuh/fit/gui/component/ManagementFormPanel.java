@@ -6,17 +6,13 @@ import iuh.fit.util.I18nReaderUtil;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 
 /**
  * Khung form nhập liệu dùng chung cho các màn hình quản lý.
@@ -25,11 +21,10 @@ public class ManagementFormPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private static final int DO_RONG = 380;
+    private static final int DO_RONG = 480;
 
-    private final JPanel noiDungForm = new JPanel(new GridBagLayout());
-    private final JPanel thanhNut = new JPanel(new GridLayout(2, 2, 6, 6));
-    private int dongTiepTheo;
+    private final FormFieldPanel noiDungForm = new FormFieldPanel();
+    private final JPanel thanhNut = new JPanel(new GridLayout(2, 2, 10, 10));
     private final JButton nutThem;
     private final JButton nutLuu;
     private final JButton nutXoa;
@@ -37,16 +32,19 @@ public class ManagementFormPanel extends JPanel {
 
     public ManagementFormPanel(String titleKey) {
         this.setLayout(new BorderLayout(0, 10));
-        this.setOpaque(false);
-        this.setPreferredSize(new Dimension(DO_RONG, 0));
+        this.setOpaque(true);
+        this.setBackground(Theme.palette().PANEL());
+        this.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Theme.palette().BORDER()),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)));
+        this.setPreferredSize(new Dimension(DO_RONG, 400));
 
         this.noiDungForm.setOpaque(false);
         TitledBorder tieuDe = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Theme.BORDER), I18nReaderUtil.get(titleKey));
-        tieuDe.setTitleFont(tieuDe.getTitleFont().deriveFont(Font.BOLD));
-        tieuDe.setTitleColor(Theme.chuTrenAnh());
+                BorderFactory.createLineBorder(Theme.palette().BORDER()), I18nReaderUtil.get(titleKey));
+        tieuDe.setTitleFont(tieuDe.getTitleFont().deriveFont(Font.BOLD, 15f));
+        tieuDe.setTitleColor(Theme.palette().INK());
         this.noiDungForm.setBorder(tieuDe);
-
         JPanel boc = new JPanel(new BorderLayout());
         boc.setOpaque(false);
         boc.add(this.noiDungForm, BorderLayout.NORTH);
@@ -66,7 +64,15 @@ public class ManagementFormPanel extends JPanel {
         Theme.applyPrimary(this.nutLuu);
         Theme.applyDanger(this.nutXoa);
 
+        this.nutXoaTrang.setOpaque(true);
+        this.nutXoaTrang.setContentAreaFilled(true);
+        this.nutXoaTrang.setBackground(Theme.palette().PANEL());
+        this.nutXoaTrang.setForeground(Theme.palette().INK());
+        this.nutXoaTrang.setBorder(BorderFactory.createLineBorder(Theme.palette().BORDER()));
+        this.nutXoaTrang.setFocusPainted(false);
+
         this.thanhNut.setOpaque(false);
+        this.thanhNut.setPreferredSize(new Dimension(DO_RONG, chieuCaoThanhNut(2)));
         this.thanhNut.add(this.nutThem);
         this.thanhNut.add(this.nutLuu);
         this.thanhNut.add(this.nutXoa);
@@ -75,32 +81,11 @@ public class ManagementFormPanel extends JPanel {
     }
 
     public void addField(String labelKey, JComponent field) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 5, 4, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.gridx = 0;
-        gbc.gridwidth = 2;
-
-        JLabel label = new JLabel(I18nReaderUtil.get(labelKey));
-        label.setFont(label.getFont().deriveFont(Font.BOLD));
-        label.setForeground(Theme.chuTrenAnh());
-
-        gbc.gridy = this.dongTiepTheo++;
-        this.noiDungForm.add(label, gbc);
-
-        gbc.gridy = this.dongTiepTheo++;
-        this.noiDungForm.add(field, gbc);
+        this.noiDungForm.addField(labelKey, field);
     }
 
     public void addBlock(JComponent component) {
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 5, 4, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.gridwidth = 2;
-        gbc.gridy = this.dongTiepTheo++;
-        this.noiDungForm.add(component, gbc);
+        this.noiDungForm.addBlock(component);
     }
 
     public JButton getNutThem() {
@@ -121,7 +106,11 @@ public class ManagementFormPanel extends JPanel {
 
     public void thayNut(JButton... buttons) {
         this.thanhNut.removeAll();
-        this.thanhNut.setLayout(new GridLayout(Math.max(1, (buttons.length + 1) / 2), 2, 6, 6));
+
+        int soHang = Math.max(1, (buttons.length + 1) / 2);
+        this.thanhNut.setLayout(new GridLayout(soHang, 2, 10, 10));
+        this.thanhNut.setPreferredSize(
+                new Dimension(DO_RONG, chieuCaoThanhNut(soHang)));
 
         for (JButton button : buttons) {
             this.thanhNut.add(button);
@@ -131,5 +120,9 @@ public class ManagementFormPanel extends JPanel {
 
         this.thanhNut.revalidate();
         this.thanhNut.repaint();
+    }
+
+    private static int chieuCaoThanhNut(int soHang) {
+        return soHang == 1 ? 40 : 84;
     }
 }

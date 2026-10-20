@@ -1,9 +1,6 @@
 package iuh.fit.gui.theme;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
+import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -11,14 +8,17 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.plaf.BorderUIResource;
 import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.FontUIResource;
 
-import iuh.fit.core.context.AppContext;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
 
-/**
- * Bảng màu chủ đạo cho giao diện Swing, hỗ trợ chế độ sáng/tối và áp dụng toàn cục.
- */
 public final class Theme {
 
     public record Palette(
@@ -64,119 +64,29 @@ public final class Theme {
             hex("#DC2626"), hex("#FEF2F2"), hex("#FECACA"), hex("#B91C1C")
     );
 
-    private static final Palette DARK = new Palette(
-            // Surfaces: Modern Graphite
-            hex("#0F1117"), hex("#181B23"), hex("#202531"),
-            hex("#303746"), hex("#414B5D"),
-
-            // Accent: Electric Blue
-            hex("#60A5FA"), hex("#93C5FD"), hex("#3B82F6"), hex("#1E3353"),
-
-            // Typography
-            hex("#F1F5F9"), hex("#C2CAD6"), hex("#8B95A7"), hex("#0F172A"),
-
-            // Inputs
-            hex("#12151D"), hex("#414B5D"), hex("#60A5FA"),
-
-            // Tables
-            hex("#202531"), hex("#1B1F29"),
-            hex("#263D5D"), hex("#DBEAFE"),
-
-            // Info: Blue
-            hex("#60A5FA"), hex("#17263D"), hex("#294C78"), hex("#BFDBFE"),
-
-            // Success: Emerald
-            hex("#34D399"), hex("#102C27"), hex("#236B54"), hex("#A7F3D0"),
-
-            // Warning: Amber
-            hex("#FBBF24"), hex("#332715"), hex("#765522"), hex("#FDE68A"),
-
-            // Danger: Soft Red
-            hex("#F87171"), hex("#351C22"), hex("#79313B"), hex("#FECACA")
-    );
-
-    private static volatile Palette current = LIGHT;
-    private static volatile boolean darkMode = false;
-
-    public static Color BG;
-    public static Color PANEL;
-    public static Color BORDER;
-    public static Color ACCENT;
-    public static Color ACCENT_STRONG;
-    public static Color ACCENT_SOFT;
-    public static Color INK;
-
-    public static Color INFO;
-    public static Color INFO_BG;
-    public static Color INFO_BORDER;
-    public static Color INFO_TEXT;
-
-    public static Color SUCCESS;
-    public static Color SUCCESS_BG;
-    public static Color SUCCESS_BORDER;
-    public static Color SUCCESS_TEXT;
-
-    public static Color WARNING;
-    public static Color WARNING_BG;
-    public static Color WARNING_BORDER;
-    public static Color WARNING_TEXT;
-
-    public static Color DANGER;
-    public static Color DANGER_BG;
-    public static Color DANGER_BORDER;
-    public static Color DANGER_TEXT;
-
-    static {
-        capNhatAlias(LIGHT);
-    }
+    // Token hay dùng ngoài Theme, giữ dạng field ngắn để màn hình không phải gọi palette().
+    public static Color BG = LIGHT.BG();
+    public static Color PANEL = LIGHT.PANEL();
+    public static Color BORDER = LIGHT.BORDER();
+    public static Color ACCENT = LIGHT.ACCENT();
+    public static Color INK = LIGHT.INK();
+    public static Color WARNING_TEXT = LIGHT.WARNING_TEXT();
+    public static Color DANGER_TEXT = LIGHT.DANGER_TEXT();
 
     private static Color hex(String value) {
         return Color.decode(value);
     }
 
-    private static void capNhatAlias(Palette p) {
-        BG = p.BG();
-        PANEL = p.PANEL();
-        BORDER = p.BORDER();
-        ACCENT = p.ACCENT();
-        ACCENT_STRONG = p.ACCENT_PRESSED();
-        ACCENT_SOFT = p.ACCENT_SOFT();
-        INK = p.INK();
-
-        INFO = p.INFO();
-        INFO_BG = p.INFO_BG();
-        INFO_BORDER = p.INFO_BORDER();
-        INFO_TEXT = p.INFO_TEXT();
-
-        SUCCESS = p.SUCCESS();
-        SUCCESS_BG = p.SUCCESS_BG();
-        SUCCESS_BORDER = p.SUCCESS_BORDER();
-        SUCCESS_TEXT = p.SUCCESS_TEXT();
-
-        WARNING = p.WARNING();
-        WARNING_BG = p.WARNING_BG();
-        WARNING_BORDER = p.WARNING_BORDER();
-        WARNING_TEXT = p.WARNING_TEXT();
-
-        DANGER = p.DANGER();
-        DANGER_BG = p.DANGER_BG();
-        DANGER_BORDER = p.DANGER_BORDER();
-        DANGER_TEXT = p.DANGER_TEXT();
-    }
-
     public static Palette palette() {
-        return current;
-    }
-
-    public static boolean isDarkMode() {
-        return darkMode;
+        return LIGHT;
     }
 
     public static Color scrim() {
-        if (darkMode) {
-            return new Color(current.BG().getRed(), current.BG().getGreen(), current.BG().getBlue(), 170);
-        }
         return new Color(15, 23, 42, 120);
+    }
+
+    public static Color phuSangAnh() {
+        return new Color(255, 255, 255, 200);
     }
 
     public static Color chuTrenAnh() {
@@ -185,60 +95,68 @@ public final class Theme {
 
     public static JPanel contentPanel(int padding) {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(current.PANEL());
+        panel.setBackground(LIGHT.PANEL());
         panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(current.BORDER()),
+                BorderFactory.createLineBorder(LIGHT.BORDER()),
                 BorderFactory.createEmptyBorder(padding, padding, padding, padding)));
         return panel;
     }
 
-    public static void applyPrimary(JButton button) {
-        button.setBackground(current.ACCENT());
-        button.setForeground(current.ON_ACCENT());
-        button.setOpaque(true);
-        button.setContentAreaFilled(true);
-        button.setFocusPainted(false);
+    public static void applyPrimary(JButton nut) {
+        styleNut(nut, LIGHT.ACCENT(), LIGHT.ON_ACCENT());
     }
 
-    public static void applyDanger(JButton button) {
-        button.setBackground(current.DANGER());
-        button.setForeground(current.ON_ACCENT());
-        button.setOpaque(true);
-        button.setContentAreaFilled(true);
-        button.setFocusPainted(false);
+    public static void applySecondary(JButton nut) {
+        styleNut(nut, LIGHT.PANEL_ALT(), LIGHT.INK());
+    }
+
+    public static void applyDanger(JButton nut) {
+        styleNut(nut, LIGHT.DANGER(), LIGHT.ON_ACCENT());
+    }
+
+    private static void styleNut(JButton nut, Color nen, Color chu) {
+        nut.setBackground(nen);
+        nut.setForeground(chu);
+        nut.setOpaque(true);
+        nut.setContentAreaFilled(true);
+        nut.setFocusPainted(false);
+    }
+
+    public static TitledBorder titledBorder(String titleKey) {
+        TitledBorder tieuDe = BorderFactory.createTitledBorder(
+                new LineBorder(LIGHT.BORDER(), 1), I18nReaderUtil.get(titleKey));
+        tieuDe.setTitleFont(fieldLabelFont()
+                .deriveFont((float) UIManager.getFont("TitledBorder.font").getSize()));
+        tieuDe.setTitleColor(LIGHT.INK());
+        return tieuDe;
+    }
+
+    public static Font fieldLabelFont() {
+        return UIManager.getFont("Label.font").deriveFont(Font.BOLD);
+    }
+
+    public static Insets fieldRowInsets() {
+        return new Insets(8, 10, 8, 10);
     }
 
     public static void applyReadOnly(JTextField field) {
         field.setEditable(false);
-        field.setBackground(current.ACCENT_SOFT());
-        field.setForeground(current.INK());
+        field.setBackground(LIGHT.ACCENT_SOFT());
+        field.setForeground(LIGHT.INK());
     }
 
     public static void applyEditable(JTextField field) {
         field.setEditable(true);
-        field.setBackground(current.INPUT_BG());
-        field.setForeground(current.INK());
+        field.setBackground(LIGHT.INPUT_BG());
+        field.setForeground(LIGHT.INK());
     }
 
     public static void styleTable(JTable table) {
-        table.getTableHeader().setBackground(current.TABLE_HEADER_BG());
-        table.getTableHeader().setForeground(current.INK());
-        table.setSelectionBackground(current.TABLE_SELECTION_BG());
-        table.setSelectionForeground(current.TABLE_SELECTION_FG());
-        table.setGridColor(current.BORDER());
-    }
-
-    public static void capNhatNutMacDinh(Component root, Color mauNenCu) {
-        // Nút còn giữ màu nền mặc định của theme cũ không được updateComponentTreeUI cập nhật.
-        if (root instanceof JButton button && mauNenCu.equals(button.getBackground())) {
-            button.setBackground(current.BG());
-        }
-
-        if (root instanceof Container container) {
-            for (Component child : container.getComponents()) {
-                capNhatNutMacDinh(child, mauNenCu);
-            }
-        }
+        table.getTableHeader().setBackground(LIGHT.TABLE_HEADER_BG());
+        table.getTableHeader().setForeground(LIGHT.INK());
+        table.setSelectionBackground(LIGHT.TABLE_SELECTION_BG());
+        table.setSelectionForeground(LIGHT.TABLE_SELECTION_FG());
+        table.setGridColor(LIGHT.BORDER());
     }
 
     private Theme() {
@@ -246,69 +164,86 @@ public final class Theme {
     }
 
     public static void install() {
-        install(AppContext.getInstance().isDarkMode());
-    }
+        Palette p = LIGHT;
 
-    public static void install(boolean dark) {
-        Palette p = dark ? DARK : LIGHT;
-        darkMode = dark;
-        current = p;
-        capNhatAlias(p);
-
-        UIManager.put("control", new ColorUIResource(p.BG()));
-        UIManager.put("Panel.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("MenuBar.background", new ColorUIResource(p.BG()));
-        UIManager.put("MenuBar.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("Menu.background", new ColorUIResource(p.BG()));
-        UIManager.put("Menu.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("Menu.selectionBackground", new ColorUIResource(p.ACCENT()));
-        UIManager.put("Menu.selectionForeground", new ColorUIResource(p.ON_ACCENT()));
-        UIManager.put("MenuItem.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("MenuItem.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("MenuItem.selectionBackground", new ColorUIResource(p.ACCENT()));
-        UIManager.put("MenuItem.selectionForeground", new ColorUIResource(p.ON_ACCENT()));
-        UIManager.put("PopupMenu.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("PopupMenu.foreground", new ColorUIResource(p.INK()));
+        datMau("control", p.BG());
+        datMau("Panel.background", p.PANEL());
+        datMau("MenuBar.background", p.BG());
+        datMau("MenuBar.foreground", p.INK());
+        datMau("Menu.background", p.BG());
+        datMau("Menu.foreground", p.INK());
+        datMau("Menu.selectionBackground", p.ACCENT());
+        datMau("Menu.selectionForeground", p.ON_ACCENT());
+        datMau("MenuItem.background", p.PANEL());
+        datMau("MenuItem.foreground", p.INK());
+        datMau("MenuItem.selectionBackground", p.ACCENT());
+        datMau("MenuItem.selectionForeground", p.ON_ACCENT());
+        datMau("PopupMenu.background", p.PANEL());
+        datMau("PopupMenu.foreground", p.INK());
         UIManager.put("PopupMenu.border", new BorderUIResource.LineBorderUIResource(p.BORDER()));
-        UIManager.put("Label.foreground", new ColorUIResource(p.INK()));
+        datMau("Label.foreground", p.INK());
         // MetalButtonUI chỉ vẽ nền nút khi background không phải ColorUIResource.
         UIManager.put("Button.background", p.BG());
-        UIManager.put("Button.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("TextField.background", new ColorUIResource(p.INPUT_BG()));
-        UIManager.put("TextField.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("TextArea.background", new ColorUIResource(p.INPUT_BG()));
-        UIManager.put("TextArea.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("ComboBox.background", new ColorUIResource(p.INPUT_BG()));
-        UIManager.put("ComboBox.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("ComboBox.selectionBackground", new ColorUIResource(p.ACCENT()));
-        UIManager.put("ComboBox.selectionForeground", new ColorUIResource(p.ON_ACCENT()));
-        UIManager.put("List.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("List.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("List.selectionBackground", new ColorUIResource(p.ACCENT_SOFT()));
-        UIManager.put("List.selectionForeground", new ColorUIResource(p.INK()));
-        UIManager.put("ScrollPane.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("Viewport.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("SplitPane.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("SplitPane.dividerColor", new ColorUIResource(p.BORDER()));
-        UIManager.put("Table.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("Table.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("Table.gridColor", new ColorUIResource(p.BORDER()));
-        UIManager.put("Table.selectionBackground", new ColorUIResource(p.TABLE_SELECTION_BG()));
-        UIManager.put("Table.selectionForeground", new ColorUIResource(p.TABLE_SELECTION_FG()));
-        UIManager.put("TableHeader.background", new ColorUIResource(p.TABLE_HEADER_BG()));
-        UIManager.put("TableHeader.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("OptionPane.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("OptionPane.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("OptionPane.messageForeground", new ColorUIResource(p.INK()));
-        UIManager.put("Dialog.background", new ColorUIResource(p.PANEL()));
-        UIManager.put("CheckBox.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("RadioButton.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("ToolTip.background", new ColorUIResource(p.PANEL_ALT()));
-        UIManager.put("ToolTip.foreground", new ColorUIResource(p.INK()));
-        UIManager.put("Separator.background", new ColorUIResource(p.BORDER()));
+        datMau("Button.foreground", p.INK());
+        datMau("TextField.background", p.INPUT_BG());
+        datMau("TextField.foreground", p.INK());
+        datMau("TextArea.background", p.INPUT_BG());
+        datMau("TextArea.foreground", p.INK());
+        datMau("ComboBox.background", p.INPUT_BG());
+        datMau("ComboBox.foreground", p.INK());
+        datMau("ComboBox.selectionBackground", p.ACCENT());
+        datMau("ComboBox.selectionForeground", p.ON_ACCENT());
+        datMau("List.background", p.PANEL());
+        datMau("List.foreground", p.INK());
+        datMau("List.selectionBackground", p.ACCENT_SOFT());
+        datMau("List.selectionForeground", p.INK());
+        datMau("ScrollPane.background", p.PANEL());
+        datMau("Viewport.background", p.PANEL());
+        datMau("SplitPane.background", p.PANEL());
+        datMau("SplitPane.dividerColor", p.BORDER());
+        datMau("Table.background", p.PANEL());
+        datMau("Table.foreground", p.INK());
+        datMau("Table.gridColor", p.BORDER());
+        datMau("Table.selectionBackground", p.TABLE_SELECTION_BG());
+        datMau("Table.selectionForeground", p.TABLE_SELECTION_FG());
+        datMau("TableHeader.background", p.TABLE_HEADER_BG());
+        datMau("TableHeader.foreground", p.INK());
+        datMau("OptionPane.background", p.PANEL());
+        datMau("OptionPane.foreground", p.INK());
+        datMau("OptionPane.messageForeground", p.INK());
+        datMau("Dialog.background", p.PANEL());
+        datMau("CheckBox.foreground", p.INK());
+        datMau("RadioButton.foreground", p.INK());
+        datMau("ToolTip.background", p.PANEL_ALT());
+        datMau("ToolTip.foreground", p.INK());
+        datMau("Separator.background", p.BORDER());
+
+        FontUIResource chu16 = fontChu(Font.PLAIN, 16);
+        UIManager.put("Label.font", chu16);
+        UIManager.put("Button.font", chu16);
+        UIManager.put("TextField.font", chu16);
+        UIManager.put("PasswordField.font", chu16);
+        UIManager.put("TextArea.font", chu16);
+        UIManager.put("ComboBox.font", chu16);
+        UIManager.put("CheckBox.font", chu16);
+        UIManager.put("RadioButton.font", chu16);
+        UIManager.put("OptionPane.font", chu16);
+        UIManager.put("OptionPane.messageFont", chu16);
+        UIManager.put("Spinner.font", chu16);
+
+        UIManager.put("Table.font", fontChu(Font.PLAIN, 15));
+        UIManager.put("TableHeader.font", fontChu(Font.BOLD, 15));
+        UIManager.put("Menu.font", fontChu(Font.PLAIN, 15));
+        UIManager.put("MenuItem.font", fontChu(Font.PLAIN, 15));
+        UIManager.put("TitledBorder.font", fontChu(Font.BOLD, 20));
+        UIManager.put("ToolTip.font", fontChu(Font.PLAIN, 14));
     }
 
-    public static void setDarkMode(boolean dark) {
-        install(dark);
+    private static void datMau(String khoa, Color mau) {
+        UIManager.put(khoa, new ColorUIResource(mau));
+    }
+
+    private static FontUIResource fontChu(int kieu, int co) {
+        return new FontUIResource("SansSerif", kieu, co);
     }
 }
