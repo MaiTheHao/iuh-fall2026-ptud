@@ -1,3 +1,4 @@
+
 package iuh.fit.gui;
 
 import iuh.fit.core.context.AppContext;
@@ -17,10 +18,12 @@ public class GUI {
     }
 
     public void restart() {
-        if (frame != null) {
-            frame.dispose();
-        }
-        buildWindow();
+        SwingUtilities.invokeLater(() -> {
+            if (frame != null) {
+                frame.dispose();
+            }
+            buildWindow();
+        });
     }
 
     private void buildWindow() {
@@ -29,18 +32,18 @@ public class GUI {
 
         frame = new JFrame(I18nReaderUtil.get("app.title"));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setJMenuBar(layout.getHeader());
+
         frame.setContentPane(layout);
-        frame.setSize(1280, 720);
-        frame.setResizable(false);
+
+        frame.setSize(1280, 800);
+        frame.setResizable(true);
+        frame.setLocationRelativeTo(null);
 
         layout.render();
-
         frame.setVisible(true);
 
         SwingUtilities.invokeLater(() -> {
-            frame.invalidate();
-            frame.validate();
+            frame.revalidate();
             frame.repaint();
         });
     }

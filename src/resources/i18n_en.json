@@ -26,7 +26,6 @@
 			"serviceConsumptionReport": "Service Consumption",
 			"changePassword": "Change Password",
 			"language": "Language",
-			"darkMode": "Dark mode",
 			"account": "Account",
 			"logout": "Log Out"
 		},
@@ -52,6 +51,7 @@
 			"delete": "Delete",
 			"actions": "Action",
 			"edit": "Edit",
+			"editTitle": "Edit information",
 			"clearFilter": "Clear filters",
 			"all": "All",
 			"prev": "‹ Prev",
@@ -65,13 +65,16 @@
 			"confirm": "Confirm",
 			"notification": "Notification",
 			"error": "Error",
+			"loiKhongXacDinh": "Something went wrong. Please try again.",
 			"nhapUrl": "Enter URL",
 			"tieuDeNhapUrl": "Enter image URL",
 			"urlGoiY": "Paste image link (https://...)",
 			"notFound": "Data not found.",
 			"notLoggedIn": "Invalid session.",
 			"confirmClear": "You have unsaved changes. Clear the form?",
-			"cancel": "Cancel"
+			"cancel": "Cancel",
+			"dangTaiAnh": "Loading image…",
+			"khongCoDuLieu": "No data"
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -297,8 +300,8 @@
 			"loiKetNoiKhach": "Database connection error while searching for the customer.",
 			"loiKetNoiXe": "Database connection error while searching for the vehicle.",
 			"khongTimThayKhach": "Customer not found. Please enter new information.",
-			"khongTimThayXe": "The plate number is not in the system. Please enter new vehicle information.",
-			"loiHeThong": "System error:",
+			"khongTimThayXe": "Plate number {0} is not in the system. Please enter new vehicle information.",
+			"loiHeThong": "System error. Please try again.",
 			"loiSdtTrong": "Please enter the customer phone number.",
 			"loiHoTenTrong": "Please enter the customer full name.",
 			"loiBienSoTrong": "Please enter the plate number.",
@@ -361,7 +364,7 @@
 			"loiTrangThaiCuoi": "The complaint is closed, its status can no longer change.",
 			"loiPhieuDaHuy": "The intake slip is cancelled; a complaint cannot be created.",
 			"loiGhiDuLieu": "Unable to write the complaint to the database.",
-			"luuThanhCong": "Complaint saved successfully:"
+			"luuThanhCong": "Complaint saved successfully: {0}"
 		},
 		"voucher": {
 			"thongTinTitle": "Voucher Information",
@@ -435,6 +438,7 @@
 		},
 		"login": {
 			"title": "System Login",
+			"tagline": "Auto garage management system",
 			"username": "Username:",
 			"password": "Password:",
 			"submit": "Sign In",

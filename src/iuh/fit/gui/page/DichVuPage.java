@@ -5,12 +5,12 @@ import iuh.fit.dto.DichVuFormData;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.DichVu;
 import iuh.fit.enumeration.MenuGroup;
-import iuh.fit.gui.component.AnhField;
 import iuh.fit.gui.component.AnhTableCellRenderer;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.DichVuFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.DichVuService;
 import iuh.fit.util.I18nReaderUtil;
@@ -34,23 +34,15 @@ public class DichVuPage extends AbstractPage {
 
     private final DichVuService dichVuService = new DichVuService();
 
-    private final JTextField maField = new JTextField(14);
-    private final JTextField tenField = new JTextField(14);
-    private final JTextField moTaField = new JTextField(14);
-    private final JTextField donGiaField = new JTextField(14);
-
-    private final AnhField anhField = new AnhField(
-            "app.dichVu.anhUrl",
-            "app.dichVu.chonAnh",
-            "app.dichVu.goAnh",
-            "app.dichVu.chuaCoAnh",
-            "app.dichVu.khongTaiDuocAnh",
-            "app.dichVu.loaiTepAnh",
-            "app.dichVu.duLieuKhongPhaiAnh"
-    );
+    private DichVuFormPanel formPanel;
 
     private ManagementPanel panel;
     private ManagementFormPanel form;
+
+    private JTextField boLocMa;
+    private JTextField boLocTen;
+    private ManagementPanel.BoLocKhoang boLocDonGia;
+
     private int trang = 1;
 
     public DichVuPage() {
@@ -78,8 +70,6 @@ public class DichVuPage extends AbstractPage {
         );
 
         this.panel.addActionColumn("app.common.actions",
-                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
-                        row -> this.sua(row)),
                 new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.xoa(row)));
 
@@ -96,7 +86,7 @@ public class DichVuPage extends AbstractPage {
                 this.form,
                 this.panel
         );
-        split.setDividerLocation(380);
+        split.setDividerLocation(480);
         split.setOpaque(false);
         split.setBorder(null);
 
@@ -107,35 +97,14 @@ public class DichVuPage extends AbstractPage {
     }
 
     private void khoiTaoForm() {
-        Theme.applyReadOnly(this.maField);
-
-        this.form.addField(
-                "app.dichVu.ma",
-                this.maField
-        );
-
-        this.form.addField(
-                "app.dichVu.ten",
-                this.tenField
-        );
-
-        this.form.addField(
-                "app.dichVu.moTa",
-                this.moTaField
-        );
-
-        this.form.addBlock(this.anhField);
-
-        this.form.addField(
-                "app.dichVu.donGia",
-                this.donGiaField
-        );
+        this.formPanel = new DichVuFormPanel();
+        this.form.addBlock(this.formPanel);
     }
 
     private void khoiTaoBoLoc() {
-        this.panel.addTextFilter("app.dichVu.ma", 0);
-        this.panel.addTextFilter("app.dichVu.ten", 1);
-        this.panel.addRangeFilter("app.dichVu.donGiaTuDen", 2);
+        this.boLocMa = this.panel.addTextFilter("app.dichVu.ma");
+        this.boLocTen = this.panel.addTextFilter("app.dichVu.ten");
+        this.boLocDonGia = this.panel.addRangeFilter("app.dichVu.donGiaTuDen");
 
         this.panel.setFilterChangeListener(
                 () -> this.taiLai(this.panel, 1)
@@ -187,11 +156,11 @@ public class DichVuPage extends AbstractPage {
         try {
             DanhSachDichVuCriteria tieuChi =
                     new DanhSachDichVuCriteria(
-                            panel.getTextFilter(0),
-                            panel.getTextFilter(1),
+                            this.boLocMa.getText(),
+                            this.boLocTen.getText(),
                             panel.getQuickFilter(),
-                            NumberParseUtil.toDoubleOrNull(panel.getTextFilter(2)),
-                            NumberParseUtil.toDoubleOrNull(panel.getTextFilter(3)),
+                            NumberParseUtil.toDoubleOrNull(this.boLocDonGia.tuText()),
+                            NumberParseUtil.toDoubleOrNull(this.boLocDonGia.denText()),
                             page,
                             SO_DONG_MOI_TRANG
                     );
@@ -260,60 +229,16 @@ public class DichVuPage extends AbstractPage {
             return;
         }
 
-        this.anhField.setDuongDan(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 0)
-                )
-        );
-
-        this.maField.setText(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 1)
-                )
-        );
-
-        this.tenField.setText(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 2)
-                )
-        );
-
-        this.moTaField.setText(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 3)
-                )
-        );
-
-        this.donGiaField.setText(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 4)
-                )
-        );
-
+        this.formPanel.napDuLieu(this.docDuLieuDong(row));
     }
 
     private void lamMoi() {
-        this.maField.setText("");
-        this.tenField.setText("");
-        this.moTaField.setText("");
-        this.donGiaField.setText("");
-
+        this.formPanel.lamMoi();
         this.panel.getTable().clearSelection();
-        this.anhField.clear();
-
-        this.tenField.requestFocusInWindow();
     }
 
     private DichVuFormData getFormData() {
-        String ma = this.maField.getText().trim();
-        String moTa = this.moTaField.getText().trim();
-        String anhUrl = this.anhField.getDuongDan();
-        return new DichVuFormData(
-                ma.isBlank() ? null : ma,
-                this.tenField.getText().trim(),
-                moTa.isBlank() ? null : moTa,
-                anhUrl.isBlank() ? null : anhUrl,
-                NumberParseUtil.toDoubleOrNull(this.donGiaField.getText()));
+        return this.formPanel.layDuLieu();
     }
 
     private void validateFormData(DichVuFormData data) {
@@ -399,9 +324,14 @@ public class DichVuPage extends AbstractPage {
         }
     }
 
-    private void sua(int row) {
-        this.chonDong();
-        this.tenField.requestFocusInWindow();
+    private DichVuFormData docDuLieuDong(int row) {
+        return new DichVuFormData(
+                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 1)),
+                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 2)),
+                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 3)),
+                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 0)),
+                NumberParseUtil.toDoubleOrNull(
+                        NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 4))));
     }
 
     private void xoa(int row) {

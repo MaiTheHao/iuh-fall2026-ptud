@@ -1,17 +1,16 @@
 package iuh.fit.gui.page;
 
-import com.github.lgooddatepicker.components.DateTimePicker;
 import iuh.fit.dto.DanhSachVoucherCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.VoucherFormData;
 import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiKichHoat;
-import iuh.fit.gui.component.BoChonNgayGio;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.VoucherFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.VoucherService;
 import iuh.fit.util.I18nReaderUtil;
@@ -19,8 +18,6 @@ import iuh.fit.util.NumberParseUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
@@ -42,13 +39,12 @@ public class VoucherPage extends AbstractPage {
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final VoucherService voucherService = new VoucherService();
+    private VoucherFormPanel formPanel;
 
-    private final JTextField maField = new JTextField(14);
-    private final JTextField tenChuongTrinhField = new JTextField(14);
-    private final JTextField moTaField = new JTextField(14);
-    private final JTextField mucGiamField = new JTextField(14);
-    private final DateTimePicker thoiHanPicker = BoChonNgayGio.taoBoChonNgayGio();
-    private final JCheckBox trangThaiField = new JCheckBox();
+    private JTextField boLocMa;
+    private ManagementPanel.BoLocKhoang boLocMucGiam;
+    private ManagementPanel.BoLocNgay boLocThoiHan;
+    private ManagementPanel.BoLocChon boLocTrangThai;
 
     private int trang = 1;
 
@@ -75,35 +71,20 @@ public class VoucherPage extends AbstractPage {
         );
 
         panel.addActionColumn("app.common.actions",
-                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
-                        row -> this.sua(panel, row)),
                 new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.xoa(panel, row)));
 
         ManagementFormPanel form =
                 new ManagementFormPanel("app.voucher.thongTinTitle");
 
-        Theme.applyReadOnly(this.maField);
+        this.formPanel = new VoucherFormPanel();
+        form.addBlock(this.formPanel);
 
-        form.addField("app.voucher.ma", this.maField);
-        form.addField("app.voucher.tenChuongTrinh", this.tenChuongTrinhField);
-        form.addField("app.voucher.moTa", this.moTaField);
-        form.addField("app.voucher.mucGiam", this.mucGiamField);
-
-        JLabel huongDan = new JLabel(
-                I18nReaderUtil.get("app.voucher.huongDanMucGiam"));
-        huongDan.setForeground(Theme.chuTrenAnh());
-        form.addBlock(huongDan);
-
-        form.addField("app.voucher.thoiHanApDung", this.thoiHanPicker);
-        BoChonNgayGio.apDungMau(this.thoiHanPicker);
-        form.addField("app.voucher.trangThaiKichHoat", this.trangThaiField);
-
-        panel.addTextFilter("app.voucher.ma", 3);
-        panel.addRangeFilter("app.voucher.mucGiam", 4);
-        panel.addDateRangeFilter("app.voucher.thoiHanApDung", 6);
-        panel.addComboBoxFilter(
-                "app.voucher.trangThaiKichHoat", 7,
+        this.boLocMa = panel.addTextFilter("app.voucher.ma");
+        this.boLocMucGiam = panel.addRangeFilter("app.voucher.mucGiam");
+        this.boLocThoiHan = panel.addDateRangeFilter("app.voucher.thoiHanApDung");
+        this.boLocTrangThai = panel.addComboBoxFilter(
+                "app.voucher.trangThaiKichHoat",
                 TrangThaiKichHoat.values());
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
 
@@ -135,7 +116,7 @@ public class VoucherPage extends AbstractPage {
                 form,
                 panel
         );
-        split.setDividerLocation(380);
+        split.setDividerLocation(480);
         split.setOpaque(false);
         split.setBorder(null);
 
@@ -146,15 +127,15 @@ public class VoucherPage extends AbstractPage {
 
     private void taiLai(ManagementPanel panel, int page) {
         try {
-            String maVoucher = panel.getTextFilter(3);
+            String maVoucher = this.boLocMa.getText();
 
-            Double mucGiamTu = this.docMucGiam(panel.getTextFilter(4));
-            Double mucGiamDen = this.docMucGiam(panel.getTextFilter(5));
+            Double mucGiamTu = this.docMucGiam(this.boLocMucGiam.tuText());
+            Double mucGiamDen = this.docMucGiam(this.boLocMucGiam.denText());
 
-            LocalDate thoiHanTu = panel.getDateFilterFrom(6);
-            LocalDate thoiHanDen = panel.getDateFilterTo(6);
+            LocalDate thoiHanTu = this.boLocThoiHan.tuNgay();
+            LocalDate thoiHanDen = this.boLocThoiHan.denNgay();
 
-            Object chon = panel.getComboFilterValue(7);
+            Object chon = this.boLocTrangThai.giaTri();
             Boolean trangThai = chon == null
                     ? null
                     : ((TrangThaiKichHoat) chon).isGiaTri();
@@ -216,15 +197,7 @@ public class VoucherPage extends AbstractPage {
     }
 
     private VoucherFormData getFormData() {
-        String ma = this.maField.getText().trim();
-        String moTa = this.moTaField.getText().trim();
-        return new VoucherFormData(
-                ma.isBlank() ? null : ma,
-                this.tenChuongTrinhField.getText().trim(),
-                moTa.isEmpty() ? null : moTa,
-                NumberParseUtil.toDoubleOrNull(this.mucGiamField.getText()),
-                this.thoiHanPicker.getDateTimeStrict(),
-                this.trangThaiField.isSelected());
+        return this.formPanel.layDuLieu();
     }
 
     private void validateFormData(VoucherFormData data) {
@@ -274,47 +247,12 @@ public class VoucherPage extends AbstractPage {
             return;
         }
 
-        this.maField.setText(
-                String.valueOf(panel.getModel().getValueAt(row, 0)));
-
-        this.tenChuongTrinhField.setText(
-                String.valueOf(panel.getModel().getValueAt(row, 1)));
-
-        this.moTaField.setText(
-                String.valueOf(panel.getModel().getValueAt(row, 2)));
-
-        this.mucGiamField.setText(
-                String.valueOf(panel.getModel().getValueAt(row, 3)));
-
-        String thoiHan = String.valueOf(
-                panel.getModel().getValueAt(row, 4));
-
-        if (thoiHan.isBlank()) {
-            this.thoiHanPicker.clear();
-        } else {
-            this.thoiHanPicker.setDateTimeStrict(
-                    LocalDateTime.parse(thoiHan, DINH_DANG_NGAY_GIO));
-        }
-
-        String trangThai = TextNormalizerUtil.normalize(
-                String.valueOf(panel.getModel().getValueAt(row, 5)));
-
-        this.trangThaiField.setSelected(
-                trangThai.equals(TextNormalizerUtil.normalize(
-                        TrangThaiKichHoat.DANG_KICH_HOAT
-                                .getI18NBusinessName())));
+        this.formPanel.napDuLieu(this.docDuLieuDong(panel, row));
     }
 
     private void lamMoi(ManagementPanel panel) {
-        this.maField.setText("");
-        this.tenChuongTrinhField.setText("");
-        this.moTaField.setText("");
-        this.mucGiamField.setText("");
-        this.thoiHanPicker.clear();
-        this.trangThaiField.setSelected(true);
-
+        this.formPanel.lamMoi();
         panel.getTable().clearSelection();
-        this.tenChuongTrinhField.requestFocusInWindow();
     }
 
     private Voucher taoVoucher(VoucherFormData data) {
@@ -373,9 +311,24 @@ public class VoucherPage extends AbstractPage {
         }
     }
 
-    private void sua(ManagementPanel panel, int row) {
-        this.chonDong(panel);
-        this.tenChuongTrinhField.requestFocusInWindow();
+    private VoucherFormData docDuLieuDong(ManagementPanel panel, int row) {
+        String thoiHan = String.valueOf(panel.getModel().getValueAt(row, 4));
+        LocalDateTime thoiHanApDung = thoiHan.isBlank()
+                ? null
+                : LocalDateTime.parse(thoiHan, DINH_DANG_NGAY_GIO);
+
+        String trangThai = TextNormalizerUtil.normalize(
+                String.valueOf(panel.getModel().getValueAt(row, 5)));
+
+        return new VoucherFormData(
+                String.valueOf(panel.getModel().getValueAt(row, 0)),
+                String.valueOf(panel.getModel().getValueAt(row, 1)),
+                String.valueOf(panel.getModel().getValueAt(row, 2)),
+                NumberParseUtil.toDoubleOrNull(
+                        String.valueOf(panel.getModel().getValueAt(row, 3))),
+                thoiHanApDung,
+                trangThai.equals(TextNormalizerUtil.normalize(
+                        TrangThaiKichHoat.DANG_KICH_HOAT.getI18NBusinessName())));
     }
 
     private void xoa(ManagementPanel panel, int row) {

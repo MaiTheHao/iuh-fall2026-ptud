@@ -26,7 +26,6 @@
 			"serviceConsumptionReport": "Tiêu thụ dịch vụ",
 			"changePassword": "Đổi mật khẩu",
 			"language": "Ngôn ngữ",
-			"darkMode": "Chế độ tối",
 			"account": "Tài khoản",
 			"logout": "Đăng xuất"
 		},
@@ -52,6 +51,7 @@
 			"delete": "Xóa",
 			"actions": "Thao tác",
 			"edit": "Sửa",
+			"editTitle": "Sửa thông tin",
 			"clearFilter": "Xóa lọc",
 			"all": "Tất cả",
 			"prev": "‹ Trước",
@@ -65,13 +65,16 @@
 			"confirm": "Xác nhận",
 			"notification": "Thông báo",
 			"error": "Lỗi",
+			"loiKhongXacDinh": "Đã xảy ra lỗi. Vui lòng thử lại.",
 			"nhapUrl": "Nhập URL",
 			"tieuDeNhapUrl": "Nhập URL ảnh",
 			"urlGoiY": "Dán liên kết ảnh (https://...)",
 			"notFound": "Không tìm thấy dữ liệu.",
 			"notLoggedIn": "Phiên đăng nhập không hợp lệ.",
 			"confirmClear": "Bạn có thay đổi chưa lưu. Xóa trắng form?",
-			"cancel": "Hủy"
+			"cancel": "Hủy",
+			"dangTaiAnh": "Đang tải ảnh…",
+			"khongCoDuLieu": "Không có dữ liệu"
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -297,8 +300,8 @@
 			"loiKetNoiKhach": "Lỗi kết nối cơ sở dữ liệu khi tìm khách hàng.",
 			"loiKetNoiXe": "Lỗi kết nối cơ sở dữ liệu khi tìm xe.",
 			"khongTimThayKhach": "Không tìm thấy khách hàng. Vui lòng nhập thông tin mới.",
-			"khongTimThayXe": "Biển số xe chưa có trong hệ thống. Vui lòng nhập thông tin xe mới.",
-			"loiHeThong": "Lỗi hệ thống:",
+			"khongTimThayXe": "Biển số xe {0} chưa có trong hệ thống. Vui lòng nhập thông tin xe mới.",
+			"loiHeThong": "Lỗi hệ thống. Vui lòng thử lại.",
 			"loiSdtTrong": "Vui lòng nhập số điện thoại khách hàng.",
 			"loiHoTenTrong": "Vui lòng nhập họ tên khách hàng.",
 			"loiBienSoTrong": "Vui lòng nhập biển số xe.",
@@ -361,7 +364,7 @@
 			"loiTrangThaiCuoi": "Khiếu nại đã xử lý xong, không thể thay đổi trạng thái.",
 			"loiPhieuDaHuy": "Phiếu tiếp nhận đã hủy, không thể tạo khiếu nại.",
 			"loiGhiDuLieu": "Không thể ghi khiếu nại vào cơ sở dữ liệu.",
-			"luuThanhCong": "Lưu khiếu nại thành công:"
+			"luuThanhCong": "Lưu khiếu nại thành công: {0}"
 		},
 		"voucher": {
 			"thongTinTitle": "Thông Tin Voucher",
@@ -435,6 +438,7 @@
 		},
 		"login": {
 			"title": "Đăng nhập hệ thống",
+			"tagline": "Hệ thống quản lý gara ô tô",
 			"username": "Tên đăng nhập:",
 			"password": "Mật khẩu:",
 			"submit": "Đăng Nhập",

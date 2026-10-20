@@ -7,7 +7,6 @@ import iuh.fit.gui.page.AbstractPage;
 public final class AppContext {
     private static final AppContext instance = new AppContext();
     private AppLocale locale = AppLocale.VN;
-    private boolean darkMode = false;
     private NhanVien currentUser = null;
     private Class<? extends AbstractPage> currentPage;
 
@@ -24,14 +23,6 @@ public final class AppContext {
 
     public void setLocale(AppLocale locale) {
         this.locale = locale;
-    }
-
-    public boolean isDarkMode() {
-        return this.darkMode;
-    }
-
-    public void setDarkMode(boolean darkMode) {
-        this.darkMode = darkMode;
     }
 
     public NhanVien getCurrentUser() {

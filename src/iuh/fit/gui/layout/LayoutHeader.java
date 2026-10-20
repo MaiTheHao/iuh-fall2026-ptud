@@ -11,34 +11,33 @@ import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
 import java.awt.Dimension;
 import java.util.function.Consumer;
 
 public class LayoutHeader extends JMenuBar {
 
     private final PageRegistry registry;
-    private final MenuRegistry menuRegistry = new MenuRegistry();
+    private final MenuRegistry menuRegistry;
 
     private final JMenu settingsMenu = new JMenu();
     private final JMenuItem languageItem = new JMenuItem();
-    private final JCheckBoxMenuItem themeItem = new JCheckBoxMenuItem();
     private final JMenuItem accountItem = new JMenuItem();
     private final JMenuItem logoutItem = new JMenuItem();
 
     public LayoutHeader(PageRegistry registry, Consumer<Class<? extends AbstractPage>> onSelect,
-            Runnable onToggleLocale, Runnable onToggleTheme, Runnable onLogout) {
+            Runnable onToggleLocale, Runnable onLogout) {
         this.registry = registry;
+        this.menuRegistry = new MenuRegistry(registry);
+        this.setPreferredSize(new Dimension(0, 48));
         this.setBackground(Theme.BG);
         this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Theme.BORDER));
 
         this.buildGroupMenus(onSelect);
         this.add(Box.createHorizontalGlue());
-        this.buildSettingsMenu(onSelect, onToggleLocale, onToggleTheme, onLogout);
+        this.buildSettingsMenu(onSelect, onToggleLocale, onLogout);
         this.add(Box.createHorizontalStrut(4));
         this.refreshText();
     }
@@ -58,7 +57,7 @@ public class LayoutHeader extends JMenuBar {
             if (page.getGroup() != MenuGroup.TRANG_CHU) {
                 continue;
             }
-            JMenuItem item = this.createAndRegisterItem(page, onSelect, true);
+            JMenuItem item = this.createTopLevelItem(page, onSelect);
             this.menuRegistry.registerHomeItem(item);
             this.add(item);
         }
@@ -78,47 +77,66 @@ public class LayoutHeader extends JMenuBar {
             if (page.hasSeparatorBefore()) {
                 menu.addSeparator();
             }
-            menu.add(this.createAndRegisterItem(page, onSelect, false));
+            menu.add(this.createMenuItem(page, onSelect));
         }
     }
 
     private void buildSettingsMenu(Consumer<Class<? extends AbstractPage>> onSelect,
-            Runnable onToggleLocale, Runnable onToggleTheme, Runnable onLogout) {
+            Runnable onToggleLocale, Runnable onLogout) {
         this.menuRegistry.registerMenu(MenuGroup.CAI_DAT, this.settingsMenu);
 
-        this.languageItem.addActionListener(e -> onToggleLocale.run());
-        this.settingsMenu.add(this.languageItem);
-
-        this.themeItem.addActionListener(e -> onToggleTheme.run());
-        this.settingsMenu.add(this.themeItem);
+        this.addLanguageItem(onToggleLocale);
         this.settingsMenu.addSeparator();
-
-        for (AbstractPage page : this.registry.all()) {
-            if (page.getGroup() == MenuGroup.CAI_DAT) {
-                this.settingsMenu.add(this.createAndRegisterItem(page, onSelect, false));
-            }
-        }
+        this.addSettingsPageItems(onSelect);
         this.settingsMenu.addSeparator();
-
-        this.accountItem.setEnabled(false);
-        this.settingsMenu.add(this.accountItem);
+        this.addAccountItem();
         this.settingsMenu.addSeparator();
-
-        this.logoutItem.setForeground(Theme.DANGER_TEXT);
-        this.logoutItem.addActionListener(e -> onLogout.run());
-        this.settingsMenu.add(this.logoutItem);
+        this.addLogoutItem(onLogout);
 
         this.add(this.settingsMenu);
     }
 
-    private JMenuItem createAndRegisterItem(AbstractPage page, Consumer<Class<? extends AbstractPage>> onSelect,
-            boolean topLevel) {
-        String text = I18nReaderUtil.get(page.getTitleKey());
-        JMenuItem item = topLevel ? new TopLevelItem(text) : new JMenuItem(text);
+    private void addLanguageItem(Runnable onToggleLocale) {
+        this.languageItem.addActionListener(e -> onToggleLocale.run());
+        this.settingsMenu.add(this.languageItem);
+    }
+
+    private void addSettingsPageItems(Consumer<Class<? extends AbstractPage>> onSelect) {
+        for (AbstractPage page : this.registry.all()) {
+            if (page.getGroup() == MenuGroup.CAI_DAT) {
+                this.settingsMenu.add(this.createMenuItem(page, onSelect));
+            }
+        }
+    }
+
+    private void addAccountItem() {
+        this.accountItem.setEnabled(false);
+        this.settingsMenu.add(this.accountItem);
+    }
+
+    private void addLogoutItem(Runnable onLogout) {
+        this.logoutItem.setForeground(Theme.DANGER_TEXT);
+        this.logoutItem.addActionListener(e -> onLogout.run());
+        this.settingsMenu.add(this.logoutItem);
+    }
+
+    private JMenuItem createTopLevelItem(AbstractPage page, Consumer<Class<? extends AbstractPage>> onSelect) {
+        JMenuItem item = new TopLevelItem(I18nReaderUtil.get(page.getTitleKey()));
+        this.registerPageItem(page, item, onSelect);
+        return item;
+    }
+
+    private JMenuItem createMenuItem(AbstractPage page, Consumer<Class<? extends AbstractPage>> onSelect) {
+        JMenuItem item = new JMenuItem(I18nReaderUtil.get(page.getTitleKey()));
+        this.registerPageItem(page, item, onSelect);
+        return item;
+    }
+
+    private void registerPageItem(AbstractPage page, JMenuItem item,
+            Consumer<Class<? extends AbstractPage>> onSelect) {
         Class<? extends AbstractPage> type = page.getClass();
         item.addActionListener(e -> onSelect.accept(type));
         this.menuRegistry.registerItem(page, item);
-        return item;
     }
 
     public void setActive(Class<? extends AbstractPage> active) {
@@ -135,22 +153,11 @@ public class LayoutHeader extends JMenuBar {
         AppLocale locale = AppContext.getInstance().getLocale();
         this.languageItem.setText(I18nReaderUtil.get("app.menu.language") + ": " + locale.getI18NBusinessName());
 
-        this.themeItem.setText(I18nReaderUtil.get("app.menu.darkMode"));
-        this.themeItem.setSelected(AppContext.getInstance().isDarkMode());
-
         NhanVien nhanVien = AppContext.getInstance().getCurrentUser();
         String tenDangNhap = nhanVien != null ? nhanVien.getTenDangNhap() : "";
         this.accountItem.setText(I18nReaderUtil.get("app.menu.account") + ": " + tenDangNhap);
 
         this.logoutItem.setText(I18nReaderUtil.get("app.menu.logout"));
-    }
-
-    public void refreshTheme() {
-        SwingUtilities.updateComponentTreeUI(this);
-        this.setBackground(Theme.BG);
-        this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Theme.BORDER));
-        this.logoutItem.setForeground(Theme.DANGER_TEXT);
-        this.repaint();
     }
 
     private static final class TopLevelItem extends JMenuItem {

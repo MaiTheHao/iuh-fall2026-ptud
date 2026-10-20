@@ -9,6 +9,7 @@ import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.KhachHangFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.KhachHangService;
 import iuh.fit.util.I18nReaderUtil;
@@ -28,10 +29,13 @@ public class KhachHangPage extends AbstractPage {
     private static final int SO_DONG_MOI_TRANG = 20;
 
     private final KhachHangService khachHangService = new KhachHangService();
-    private final JTextField maField = new JTextField(14);
-    private final JTextField sdtField = new JTextField(14);
-    private final JTextField hoTenField = new JTextField(14);
-    private final JTextField ngayTaoField = new JTextField(14);
+    private KhachHangFormPanel formPanel;
+
+    private JTextField boLocMa;
+    private JTextField boLocSdt;
+    private JTextField boLocHoTen;
+    private ManagementPanel.BoLocNgay boLocNgayTao;
+
     private int trang = 1;
 
     public KhachHangPage() {
@@ -53,24 +57,18 @@ public class KhachHangPage extends AbstractPage {
                 I18nReaderUtil.get("app.khachHang.ngayTao"));
 
         panel.addActionColumn("app.common.actions",
-                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
-                        row -> this.sua(panel, row)),
                 new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.xoa(panel, row)));
 
         ManagementFormPanel form = new ManagementFormPanel("app.khachHang.thongTinTitle");
 
-        Theme.applyReadOnly(this.maField);
-        Theme.applyReadOnly(this.ngayTaoField);
-        form.addField("app.khachHang.ma", this.maField);
-        form.addField("app.khachHang.sdt", this.sdtField);
-        form.addField("app.khachHang.hoTen", this.hoTenField);
-        form.addField("app.khachHang.ngayTao", this.ngayTaoField);
+        this.formPanel = new KhachHangFormPanel();
+        form.addBlock(this.formPanel);
 
-        panel.addTextFilter("app.khachHang.ma", 0);
-        panel.addTextFilter("app.khachHang.sdt", 1);
-        panel.addTextFilter("app.khachHang.hoTen", 2);
-        panel.addDateRangeFilter("app.khachHang.ngayTao", 3);
+        this.boLocMa = panel.addTextFilter("app.khachHang.ma");
+        this.boLocSdt = panel.addTextFilter("app.khachHang.sdt");
+        this.boLocHoTen = panel.addTextFilter("app.khachHang.hoTen");
+        this.boLocNgayTao = panel.addDateRangeFilter("app.khachHang.ngayTao");
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
 
         form.getNutThem().addActionListener(e -> this.them(panel));
@@ -89,7 +87,7 @@ public class KhachHangPage extends AbstractPage {
         this.taiLai(panel, 1);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, panel);
-        split.setDividerLocation(380);
+        split.setDividerLocation(480);
         split.setOpaque(false);
         split.setBorder(null);
 
@@ -98,9 +96,12 @@ public class KhachHangPage extends AbstractPage {
         this.repaint();
     }
 
-    private void sua(ManagementPanel panel, int row) {
-        this.chonDong(panel);
-        this.sdtField.requestFocusInWindow();
+    private KhachHangFormData docDuLieuDong(ManagementPanel panel, int row) {
+        return new KhachHangFormData(
+                String.valueOf(panel.getModel().getValueAt(row, 0)),
+                String.valueOf(panel.getModel().getValueAt(row, 1)),
+                String.valueOf(panel.getModel().getValueAt(row, 2)),
+                String.valueOf(panel.getModel().getValueAt(row, 3)));
     }
 
     private void xoa(ManagementPanel panel, int row) {
@@ -131,11 +132,11 @@ public class KhachHangPage extends AbstractPage {
 
     private void taiLai(ManagementPanel panel, int page) {
         DanhSachKhachHangCriteria tieuChi = new DanhSachKhachHangCriteria(
-                panel.getTextFilter(0),
-                panel.getTextFilter(1),
-                panel.getTextFilter(2),
-                panel.getDateFilterFrom(3),
-                panel.getDateFilterTo(3),
+                this.boLocMa.getText(),
+                this.boLocSdt.getText(),
+                this.boLocHoTen.getText(),
+                this.boLocNgayTao.tuNgay(),
+                this.boLocNgayTao.denNgay(),
                 panel.getQuickFilter(),
                 page,
                 SO_DONG_MOI_TRANG);
@@ -171,28 +172,17 @@ public class KhachHangPage extends AbstractPage {
         if (row < 0) {
             return;
         }
-        this.maField.setText(String.valueOf(panel.getModel().getValueAt(row, 0)));
-        this.sdtField.setText(String.valueOf(panel.getModel().getValueAt(row, 1)));
-        this.hoTenField.setText(String.valueOf(panel.getModel().getValueAt(row, 2)));
-        this.ngayTaoField.setText(String.valueOf(panel.getModel().getValueAt(row, 3)));
+
+        this.formPanel.napDuLieu(this.docDuLieuDong(panel, row));
     }
 
     private void lamMoi(ManagementPanel panel) {
-        this.maField.setText("");
-        this.sdtField.setText("");
-        this.hoTenField.setText("");
-        this.ngayTaoField.setText("");
+        this.formPanel.lamMoi();
         panel.getTable().clearSelection();
-        this.sdtField.requestFocusInWindow();
     }
 
     private KhachHangFormData getFormData() {
-        String ma = this.maField.getText().trim();
-        return new KhachHangFormData(
-                ma.isBlank() ? null : ma,
-                this.sdtField.getText().trim(),
-                this.hoTenField.getText().trim(),
-                this.ngayTaoField.getText().trim());
+        return this.formPanel.layDuLieu();
     }
 
     private void validateFormData(KhachHangFormData data) {

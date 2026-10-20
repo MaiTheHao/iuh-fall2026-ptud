@@ -30,6 +30,8 @@ public class LapChanDoanPage extends AbstractPage {
     private ManagementPanel managementPanel;
     private ManagementFormPanel form;
 
+    private ManagementPanel.BoLocChon boLocTrangThai;
+
     private final JTextField maField = new JTextField();
     private final JTextField bienSoField = new JTextField();
     private final JTextField khachHangField = new JTextField();
@@ -62,7 +64,8 @@ public class LapChanDoanPage extends AbstractPage {
                 new ThaoTac("check", "app.chanDoan.chon", ThaoTac.KieuThaoTac.THUONG,
                         row -> this.chonPhieu(row)));
 
-        this.managementPanel.addComboBoxFilter("app.chanDoan.trangThai", 3, TrangThaiPhieuTiepNhan.values());
+        this.boLocTrangThai = this.managementPanel.addComboBoxFilter("app.chanDoan.trangThai",
+                TrangThaiPhieuTiepNhan.values());
         this.managementPanel.setFilterChangeListener(() -> this.taiLaiData(1));
 
         this.managementPanel.getClearFilterButton().addActionListener(e -> this.managementPanel.clearFilters());
@@ -100,7 +103,7 @@ public class LapChanDoanPage extends AbstractPage {
         });
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
-        split.setDividerLocation(380);
+        split.setDividerLocation(480);
         split.setOpaque(false);
         split.setBorder(null);
         this.add(split, BorderLayout.CENTER);
@@ -118,7 +121,7 @@ public class LapChanDoanPage extends AbstractPage {
             List<Object[]> rows = new ArrayList<>();
             
             // Lấy giá trị bộ lọc trạng thái hiện tại
-            Object selectedTrangThai = this.managementPanel.getComboFilterValue(3);
+            Object selectedTrangThai = this.boLocTrangThai.giaTri();
             
             for (PhieuTiepNhan p : danhSach) {
                 // Xử lý Lọc theo ComboBox Trạng Thái

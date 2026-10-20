@@ -52,14 +52,14 @@ public final class ChonPhuTungDialog extends JDialog {
 		super(owner, I18nReaderUtil.get("app.phieuNhap.chonPhuTung"), ModalityType.APPLICATION_MODAL);
 		this.phuTungs = phuTungs == null ? new ArrayList<>() : new ArrayList<>(phuTungs);
 
-		this.setSize(640, 420);
+		this.setSize(960, 640);
 		this.setLocationRelativeTo(owner);
 		this.setLayout(new BorderLayout(8, 8));
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.getContentPane().setBackground(Theme.BG);
 
 		this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		this.table.setRowHeight(26);
+		this.table.setRowHeight(34);
 		Theme.styleTable(this.table);
 		this.table.addMouseListener(new MouseAdapter() {
 			@Override

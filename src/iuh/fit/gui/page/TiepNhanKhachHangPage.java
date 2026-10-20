@@ -18,12 +18,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -49,7 +48,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     private final JTextField dongXeField = new JTextField();
     private final JTextField doiXeField = new JTextField();
     private final JTextField odoField = new JTextField();
-    private final JTextArea moTaArea = new JTextArea(5, 50);
+    private final JTextArea moTaArea = new JTextArea(6, 60);
 
     private final JButton timKhachButton = new JButton();
     private final JButton timXeButton = new JButton();
@@ -68,22 +67,22 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     public void render() {
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        this.setLayout(new BorderLayout(10, 10));
+        this.setLayout(new BorderLayout(16, 16));
 
         this.timKhachButton.setText(I18nReaderUtil.get("app.tiepNhan.timKhach"));
         this.timXeButton.setText(I18nReaderUtil.get("app.tiepNhan.timXe"));
         this.lamMoiButton.setText(I18nReaderUtil.get("app.tiepNhan.lamMoi"));
         this.luuButton.setText(I18nReaderUtil.get("app.tiepNhan.luu"));
 
-        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel contentPanel = new JPanel(new BorderLayout(16, 16));
         contentPanel.setOpaque(false);
 
         // Top Panel: Khách Hàng & Phương Tiện
-        JPanel pnlTop = new JPanel(new GridLayout(1, 2, 10, 0));
+        JPanel pnlTop = new JPanel(new GridLayout(1, 2, 16, 0));
         pnlTop.setOpaque(false);
 
         // 1. Thông tin Khách Hàng
-        JPanel pnlKhachHang = this.createTitledPanel(I18nReaderUtil.get("app.tiepNhan.tieuDeKhachHang"));
+        JPanel pnlKhachHang = this.createTitledPanel("app.tiepNhan.tieuDeKhachHang");
         pnlKhachHang.setLayout(new GridBagLayout());
         GridBagConstraints gbcKH = this.createGbc();
 
@@ -92,13 +91,13 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         pnlTop.add(pnlKhachHang);
 
         // 2. Thông tin Phương Tiện (Xe)
-        JPanel pnlPhuongTien = this.createTitledPanel(I18nReaderUtil.get("app.tiepNhan.tieuDeXe"));
+        JPanel pnlPhuongTien = this.createTitledPanel("app.tiepNhan.tieuDeXe");
         pnlPhuongTien.setLayout(new GridBagLayout());
         GridBagConstraints gbcXe = this.createGbc();
 
         this.addFormField(pnlPhuongTien, I18nReaderUtil.get("app.tiepNhan.bienSo"), this.bienSoField, this.timXeButton, gbcXe, 0);
 
-        JPanel pnlChiTietXe = new JPanel(new GridLayout(1, 4, 10, 0));
+        JPanel pnlChiTietXe = new JPanel(new GridLayout(1, 4, 16, 0));
         pnlChiTietXe.setOpaque(false);
         pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.hangXe") + ":", this.hangXeField));
         pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.dongXe") + ":", this.dongXeField));
@@ -115,11 +114,11 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         // Center Panel: Mô tả tình trạng xe
         JPanel pnlMoTa = new JPanel(new BorderLayout(0, 5));
         pnlMoTa.setOpaque(false);
-        pnlMoTa.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        pnlMoTa.setBorder(BorderFactory.createEmptyBorder(16, 0, 0, 0));
 
         JLabel lblMoTa = new JLabel(I18nReaderUtil.get("app.tiepNhan.moTa"));
-        lblMoTa.setFont(lblMoTa.getFont().deriveFont(Font.BOLD));
-        lblMoTa.setForeground(Theme.chuTrenAnh());
+        lblMoTa.setFont(Theme.fieldLabelFont());
+        lblMoTa.setForeground(Theme.INK);
 
         this.moTaArea.setLineWrap(true);
         this.moTaArea.setWrapStyleWord(true);
@@ -133,6 +132,11 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         Theme.applyPrimary(this.luuButton);
         Theme.applyPrimary(this.timKhachButton);
         Theme.applyPrimary(this.timXeButton);
+
+        this.timKhachButton.setPreferredSize(new Dimension(140, 40));
+        this.timXeButton.setPreferredSize(new Dimension(140, 40));
+        this.lamMoiButton.setPreferredSize(new Dimension(160, 40));
+        this.luuButton.setPreferredSize(new Dimension(160, 40));
 
         pnlButtons.add(this.lamMoiButton);
         pnlButtons.add(this.luuButton);
@@ -237,7 +241,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
             ThongBao.loi(this, "app.tiepNhan.loiKetNoiKhach");
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Lỗi hệ thống khi tìm khách hàng", ex);
-            ThongBao.loi(this, I18nReaderUtil.get("app.tiepNhan.loiHeThong") + " " + ex.getMessage());
+            ThongBao.loi(this, "app.tiepNhan.loiHeThong");
         }
     }
 
@@ -257,8 +261,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
             this.dangCapNhat = true;
             try {
                 if (found.isEmpty()) {
-                    ThongBao.thongTin(this, I18nReaderUtil.get("app.tiepNhan.khongTimThayXe")
-                            + " (" + bienSoChuanHoa + ")");
+                    ThongBao.thongTinDinhDang(this, "app.tiepNhan.khongTimThayXe", bienSoChuanHoa);
                     this.bienSoField.setText(bienSoChuanHoa);
                     this.hangXeField.setText("");
                     this.dongXeField.setText("");
@@ -282,7 +285,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
             ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Lỗi hệ thống khi tìm xe", ex);
-            ThongBao.loi(this, I18nReaderUtil.get("app.tiepNhan.loiHeThong") + " " + ex.getMessage());
+            ThongBao.loi(this, "app.tiepNhan.loiHeThong");
         }
     }
 
@@ -302,13 +305,10 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         }
     }
 
-    private JPanel createTitledPanel(String title) {
+    private JPanel createTitledPanel(String titleKey) {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
-        TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Theme.BORDER), title);
-        border.setTitleFont(border.getTitleFont().deriveFont(Font.BOLD));
-        border.setTitleColor(Theme.chuTrenAnh());
-        panel.setBorder(border);
+        panel.setBorder(Theme.titledBorder(titleKey));
         return panel;
     }
 
@@ -326,8 +326,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         gbc.gridwidth = 1;
 
         JLabel lbl = new JLabel(label);
-        lbl.setFont(lbl.getFont().deriveFont(Font.BOLD));
-        lbl.setForeground(Theme.chuTrenAnh());
+        lbl.setFont(Theme.fieldLabelFont());
+        lbl.setForeground(Theme.INK);
         parent.add(lbl, gbc);
 
         gbc.gridx = 1;
@@ -345,8 +345,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         JPanel panel = new JPanel(new BorderLayout(0, 5));
         panel.setOpaque(false);
         JLabel lbl = new JLabel(labelText);
-        lbl.setFont(lbl.getFont().deriveFont(Font.BOLD));
-        lbl.setForeground(Theme.chuTrenAnh());
+        lbl.setFont(Theme.fieldLabelFont());
+        lbl.setForeground(Theme.INK);
         panel.add(lbl, BorderLayout.NORTH);
         panel.add(field, BorderLayout.CENTER);
         return panel;

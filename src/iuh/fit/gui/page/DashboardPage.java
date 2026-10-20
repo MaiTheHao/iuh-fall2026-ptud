@@ -38,7 +38,7 @@ import java.util.Optional;
  */
 public class DashboardPage extends AbstractPage {
 
-    private static final double TI_LE_THE = 0.4;
+    private static final int RONG_THE = 800;
     private static final DecimalFormat DINH_DANG_TIEN = new DecimalFormat("#,##0");
 
     private static final String BIEU_TUONG_TIEN = "banknote";
@@ -89,7 +89,7 @@ public class DashboardPage extends AbstractPage {
         the.setBackground(Theme.PANEL);
         the.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Theme.BORDER),
-                BorderFactory.createEmptyBorder(10, 8, 8, 8)));
+                BorderFactory.createEmptyBorder(16, 12, 12, 12)));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -148,11 +148,11 @@ public class DashboardPage extends AbstractPage {
 
     private JLabel taoAnhDaiDien(NhanVien nhanVien) {
         JLabel anh = new JLabel(this.layChuDau(nhanVien), SwingConstants.CENTER);
-        anh.setPreferredSize(new Dimension(48, 64));
+        anh.setPreferredSize(new Dimension(64, 84));
         anh.setOpaque(true);
         anh.setBackground(Theme.palette().PANEL_ALT());
         anh.setForeground(Theme.palette().INK_SECONDARY());
-        anh.setFont(this.fontChu(18f, Font.BOLD));
+        anh.setFont(this.fontChu(24f, Font.BOLD));
         anh.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
         return anh;
     }
@@ -161,11 +161,11 @@ public class DashboardPage extends AbstractPage {
         JPanel thongTin = new JPanel();
         thongTin.setLayout(new BoxLayout(thongTin, BoxLayout.Y_AXIS));
         thongTin.setOpaque(false);
-        thongTin.add(this.taoNhan(this.layHoTen(nhanVien), 14f, Font.BOLD, Theme.INK, false));
+        thongTin.add(this.taoNhan(this.layHoTen(nhanVien), 20f, Font.BOLD, Theme.INK, false));
         thongTin.add(Box.createVerticalStrut(4));
-        thongTin.add(this.taoNhan(this.layVaiTro(nhanVien), 10.5f, Font.PLAIN, Theme.palette().INK_SECONDARY(), false));
+        thongTin.add(this.taoNhan(this.layVaiTro(nhanVien), 14f, Font.PLAIN, Theme.palette().INK_SECONDARY(), false));
         thongTin.add(Box.createVerticalStrut(2));
-        thongTin.add(this.taoNhan(this.layMaNhanVien(nhanVien), 10.5f, Font.PLAIN, Theme.palette().INK_SECONDARY(), true));
+        thongTin.add(this.taoNhan(this.layMaNhanVien(nhanVien), 14f, Font.PLAIN, Theme.palette().INK_SECONDARY(), true));
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -177,8 +177,8 @@ public class DashboardPage extends AbstractPage {
         JPanel dong = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
         dong.setOpaque(false);
         dong.add(this.taoNhan(I18nReaderUtil.get("app.dashboard.shift") + ":",
-                11f, Font.BOLD, Theme.palette().INK_SECONDARY(), false));
-        dong.add(this.taoNhan(this.layNoiDungCa(ca), 11f, Font.BOLD, Theme.INK, true));
+                14f, Font.BOLD, Theme.palette().INK_SECONDARY(), false));
+        dong.add(this.taoNhan(this.layNoiDungCa(ca), 14f, Font.BOLD, Theme.INK, true));
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -194,11 +194,11 @@ public class DashboardPage extends AbstractPage {
         noiDung.setLayout(new BoxLayout(noiDung, BoxLayout.Y_AXIS));
         noiDung.setOpaque(false);
         noiDung.add(this.taoNhan(I18nReaderUtil.get(keyNhan).toUpperCase(),
-                9.5f, Font.BOLD, Theme.palette().INK_MUTED(), false));
-        noiDung.add(this.taoNhan(giaTri, 15f, Font.BOLD, Theme.INK, true));
+                12f, Font.BOLD, Theme.palette().INK_MUTED(), false));
+        noiDung.add(this.taoNhan(giaTri, 20f, Font.BOLD, Theme.INK, true));
 
         if (phu != null) {
-            noiDung.add(this.taoNhan(phu, 9.5f, Font.PLAIN,
+            noiDung.add(this.taoNhan(phu, 12f, Font.PLAIN,
                     phuCanhBao ? Theme.WARNING_TEXT : Theme.palette().INK_MUTED(), false));
         }
 
@@ -214,8 +214,8 @@ public class DashboardPage extends AbstractPage {
 
     private JPanel taoHopBieuTuong(String bieuTuong) {
         JLabel hop = new JLabel(
-                new LucideIcon(bieuTuong, 16, Theme.palette().INK_SECONDARY()), SwingConstants.CENTER);
-        hop.setPreferredSize(new Dimension(32, 32));
+                new LucideIcon(bieuTuong, 24, Theme.palette().INK_SECONDARY()), SwingConstants.CENTER);
+        hop.setPreferredSize(new Dimension(44, 44));
         hop.setOpaque(true);
         hop.setBackground(Theme.palette().PANEL_ALT());
         hop.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
@@ -292,7 +292,7 @@ public class DashboardPage extends AbstractPage {
         @Override
         public void doLayout() {
             Insets insets = this.getInsets();
-            int rong = (int) Math.round((this.getWidth() - insets.left - insets.right) * TI_LE_THE);
+            int rong = Math.min(RONG_THE, this.getWidth() - insets.left - insets.right);
 
             this.the.setBounds(
                     this.getWidth() - insets.right - rong,

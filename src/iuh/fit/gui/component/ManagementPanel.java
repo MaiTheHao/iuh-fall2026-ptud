@@ -1,100 +1,164 @@
 package iuh.fit.gui.component;
 
 import com.github.lgooddatepicker.components.DatePicker;
-import iuh.fit.enumeration.I18nEnum;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.border.TitledBorder;
+import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ManagementPanel extends JPanel {
 
-    private final Map<Integer, JComboBox<Object>> comboFilters = new LinkedHashMap<>();
-    private final DefaultTableModel model = new DefaultTableModel() {
+    private static final String THE_BANG = "bang";
+    private static final String THE_TRONG = "trong";
+
+    /** Handle của một bộ lọc chọn một giá trị; đọc mã enum hoặc giá trị thô. */
+    public record BoLocChon(JComboBox<Object> combo) {
+
+        public String ma() {
+            Object chon = this.combo.getSelectedItem();
+
+            if (chon == null) {
+                return null;
+            }
+
+            return chon instanceof Enum<?> e ? e.name() : chon.toString();
+        }
+
+        public Object giaTri() {
+            return this.combo.getSelectedItem();
+        }
+    }
+
+    /** Handle của bộ lọc khoảng ngày. */
+    public record BoLocNgay(DatePicker tu, DatePicker den) {
+
+        public LocalDate tuNgay() {
+            return this.tu.getDate();
+        }
+
+        public LocalDate denNgay() {
+            return this.den.getDate();
+        }
+    }
+
+    /** Handle của bộ lọc khoảng nhập tay. */
+    public record BoLocKhoang(JTextField tu, JTextField den) {
+
+        public String tuText() {
+            return this.tu.getText();
+        }
+
+        public String denText() {
+            return this.den.getText();
+        }
+    }
+
+    private final List<JComboBox<Object>> boLocCombo = new ArrayList<>();
+    private final DefaultTableModel moHinhBang = new DefaultTableModel() {
         @Override
         public boolean isCellEditable(int row, int column) {
             return false;
         }
     };
-    private final JTable table = new JTable(this.model);
+    private final JTable bang = new JTable(this.moHinhBang);
+    private final CardLayout theDanhSach = new CardLayout();
+    private final JPanel khungDanhSach = new JPanel(this.theDanhSach);
 
-    private final JPanel filterFields = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 2));
-    private final Map<Integer, JTextField> textFilters = new LinkedHashMap<>();
-    private final Map<Integer, DatePicker[]> dateFilters = new LinkedHashMap<>();
-    private final List<JLabel> filterLabels = new ArrayList<>();
-    private final JTextField quickFilterField = new JTextField(12);
-    private final JLabel countLabel = new JLabel();
-    private final JButton clearFilterButton = new JButton(I18nReaderUtil.get("app.common.clearFilter"));
-    private final JButton prevButton = new JButton(I18nReaderUtil.get("app.common.prev"));
-    private final JButton nextButton = new JButton(I18nReaderUtil.get("app.common.next"));
-    private final JLabel pageLabel = new JLabel();
+    private final JPanel khungBoLoc = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 2));
+    private final List<JTextField> boLocText = new ArrayList<>();
+    private final List<DatePicker[]> boLocNgay = new ArrayList<>();
+    private final List<JLabel> nhanBoLoc = new ArrayList<>();
+    private final JTextField oTimNhanh = new JTextField(20);
+    private final JLabel nhanDem = new JLabel();
+    private final JButton nutXoaLoc = new JButton(I18nReaderUtil.get("app.common.clearFilter"));
+    private final JButton nutTruoc = new JButton(I18nReaderUtil.get("app.common.prev"));
+    private final JButton nutSau = new JButton(I18nReaderUtil.get("app.common.next"));
+    private final JLabel nhanTrang = new JLabel();
 
-    private Runnable filterChangeListener;
+    private Runnable khiDoiBoLoc;
     private boolean dangXoaLoc;
+    private final Timer henGioLoc = new Timer(300, e -> this.fireFilterChange());
 
     public ManagementPanel() {
+        this.henGioLoc.setRepeats(false);
+
         this.setLayout(new BorderLayout(4, 4));
         this.setOpaque(false);
 
-        this.table.setFillsViewportHeight(true);
-        this.table.setRowHeight(24);
+        this.bang.setFillsViewportHeight(true);
+        this.bang.setRowHeight(36);
 
-        Theme.styleTable(this.table);
+        Theme.styleTable(this.bang);
+        Theme.applySecondary(this.nutXoaLoc);
+        Theme.applySecondary(this.nutTruoc);
+        Theme.applySecondary(this.nutSau);
 
-        this.attachTextListener(this.quickFilterField);
+        this.attachTextListener(this.oTimNhanh);
 
         JPanel listPanel = new JPanel(new BorderLayout(4, 4));
         listPanel.setOpaque(false);
         listPanel.add(this.buildFilterPanel(), BorderLayout.NORTH);
-        listPanel.add(new JScrollPane(this.table), BorderLayout.CENTER);
+        listPanel.add(this.khungDanhSach, BorderLayout.CENTER);
         listPanel.add(this.buildPaginationPanel(), BorderLayout.SOUTH);
+
+        this.khungDanhSach.setOpaque(false);
+        this.khungDanhSach.add(new JScrollPane(this.bang), THE_BANG);
+        this.khungDanhSach.add(this.buildEmptyLabel(), THE_TRONG);
 
         this.add(listPanel, BorderLayout.CENTER);
     }
 
+    private JLabel buildEmptyLabel() {
+        JLabel label = new JLabel(I18nReaderUtil.get("app.common.khongCoDuLieu"), SwingConstants.CENTER);
+        label.setForeground(Theme.palette().INK_MUTED());
+        return label;
+    }
+
+    private void hienTrangThaiDanhSach() {
+        if (this.moHinhBang.getRowCount() == 0) {
+            this.theDanhSach.show(this.khungDanhSach, THE_TRONG);
+        } else {
+            this.theDanhSach.show(this.khungDanhSach, THE_BANG);
+        }
+    }
+
     private JPanel buildFilterPanel() {
-        this.filterFields.setOpaque(false);
+        this.khungBoLoc.setOpaque(false);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
         actions.setOpaque(false);
 
         JLabel searchLabel = new JLabel(I18nReaderUtil.get("app.common.search"));
-        searchLabel.setForeground(Theme.chuTrenAnh());
+        searchLabel.setForeground(Theme.INK);
         actions.add(searchLabel);
 
-        this.countLabel.setForeground(Theme.chuTrenAnh());
-        actions.add(this.quickFilterField);
-        actions.add(this.countLabel);
-        actions.add(this.clearFilterButton);
+        this.nhanDem.setForeground(Theme.INK);
+        actions.add(this.oTimNhanh);
+        actions.add(this.nhanDem);
+        actions.add(this.nutXoaLoc);
 
         JPanel panel = new JPanel(new BorderLayout(4, 2));
         panel.setOpaque(false);
-        panel.add(this.filterFields, BorderLayout.CENTER);
+        panel.add(this.khungBoLoc, BorderLayout.CENTER);
         panel.add(actions, BorderLayout.SOUTH);
         return panel;
     }
@@ -102,78 +166,57 @@ public class ManagementPanel extends JPanel {
     private JPanel buildPaginationPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 2));
         panel.setOpaque(false);
-        this.pageLabel.setForeground(Theme.chuTrenAnh());
-        panel.add(this.prevButton);
-        panel.add(this.pageLabel);
-        panel.add(this.nextButton);
+        this.nhanTrang.setForeground(Theme.INK);
+        panel.add(this.nutTruoc);
+        panel.add(this.nhanTrang);
+        panel.add(this.nutSau);
         return panel;
     }
 
-    public JTextField addTextFilter(String labelKey, int column) {
-        JTextField field = new JTextField(10);
-        this.textFilters.put(column, field);
+    public JTextField addTextFilter(String labelKey) {
+        JTextField field = new JTextField(14);
+        this.boLocText.add(field);
         this.attachTextListener(field);
-        this.filterFields.add(this.buildFilterItem(labelKey, field));
+        this.khungBoLoc.add(this.buildFilterItem(labelKey, field));
         return field;
     }
 
-    public void addComboBoxFilter(String labelKey, int column, Object[] values) {
-
+    public BoLocChon addComboBoxFilter(String labelKey, Object[] values) {
         JComboBox<Object> combo = new JComboBox<>();
-
         combo.addItem(null); // Tất cả
-
         for (Object value : values) {
             combo.addItem(value);
         }
-
-        combo.setRenderer(taoBoHienThiI18n());
-
-        comboFilters.put(column, combo);
-
-        combo.addActionListener(e -> fireFilterChange());
-
-        filterFields.add(buildFilterItem(labelKey, combo));
+        combo.setRenderer(BoHienThiI18n.tao());
+        this.boLocCombo.add(combo);
+        combo.addActionListener(e -> this.fireFilterChange());
+        this.khungBoLoc.add(this.buildFilterItem(labelKey, combo));
+        return new BoLocChon(combo);
     }
 
-    public String getComboFilter(int column) {
-        JComboBox<Object> combo = comboFilters.get(column);
-
-        if (combo == null || combo.getSelectedItem() == null) {
-            return null;
-        }
-
-        Object selected = combo.getSelectedItem();
-
-        return selected instanceof Enum<?> e ? e.name() : selected.toString();
-    }
-
-    public Object getComboFilterValue(int column) {
-        JComboBox<Object> combo = this.comboFilters.get(column);
-        return combo == null ? null : combo.getSelectedItem();
-    }
-
-    public void addDateRangeFilter(String labelKey, int column) {
+    public BoLocNgay addDateRangeFilter(String labelKey) {
         DatePicker from = BoChonNgayGio.taoBoChonNgay();
         DatePicker to = BoChonNgayGio.taoBoChonNgay();
-        this.dateFilters.put(column, new DatePicker[] { from, to });
+        this.boLocNgay.add(new DatePicker[] { from, to });
         this.attachDateListener(from);
         this.attachDateListener(to);
 
-        this.filterFields.add(this.buildRangeItem(labelKey, from, to));
+        this.khungBoLoc.add(this.buildRangeItem(labelKey, from, to));
+        return new BoLocNgay(from, to);
     }
 
-    public void addRangeFilter(String labelKey, int column) {
-        JTextField fromField = new JTextField(10);
-        JTextField toField = new JTextField(10);
+    public BoLocKhoang addRangeFilter(String labelKey) {
+        JTextField fromField = new JTextField(14);
+        JTextField toField = new JTextField(14);
 
-        this.textFilters.put(column, fromField);
-        this.textFilters.put(column + 1, toField);
+        this.boLocText.add(fromField);
+        this.boLocText.add(toField);
 
         this.attachTextListener(fromField);
         this.attachTextListener(toField);
 
-        this.filterFields.add(this.buildRangeItem(labelKey, fromField, toField));
+        this.khungBoLoc.add(this.buildRangeItem(labelKey, fromField, toField));
+        return new BoLocKhoang(fromField, toField);
     }
 
     private JPanel buildRangeItem(String labelKey, JComponent from, JComponent to) {
@@ -182,7 +225,7 @@ public class ManagementPanel extends JPanel {
         range.add(from);
 
         JLabel separator = new JLabel("-");
-        separator.setForeground(Theme.chuTrenAnh());
+        separator.setForeground(Theme.palette().INK_MUTED());
         range.add(separator);
 
         range.add(to);
@@ -199,8 +242,8 @@ public class ManagementPanel extends JPanel {
 
     private JLabel buildFieldLabel(String labelKey) {
         JLabel label = new JLabel(I18nReaderUtil.get(labelKey), SwingConstants.RIGHT);
-        label.setForeground(Theme.chuTrenAnh());
-        this.filterLabels.add(label);
+        label.setForeground(Theme.INK);
+        this.nhanBoLoc.add(label);
         this.updateFieldLabelWidth();
         return label;
     }
@@ -209,64 +252,50 @@ public class ManagementPanel extends JPanel {
         int width = 0;
         int height = 0;
 
-        for (JLabel label : this.filterLabels) {
+        for (JLabel label : this.nhanBoLoc) {
             width = Math.max(width, label.getFontMetrics(label.getFont()).stringWidth(label.getText()));
             height = Math.max(height, label.getPreferredSize().height);
         }
 
-        for (JLabel label : this.filterLabels) {
+        for (JLabel label : this.nhanBoLoc) {
             label.setPreferredSize(new Dimension(width, height));
         }
     }
 
-    public String getTextFilter(int column) {
-        JTextField field = this.textFilters.get(column);
-        return field == null ? null : field.getText();
-    }
-
-    public LocalDate getDateFilterFrom(int column) {
-        DatePicker[] pickers = this.dateFilters.get(column);
-        return pickers == null ? null : pickers[0].getDate();
-    }
-
-    public LocalDate getDateFilterTo(int column) {
-        DatePicker[] pickers = this.dateFilters.get(column);
-        return pickers == null ? null : pickers[1].getDate();
-    }
-
     public String getQuickFilter() {
-        return this.quickFilterField.getText();
+        return this.oTimNhanh.getText();
     }
 
     public JButton getClearFilterButton() {
-        return this.clearFilterButton;
+        return this.nutXoaLoc;
     }
 
     public JButton getPrevButton() {
-        return this.prevButton;
+        return this.nutTruoc;
     }
 
     public JButton getNextButton() {
-        return this.nextButton;
+        return this.nutSau;
     }
 
     public void setFilterChangeListener(Runnable listener) {
-        this.filterChangeListener = listener;
+        this.khiDoiBoLoc = listener;
     }
 
     public void clearFilters() {
+        this.henGioLoc.stop();
         this.dangXoaLoc = true;
 
         try {
-            this.textFilters.values().forEach(field -> field.setText(""));
+            this.boLocText.forEach(field -> field.setText(""));
 
-            for (DatePicker[] pickers : this.dateFilters.values()) {
+            for (DatePicker[] pickers : this.boLocNgay) {
                 pickers[0].clear();
                 pickers[1].clear();
             }
 
-            this.quickFilterField.setText("");
-            this.comboFilters.values().forEach(combo -> combo.setSelectedIndex(0));
+            this.oTimNhanh.setText("");
+            this.boLocCombo.forEach(combo -> combo.setSelectedIndex(0));
         } finally {
             this.dangXoaLoc = false;
         }
@@ -275,54 +304,30 @@ public class ManagementPanel extends JPanel {
     }
 
     public void setCount(long from, long to, long total) {
-        this.countLabel.setText(I18nReaderUtil.get("app.common.count") + " " + from + "-" + to + " / " + total);
+        this.nhanDem.setText(I18nReaderUtil.get("app.common.count") + " " + from + "-" + to + " / " + total);
     }
 
     public void setPage(int page, int totalPages) {
-        this.pageLabel.setText(I18nReaderUtil.get("app.common.pageLabel") + " " + page + "/" + totalPages);
-        this.prevButton.setEnabled(page > 1);
-        this.nextButton.setEnabled(page < totalPages);
+        this.nhanTrang.setText(I18nReaderUtil.get("app.common.nhanTrang") + " " + page + "/" + totalPages);
+        this.nutTruoc.setEnabled(page > 1);
+        this.nutSau.setEnabled(page < totalPages);
     }
 
     public JTable getTable() {
-        return this.table;
+        return this.bang;
     }
 
     public DefaultTableModel getModel() {
-        return this.model;
+        return this.moHinhBang;
     }
 
     public void setListTitle(String titleKey) {
-        TitledBorder border = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Theme.BORDER), I18nReaderUtil.get(titleKey));
-        border.setTitleFont(border.getTitleFont().deriveFont(Font.BOLD));
-        border.setTitleColor(Theme.chuTrenAnh());
-        this.setBorder(border);
-    }
-
-    public static DefaultListCellRenderer taoBoHienThiI18n() {
-        return new DefaultListCellRenderer() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
-
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-                if (value == null) {
-                    setText(I18nReaderUtil.get("app.common.all"));
-                } else if (value instanceof I18nEnum i18nEnum) {
-                    setText(i18nEnum.getI18NBusinessName());
-                }
-
-                return this;
-            }
-        };
+        this.setBorder(Theme.titledBorder(titleKey));
     }
 
     public void setHeaders(String... headers) {
-        this.model.setColumnIdentifiers(headers);
+        this.moHinhBang.setColumnIdentifiers(headers);
+        this.hienTrangThaiDanhSach();
     }
 
     public void addActionColumn(String headerKey, ThaoTac... dsThaoTac) {
@@ -330,53 +335,61 @@ public class ManagementPanel extends JPanel {
             return;
         }
 
-        this.model.addColumn(I18nReaderUtil.get(headerKey));
+        this.moHinhBang.addColumn(I18nReaderUtil.get(headerKey));
 
-        int cotModel = this.model.getColumnCount() - 1;
-        int cotView = this.table.convertColumnIndexToView(cotModel);
+        int cotModel = this.moHinhBang.getColumnCount() - 1;
+        int cotView = this.bang.convertColumnIndexToView(cotModel);
 
-        ThaoTacTableCellRenderer.ganVao(this.table, cotView, List.of(dsThaoTac));
+        ThaoTacTableCellRenderer.ganVao(this.bang, cotView, List.of(dsThaoTac));
     }
 
     public void setRows(List<Object[]> rows) {
-        this.model.setRowCount(0);
+        this.moHinhBang.setRowCount(0);
         for (Object[] row : rows) {
-            this.model.addRow(row);
+            this.moHinhBang.addRow(row);
         }
+
+        this.hienTrangThaiDanhSach();
     }
 
     public int getSelectedRow() {
-        return this.table.getSelectedRow();
+        return this.bang.getSelectedRow();
     }
 
     private void attachTextListener(JTextField field) {
         field.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                fireFilterChange();
+                ManagementPanel.this.henGioLoc.restart();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                fireFilterChange();
+                ManagementPanel.this.henGioLoc.restart();
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                fireFilterChange();
+                ManagementPanel.this.henGioLoc.restart();
             }
         });
     }
 
     private void attachDateListener(DatePicker picker) {
-        picker.addDateChangeListener(event -> fireFilterChange());
+        picker.addDateChangeListener(event -> this.henGioLoc.restart());
+    }
+
+    @Override
+    public void removeNotify() {
+        this.henGioLoc.stop();
+        super.removeNotify();
     }
 
     private void fireFilterChange() {
-        if (this.dangXoaLoc || this.filterChangeListener == null) {
+        if (this.dangXoaLoc || this.khiDoiBoLoc == null) {
             return;
         }
 
-        this.filterChangeListener.run();
+        this.khiDoiBoLoc.run();
     }
 }

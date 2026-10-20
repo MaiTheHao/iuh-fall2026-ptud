@@ -5,12 +5,12 @@ import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhuTungFormData;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
-import iuh.fit.gui.component.AnhField;
 import iuh.fit.gui.component.AnhTableCellRenderer;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.PhuTungFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhuTungService;
 import iuh.fit.util.I18nReaderUtil;
@@ -35,24 +35,16 @@ public class PhuTungPage extends AbstractPage {
     private final PhuTungService phuTungService =
             new PhuTungService();
 
-    private final JTextField maField = new JTextField(14);
-    private final JTextField tenField = new JTextField(14);
-    private final JTextField moTaField = new JTextField(14);
-    private final JTextField donGiaField = new JTextField(14);
-    private final JTextField soLuongField = new JTextField(14);
-
-    private final AnhField anhField = new AnhField(
-            "app.phuTung.anhUrl",
-            "app.phuTung.chonAnh",
-            "app.phuTung.goAnh",
-            "app.phuTung.chuaCoAnh",
-            "app.phuTung.khongTaiDuocAnh",
-            "app.phuTung.loaiTepAnh",
-            "app.phuTung.duLieuKhongPhaiAnh"
-    );
+    private PhuTungFormPanel formPanel;
 
     private ManagementPanel panel;
     private ManagementFormPanel form;
+
+    private JTextField boLocMa;
+    private JTextField boLocTen;
+    private ManagementPanel.BoLocKhoang boLocDonGia;
+    private ManagementPanel.BoLocKhoang boLocSoLuong;
+
     private int trang = 1;
 
     public PhuTungPage() {
@@ -80,8 +72,6 @@ public class PhuTungPage extends AbstractPage {
         );
 
         this.panel.addActionColumn("app.common.actions",
-                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
-                        row -> this.sua(row)),
                 new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.xoa(row)));
 
@@ -98,7 +88,7 @@ public class PhuTungPage extends AbstractPage {
                 this.form,
                 this.panel
         );
-        split.setDividerLocation(380);
+        split.setDividerLocation(480);
         split.setOpaque(false);
         split.setBorder(null);
 
@@ -109,30 +99,20 @@ public class PhuTungPage extends AbstractPage {
     }
 
     private void khoiTaoForm() {
-        Theme.applyEditable(this.maField);
-
-        this.form.addField("app.phuTung.ma", this.maField);
-        this.form.addField("app.phuTung.ten", this.tenField);
-        this.form.addField("app.phuTung.moTa", this.moTaField);
-
-        this.form.addBlock(this.anhField);
-
-        this.form.addField("app.phuTung.donGia", this.donGiaField);
-        this.form.addField("app.phuTung.soLuongTon", this.soLuongField);
-
-        Theme.applyReadOnly(this.soLuongField);
+        this.formPanel = new PhuTungFormPanel();
+        this.form.addBlock(this.formPanel);
     }
 
     private void khoiTaoBoLoc() {
         // Mã phụ tùng, tên phụ tùng
-        this.panel.addTextFilter("app.phuTung.ma", 0);
-        this.panel.addTextFilter("app.phuTung.ten", 1);
+        this.boLocMa = this.panel.addTextFilter("app.phuTung.ma");
+        this.boLocTen = this.panel.addTextFilter("app.phuTung.ten");
 
         // Đơn giá từ - đến
-        this.panel.addRangeFilter("app.phuTung.donGiaTuDen", 2);
+        this.boLocDonGia = this.panel.addRangeFilter("app.phuTung.donGiaTuDen");
 
         // Tồn kho từ - đến
-        this.panel.addRangeFilter("app.phuTung.soLuongTuDen", 4);
+        this.boLocSoLuong = this.panel.addRangeFilter("app.phuTung.soLuongTuDen");
 
         this.panel.setFilterChangeListener(
                 () -> this.taiLai(this.panel, 1)
@@ -184,20 +164,20 @@ public class PhuTungPage extends AbstractPage {
         try {
             DanhSachPhuTungCriteria tieuChi =
                     new DanhSachPhuTungCriteria(
-                            panel.getTextFilter(0),
-                            panel.getTextFilter(1),
+                            this.boLocMa.getText(),
+                            this.boLocTen.getText(),
                             panel.getQuickFilter(),
                             NumberParseUtil.toDoubleOrNull(
-                                    panel.getTextFilter(2)
+                                    this.boLocDonGia.tuText()
                             ),
                             NumberParseUtil.toDoubleOrNull(
-                                    panel.getTextFilter(3)
+                                    this.boLocDonGia.denText()
                             ),
                             NumberParseUtil.toIntegerOrNull(
-                                    panel.getTextFilter(4)
+                                    this.boLocSoLuong.tuText()
                             ),
                             NumberParseUtil.toIntegerOrNull(
-                                    panel.getTextFilter(5)
+                                    this.boLocSoLuong.denText()
                             ),
                             page,
                             SO_DONG_MOI_TRANG
@@ -263,72 +243,16 @@ public class PhuTungPage extends AbstractPage {
             return;
         }
 
-        this.anhField.setDuongDan(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 0)
-                )
-        );
-
-        this.maField.setText(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 1)
-                )
-        );
-
-        this.tenField.setText(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 2)
-                )
-        );
-
-        this.moTaField.setText(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 3)
-                )
-        );
-
-        this.donGiaField.setText(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 4)
-                )
-        );
-
-        this.soLuongField.setText(
-                NumberParseUtil.textOf(
-                        this.panel.getModel().getValueAt(row, 5)
-                )
-        );
-
-        Theme.applyReadOnly(this.maField);
+        this.formPanel.napDuLieu(this.docDuLieuDong(row));
     }
 
     private void lamMoi() {
-        this.maField.setText("");
-        this.tenField.setText("");
-        this.moTaField.setText("");
-        this.donGiaField.setText("");
-        this.soLuongField.setText("");
-
-        this.anhField.clear();
-
-        Theme.applyEditable(this.maField);
-
+        this.formPanel.lamMoi();
         this.panel.getTable().clearSelection();
-
-        this.maField.requestFocusInWindow();
     }
 
     private PhuTungFormData getFormData() {
-        String ma = this.maField.getText().trim();
-        String moTa = this.moTaField.getText().trim();
-        String anhUrl = this.anhField.getDuongDan();
-        return new PhuTungFormData(
-                ma.isBlank() ? null : ma,
-                this.tenField.getText().trim(),
-                moTa.isBlank() ? null : moTa,
-                anhUrl.isBlank() ? null : anhUrl,
-                NumberParseUtil.toDoubleOrNull(this.donGiaField.getText()),
-                NumberParseUtil.toIntegerOrNull(this.soLuongField.getText()));
+        return this.formPanel.layDuLieu();
     }
 
     private void validateFormData(PhuTungFormData data) {
@@ -404,9 +328,16 @@ public class PhuTungPage extends AbstractPage {
         }
     }
 
-    private void sua(int row) {
-        this.chonDong();
-        this.tenField.requestFocusInWindow();
+    private PhuTungFormData docDuLieuDong(int row) {
+        return new PhuTungFormData(
+                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 1)),
+                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 2)),
+                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 3)),
+                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 0)),
+                NumberParseUtil.toDoubleOrNull(
+                        NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 4))),
+                NumberParseUtil.toIntegerOrNull(
+                        NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 5))));
     }
 
     private void xoa(int row) {

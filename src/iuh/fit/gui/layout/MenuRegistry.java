@@ -17,9 +17,14 @@ import java.util.Map;
 /** Sổ đăng ký thanh menu: item, menu nhóm và item cấp cao; đánh dấu active, làm mới nhãn và ẩn/hiện. */
 public final class MenuRegistry {
 
+    private final PageRegistry registry;
     private final Map<Class<? extends AbstractPage>, JMenuItem> items = new LinkedHashMap<>();
     private final Map<MenuGroup, JMenu> menus = new LinkedHashMap<>();
     private final List<JMenuItem> homeItems = new ArrayList<>();
+
+    public MenuRegistry(PageRegistry registry) {
+        this.registry = registry;
+    }
 
     public void registerItem(AbstractPage page, JMenuItem item) {
         this.items.put(page.getClass(), item);
@@ -36,14 +41,14 @@ public final class MenuRegistry {
     public void setActive(Class<? extends AbstractPage> active) {
         this.items.forEach((type, item) -> item.setForeground(type.equals(active) ? Theme.ACCENT : Theme.INK));
 
-        MenuGroup activeGroup = PageRegistry.getInstance().get(active).getGroup();
+        MenuGroup activeGroup = this.registry.get(active).getGroup();
         this.menus.forEach((group, menu) -> menu.setForeground(group == activeGroup ? Theme.ACCENT : Theme.INK));
     }
 
     public void refreshText() {
         this.menus.forEach((group, menu) -> menu.setText(I18nReaderUtil.get(group.getTitleKey())));
         this.items.forEach((type, item) ->
-                item.setText(I18nReaderUtil.get(PageRegistry.getInstance().get(type).getTitleKey())));
+                item.setText(I18nReaderUtil.get(this.registry.get(type).getTitleKey())));
     }
 
     public void setVisible(boolean visible) {
