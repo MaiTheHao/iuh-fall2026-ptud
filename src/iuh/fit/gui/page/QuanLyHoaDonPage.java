@@ -15,7 +15,6 @@ import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -82,8 +81,6 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		panel.addActionColumn("app.common.actions",
 				new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
 						row -> this.moHoaDon(row)),
-				new ThaoTac("ban", "app.hoaDon.huyHoaDon", ThaoTac.KieuThaoTac.NGUY_HIEM,
-						row -> this.huyHoaDon(panel, row)),
 				new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
 						row -> this.xoaHoaDon(panel, row)));
 
@@ -238,38 +235,6 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		LapHoaDonPage page = (LapHoaDonPage) PageRegistry.getInstance().get(LapHoaDonPage.class);
 		page.moHoaDon(this.danhSachHienTai.get(row).maHoaDon());
 		this.goTo(LapHoaDonPage.class);
-	}
-
-	private void huyHoaDon(ManagementPanel panel, int row) {
-		if (row < 0 || row >= this.danhSachHienTai.size()) {
-			return;
-		}
-		HoaDonView view = this.danhSachHienTai.get(row);
-		if (view.trangThai() != TrangThaiHoaDon.CHO_THANH_TOAN) {
-			ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
-			return;
-		}
-		if (!ThongBao.xacNhan(this, "app.hoaDon.xacNhanHuy", "app.hoaDon.huyHoaDon")) {
-			return;
-		}
-
-		String lyDo = JOptionPane.showInputDialog(this,
-				I18nReaderUtil.get("app.hoaDon.lyDoHuy"),
-				I18nReaderUtil.get("app.hoaDon.huyHoaDon"),
-				JOptionPane.QUESTION_MESSAGE);
-		if (lyDo == null) {
-			return;
-		}
-
-		try {
-			this.hoaDonService.huy(view.maHoaDon(), lyDo);
-			ThongBao.thongTin(this, "app.common.update_succeed");
-			this.taiLai(panel, this.trang);
-		} catch (IllegalArgumentException | IllegalStateException e) {
-			ThongBao.loi(this, e);
-		} catch (SQLException e) {
-			ThongBao.loi(this, "app.login.errorSystem");
-		}
 	}
 
 	private void xoaHoaDon(ManagementPanel panel, int row) {
