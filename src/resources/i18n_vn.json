@@ -468,7 +468,10 @@
 			"loiKhoangTien": "Khoảng tiền không hợp lệ",
 			"loiKhoangNgay": "Khoảng ngày không hợp lệ",
 			"loiPhanTrang": "Tham số phân trang không hợp lệ",
-			"chuaHoTroHuy": "Chưa hỗ trợ hủy hóa đơn",
+			"lyDoHuy": "Lý do hủy hóa đơn",
+			"xacNhanHuy": "Bạn có chắc chắn muốn hủy hóa đơn này không?",
+			"loiLyDoHuy": "Vui lòng nhập lý do hủy",
+			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự",
 			"chuaHoTroPhuTung": "Chưa hỗ trợ thêm phụ tùng",
 			"chuaHoTroThanhToan": "Chưa hỗ trợ xác nhận thanh toán",
 			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phụ tùng hoặc dịch vụ."

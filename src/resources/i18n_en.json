@@ -468,7 +468,10 @@
 			"loiKhoangTien": "Invalid amount range",
 			"loiKhoangNgay": "Invalid date range",
 			"loiPhanTrang": "Invalid pagination parameters",
-			"chuaHoTroHuy": "Invoice cancellation is not yet supported",
+			"lyDoHuy": "Cancellation reason",
+			"xacNhanHuy": "Are you sure you want to cancel this invoice?",
+			"loiLyDoHuy": "Please enter a cancellation reason",
+			"loiLyDoHuyDai": "Cancellation reason cannot exceed 255 characters",
 			"chuaHoTroPhuTung": "Adding spare parts is not yet supported",
 			"chuaHoTroThanhToan": "Payment confirmation is not yet supported",
 			"loiTaiDanhSach": "Error loading parts or services data."
