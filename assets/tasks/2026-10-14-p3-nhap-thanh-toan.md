@@ -11,7 +11,7 @@
 | SCR-07 Lập phiếu nhập | `[DONE]` | `LapPhieuNhapPage` + `PhieuNhapPhuTungService`: nhiều dòng, chọn phụ tùng, tổng chi phí; ghi đầu phiếu, chi tiết và tăng tồn trong cùng `TransactionScope` |
 | SCR-07B Quản lý phiếu nhập | `[DONE]` | Danh sách, lọc, khoảng ngày, phân trang, xóa, mở màn lập phiếu |
 | SCR-10 Lập hóa đơn | `[DONE]` | `LapHoaDonPage` + `HoaDonService.create/capNhat`: chọn phiếu, thêm dịch vụ/phụ tùng, gộp dòng trùng, áp voucher, trừ tồn trong `TransactionScope`, tính lại tổng tiền |
-| SCR-10B Quản lý hóa đơn | `[DONE]` | `QuanLyHoaDonPage`: danh sách + lọc + phân trang, mở hóa đơn, xóa hẳn hóa đơn khỏi danh sách (hoàn tồn, chặn hóa đơn đã thanh toán); dùng `HoaDonService.search` + `HoaDonView` |
+| SCR-10B Quản lý hóa đơn | `[DONE]` | `QuanLyHoaDonPage`: danh sách + lọc + phân trang, mở hóa đơn, xóa hẳn hóa đơn khỏi danh sách (hoàn tồn cho hóa đơn chưa hủy, cảnh báo riêng với hóa đơn đã thanh toán); dùng `HoaDonService.search` + `HoaDonView` |
 | SCR-15 Đổi mật khẩu | `[TODO]` | Trang giữ chỗ; `AuthService.updatePassword` chưa kiểm tra mật khẩu hiện tại |
 
 Ngoài phạm vi: xuất Excel, giảm giá nâng cao, badge màu, bộ lọc nâng cao mọi cột, hoàn thiện bản dịch tiếng Anh.
