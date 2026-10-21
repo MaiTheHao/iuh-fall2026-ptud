@@ -476,6 +476,7 @@
 			"lyDoHuy": "Lý do hủy hóa đơn",
 			"xacNhanHuy": "Bạn có chắc chắn muốn hủy hóa đơn này không?",
 			"xacNhanXoa": "Bạn có chắc chắn muốn xóa hóa đơn này khỏi danh sách?",
+			"xacNhanXoaDaThanhToan": "Hóa đơn đã thanh toán sẽ bị xóa khỏi doanh thu. Bạn có chắc chắn muốn xóa?",
 			"tieuDeXoa": "Xác nhận xóa hóa đơn",
 			"loiLyDoHuy": "Vui lòng nhập lý do hủy",
 			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự",
