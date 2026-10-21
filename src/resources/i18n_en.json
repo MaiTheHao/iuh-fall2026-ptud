@@ -427,14 +427,23 @@
 			"thaoTac": "Action"
 		},
 		"chanDoan": {
-			"thongTinTitle": "Intake Slip Information",
-			"danhSachTitle": "Select Intake Slip",
-			"ma": "Intake Code",
-			"bienSo": "License Plate",
-			"khachHang": "Customer",
-			"trangThai": "Status",
-			"chon": "Select",
-			"loiTaiDanhSach": "Failed to load intake slips."
+		    "thongTinTitle": "Intake Slip Information",
+		    "danhSachTitle": "Select Intake Slip",
+		    "ma": "Intake Code",
+		    "bienSo": "License Plate",
+		    "khachHang": "Customer",
+		    "trangThai": "Status",
+		    "chon": "Select",
+		    "loiTaiDanhSach": "Failed to load intake slips.",
+		    "lapChanDoanTitle": "Create Technical Diagnosis",
+		    "xemChanDoanTitle": "View Technical Diagnosis",
+		    "tieuDe": "Title (*)",
+		    "mucDoUuTien": "Priority (1-100)",
+		    "moTa": "Problem Description",
+		    "giaiPhap": "Proposed Solution",
+		    "luu": "Save Diagnosis",
+		    "quayLai": "Back",
+		    "thanhCong": "Diagnosis created successfully!"
 		},
 		"login": {
 			"title": "System Login",

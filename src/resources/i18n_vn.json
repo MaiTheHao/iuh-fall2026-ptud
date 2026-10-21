@@ -427,14 +427,23 @@
 			"thaoTac": "Thao tác"
 		},
 		"chanDoan": {
-			"thongTinTitle": "Thông Tin Phiếu Tiếp Nhận",
-			"danhSachTitle": "Chọn Phiếu Tiếp Nhận",
-			"ma": "Mã Tiếp Nhận",
-			"bienSo": "Biển Số",
-			"khachHang": "Khách Hàng",
-			"trangThai": "Trạng Thái",
-			"chon": "Chọn",
-			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận."
+		    "thongTinTitle": "Thông tin phiếu tiếp nhận",
+		    "danhSachTitle": "Chọn phiếu tiếp nhận",
+		    "ma": "Mã phiếu",
+		    "bienSo": "Biển số xe",
+		    "khachHang": "Khách hàng",
+		    "trangThai": "Trạng thái",
+		    "chon": "Chọn",
+		    "loiTaiDanhSach": "Không thể tải danh sách phiếu tiếp nhận.",
+		    "lapChanDoanTitle": "Lập chẩn đoán kỹ thuật",
+		    "xemChanDoanTitle": "Xem chẩn đoán kỹ thuật",
+		    "tieuDe": "Tiêu đề (*)",
+		    "mucDoUuTien": "Mức ưu tiên (1-100)",
+		    "moTa": "Mô tả vấn đề",
+		    "giaiPhap": "Giải pháp đề xuất",
+		    "luu": "Lưu chẩn đoán",
+		    "quayLai": "Quay lại",
+		    "thanhCong": "Lập chẩn đoán thành công!"
 		},
 		"login": {
 			"title": "Đăng nhập hệ thống",

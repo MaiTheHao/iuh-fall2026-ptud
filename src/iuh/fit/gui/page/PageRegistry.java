@@ -26,6 +26,7 @@ public final class PageRegistry {
         this.register(new TiepNhanKhachHangPage());
         this.register(new QuanLyPhieuTiepNhanPage());
         this.register(new LapChanDoanPage());
+        this.register(new XemChanDoanPage());
         this.register(new TiepNhanKhieuNaiPage());
         this.register(new QuanLyKhieuNaiPage());
         this.register(new LapPhieuNhapPage());
