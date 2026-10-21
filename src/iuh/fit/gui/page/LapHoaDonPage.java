@@ -484,6 +484,9 @@ public class LapHoaDonPage extends AbstractPage {
 		if (row < 0 || row >= this.chiTiets.size()) {
 			return;
 		}
+		if (!ThongBao.xacNhan(this, "app.hoaDon.xacNhanXoaDong", "app.hoaDon.tieuDeXoaDong")) {
+			return;
+		}
 		this.chiTiets.remove(row);
 		this.tenSanPham.remove(row);
 		this.refreshLineTable();

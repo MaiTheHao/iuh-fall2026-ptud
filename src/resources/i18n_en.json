@@ -446,6 +446,8 @@
 			"tongTien": "Total Amount",
 			"tongTienGoc": "Base Subtotal:",
 			"giamGia": "Discount:",
+			"xacNhanXoaDong": "Remove this line from the invoice?",
+			"tieuDeXoaDong": "Confirm line deletion",
 			"voucher": "Applied Voucher",
 			"ghiChu": "Notes",
 			"tongThanhToan": "Grand Total",
