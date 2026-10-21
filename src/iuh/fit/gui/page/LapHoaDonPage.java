@@ -379,10 +379,13 @@ public class LapHoaDonPage extends AbstractPage {
             JTextField soLuongField = new JTextField("1", 8);
             JPanel khungSoLuong = new JPanel(new BorderLayout(6, 4));
             khungSoLuong.setOpaque(false);
-            khungSoLuong.add(new JLabel(I18nReaderUtil.get("app.hoaDon.nhapSoLuong")), BorderLayout.NORTH);
+            String tenHienThi = dv.getTenDichVu() == null || dv.getTenDichVu().isBlank()
+                    ? dv.getMaDichVu()
+                    : dv.getTenDichVu();
+            khungSoLuong.add(new JLabel(tenHienThi), BorderLayout.NORTH);
             khungSoLuong.add(soLuongField, BorderLayout.CENTER);
             int luaChon = JOptionPane.showConfirmDialog(this, khungSoLuong,
-                    I18nReaderUtil.get("app.hoaDon.themDichVu"),
+                    I18nReaderUtil.get("app.hoaDon.nhapSoLuong"),
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (luaChon != JOptionPane.OK_OPTION) {
                 return;
