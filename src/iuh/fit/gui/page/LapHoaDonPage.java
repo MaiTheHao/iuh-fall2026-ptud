@@ -13,6 +13,8 @@ import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.gui.component.ChonPhuTungDialog;
 import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.ThaoTac;
+import iuh.fit.gui.component.ThaoTacTableCellRenderer;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.DichVuService;
@@ -64,8 +66,7 @@ public class LapHoaDonPage extends AbstractPage {
     private final JTextField thoiGianTTField = new JTextField();
     private final JTextField lyDoHuyField = new JTextField();
 
-    private final DefaultTableModel lineModel = new DefaultTableModel(
-            new Object[] { "Loại", "Mã", "Tên", "SL", "Đơn giá", "Thành tiền" }, 0) {
+    private final DefaultTableModel lineModel = new DefaultTableModel(0, 0) {
         @Override
         public boolean isCellEditable(int row, int column) {
             return false;
@@ -84,7 +85,6 @@ public class LapHoaDonPage extends AbstractPage {
     private JButton nutThanhToan;
     private JButton nutThemDV;
     private JButton nutThemPT;
-    private JButton nutXoaDong;
     private String maHoaDonHienTai;
     private TrangThaiHoaDon trangThaiHienTai;
     private boolean dangNap;
@@ -122,17 +122,21 @@ public class LapHoaDonPage extends AbstractPage {
                 : this.trangThaiHienTai;
         this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
 
-        this.nutHuy = new JButton(I18nReaderUtil.get("app.hoaDon.huyHoaDon"));
-        this.nutLuu = new JButton(I18nReaderUtil.get("app.hoaDon.luuHoaDon"));
-        this.nutThanhToan = new JButton(I18nReaderUtil.get("app.hoaDon.xacNhanThanhToan"));
+        this.nutHuy = form.getNutXoa();
+        this.nutLuu = form.getNutLuu();
+        this.nutThanhToan = form.getNutXoaTrang();
 
+        this.nutHuy.setText(I18nReaderUtil.get("app.hoaDon.huyHoaDon"));
+        this.nutLuu.setText(I18nReaderUtil.get("app.hoaDon.luuHoaDon"));
+        this.nutThanhToan.setText(I18nReaderUtil.get("app.hoaDon.xacNhanThanhToan"));
+
+        Theme.applyDanger(this.nutHuy);
         Theme.applyPrimary(this.nutLuu);
         Theme.applyPrimary(this.nutThanhToan);
-        Theme.applyDanger(this.nutHuy);
 
+        this.nutHuy.addActionListener(e -> this.huyHoaDon());
         this.nutLuu.addActionListener(e -> this.luuHoaDon());
         this.nutThanhToan.addActionListener(e -> this.xacNhanThanhToan());
-        this.nutHuy.addActionListener(e -> this.huyHoaDon());
 
         form.thayNut(this.nutHuy, this.nutLuu, this.nutThanhToan);
 
@@ -143,19 +147,26 @@ public class LapHoaDonPage extends AbstractPage {
         btnRow.setOpaque(false);
         this.nutThemDV = new JButton(I18nReaderUtil.get("app.hoaDon.themDichVu"));
         this.nutThemPT = new JButton(I18nReaderUtil.get("app.hoaDon.themPhuTung"));
-        this.nutXoaDong = new JButton(I18nReaderUtil.get("app.common.delete"));
         Theme.applyPrimary(this.nutThemDV);
         Theme.applyPrimary(this.nutThemPT);
-        Theme.applyDanger(this.nutXoaDong);
         this.nutThemDV.addActionListener(e -> this.themDichVu());
         this.nutThemPT.addActionListener(e -> this.themPhuTung());
-        this.nutXoaDong.addActionListener(e -> this.xoaDong());
         btnRow.add(this.nutThemDV);
         btnRow.add(this.nutThemPT);
-        btnRow.add(this.nutXoaDong);
 
-        this.lineTable.setRowHeight(24);
+        this.lineModel.setColumnIdentifiers(new Object[] {
+                I18nReaderUtil.get("app.hoaDon.loai"),
+                I18nReaderUtil.get("app.phuTung.ma"),
+                I18nReaderUtil.get("app.phuTung.ten"),
+                I18nReaderUtil.get("app.phieuNhap.soLuong"),
+                I18nReaderUtil.get("app.phieuNhap.donGia"),
+                I18nReaderUtil.get("app.phieuNhap.thanhTien"),
+                I18nReaderUtil.get("app.common.actions")
+        });
         Theme.styleTable(this.lineTable);
+        ThaoTacTableCellRenderer.ganVao(this.lineTable, 6, List.of(
+                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+                        row -> this.xoaDong(row))));
 
         right.add(btnRow, BorderLayout.NORTH);
         right.add(new JScrollPane(this.lineTable), BorderLayout.CENTER);
@@ -309,7 +320,6 @@ public class LapHoaDonPage extends AbstractPage {
         this.cbVoucher.setSelectedItem(maVoucher);
     }
 
-    /** Chỉ hóa đơn chờ thanh toán mới được sửa hạng mục. */
     private boolean choPhepSua() {
         return this.trangThaiHienTai == null
                 || this.trangThaiHienTai == TrangThaiHoaDon.CHO_THANH_TOAN;
@@ -327,9 +337,6 @@ public class LapHoaDonPage extends AbstractPage {
         }
         if (this.nutThemPT != null) {
             this.nutThemPT.setEnabled(choPhepSua);
-        }
-        if (this.nutXoaDong != null) {
-            this.nutXoaDong.setEnabled(choPhepSua);
         }
         if (this.cbVoucher != null) {
             this.cbVoucher.setEnabled(choPhepSua);
@@ -484,12 +491,8 @@ public class LapHoaDonPage extends AbstractPage {
         return -1;
     }
 
-    private void xoaDong() {
-        if (!this.choPhepSua()) {
-            return;
-        }
-        int row = this.lineTable.getSelectedRow();
-        if (row < 0) {
+    private void xoaDong(int row) {
+        if (!this.choPhepSua() || row < 0 || row >= this.chiTiets.size()) {
             return;
         }
         this.chiTiets.remove(row);

@@ -50,7 +50,7 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
         try (Connection connection = DatabaseConfig.getConnection()) {
             Optional<HoaDon> found = findOne(connection,
-                    SQL_SELECT + " WHERE maPhieuTiepNhan = ?", maPhieuTiepNhan);
+                    SQL_SELECT + " WHERE maPhieuTiepNhan = ? ORDER BY ngayTao DESC", maPhieuTiepNhan);
             if (found.isEmpty()) {
                 return Optional.empty();
             }
@@ -135,13 +135,12 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
     }
 
-    public boolean deleteChiTiet(TransactionScope scope, String maHoaDon) throws SQLException {
+    public void deleteChiTiet(TransactionScope scope, String maHoaDon) throws SQLException {
         String sql = "DELETE FROM ChiTietHoaDon WHERE maHoaDon = ?";
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             ps.setString(1, maHoaDon);
             ps.executeUpdate();
         }
-        return true;
     }
 
     public boolean updateThongTin(TransactionScope scope, String maHoaDon, String maVoucher, String ghiChu)
