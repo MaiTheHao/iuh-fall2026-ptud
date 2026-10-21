@@ -14,7 +14,7 @@
 | SCR-10B Quản lý hóa đơn | `[WIP]` | `HoaDonService.search` + `HoaDonView` + `DanhSachHoaDonCriteria` đã xong; còn `QuanLyHoaDonPage` |
 | SCR-15 Đổi mật khẩu | `[TODO]` | Trang giữ chỗ; `AuthService.updatePassword` chưa kiểm tra mật khẩu hiện tại |
 
-Ngoài phạm vi: xuất Excel, hủy hóa đơn kèm lý do trên giao diện, giảm giá nâng cao, badge màu, bộ lọc nâng cao mọi cột, hoàn thiện bản dịch tiếng Anh.
+Ngoài phạm vi: xuất Excel, giảm giá nâng cao, badge màu, bộ lọc nâng cao mọi cột, hoàn thiện bản dịch tiếng Anh.
 
 ## 2. Việc còn lại: hóa đơn và thanh toán
 
@@ -50,5 +50,6 @@ Cần làm:
 - [x] SCR-07B hiển thị phiếu nhập mới.
 - [x] Lập hóa đơn từ phiếu tiếp nhận, tổng tiền và giảm giá đúng.
 - [x] Không tạo hóa đơn thứ hai cho cùng một phiếu.
+- [x] Hủy hóa đơn chờ thanh toán kèm lý do, hoàn tồn phụ tùng; phiếu lập lại được.
 - [ ] Xác nhận thanh toán chuyển `DA_THANH_TOAN`, SCR-10B hiển thị nhãn tiếng Việt.
 - [ ] Đổi mật khẩu kiểm tra đúng mật khẩu hiện tại và độ mạnh.
