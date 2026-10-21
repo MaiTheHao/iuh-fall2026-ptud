@@ -60,10 +60,6 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
     }
 
-    public List<HoaDon> findAll() throws SQLException {
-        return findAll(SQL_SELECT);
-    }
-
     public List<HoaDon> findAllWithDetails() throws SQLException {
         try (Connection connection = DatabaseConfig.getConnection()) {
             List<HoaDon> hoaDons;
