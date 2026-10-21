@@ -60,28 +60,6 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
     }
 
-    public Optional<HoaDon> findActiveByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
-        if (maPhieuTiepNhan == null || maPhieuTiepNhan.isBlank()) {
-            return Optional.empty();
-        }
-        String sql = SQL_SELECT
-                + " WHERE maPhieuTiepNhan = ? AND trangThaiHoaDon <> ? ORDER BY ngayTao DESC";
-        try (Connection connection = DatabaseConfig.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, maPhieuTiepNhan);
-            ps.setString(2, TrangThaiHoaDon.DA_HUY.name());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    return Optional.empty();
-                }
-                HoaDon hoaDon = this.mapRow(rs);
-                hoaDon.setDanhSachChiTietHoaDon(
-                        this.loadDanhSachChiTiet(connection, hoaDon.getMaHoaDon()));
-                return Optional.of(hoaDon);
-            }
-        }
-    }
-
     public List<HoaDon> findAll() throws SQLException {
         return findAll(SQL_SELECT);
     }

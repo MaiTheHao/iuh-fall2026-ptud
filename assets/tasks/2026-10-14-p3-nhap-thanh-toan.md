@@ -50,6 +50,6 @@ Cần làm:
 - [x] SCR-07B hiển thị phiếu nhập mới.
 - [x] Lập hóa đơn từ phiếu tiếp nhận, tổng tiền và giảm giá đúng.
 - [x] Không tạo hóa đơn thứ hai cho cùng một phiếu.
-- [x] Hủy hóa đơn chờ thanh toán kèm lý do, hoàn tồn phụ tùng; phiếu lập lại được.
+- [x] Hủy hóa đơn chờ thanh toán kèm lý do, hoàn tồn phụ tùng; form giữ nguyên và khóa lại.
 - [ ] Xác nhận thanh toán chuyển `DA_THANH_TOAN`, SCR-10B hiển thị nhãn tiếng Việt.
 - [ ] Đổi mật khẩu kiểm tra đúng mật khẩu hiện tại và độ mạnh.

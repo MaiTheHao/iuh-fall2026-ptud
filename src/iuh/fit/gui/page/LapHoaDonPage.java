@@ -62,6 +62,7 @@ public class LapHoaDonPage extends AbstractPage {
     private final JTextField trangThaiField = new JTextField();
     private final JTextField tongThanhToanField = new JTextField();
     private final JTextField thoiGianTTField = new JTextField();
+    private final JTextField lyDoHuyField = new JTextField();
 
     private final DefaultTableModel lineModel = new DefaultTableModel(
             new Object[] { "Loại", "Mã", "Tên", "SL", "Đơn giá", "Thành tiền" }, 0) {
@@ -106,13 +107,15 @@ public class LapHoaDonPage extends AbstractPage {
         Theme.applyReadOnly(this.trangThaiField);
         Theme.applyReadOnly(this.tongThanhToanField);
         Theme.applyReadOnly(this.thoiGianTTField);
+        Theme.applyReadOnly(this.lyDoHuyField);
 
         form.addField("app.hoaDon.maPhieuTiepNhan", this.cbPhieu);
         form.addField("app.hoaDon.voucher", this.cbVoucher);
         form.addField("app.hoaDon.ghiChu", this.ghiChuField);
         form.addField("app.hoaDon.trangThai", this.trangThaiField);
-        form.addField("app.hoaDon.tongThanhToan", this.tongThanhToanField);
         form.addField("app.hoaDon.thoiGianThanhToan", this.thoiGianTTField);
+        form.addField("app.hoaDon.lyDoHuy", this.lyDoHuyField);
+        form.addField("app.hoaDon.tongThanhToan", this.tongThanhToanField);
 
         this.trangThaiHienTai = this.trangThaiHienTai == null
                 ? TrangThaiHoaDon.CHO_THANH_TOAN
@@ -246,6 +249,7 @@ public class LapHoaDonPage extends AbstractPage {
         this.thoiGianTTField.setText(hoaDon.getThoiGianThanhToan() == null
                 ? ""
                 : hoaDon.getThoiGianThanhToan().format(this.dateTimeFormat));
+        this.lyDoHuyField.setText(hoaDon.getLyDoHuy() == null ? "" : hoaDon.getLyDoHuy());
         this.chonVoucher(hoaDon.getMaVoucher());
         this.napChiTiet(hoaDon.getDanhSachChiTietHoaDon());
         this.refreshLineTable();
@@ -262,6 +266,7 @@ public class LapHoaDonPage extends AbstractPage {
         this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
         this.ghiChuField.setText("");
         this.thoiGianTTField.setText("");
+        this.lyDoHuyField.setText("");
         this.refreshLineTable();
         this.capNhatQuyen();
     }
@@ -330,6 +335,14 @@ public class LapHoaDonPage extends AbstractPage {
         }
         if (this.cbVoucher != null) {
             this.cbVoucher.setEnabled(choPhepSua);
+        }
+        if (this.ghiChuField != null) {
+            if (choPhepSua) {
+                Theme.applyEditable(this.ghiChuField);
+            } else {
+                Theme.applyReadOnly(this.ghiChuField);
+            }
+            this.ghiChuField.setEditable(choPhepSua);
         }
         if (this.nutThanhToan != null) {
             this.nutThanhToan.setEnabled(choThanhToan);
@@ -596,9 +609,12 @@ public class LapHoaDonPage extends AbstractPage {
         }
 
         try {
-            this.hoaDonService.huy(this.maHoaDonHienTai, lyDo);
+            HoaDon hoaDon = this.hoaDonService.huy(this.maHoaDonHienTai, lyDo);
+            this.trangThaiHienTai = hoaDon.getTrangThaiHoaDon();
+            this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
+            this.lyDoHuyField.setText(hoaDon.getLyDoHuy() == null ? "" : hoaDon.getLyDoHuy());
+            this.capNhatQuyen();
             ThongBao.thongTin(this, "app.common.update_succeed");
-            this.lamMoi();
         } catch (IllegalArgumentException | IllegalStateException e) {
             ThongBao.loi(this, e);
         } catch (SQLException e) {
