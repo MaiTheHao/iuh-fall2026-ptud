@@ -242,11 +242,10 @@ public class QuanLyHoaDonPage extends AbstractPage {
 			return;
 		}
 		HoaDonView view = this.danhSachHienTai.get(row);
-		if (view.trangThai() == TrangThaiHoaDon.DA_THANH_TOAN) {
-			ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
-			return;
-		}
-		if (!ThongBao.xacNhan(this, "app.hoaDon.xacNhanXoa", "app.hoaDon.tieuDeXoa")) {
+		String keyXacNhan = view.trangThai() == TrangThaiHoaDon.DA_THANH_TOAN
+				? "app.hoaDon.xacNhanXoaDaThanhToan"
+				: "app.hoaDon.xacNhanXoa";
+		if (!ThongBao.xacNhan(this, keyXacNhan, "app.hoaDon.tieuDeXoa")) {
 			return;
 		}
 

@@ -179,12 +179,10 @@ public class HoaDonService {
 
     public void xoa(String maHoaDon) throws SQLException {
         HoaDon hoaDon = this.getById(maHoaDon);
-        if (hoaDon.getTrangThaiHoaDon() == TrangThaiHoaDon.DA_THANH_TOAN) {
-            throw new IllegalStateException(ERROR_TRANG_THAI);
-        }
+        boolean daHoanTon = hoaDon.getTrangThaiHoaDon() == TrangThaiHoaDon.DA_HUY;
 
         try (TransactionScope scope = TransactionScope.begin()) {
-            if (hoaDon.getTrangThaiHoaDon() == TrangThaiHoaDon.CHO_THANH_TOAN) {
+            if (!daHoanTon) {
                 for (ChiTietHoaDon ct : hoaDon.getDanhSachChiTietHoaDon()) {
                     if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
                         this.phuTungService.increaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
