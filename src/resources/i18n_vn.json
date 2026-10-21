@@ -477,6 +477,16 @@
 			"loiLyDoHuy": "Vui lòng nhập lý do hủy",
 			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự"
 		},
+		"doiMatKhau": {
+			"title": "Đổi Mật Khẩu",
+			"matKhauHienTai": "Mật Khẩu Hiện Tại",
+			"matKhauMoi": "Mật Khẩu Mới",
+			"xacNhan": "Xác Nhận Mật Khẩu Mới",
+			"thanhCong": "Đổi mật khẩu thành công",
+			"loiMatKhauHienTai": "Mật khẩu hiện tại không đúng",
+			"loiKhongTrung": "Mật khẩu mới và xác nhận không khớp",
+			"loiDoManh": "Mật khẩu mới phải có ít nhất 8 ký tự, gồm chữ, số và ký tự đặc biệt"
+		},
 		"login": {
 			"title": "Đăng nhập hệ thống",
 			"tagline": "Hệ thống quản lý gara ô tô",

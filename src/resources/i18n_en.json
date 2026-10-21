@@ -477,6 +477,16 @@
 			"loiLyDoHuy": "Please enter a cancellation reason",
 			"loiLyDoHuyDai": "Cancellation reason cannot exceed 255 characters"
 		},
+		"doiMatKhau": {
+			"title": "Change Password",
+			"matKhauHienTai": "Current Password",
+			"matKhauMoi": "New Password",
+			"xacNhan": "Confirm New Password",
+			"thanhCong": "Password changed successfully",
+			"loiMatKhauHienTai": "Current password is incorrect",
+			"loiKhongTrung": "New password and confirmation do not match",
+			"loiDoManh": "New password needs at least 8 characters with letters, digits and a symbol"
+		},
 		"login": {
 			"title": "System Login",
 			"tagline": "Auto garage management system",
