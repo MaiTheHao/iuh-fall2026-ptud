@@ -40,7 +40,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -172,14 +171,23 @@ public class LapHoaDonPage extends AbstractPage {
 
 		JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
 		footer.setOpaque(false);
+		JLabel nhanGoc = new JLabel(I18nReaderUtil.get("app.hoaDon.tongTienGoc"));
+		JLabel nhanGiam = new JLabel(I18nReaderUtil.get("app.hoaDon.giamGia"));
+		JLabel nhanThanhToan = new JLabel(I18nReaderUtil.get("app.hoaDon.tongThanhToan"));
+		for (JLabel nhan : List.of(nhanGoc, nhanGiam, nhanThanhToan)) {
+			nhan.setForeground(Theme.palette().INK_SECONDARY());
+		}
 		this.lblTong = new JLabel("0");
 		this.lblGiamGia = new JLabel("0");
 		this.lblThanhToan = new JLabel("0");
-		footer.add(new JLabel(I18nReaderUtil.get("app.hoaDon.tongTienGoc")));
+		for (JLabel giaTri : List.of(this.lblTong, this.lblGiamGia, this.lblThanhToan)) {
+			giaTri.setForeground(Theme.INK);
+		}
+		footer.add(nhanGoc);
 		footer.add(this.lblTong);
-		footer.add(new JLabel(I18nReaderUtil.get("app.hoaDon.giamGia")));
+		footer.add(nhanGiam);
 		footer.add(this.lblGiamGia);
-		footer.add(new JLabel(I18nReaderUtil.get("app.hoaDon.tongThanhToan")));
+		footer.add(nhanThanhToan);
 		footer.add(this.lblThanhToan);
 		right.add(footer, BorderLayout.SOUTH);
 
@@ -522,17 +530,21 @@ public class LapHoaDonPage extends AbstractPage {
 	}
 
 	private void xoaTrang() {
-	    if (!this.choPhepSua()) {
-	        ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
-	        return;
-	    }
-	    boolean coDuLieu = !this.ghiChuField.getText().isBlank() || this.cbVoucher.getSelectedIndex() > 0;
-	    if (coDuLieu && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
-	        return;
-	    }
-	    this.ghiChuField.setText("");
-	    this.cbVoucher.setSelectedItem("");
-	    this.refreshLineTable();
+		if (!this.choPhepSua()) {
+			ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
+			return;
+		}
+		boolean coDuLieu = !this.chiTiets.isEmpty() || !this.ghiChuField.getText().isBlank()
+				|| this.cbVoucher.getSelectedIndex() > 0;
+		if (coDuLieu && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
+			return;
+		}
+		this.chiTiets.clear();
+		this.tenSanPham.clear();
+		this.ghiChuField.setText("");
+		this.cbVoucher.setSelectedItem("");
+		this.refreshLineTable();
+		ThongBao.thongTin(this, "app.hoaDon.daXoaTrang");
 	}
 
 	private void xoaDong(int row) {
@@ -560,39 +572,30 @@ public class LapHoaDonPage extends AbstractPage {
 		if (maVoucher == null || maVoucher.isBlank()) {
 			return;
 		}
-		if (!this.voucherConHieuLuc(this.voucherTheoMa.get(maVoucher))) {
+		if (!this.hoaDonService.voucherConHieuLuc(this.voucherTheoMa.get(maVoucher))) {
 			ThongBao.canhBao(this, "app.hoaDon.loiVoucher");
 		}
 	}
 
-	private boolean voucherConHieuLuc(Voucher voucher) {
-		return voucher != null && voucher.isTrangThaiKichHoat()
-				&& (voucher.getThoiHanApDung() == null
-						|| !voucher.getThoiHanApDung().isBefore(LocalDateTime.now()));
-	}
-
 	private void refreshLineTable() {
 		this.lineModel.setRowCount(0);
-		double tongGoc = 0.0;
 		for (int i = 0; i < this.chiTiets.size(); i++) {
 			ChiTietHoaDon ct = this.chiTiets.get(i);
 			double donGia = ct.getDonGia() == null ? 0.0 : ct.getDonGia();
 			double thanhTien = ct.getSoLuong() * donGia;
-			tongGoc += thanhTien;
 			this.lineModel.addRow(new Object[] { ct.getLoaiSanPham().getI18NBusinessName(), ct.getMaSanPham(),
 					this.tenSanPham.get(i), ct.getSoLuong(), this.dinhDangTien(donGia), this.dinhDangTien(thanhTien) });
 		}
 
 		Voucher voucher = this.voucherTheoMa.get((String) this.cbVoucher.getSelectedItem());
-		double mucGiam = this.voucherConHieuLuc(voucher) && voucher.getMucGiam() != null
-				? Math.min(Math.max(voucher.getMucGiam(), 0.0), 1.0)
-				: 0.0;
-		double giamGia = tongGoc * mucGiam;
-		double tong = tongGoc - giamGia;
+		double tongGoc = this.hoaDonService.tinhTongTienGoc(this.chiTiets);
+		double mucGiam = this.hoaDonService.tinhMucGiam(voucher);
+		double tong = this.hoaDonService.tinhTongTien(this.chiTiets, voucher);
 		this.tongThanhToanField.setText(this.dinhDangTien(tong));
 		if (this.lblTong != null) {
 			this.lblTong.setText(this.dinhDangTien(tongGoc));
-			this.lblGiamGia.setText("-" + this.dinhDangTien(giamGia) + " (" + Math.round(mucGiam * 100) + "%)");
+			this.lblGiamGia.setText("-" + this.dinhDangTien(tongGoc - tong)
+					+ " (" + Math.round(mucGiam * 100) + "%)");
 			this.lblThanhToan.setText(this.dinhDangTien(tong));
 		}
 	}

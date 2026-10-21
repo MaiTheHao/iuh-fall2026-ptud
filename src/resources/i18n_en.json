@@ -163,7 +163,6 @@
 			"loiTrangThai": "Please select an employee status.",
 			"loiDuLieu": "Invalid employee data.",
 			"khongTimThay": "Employee not found.",
-			"loiTaiDanhSach": "Unable to load the employee list.",
 			"loiLayThongTin": "Unable to retrieve employee information.",
 			"themThanhCong": "Employee added successfully.",
 			"capNhatThanhCong": "Employee updated successfully.",
@@ -292,8 +291,7 @@
 			"trangThaiTienDo": "Progress Status:",
 			"noiDungYeuCau": "Request Content:",
 			"luu": "Save",
-			"xoaTrang": "Clear",
-			"loiTaiDanhSach": "Error loading the intake slip list."
+			"xoaTrang": "Clear"
 		},
 		"tiepNhan": {
 			"loiDuLieu": "Intake data must not be empty.",
@@ -356,7 +354,6 @@
 			"khongTimThayKhach": "No customer found with this phone number.",
 			"loiSdt": "Please enter the customer phone number to search.",
 			"loiKetNoi": "Database connection error.",
-			"loiTaiDanhSach": "Unable to load the complaint list.",
 			"khongTonTai": "Complaint not found.",
 			"loiMa": "Please select a complaint from the list.",
 			"loiTrangThai": "Please select a complaint status.",
@@ -433,8 +430,7 @@
 			"bienSo": "License Plate",
 			"khachHang": "Customer",
 			"trangThai": "Status",
-			"chon": "Select",
-			"loiTaiDanhSach": "Failed to load intake slips."
+			"chon": "Select"
 		},
 		"hoaDon": {
 			"danhSachTitle": "Invoice List",
@@ -479,8 +475,7 @@
 			"xacNhanXoaDaThanhToan": "This invoice is paid and will be removed from revenue reports. Delete it anyway?",
 			"tieuDeXoa": "Confirm invoice deletion",
 			"loiLyDoHuy": "Please enter a cancellation reason",
-			"loiLyDoHuyDai": "Cancellation reason cannot exceed 255 characters",
-			"loiTaiDanhSach": "Error loading parts or services data."
+			"loiLyDoHuyDai": "Cancellation reason cannot exceed 255 characters"
 		},
 		"login": {
 			"title": "System Login",

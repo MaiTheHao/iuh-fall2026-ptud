@@ -262,25 +262,27 @@ public class HoaDonService {
         return this.tinhTongTienGoc(hoaDon) * (1.0 - this.tinhMucGiam(hoaDon));
     }
 
+    public double tinhTongTien(List<ChiTietHoaDon> chiTiets, Voucher voucher) {
+        return this.tinhTongTienGoc(chiTiets) * (1.0 - this.tinhMucGiam(voucher));
+    }
+
     private double tinhTongTien(HoaDon hoaDon, Map<String, Voucher> voucherTheoMa) {
-        double tongGoc = this.tinhTongTienGoc(hoaDon);
         if (hoaDon == null || hoaDon.getMaVoucher() == null || hoaDon.getMaVoucher().isBlank()) {
-            return tongGoc;
+            return this.tinhTongTienGoc(hoaDon);
         }
-        Voucher voucher = voucherTheoMa.get(hoaDon.getMaVoucher());
-        if (voucher == null || !this.voucherConHieuLuc(voucher)) {
-            return tongGoc;
-        }
-        double mucGiam = voucher.getMucGiam() == null ? 0.0 : voucher.getMucGiam();
-        return tongGoc * (1.0 - Math.min(Math.max(mucGiam, 0.0), 1.0));
+        return this.tinhTongTien(hoaDon.getDanhSachChiTietHoaDon(), voucherTheoMa.get(hoaDon.getMaVoucher()));
     }
 
     public double tinhTongTienGoc(HoaDon hoaDon) {
-        if (hoaDon == null || hoaDon.getDanhSachChiTietHoaDon() == null) {
+        return hoaDon == null ? 0.0 : this.tinhTongTienGoc(hoaDon.getDanhSachChiTietHoaDon());
+    }
+
+    public double tinhTongTienGoc(List<ChiTietHoaDon> chiTiets) {
+        if (chiTiets == null) {
             return 0.0;
         }
         double tong = 0.0;
-        for (ChiTietHoaDon ct : hoaDon.getDanhSachChiTietHoaDon()) {
+        for (ChiTietHoaDon ct : chiTiets) {
             double donGia = ct.getDonGia() == null ? 0.0 : ct.getDonGia();
             tong += ct.getSoLuong() * donGia;
         }
@@ -292,15 +294,18 @@ public class HoaDonService {
             return 0.0;
         }
         try {
-            Voucher voucher = this.voucherDAO.findById(hoaDon.getMaVoucher()).orElse(null);
-            if (voucher == null || !this.voucherConHieuLuc(voucher)) {
-                return 0.0;
-            }
-            double mucGiam = voucher.getMucGiam() == null ? 0.0 : voucher.getMucGiam();
-            return Math.min(Math.max(mucGiam, 0.0), 1.0);
+            return this.tinhMucGiam(this.voucherDAO.findById(hoaDon.getMaVoucher()).orElse(null));
         } catch (SQLException ignored) {
             return 0.0;
         }
+    }
+
+    public double tinhMucGiam(Voucher voucher) {
+        if (!this.voucherConHieuLuc(voucher)) {
+            return 0.0;
+        }
+        double mucGiam = voucher.getMucGiam() == null ? 0.0 : voucher.getMucGiam();
+        return Math.min(Math.max(mucGiam, 0.0), 1.0);
     }
 
     private Voucher resolveVoucher(String maVoucher) throws SQLException {
@@ -315,8 +320,8 @@ public class HoaDonService {
         return voucher;
     }
 
-    private boolean voucherConHieuLuc(Voucher voucher) {
-        return voucher.isTrangThaiKichHoat()
+    public boolean voucherConHieuLuc(Voucher voucher) {
+        return voucher != null && voucher.isTrangThaiKichHoat()
                 && (voucher.getThoiHanApDung() == null
                 || !voucher.getThoiHanApDung().isBefore(LocalDateTime.now()));
     }
