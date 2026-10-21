@@ -492,7 +492,11 @@ public class LapHoaDonPage extends AbstractPage {
     }
 
     private void xoaDong(int row) {
-        if (!this.choPhepSua() || row < 0 || row >= this.chiTiets.size()) {
+        if (!this.choPhepSua()) {
+            ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
+            return;
+        }
+        if (row < 0 || row >= this.chiTiets.size()) {
             return;
         }
         this.chiTiets.remove(row);
