@@ -498,6 +498,7 @@ public class LapHoaDonPage extends AbstractPage {
 		this.ghiChuField.setText("");
 		this.cbVoucher.setSelectedItem("");
 		this.refreshLineTable();
+		ThongBao.thongTin(this, "app.hoaDon.daXoaTrang");
 	}
 
 	private void xoaDong(int row) {
