@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.sql.SQLException;
 
 public class DoiMatKhauPage extends AbstractPage {
@@ -33,6 +34,7 @@ public class DoiMatKhauPage extends AbstractPage {
 		this.removeAll();
 		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 		this.setBackground(Theme.BG);
+		this.xoaTrang();
 
 		ManagementFormPanel form = new ManagementFormPanel("app.doiMatKhau.title");
 		form.addField("app.doiMatKhau.matKhauHienTai", this.matKhauHienTaiField);
@@ -48,9 +50,9 @@ public class DoiMatKhauPage extends AbstractPage {
 		xoaTrang.addActionListener(e -> this.xoaTrang());
 		form.thayNut(luu, xoaTrang);
 
-		JPanel boc = new JPanel(new BorderLayout());
+		JPanel boc = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 		boc.setOpaque(false);
-		boc.add(form, BorderLayout.WEST);
+		boc.add(form);
 		this.add(boc, BorderLayout.CENTER);
 
 		this.revalidate();
