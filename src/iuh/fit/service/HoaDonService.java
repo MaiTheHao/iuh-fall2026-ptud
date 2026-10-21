@@ -225,7 +225,8 @@ public class HoaDonService {
                     this.tinhTongTien(hoaDon, voucherTheoMa),
                     hoaDon.getThoiGianThanhToan(),
                     hoaDon.getGhiChu(),
-                    hoaDon.getMaVoucher());
+                    hoaDon.getMaVoucher(),
+                    hoaDon.getLyDoHuy());
             if (this.matches(view, filter)) {
                 views.add(view);
             }

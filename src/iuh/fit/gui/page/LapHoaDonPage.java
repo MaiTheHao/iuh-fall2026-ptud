@@ -89,6 +89,7 @@ public class LapHoaDonPage extends AbstractPage {
 	private JButton nutThemDV;
 	private JButton nutThemPT;
 	private String maHoaDonHienTai;
+	private String maHoaDonCanMo;
 	private TrangThaiHoaDon trangThaiHienTai;
 	private boolean dangNap;
 
@@ -192,10 +193,9 @@ public class LapHoaDonPage extends AbstractPage {
 		this.cbPhieu.addActionListener(e -> this.chonPhieu());
 		this.cbVoucher.addActionListener(e -> this.chonVoucherThayDoi());
 
-		this.chonPhieu();
+		this.moHoaDonDangCho();
 		this.refreshLineTable();
 		this.capNhatQuyen();
-
 		this.revalidate();
 		this.repaint();
 	}
@@ -229,6 +229,44 @@ public class LapHoaDonPage extends AbstractPage {
 		} finally {
 			this.dangNap = false;
 		}
+	}
+
+	public void moHoaDon(String maHoaDon) {
+		this.maHoaDonCanMo = maHoaDon;
+	}
+
+	private void moHoaDonDangCho() {
+		if (this.maHoaDonCanMo == null) {
+			this.chonPhieu();
+			return;
+		}
+		String maHoaDon = this.maHoaDonCanMo;
+		this.maHoaDonCanMo = null;
+		try {
+			HoaDon hoaDon = this.hoaDonService.getById(maHoaDon);
+			this.dangNap = true;
+			try {
+				if (!this.coPhieuTrongCombo(hoaDon.getMaPhieuTiepNhan())) {
+					this.cbPhieu.addItem(hoaDon.getMaPhieuTiepNhan());
+				}
+				this.cbPhieu.setSelectedItem(hoaDon.getMaPhieuTiepNhan());
+			} finally {
+				this.dangNap = false;
+			}
+			this.taiHoaDon(hoaDon);
+		} catch (IllegalArgumentException | SQLException e) {
+			ThongBao.loi(this, "app.hoaDon.khongTonTai");
+			this.chonPhieu();
+		}
+	}
+
+	private boolean coPhieuTrongCombo(String maPhieu) {
+		for (int i = 0; i < this.cbPhieu.getItemCount(); i++) {
+			if (maPhieu.equals(this.cbPhieu.getItemAt(i))) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void chonPhieu() {
@@ -484,21 +522,17 @@ public class LapHoaDonPage extends AbstractPage {
 	}
 
 	private void xoaTrang() {
-		if (!this.choPhepSua()) {
-			ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
-			return;
-		}
-		boolean coDuLieu = !this.chiTiets.isEmpty() || !this.ghiChuField.getText().isBlank()
-				|| this.cbVoucher.getSelectedIndex() > 0;
-		if (coDuLieu && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
-			return;
-		}
-		this.chiTiets.clear();
-		this.tenSanPham.clear();
-		this.ghiChuField.setText("");
-		this.cbVoucher.setSelectedItem("");
-		this.refreshLineTable();
-		ThongBao.thongTin(this, "app.hoaDon.daXoaTrang");
+	    if (!this.choPhepSua()) {
+	        ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
+	        return;
+	    }
+	    boolean coDuLieu = !this.ghiChuField.getText().isBlank() || this.cbVoucher.getSelectedIndex() > 0;
+	    if (coDuLieu && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
+	        return;
+	    }
+	    this.ghiChuField.setText("");
+	    this.cbVoucher.setSelectedItem("");
+	    this.refreshLineTable();
 	}
 
 	private void xoaDong(int row) {

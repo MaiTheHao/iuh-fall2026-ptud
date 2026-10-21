@@ -14,5 +14,6 @@ public record HoaDonView(
         double tongTien,
         LocalDateTime thoiGianThanhToan,
         String ghiChu,
-        String maVoucher) {
+        String maVoucher,
+        String lyDoHuy) {
 }
