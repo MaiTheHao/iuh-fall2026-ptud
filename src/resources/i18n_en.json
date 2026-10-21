@@ -455,6 +455,7 @@
 			"huyHoaDon": "Cancel Invoice",
 			"themDichVu": "Add Service",
 			"themPhuTung": "Add Spare Part",
+			"nhapSoLuong": "Enter quantity",
 			"loiPhieuTiepNhan": "Reception ticket not selected",
 			"loiChiTietTrong": "No line items added",
 			"loiSoLuong": "Quantity must be greater than 0",

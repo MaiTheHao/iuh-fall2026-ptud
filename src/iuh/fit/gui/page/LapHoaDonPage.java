@@ -122,7 +122,6 @@ public class LapHoaDonPage extends AbstractPage {
                 : this.trangThaiHienTai;
         this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
 
-        JButton lamMoi = new JButton(I18nReaderUtil.get("app.common.clear"));
         this.nutHuy = new JButton(I18nReaderUtil.get("app.hoaDon.huyHoaDon"));
         this.nutLuu = new JButton(I18nReaderUtil.get("app.hoaDon.luuHoaDon"));
         this.nutThanhToan = new JButton(I18nReaderUtil.get("app.hoaDon.xacNhanThanhToan"));
@@ -131,12 +130,11 @@ public class LapHoaDonPage extends AbstractPage {
         Theme.applyPrimary(this.nutThanhToan);
         Theme.applyDanger(this.nutHuy);
 
-        lamMoi.addActionListener(e -> this.lamMoi());
         this.nutLuu.addActionListener(e -> this.luuHoaDon());
         this.nutThanhToan.addActionListener(e -> this.xacNhanThanhToan());
         this.nutHuy.addActionListener(e -> this.huyHoaDon());
 
-        form.thayNut(lamMoi, this.nutHuy, this.nutLuu, this.nutThanhToan);
+        form.thayNut(this.nutHuy, this.nutLuu, this.nutThanhToan);
 
         JPanel right = new JPanel(new BorderLayout(4, 4));
         right.setOpaque(false);
@@ -378,10 +376,21 @@ public class LapHoaDonPage extends AbstractPage {
                 return;
             }
 
-            String slStr = JOptionPane.showInputDialog(this, "1");
+            JTextField soLuongField = new JTextField("1", 8);
+            JPanel khungSoLuong = new JPanel(new BorderLayout(6, 4));
+            khungSoLuong.setOpaque(false);
+            khungSoLuong.add(new JLabel(I18nReaderUtil.get("app.hoaDon.nhapSoLuong")), BorderLayout.NORTH);
+            khungSoLuong.add(soLuongField, BorderLayout.CENTER);
+            int luaChon = JOptionPane.showConfirmDialog(this, khungSoLuong,
+                    I18nReaderUtil.get("app.hoaDon.themDichVu"),
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (luaChon != JOptionPane.OK_OPTION) {
+                return;
+            }
+
             int sl = 1;
             try {
-                sl = Integer.parseInt(slStr.trim());
+                sl = Integer.parseInt(soLuongField.getText().trim());
             } catch (Exception ignored) {
             }
             if (sl <= 0) {
@@ -521,12 +530,6 @@ public class LapHoaDonPage extends AbstractPage {
 
     private String dinhDangTien(Double gia) {
         return this.currencyFormat.format(gia == null ? 0.0 : gia);
-    }
-
-    /** Làm mới form rồi đồng bộ lại với hóa đơn (nếu có) của phiếu đang chọn. */
-    private void lamMoi() {
-        this.moLapMoi();
-        this.chonPhieu();
     }
 
     private boolean luuHoaDon() {
