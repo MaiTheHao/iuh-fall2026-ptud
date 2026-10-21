@@ -177,6 +177,27 @@ public class HoaDonService {
         return hoaDon;
     }
 
+    public void xoa(String maHoaDon) throws SQLException {
+        HoaDon hoaDon = this.getById(maHoaDon);
+        if (hoaDon.getTrangThaiHoaDon() == TrangThaiHoaDon.DA_THANH_TOAN) {
+            throw new IllegalStateException(ERROR_TRANG_THAI);
+        }
+
+        try (TransactionScope scope = TransactionScope.begin()) {
+            if (hoaDon.getTrangThaiHoaDon() == TrangThaiHoaDon.CHO_THANH_TOAN) {
+                for (ChiTietHoaDon ct : hoaDon.getDanhSachChiTietHoaDon()) {
+                    if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
+                        this.phuTungService.increaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
+                    }
+                }
+            }
+            if (!this.hoaDonDAO.delete(scope, maHoaDon)) {
+                throw new IllegalArgumentException(ERROR_NOT_FOUND);
+            }
+            scope.commit();
+        }
+    }
+
     public HoaDon getById(String maHoaDon) throws SQLException {
         return this.hoaDonDAO.findById(maHoaDon)
                 .orElseThrow(() -> new IllegalArgumentException(ERROR_NOT_FOUND));
