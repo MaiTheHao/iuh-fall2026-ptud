@@ -63,7 +63,7 @@ public class HoaDonService {
         this.validateChiTiet(chiTiets);
 
         PhieuTiepNhan phieu = this.phieuTiepNhanService.getById(maPhieuTiepNhan);
-        if (this.hoaDonDAO.findActiveByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).isPresent()) {
+        if (this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).isPresent()) {
             throw new IllegalStateException(ERROR_DA_TON_TAI);
         }
 
@@ -94,7 +94,7 @@ public class HoaDonService {
                     }
                 });
 
-        return this.hoaDonDAO.findActiveByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(hoaDon);
+        return this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(hoaDon);
     }
 
     public HoaDon capNhat(String maHoaDon, String maVoucher, String ghiChu, List<ChiTietHoaDon> chiTiets)
@@ -182,8 +182,10 @@ public class HoaDonService {
     public HoaDon getById(String maHoaDon) throws SQLException {
         return this.hoaDonDAO.findById(maHoaDon)
                 .orElseThrow(() -> new IllegalArgumentException(ERROR_NOT_FOUND));
-    }    public HoaDon getByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
-        return this.hoaDonDAO.findActiveByPhieuTiepNhan(maPhieuTiepNhan).orElse(null);
+    }
+
+    public HoaDon getByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
+        return this.hoaDonDAO.findByPhieuTiepNhan(maPhieuTiepNhan).orElse(null);
     }
 
     public List<HoaDon> findAll() throws SQLException {
