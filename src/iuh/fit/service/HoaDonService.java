@@ -1,10 +1,15 @@
 package iuh.fit.service;
 
 import iuh.fit.dao.HoaDonDAO;
+import iuh.fit.dao.KhachHangDAO;
 import iuh.fit.dao.TransactionScope;
 import iuh.fit.dao.VoucherDAO;
+import iuh.fit.dto.DanhSachHoaDonCriteria;
+import iuh.fit.dto.HoaDonView;
+import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.ChiTietHoaDon;
 import iuh.fit.entity.HoaDon;
+import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.entity.Voucher;
@@ -12,10 +17,13 @@ import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.util.MaGeneratorUtil;
 import iuh.fit.util.MaRetryUtil;
+import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +39,12 @@ public class HoaDonService {
     private static final String ERROR_TRANG_THAI = "app.hoaDon.loiTrangThai";
     private static final String ERROR_DA_TON_TAI = "app.hoaDon.daTonTai";
     private static final String ERROR_THIEU_TON = "app.hoaDon.loiTonKho";
+    private static final String ERROR_KHOANG_TIEN = "app.hoaDon.loiKhoangTien";
+    private static final String ERROR_KHOANG_NGAY = "app.hoaDon.loiKhoangNgay";
+    private static final String ERROR_PHAN_TRANG = "app.hoaDon.loiPhanTrang";
 
     private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
+    private final KhachHangDAO khachHangDAO = new KhachHangDAO();
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
     private final PhuTungService phuTungService = new PhuTungService();
     private final VoucherDAO voucherDAO = new VoucherDAO();
@@ -144,8 +156,73 @@ public class HoaDonService {
         return this.hoaDonDAO.findAllWithDetails();
     }
 
+    public PaginatedResult<HoaDonView> search(DanhSachHoaDonCriteria criteria) throws SQLException {
+        DanhSachHoaDonCriteria filter = criteria == null
+                ? DanhSachHoaDonCriteria.macDinh()
+                : criteria;
+
+        this.validateFilter(filter);
+
+        Map<String, KhachHang> khachHangTheoMa = new HashMap<>();
+        for (KhachHang khachHang : this.khachHangDAO.findAll()) {
+            khachHangTheoMa.put(khachHang.getMaKhachHang(), khachHang);
+        }
+
+        Map<String, String> tenKhachHangTheoPhieu = new HashMap<>();
+        Map<String, String> bienSoTheoPhieu = new HashMap<>();
+        for (PhieuTiepNhan phieu : this.phieuTiepNhanService.findAll()) {
+            KhachHang khachHang = khachHangTheoMa.get(phieu.getMaKhachHang());
+            tenKhachHangTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
+                    khachHang == null || khachHang.getHoTen() == null ? "" : khachHang.getHoTen());
+            bienSoTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
+                    phieu.getBienSo() == null ? "" : phieu.getBienSo());
+        }
+
+        Map<String, Voucher> voucherTheoMa = new HashMap<>();
+        for (Voucher voucher : this.voucherDAO.findAll()) {
+            voucherTheoMa.put(voucher.getMaVoucher(), voucher);
+        }
+
+        List<HoaDonView> views = new ArrayList<>();
+        for (HoaDon hoaDon : this.hoaDonDAO.findAllWithDetails()) {
+            HoaDonView view = new HoaDonView(
+                    hoaDon.getMaHoaDon(),
+                    hoaDon.getMaPhieuTiepNhan(),
+                    tenKhachHangTheoPhieu.getOrDefault(hoaDon.getMaPhieuTiepNhan(), ""),
+                    bienSoTheoPhieu.getOrDefault(hoaDon.getMaPhieuTiepNhan(), ""),
+                    hoaDon.getNgayTao(),
+                    hoaDon.getTrangThaiHoaDon(),
+                    this.tinhTongTien(hoaDon, voucherTheoMa),
+                    hoaDon.getThoiGianThanhToan(),
+                    hoaDon.getGhiChu(),
+                    hoaDon.getMaVoucher());
+            if (this.matches(view, filter)) {
+                views.add(view);
+            }
+        }
+
+        views.sort(Comparator
+                .comparing(HoaDonView::ngayTao, Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(HoaDonView::maHoaDon, Comparator.reverseOrder()));
+
+        return PaginatedResult.of(views, filter);
+    }
+
     public double tinhTongTien(HoaDon hoaDon) {
         return this.tinhTongTienGoc(hoaDon) * (1.0 - this.tinhMucGiam(hoaDon));
+    }
+
+    private double tinhTongTien(HoaDon hoaDon, Map<String, Voucher> voucherTheoMa) {
+        double tongGoc = this.tinhTongTienGoc(hoaDon);
+        if (hoaDon == null || hoaDon.getMaVoucher() == null || hoaDon.getMaVoucher().isBlank()) {
+            return tongGoc;
+        }
+        Voucher voucher = voucherTheoMa.get(hoaDon.getMaVoucher());
+        if (voucher == null || !this.voucherConHieuLuc(voucher)) {
+            return tongGoc;
+        }
+        double mucGiam = voucher.getMucGiam() == null ? 0.0 : voucher.getMucGiam();
+        return tongGoc * (1.0 - Math.min(Math.max(mucGiam, 0.0), 1.0));
     }
 
     public double tinhTongTienGoc(HoaDon hoaDon) {
@@ -194,7 +271,6 @@ public class HoaDonService {
                 || !voucher.getThoiHanApDung().isBefore(LocalDateTime.now()));
     }
 
-    /** Hoàn tồn theo hạng mục cũ rồi trừ tồn theo hạng mục mới trong cùng transaction. */
     private void capNhatTonKho(TransactionScope scope, List<ChiTietHoaDon> danhSachMoi,
             List<ChiTietHoaDon> danhSachCu) throws SQLException {
         for (ChiTietHoaDon ct : danhSachCu) {
@@ -267,6 +343,68 @@ public class HoaDonService {
 
     private String chuanHoaGhiChu(String ghiChu) {
         return ghiChu == null || ghiChu.isBlank() ? null : ghiChu.trim();
+    }
+
+    private void validateFilter(DanhSachHoaDonCriteria filter) {
+        if (filter.page() < 1 || filter.pageSize() < 1) {
+            throw new IllegalArgumentException(ERROR_PHAN_TRANG);
+        }
+        if ((filter.tongTienTu() != null && filter.tongTienTu() < 0)
+                || (filter.tongTienDen() != null && filter.tongTienDen() < 0)) {
+            throw new IllegalArgumentException(ERROR_KHOANG_TIEN);
+        }
+        if (filter.tongTienTu() != null && filter.tongTienDen() != null
+                && filter.tongTienTu() > filter.tongTienDen()) {
+            throw new IllegalArgumentException(ERROR_KHOANG_TIEN);
+        }
+        if (filter.ngayTaoTu() != null && filter.ngayTaoDen() != null
+                && filter.ngayTaoTu().isAfter(filter.ngayTaoDen())) {
+            throw new IllegalArgumentException(ERROR_KHOANG_NGAY);
+        }
+    }
+
+    private boolean matches(HoaDonView view, DanhSachHoaDonCriteria filter) {
+        if (!this.containsText(filter.maHoaDon(), view.maHoaDon())
+                || !this.containsText(filter.maPhieuTiepNhan(), view.maPhieuTiepNhan())
+                || !this.containsText(filter.tenKhachHang(), view.tenKhachHang())) {
+            return false;
+        }
+        if (filter.trangThai() != null && view.trangThai() != filter.trangThai()) {
+            return false;
+        }
+        if (filter.ngayTaoTu() != null && (view.ngayTao() == null
+                || view.ngayTao().toLocalDate().isBefore(filter.ngayTaoTu()))) {
+            return false;
+        }
+        if (filter.ngayTaoDen() != null && (view.ngayTao() == null
+                || view.ngayTao().toLocalDate().isAfter(filter.ngayTaoDen()))) {
+            return false;
+        }
+        if (filter.tongTienTu() != null && view.tongTien() < filter.tongTienTu()) {
+            return false;
+        }
+        if (filter.tongTienDen() != null && view.tongTien() > filter.tongTienDen()) {
+            return false;
+        }
+        if (filter.timNhanh() != null && !filter.timNhanh().isBlank()) {
+            String combined = this.chuanHoa(view.maHoaDon() + " " + view.maPhieuTiepNhan()
+                    + " " + view.tenKhachHang() + " " + view.bienSo());
+            if (!combined.contains(this.chuanHoa(filter.timNhanh()))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean containsText(String filterValue, String value) {
+        if (filterValue == null || filterValue.isBlank()) {
+            return true;
+        }
+        return this.chuanHoa(value).contains(this.chuanHoa(filterValue));
+    }
+
+    private String chuanHoa(String value) {
+        return TextNormalizerUtil.normalize(value);
     }
 
     private void validateChiTiet(List<ChiTietHoaDon> chiTiets) {
