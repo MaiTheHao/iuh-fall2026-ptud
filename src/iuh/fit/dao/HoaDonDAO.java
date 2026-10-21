@@ -163,6 +163,15 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
     }
 
+    public boolean delete(TransactionScope scope, String maHoaDon) throws SQLException {
+        this.deleteChiTiet(scope, maHoaDon);
+        String sql = "DELETE FROM HoaDon WHERE maHoaDon = ?";
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
+            ps.setString(1, maHoaDon);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public boolean huy(TransactionScope scope, String maHoaDon, String lyDoHuy) throws SQLException {
         String sql = """
                 UPDATE HoaDon

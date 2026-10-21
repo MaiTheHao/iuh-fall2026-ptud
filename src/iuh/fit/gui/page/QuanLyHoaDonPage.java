@@ -83,7 +83,9 @@ public class QuanLyHoaDonPage extends AbstractPage {
 				new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
 						row -> this.moHoaDon(row)),
 				new ThaoTac("ban", "app.hoaDon.huyHoaDon", ThaoTac.KieuThaoTac.NGUY_HIEM,
-						row -> this.huyHoaDon(panel, row)));
+						row -> this.huyHoaDon(panel, row)),
+				new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
+						row -> this.xoaHoaDon(panel, row)));
 
 		this.boLocMaHoaDon = panel.addTextFilter("app.hoaDon.maHoaDon");
 		this.boLocMaPhieu = panel.addTextFilter("app.hoaDon.maPhieuTiepNhan");
@@ -262,6 +264,30 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		try {
 			this.hoaDonService.huy(view.maHoaDon(), lyDo);
 			ThongBao.thongTin(this, "app.common.update_succeed");
+			this.taiLai(panel, this.trang);
+		} catch (IllegalArgumentException | IllegalStateException e) {
+			ThongBao.loi(this, e);
+		} catch (SQLException e) {
+			ThongBao.loi(this, "app.login.errorSystem");
+		}
+	}
+
+	private void xoaHoaDon(ManagementPanel panel, int row) {
+		if (row < 0 || row >= this.danhSachHienTai.size()) {
+			return;
+		}
+		HoaDonView view = this.danhSachHienTai.get(row);
+		if (view.trangThai() == TrangThaiHoaDon.DA_THANH_TOAN) {
+			ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
+			return;
+		}
+		if (!ThongBao.xacNhan(this, "app.hoaDon.xacNhanXoa", "app.hoaDon.tieuDeXoa")) {
+			return;
+		}
+
+		try {
+			this.hoaDonService.xoa(view.maHoaDon());
+			ThongBao.thongTin(this, "app.common.delete_succeed");
 			this.taiLai(panel, this.trang);
 		} catch (IllegalArgumentException | IllegalStateException e) {
 			ThongBao.loi(this, e);

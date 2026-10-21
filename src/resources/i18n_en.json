@@ -475,6 +475,8 @@
 			"loiPhanTrang": "Invalid pagination parameters",
 			"lyDoHuy": "Cancellation reason",
 			"xacNhanHuy": "Are you sure you want to cancel this invoice?",
+			"xacNhanXoa": "Are you sure you want to delete this invoice from the list?",
+			"tieuDeXoa": "Confirm invoice deletion",
 			"loiLyDoHuy": "Please enter a cancellation reason",
 			"loiLyDoHuyDai": "Cancellation reason cannot exceed 255 characters",
 			"loiTaiDanhSach": "Error loading parts or services data."

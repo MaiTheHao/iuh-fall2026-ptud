@@ -475,6 +475,8 @@
 			"loiPhanTrang": "Tham số phân trang không hợp lệ",
 			"lyDoHuy": "Lý do hủy hóa đơn",
 			"xacNhanHuy": "Bạn có chắc chắn muốn hủy hóa đơn này không?",
+			"xacNhanXoa": "Bạn có chắc chắn muốn xóa hóa đơn này khỏi danh sách?",
+			"tieuDeXoa": "Xác nhận xóa hóa đơn",
 			"loiLyDoHuy": "Vui lòng nhập lý do hủy",
 			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự",
 			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phụ tùng hoặc dịch vụ."
