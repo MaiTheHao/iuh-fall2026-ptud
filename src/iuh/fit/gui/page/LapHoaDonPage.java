@@ -530,17 +530,21 @@ public class LapHoaDonPage extends AbstractPage {
 	}
 
 	private void xoaTrang() {
-	    if (!this.choPhepSua()) {
-	        ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
-	        return;
-	    }
-	    boolean coDuLieu = !this.ghiChuField.getText().isBlank() || this.cbVoucher.getSelectedIndex() > 0;
-	    if (coDuLieu && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
-	        return;
-	    }
-	    this.ghiChuField.setText("");
-	    this.cbVoucher.setSelectedItem("");
-	    this.refreshLineTable();
+		if (!this.choPhepSua()) {
+			ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
+			return;
+		}
+		boolean coDuLieu = !this.chiTiets.isEmpty() || !this.ghiChuField.getText().isBlank()
+				|| this.cbVoucher.getSelectedIndex() > 0;
+		if (coDuLieu && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
+			return;
+		}
+		this.chiTiets.clear();
+		this.tenSanPham.clear();
+		this.ghiChuField.setText("");
+		this.cbVoucher.setSelectedItem("");
+		this.refreshLineTable();
+		ThongBao.thongTin(this, "app.hoaDon.daXoaTrang");
 	}
 
 	private void xoaDong(int row) {
