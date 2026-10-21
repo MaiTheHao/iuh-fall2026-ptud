@@ -78,6 +78,7 @@ public class LapHoaDonPage extends AbstractPage {
     private final Map<String, Voucher> voucherTheoMa = new HashMap<>();
 
     private JLabel lblTong;
+    private JButton nutHuy;
     private JButton nutLuu;
     private JButton nutThanhToan;
     private JButton nutThemDV;
@@ -119,20 +120,20 @@ public class LapHoaDonPage extends AbstractPage {
         this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
 
         JButton lamMoi = new JButton(I18nReaderUtil.get("app.common.clear"));
-        JButton huy = new JButton(I18nReaderUtil.get("app.hoaDon.huyHoaDon"));
+        this.nutHuy = new JButton(I18nReaderUtil.get("app.hoaDon.huyHoaDon"));
         this.nutLuu = new JButton(I18nReaderUtil.get("app.hoaDon.luuHoaDon"));
         this.nutThanhToan = new JButton(I18nReaderUtil.get("app.hoaDon.xacNhanThanhToan"));
 
         Theme.applyPrimary(this.nutLuu);
         Theme.applyPrimary(this.nutThanhToan);
-        Theme.applyDanger(huy);
+        Theme.applyDanger(this.nutHuy);
 
         lamMoi.addActionListener(e -> this.lamMoi());
         this.nutLuu.addActionListener(e -> this.luuHoaDon());
         this.nutThanhToan.addActionListener(e -> this.xacNhanThanhToan());
-        huy.addActionListener(e -> ThongBao.canhBao(this, "app.hoaDon.chuaHoTroHuy"));
+        this.nutHuy.addActionListener(e -> this.huyHoaDon());
 
-        form.thayNut(lamMoi, huy, this.nutLuu, this.nutThanhToan);
+        form.thayNut(lamMoi, this.nutHuy, this.nutLuu, this.nutThanhToan);
 
         JPanel right = new JPanel(new BorderLayout(4, 4));
         right.setOpaque(false);
@@ -332,6 +333,9 @@ public class LapHoaDonPage extends AbstractPage {
         }
         if (this.nutThanhToan != null) {
             this.nutThanhToan.setEnabled(choThanhToan);
+        }
+        if (this.nutHuy != null) {
+            this.nutHuy.setEnabled(choThanhToan && this.maHoaDonHienTai != null);
         }
     }
 
@@ -574,8 +578,35 @@ public class LapHoaDonPage extends AbstractPage {
         }
     }
 
-    private void xacNhanThanhToan() {
+    private void huyHoaDon() {
         if (this.maHoaDonHienTai == null) {
+            ThongBao.canhBao(this, "app.hoaDon.chuaLuu");
+            return;
+        }
+        if (!ThongBao.xacNhan(this, "app.hoaDon.xacNhanHuy", "app.hoaDon.huyHoaDon")) {
+            return;
+        }
+
+        String lyDo = JOptionPane.showInputDialog(this,
+                I18nReaderUtil.get("app.hoaDon.lyDoHuy"),
+                I18nReaderUtil.get("app.hoaDon.huyHoaDon"),
+                JOptionPane.QUESTION_MESSAGE);
+        if (lyDo == null) {
+            return;
+        }
+
+        try {
+            this.hoaDonService.huy(this.maHoaDonHienTai, lyDo);
+            ThongBao.thongTin(this, "app.common.update_succeed");
+            this.lamMoi();
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            ThongBao.loi(this, e);
+        } catch (SQLException e) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
+    }
+
+    private void xacNhanThanhToan() {        if (this.maHoaDonHienTai == null) {
             if (!this.luuHoaDon()) {
                 return;
             }

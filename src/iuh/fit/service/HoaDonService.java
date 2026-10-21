@@ -42,6 +42,10 @@ public class HoaDonService {
     private static final String ERROR_KHOANG_TIEN = "app.hoaDon.loiKhoangTien";
     private static final String ERROR_KHOANG_NGAY = "app.hoaDon.loiKhoangNgay";
     private static final String ERROR_PHAN_TRANG = "app.hoaDon.loiPhanTrang";
+    private static final String ERROR_LY_DO_HUY = "app.hoaDon.loiLyDoHuy";
+    private static final String ERROR_LY_DO_HUY_DAI = "app.hoaDon.loiLyDoHuyDai";
+
+    private static final int MAX_LY_DO_HUY = 255;
 
     private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
@@ -59,7 +63,7 @@ public class HoaDonService {
         this.validateChiTiet(chiTiets);
 
         PhieuTiepNhan phieu = this.phieuTiepNhanService.getById(maPhieuTiepNhan);
-        if (this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).isPresent()) {
+        if (this.hoaDonDAO.findActiveByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).isPresent()) {
             throw new IllegalStateException(ERROR_DA_TON_TAI);
         }
 
@@ -90,7 +94,7 @@ public class HoaDonService {
                     }
                 });
 
-        return this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(hoaDon);
+        return this.hoaDonDAO.findActiveByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(hoaDon);
     }
 
     public HoaDon capNhat(String maHoaDon, String maVoucher, String ghiChu, List<ChiTietHoaDon> chiTiets)
@@ -143,13 +147,43 @@ public class HoaDonService {
         return hoaDon;
     }
 
+    /** Hủy hóa đơn chờ thanh toán và hoàn tồn phụ tùng trong cùng transaction. */
+    public HoaDon huy(String maHoaDon, String lyDoHuy) throws SQLException {
+        HoaDon hoaDon = this.getById(maHoaDon);
+        if (hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.CHO_THANH_TOAN) {
+            throw new IllegalStateException(ERROR_TRANG_THAI);
+        }
+
+        String lyDo = lyDoHuy == null ? "" : lyDoHuy.trim();
+        if (lyDo.isEmpty()) {
+            throw new IllegalArgumentException(ERROR_LY_DO_HUY);
+        }
+        if (lyDo.length() > MAX_LY_DO_HUY) {
+            throw new IllegalArgumentException(ERROR_LY_DO_HUY_DAI);
+        }
+
+        try (TransactionScope scope = TransactionScope.begin()) {
+            if (!this.hoaDonDAO.huy(scope, maHoaDon, lyDo)) {
+                throw new IllegalStateException(ERROR_TRANG_THAI);
+            }
+            for (ChiTietHoaDon ct : hoaDon.getDanhSachChiTietHoaDon()) {
+                if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
+                    this.phuTungService.increaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
+                }
+            }
+            scope.commit();
+        }
+
+        hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.DA_HUY);
+        hoaDon.setLyDoHuy(lyDo);
+        return hoaDon;
+    }
+
     public HoaDon getById(String maHoaDon) throws SQLException {
         return this.hoaDonDAO.findById(maHoaDon)
                 .orElseThrow(() -> new IllegalArgumentException(ERROR_NOT_FOUND));
-    }
-
-    public HoaDon getByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
-        return this.hoaDonDAO.findByPhieuTiepNhan(maPhieuTiepNhan).orElse(null);
+    }    public HoaDon getByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
+        return this.hoaDonDAO.findActiveByPhieuTiepNhan(maPhieuTiepNhan).orElse(null);
     }
 
     public List<HoaDon> findAll() throws SQLException {
