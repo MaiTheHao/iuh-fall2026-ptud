@@ -37,7 +37,6 @@ public class HoaDonService {
     private static final String ERROR_VOUCHER = "app.hoaDon.loiVoucher";
     private static final String ERROR_NOT_FOUND = "app.hoaDon.khongTonTai";
     private static final String ERROR_TRANG_THAI = "app.hoaDon.loiTrangThai";
-    private static final String ERROR_DA_TON_TAI = "app.hoaDon.daTonTai";
     private static final String ERROR_THIEU_TON = "app.hoaDon.loiTonKho";
     private static final String ERROR_KHOANG_TIEN = "app.hoaDon.loiKhoangTien";
     private static final String ERROR_KHOANG_NGAY = "app.hoaDon.loiKhoangNgay";
@@ -60,12 +59,12 @@ public class HoaDonService {
 
     public HoaDon create(String maPhieuTiepNhan, String maVoucher, String ghiChu,
             List<ChiTietHoaDon> chiTiets) throws SQLException {
-        this.validateChiTiet(chiTiets);
-
         PhieuTiepNhan phieu = this.phieuTiepNhanService.getById(maPhieuTiepNhan);
-        if (this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).isPresent()) {
-            throw new IllegalStateException(ERROR_DA_TON_TAI);
+        HoaDon existing = this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(null);
+        if (existing != null) {
+            return existing;
         }
+        this.validateChiTiet(chiTiets);
 
         Voucher voucher = this.resolveVoucher(maVoucher);
         List<ChiTietHoaDon> danhSachGop = this.gopChiTietTrung(chiTiets);
@@ -147,7 +146,6 @@ public class HoaDonService {
         return hoaDon;
     }
 
-    /** Hủy hóa đơn chờ thanh toán và hoàn tồn phụ tùng trong cùng transaction. */
     public HoaDon huy(String maHoaDon, String lyDoHuy) throws SQLException {
         HoaDon hoaDon = this.getById(maHoaDon);
         if (hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.CHO_THANH_TOAN) {
@@ -186,10 +184,6 @@ public class HoaDonService {
 
     public HoaDon getByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
         return this.hoaDonDAO.findByPhieuTiepNhan(maPhieuTiepNhan).orElse(null);
-    }
-
-    public List<HoaDon> findAll() throws SQLException {
-        return this.hoaDonDAO.findAllWithDetails();
     }
 
     public PaginatedResult<HoaDonView> search(DanhSachHoaDonCriteria criteria) throws SQLException {
