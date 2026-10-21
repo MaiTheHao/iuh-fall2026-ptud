@@ -163,7 +163,6 @@
 			"loiTrangThai": "Vui lòng chọn trạng thái nhân viên.",
 			"loiDuLieu": "Dữ liệu nhân viên không hợp lệ.",
 			"khongTimThay": "Không tìm thấy nhân viên.",
-			"loiTaiDanhSach": "Không thể tải danh sách nhân viên.",
 			"loiLayThongTin": "Không thể lấy thông tin nhân viên.",
 			"themThanhCong": "Thêm nhân viên thành công.",
 			"capNhatThanhCong": "Cập nhật nhân viên thành công.",
@@ -292,8 +291,7 @@
 			"trangThaiTienDo": "Trạng Thái Tiến Độ:",
 			"noiDungYeuCau": "Nội Dung Yêu Cầu:",
 			"luu": "Lưu",
-			"xoaTrang": "Xóa Trắng",
-			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận."
+			"xoaTrang": "Xóa Trắng"
 		},
 		"tiepNhan": {
 			"loiDuLieu": "Dữ liệu tiếp nhận không được để trống.",
@@ -356,7 +354,6 @@
 			"khongTimThayKhach": "Không tìm thấy khách hàng với số điện thoại này.",
 			"loiSdt": "Vui lòng nhập số điện thoại khách hàng để tìm kiếm.",
 			"loiKetNoi": "Lỗi kết nối cơ sở dữ liệu.",
-			"loiTaiDanhSach": "Không thể tải danh sách khiếu nại.",
 			"khongTonTai": "Không tìm thấy khiếu nại.",
 			"loiMa": "Vui lòng chọn một khiếu nại từ danh sách.",
 			"loiTrangThai": "Vui lòng chọn trạng thái khiếu nại.",
@@ -433,8 +430,7 @@
 			"bienSo": "Biển Số",
 			"khachHang": "Khách Hàng",
 			"trangThai": "Trạng Thái",
-			"chon": "Chọn",
-			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận."
+			"chon": "Chọn"
 		},
 		"hoaDon": {
 			"danhSachTitle": "Danh Sách Hóa Đơn",
@@ -479,8 +475,7 @@
 			"xacNhanXoaDaThanhToan": "Hóa đơn đã thanh toán sẽ bị xóa khỏi doanh thu. Bạn có chắc chắn muốn xóa?",
 			"tieuDeXoa": "Xác nhận xóa hóa đơn",
 			"loiLyDoHuy": "Vui lòng nhập lý do hủy",
-			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự",
-			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phụ tùng hoặc dịch vụ."
+			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự"
 		},
 		"login": {
 			"title": "Đăng nhập hệ thống",

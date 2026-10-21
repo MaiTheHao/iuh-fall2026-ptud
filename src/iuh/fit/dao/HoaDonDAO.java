@@ -77,7 +77,7 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
     }
 
-    public boolean insert(TransactionScope scope, HoaDon hoaDon, List<ChiTietHoaDon> chiTiets)
+    public void insert(TransactionScope scope, HoaDon hoaDon, List<ChiTietHoaDon> chiTiets)
             throws SQLException {
         String sqlHoaDon = """
                 INSERT INTO HoaDon (maHoaDon, maPhieuTiepNhan, maVoucher, trangThaiHoaDon,
@@ -102,7 +102,6 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
 
         this.insertChiTiet(scope, hoaDon.getMaHoaDon(), chiTiets);
-        return true;
     }
 
     public void insertChiTiet(TransactionScope scope, String maHoaDon, List<ChiTietHoaDon> chiTiets)
