@@ -82,6 +82,7 @@ public class LapHoaDonPage extends AbstractPage {
 	private JLabel lblTong;
 	private JLabel lblGiamGia;
 	private JLabel lblThanhToan;
+	private JButton nutXoaTrang;
 	private JButton nutHuy;
 	private JButton nutLuu;
 	private JButton nutThanhToan;
@@ -122,10 +123,12 @@ public class LapHoaDonPage extends AbstractPage {
 		this.trangThaiHienTai = this.trangThaiHienTai == null ? TrangThaiHoaDon.CHO_THANH_TOAN : this.trangThaiHienTai;
 		this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
 
+		this.nutXoaTrang = form.getNutXoaTrang();
 		this.nutHuy = form.getNutXoa();
 		this.nutLuu = form.getNutLuu();
-		this.nutThanhToan = form.getNutXoaTrang();
+		this.nutThanhToan = form.getNutThem();
 
+		this.nutXoaTrang.setText(I18nReaderUtil.get("app.common.clear"));
 		this.nutHuy.setText(I18nReaderUtil.get("app.hoaDon.huyHoaDon"));
 		this.nutLuu.setText(I18nReaderUtil.get("app.hoaDon.luuHoaDon"));
 		this.nutThanhToan.setText(I18nReaderUtil.get("app.hoaDon.xacNhanThanhToan"));
@@ -134,11 +137,12 @@ public class LapHoaDonPage extends AbstractPage {
 		Theme.applyPrimary(this.nutLuu);
 		Theme.applyPrimary(this.nutThanhToan);
 
+		this.nutXoaTrang.addActionListener(e -> this.xoaTrang());
 		this.nutHuy.addActionListener(e -> this.huyHoaDon());
 		this.nutLuu.addActionListener(e -> this.luuHoaDon());
 		this.nutThanhToan.addActionListener(e -> this.xacNhanThanhToan());
 
-		form.thayNut(this.nutHuy, this.nutLuu, this.nutThanhToan);
+		form.thayNut(this.nutXoaTrang, this.nutHuy, this.nutLuu, this.nutThanhToan);
 
 		JPanel right = new JPanel(new BorderLayout(4, 4));
 		right.setOpaque(false);
@@ -327,6 +331,9 @@ public class LapHoaDonPage extends AbstractPage {
 		if (this.nutLuu != null) {
 			this.nutLuu.setEnabled(choPhepSua);
 		}
+		if (this.nutXoaTrang != null) {
+			this.nutXoaTrang.setEnabled(choPhepSua);
+		}
 		if (this.nutThemDV != null) {
 			this.nutThemDV.setEnabled(choPhepSua);
 		}
@@ -474,6 +481,23 @@ public class LapHoaDonPage extends AbstractPage {
 			}
 		}
 		return -1;
+	}
+
+	private void xoaTrang() {
+		if (!this.choPhepSua()) {
+			ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
+			return;
+		}
+		boolean coDuLieu = !this.chiTiets.isEmpty() || !this.ghiChuField.getText().isBlank()
+				|| this.cbVoucher.getSelectedIndex() > 0;
+		if (coDuLieu && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
+			return;
+		}
+		this.chiTiets.clear();
+		this.tenSanPham.clear();
+		this.ghiChuField.setText("");
+		this.cbVoucher.setSelectedItem("");
+		this.refreshLineTable();
 	}
 
 	private void xoaDong(int row) {
