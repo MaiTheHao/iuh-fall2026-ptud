@@ -4,6 +4,7 @@ import iuh.fit.dto.TiepNhanFormData;
 import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.theme.Theme;
+import iuh.fit.gui.component.ComboGoiY;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.KhachHangService;
 import iuh.fit.service.TiepNhanService;
@@ -13,6 +14,8 @@ import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,6 +31,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,8 +48,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     private final JTextField sdtField = new JTextField();
     private final JTextField hoTenField = new JTextField();
     private final JTextField bienSoField = new JTextField();
-    private final JTextField hangXeField = new JTextField();
-    private final JTextField dongXeField = new JTextField();
+    private final JComboBox<String> hangXeCombo = new JComboBox<>();
+    private final JComboBox<String> dongXeCombo = new JComboBox<>();
     private final JTextField doiXeField = new JTextField();
     private final JTextField odoField = new JTextField();
     private final JTextArea moTaArea = new JTextArea(6, 60);
@@ -56,10 +60,13 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     private final JButton luuButton = new JButton();
 
     private boolean dangCapNhat;
+    private String hangXeDaNap = "";
 
     public TiepNhanKhachHangPage() {
         this.setLayout(new BorderLayout());
         this.setBackground(Theme.BG);
+        this.hangXeCombo.setEditable(true);
+        this.dongXeCombo.setEditable(true);
         this.dangKyDocumentListener();
     }
 
@@ -99,8 +106,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
         JPanel pnlChiTietXe = new JPanel(new GridLayout(1, 4, 16, 0));
         pnlChiTietXe.setOpaque(false);
-        pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.hangXe") + ":", this.hangXeField));
-        pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.dongXe") + ":", this.dongXeField));
+        pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.hangXe") + ":", this.hangXeCombo));
+        pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.dongXe") + ":", this.dongXeCombo));
         pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.doiXe") + " (*):", this.doiXeField));
         pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.tiepNhan.odo"), this.odoField));
 
@@ -147,14 +154,20 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
         this.add(contentPanel, BorderLayout.CENTER);
 
+        // Nạp gợi ý hãng/dòng xe từ dữ liệu đã có (combo vẫn cho nhập giá trị mới)
+        this.taiGoiYHangXe();
+        this.taiGoiYDongXe();
+
         // Xóa hết Listener cũ tránh lặp sự kiện
         this.clearActionListeners(this.lamMoiButton, this.timKhachButton, this.timXeButton, this.luuButton);
+        this.clearActionListeners(this.hangXeCombo);
 
         // Đăng ký đúng Action Listeners
         this.lamMoiButton.addActionListener(e -> this.lamMoiForm());
         this.timKhachButton.addActionListener(e -> this.timKhachHang());
         this.timXeButton.addActionListener(e -> this.timXe());
         this.luuButton.addActionListener(e -> this.luuPhieuTiepNhan());
+        this.hangXeCombo.addActionListener(e -> this.hangXeThayDoi());
 
         this.revalidate();
         this.repaint();
@@ -207,10 +220,50 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         if (this.dangCapNhat) {
             return;
         }
-        this.hangXeField.setText("");
-        this.dongXeField.setText("");
+        ComboGoiY.xoa(this.hangXeCombo);
+        ComboGoiY.xoa(this.dongXeCombo);
         this.doiXeField.setText("");
         this.odoField.setText("");
+    }
+
+    private void hangXeThayDoi() {
+        if (this.dangCapNhat) {
+            return;
+        }
+        String hienTai = ComboGoiY.giaTri(this.hangXeCombo);
+        if (hienTai.equals(this.hangXeDaNap)) {
+            return;
+        }
+        this.hangXeDaNap = hienTai;
+
+        this.dangCapNhat = true;
+        try {
+            ComboGoiY.xoa(this.dongXeCombo);
+        } finally {
+            this.dangCapNhat = false;
+        }
+        this.taiGoiYDongXe();
+    }
+
+    private void taiGoiYHangXe() {
+        try {
+            ComboGoiY.nap(this.hangXeCombo, this.xeService.getDanhSachHangXe(), null);
+            this.hangXeDaNap = ComboGoiY.giaTri(this.hangXeCombo);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý hãng xe", ex);
+            ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
+        }
+    }
+
+    private void taiGoiYDongXe() {
+        try {
+            ComboGoiY.nap(this.dongXeCombo,
+                    this.xeService.getDanhSachDongXe(ComboGoiY.giaTri(this.hangXeCombo)),
+                    null);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý dòng xe", ex);
+            ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
+        }
     }
 
     private void timKhachHang() {
@@ -263,16 +316,17 @@ public class TiepNhanKhachHangPage extends AbstractPage {
                 if (found.isEmpty()) {
                     ThongBao.thongTinDinhDang(this, "app.tiepNhan.khongTimThayXe", bienSoChuanHoa);
                     this.bienSoField.setText(bienSoChuanHoa);
-                    this.hangXeField.setText("");
-                    this.dongXeField.setText("");
+                    ComboGoiY.xoa(this.hangXeCombo);
+                    ComboGoiY.xoa(this.dongXeCombo);
                     this.doiXeField.setText("");
                     this.odoField.setText("");
-                    this.hangXeField.requestFocusInWindow();
+                    this.hangXeCombo.requestFocusInWindow();
                 } else {
                     Xe xe = found.get();
                     this.bienSoField.setText(xe.getBienSo() != null ? xe.getBienSo() : bienSoChuanHoa);
-                    this.hangXeField.setText(xe.getHangXe() != null ? xe.getHangXe() : "");
-                    this.dongXeField.setText(xe.getDongXe() != null ? xe.getDongXe() : "");
+                    this.hangXeCombo.setSelectedItem(xe.getHangXe() != null ? xe.getHangXe() : "");
+                    this.dongXeCombo.setSelectedItem(xe.getDongXe() != null ? xe.getDongXe() : "");
+                    this.hangXeDaNap = ComboGoiY.giaTri(this.hangXeCombo);
                     this.doiXeField.setText(String.valueOf(xe.getDoiXe()));
                     this.odoField.setText(String.valueOf(xe.getOdo()));
                     this.odoField.requestFocusInWindow();
@@ -341,7 +395,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         }
     }
 
-    private JPanel createFieldWithLabel(String labelText, JTextField field) {
+    private JPanel createFieldWithLabel(String labelText, JComponent field) {
         JPanel panel = new JPanel(new BorderLayout(0, 5));
         panel.setOpaque(false);
         JLabel lbl = new JLabel(labelText);
@@ -358,8 +412,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
             this.sdtField.setText("");
             this.hoTenField.setText("");
             this.bienSoField.setText("");
-            this.hangXeField.setText("");
-            this.dongXeField.setText("");
+            ComboGoiY.xoa(this.hangXeCombo);
+            ComboGoiY.xoa(this.dongXeCombo);
             this.doiXeField.setText("");
             this.odoField.setText("");
             this.moTaArea.setText("");
@@ -374,8 +428,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
                 this.sdtField.getText().trim(),
                 this.hoTenField.getText().trim(),
                 this.bienSoField.getText().trim(),
-                this.hangXeField.getText().trim(),
-                this.dongXeField.getText().trim(),
+                ComboGoiY.giaTri(this.hangXeCombo),
+                ComboGoiY.giaTri(this.dongXeCombo),
                 NumberParseUtil.toIntegerOrNull(this.doiXeField.getText()),
                 NumberParseUtil.toIntegerOrNull(this.odoField.getText()),
                 this.moTaArea.getText().trim());

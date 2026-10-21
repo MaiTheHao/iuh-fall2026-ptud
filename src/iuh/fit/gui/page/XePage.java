@@ -5,6 +5,7 @@ import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.XeFormData;
 import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.component.ComboGoiY;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -198,25 +199,11 @@ public class XePage extends AbstractPage {
         panel.getTable().clearSelection();
     }
 
-    private String giaTriCombo(JComboBox<String> combo) {
-        Object v = combo.getEditor().getItem();
-        return v == null ? "" : v.toString().trim();
-    }
-
     private void taiGoiYHangXe() {
         JComboBox<String> combo = this.formPanel.getHangXeCombo();
 
         try {
-            String dangChon = this.giaTriCombo(combo);
-
-            combo.removeAllItems();
-
-            for (String h : this.xeService.getDanhSachHangXe()) {
-                combo.addItem(h);
-            }
-
-            combo.setSelectedItem(dangChon);
-
+            ComboGoiY.nap(combo, this.xeService.getDanhSachHangXe(), null);
         } catch (SQLException e) {
             ThongBao.loi(this, "app.login.errorSystem");
         }
@@ -226,17 +213,9 @@ public class XePage extends AbstractPage {
         JComboBox<String> combo = this.formPanel.getDongXeCombo();
 
         try {
-            String dangChon = this.giaTriCombo(combo);
-
-            combo.removeAllItems();
-
-            for (String d : this.xeService.getDanhSachDongXe(
-                    this.giaTriCombo(this.formPanel.getHangXeCombo()))) {
-                combo.addItem(d);
-            }
-
-            combo.setSelectedItem(dangChon);
-
+            ComboGoiY.nap(combo,
+                    this.xeService.getDanhSachDongXe(ComboGoiY.giaTri(this.formPanel.getHangXeCombo())),
+                    null);
         } catch (SQLException e) {
             ThongBao.loi(this, "app.login.errorSystem");
         }

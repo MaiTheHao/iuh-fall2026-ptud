@@ -1,6 +1,7 @@
 package iuh.fit.gui.form;
 
 import iuh.fit.dto.XeFormData;
+import iuh.fit.gui.component.ComboGoiY;
 import iuh.fit.gui.component.FormFieldPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.NumberParseUtil;
@@ -45,8 +46,8 @@ public class XeFormPanel extends FormFieldPanel {
     public XeFormData layDuLieu() {
         return new XeFormData(
                 this.bienSoField.getText().trim(),
-                this.giaTriCombo(this.hangXeCombo),
-                this.giaTriCombo(this.dongXeCombo),
+                ComboGoiY.giaTri(this.hangXeCombo),
+                ComboGoiY.giaTri(this.dongXeCombo),
                 NumberParseUtil.toIntegerOrNull(this.doiXeField.getText()),
                 NumberParseUtil.toIntegerOrNull(this.odoField.getText()));
     }
@@ -54,8 +55,8 @@ public class XeFormPanel extends FormFieldPanel {
     public void lamMoi() {
         this.bienSoField.setText("");
         Theme.applyEditable(this.bienSoField);
-        this.hangXeCombo.setSelectedItem("");
-        this.dongXeCombo.setSelectedItem("");
+        ComboGoiY.xoa(this.hangXeCombo);
+        ComboGoiY.xoa(this.dongXeCombo);
         this.doiXeField.setText("");
         this.odoField.setText("");
         this.focus();
@@ -71,10 +72,5 @@ public class XeFormPanel extends FormFieldPanel {
 
     public JComboBox<String> getDongXeCombo() {
         return this.dongXeCombo;
-    }
-
-    private String giaTriCombo(JComboBox<String> combo) {
-        Object value = combo.getEditor().getItem();
-        return value == null ? "" : value.toString().trim();
     }
 }

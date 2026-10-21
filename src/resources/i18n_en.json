@@ -521,21 +521,21 @@
       "shopSchedule": "Shop Work Schedule",
       "totalAssignments": "Total Assignments",
       "totalEmployees": "Number of Employees",
-	  "assignmentCreated": "Assignment created successfully.",
-	  "assignmentUpdated": "Assignment updated successfully.",
-	  "assignmentDeleted": "Assignment deleted successfully.",
-	  "assignmentRequired": "Please select an assignment to delete.",
-	  "confirmDelete": "Are you sure you want to delete this assignment?",
-	  "assignmentUpdateFailed": "Failed to update assignment.",
-	  "employeeRequired": "Please select an employee.",
-	  "dateRequired": "Please select a work date.",
-	  "shiftRequired": "Please select a shift.",
-	  "noteTooLong": "The note cannot exceed 255 characters.",
-	  "employeeNotFound": "Employee not found.",
-	  "duplicateAssignment": "This employee is already assigned to this shift on the selected date.",
-	  "assignmentNotFound": "Assignment not found.",
-	  "assignmentCreateFailed": "Failed to create assignment.",
-	  "assignmentDeleteFailed": "Failed to delete assignment."
+      "assignmentCreated": "Assignment created successfully.",
+      "assignmentUpdated": "Assignment updated successfully.",
+      "assignmentDeleted": "Assignment deleted successfully.",
+      "assignmentRequired": "Please select an assignment to delete.",
+      "confirmDelete": "Are you sure you want to delete this assignment?",
+      "assignmentUpdateFailed": "Failed to update assignment.",
+      "employeeRequired": "Please select an employee.",
+      "dateRequired": "Please select a work date.",
+      "shiftRequired": "Please select a shift.",
+      "noteTooLong": "The note cannot exceed 255 characters.",
+      "employeeNotFound": "Employee not found.",
+      "duplicateAssignment": "This employee is already assigned to this shift on the selected date.",
+      "assignmentNotFound": "Assignment not found.",
+      "assignmentCreateFailed": "Failed to create assignment.",
+      "assignmentDeleteFailed": "Failed to delete assignment."
     },
     "report": {
       "revenue": {
@@ -561,15 +561,14 @@
         "licensePlate": "License Plate",
         "status": "Status",
         "amount": "Amount",
-		"invalidDate": "Please select both the start date and end date.",
-		"invalidDateRange": "The start date must not be after the end date.",
-		"loadError": "Unable to load the revenue report.",
-		"paymentTime": "Payment Time",
-		"status": "Status",
-		"noData": "There is no report data to print or export.",
-		"printError": "Unable to print the report.",
-		"exportSuccess": "Report exported successfully.",
-		"exportError": "Unable to export the report."
+        "invalidDate": "Please select both the start date and end date.",
+        "invalidDateRange": "The start date must not be after the end date.",
+        "loadError": "Unable to load the revenue report.",
+        "paymentTime": "Payment Time",
+        "noData": "There is no report data to print or export.",
+        "printError": "Unable to print the report.",
+        "exportSuccess": "Report exported successfully.",
+        "exportError": "Unable to export the report."
       },
       "service": {
         "title": "Service Consumption",
@@ -614,7 +613,7 @@
         "consumptionRateColumn": "Consumption Rate",
         "actionNotConnected": "This function is not connected to data yet.",
         "exportNotImplemented": "Excel export has not been implemented yet.",
-		"loadError": "Unable to load the parts consumption report."
+        "loadError": "Unable to load the parts consumption report."
       }
     },
     "hoaDon": {
