@@ -74,12 +74,32 @@ public class AuthService {
         nhanVienDAO.updateProfile(nhanVien);
     }
 
-    public void updatePassword(NhanVien nhanVien) throws SQLException {
-        if (nhanVien == null || !this.isValidPassword(nhanVien.getMatKhau())) {
-            throw new PasswordInvalidException();
+    public void updatePassword(String matKhauHienTai, String matKhauMoi, String xacNhan) throws SQLException {
+        NhanVien nguoiDung = AppContext.getInstance().getCurrentUser();
+        if (nguoiDung == null || nguoiDung.getMaNhanVien() == null || nguoiDung.getMaNhanVien().isBlank()
+                || nguoiDung.getTenDangNhap() == null || nguoiDung.getTenDangNhap().isBlank()) {
+            throw new UserNotFoundException("app.common.notLoggedIn");
         }
-        this.requireExisting(nhanVien);
-        nhanVienDAO.updatePassword(nhanVien);
+        if (matKhauHienTai == null || matKhauHienTai.isBlank()) {
+            throw new CredentialsInvalidException("app.doiMatKhau.loiMatKhauHienTai");
+        }
+
+        this.nhanVienDAO.login(nguoiDung.getTenDangNhap(), matKhauHienTai)
+                .orElseThrow(() -> new CredentialsInvalidException("app.doiMatKhau.loiMatKhauHienTai"));
+
+        if (matKhauMoi == null || !matKhauMoi.equals(xacNhan)) {
+            throw new PasswordInvalidException("app.doiMatKhau.loiKhongTrung");
+        }
+        if (!this.isValidPassword(matKhauMoi)) {
+            throw new PasswordInvalidException("app.doiMatKhau.loiDoManh");
+        }
+
+        NhanVien capNhat = new NhanVien();
+        capNhat.setMaNhanVien(nguoiDung.getMaNhanVien());
+        capNhat.setMatKhau(matKhauMoi);
+        this.nhanVienDAO.updatePassword(capNhat);
+
+        nguoiDung.setMatKhau(matKhauMoi);
     }
 
     private void requireExisting(NhanVien nhanVien) throws SQLException {

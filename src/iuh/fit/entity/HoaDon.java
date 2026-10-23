@@ -15,6 +15,7 @@ public class HoaDon {
     private String ghiChu;
     private LocalDateTime ngayTao;
     private LocalDateTime thoiGianThanhToan;
+    private Double mucGiamApDung;
     private List<ChiTietHoaDon> danhSachChiTietHoaDon = new ArrayList<>();
 
     public HoaDon() {
@@ -94,6 +95,14 @@ public class HoaDon {
 
     public void setThoiGianThanhToan(LocalDateTime thoiGianThanhToan) {
         this.thoiGianThanhToan = thoiGianThanhToan;
+    }
+
+    public Double getMucGiamApDung() {
+        return mucGiamApDung;
+    }
+
+    public void setMucGiamApDung(Double mucGiamApDung) {
+        this.mucGiamApDung = mucGiamApDung;
     }
 
     public List<ChiTietHoaDon> getDanhSachChiTietHoaDon() {
