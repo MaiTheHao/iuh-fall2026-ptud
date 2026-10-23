@@ -190,11 +190,7 @@ public class HoaDonService {
             if (!this.hoaDonDAO.huy(scope, maHoaDon, lyDo)) {
                 throw new IllegalStateException(ERROR_TRANG_THAI);
             }
-            for (ChiTietHoaDon ct : hoaDon.getDanhSachChiTietHoaDon()) {
-                if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
-                    this.phuTungService.increaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
-                }
-            }
+            this.hoanTon(scope, hoaDon.getDanhSachChiTietHoaDon());
             scope.commit();
         }
 
@@ -209,11 +205,7 @@ public class HoaDonService {
 
         try (TransactionScope scope = TransactionScope.begin()) {
             if (!daHoanTon) {
-                for (ChiTietHoaDon ct : hoaDon.getDanhSachChiTietHoaDon()) {
-                    if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
-                        this.phuTungService.increaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
-                    }
-                }
+                this.hoanTon(scope, hoaDon.getDanhSachChiTietHoaDon());
             }
             if (!this.hoaDonDAO.delete(scope, maHoaDon)) {
                 throw new IllegalArgumentException(ERROR_NOT_FOUND);
@@ -238,50 +230,84 @@ public class HoaDonService {
 
         this.validateFilter(filter);
 
-        Map<String, KhachHang> khachHangTheoMa = new HashMap<>();
-        for (KhachHang khachHang : this.khachHangDAO.findAll()) {
-            khachHangTheoMa.put(khachHang.getMaKhachHang(), khachHang);
-        }
+        Map<String, KhachHang> khachHangTheoMa = this.khachHangTheoMa();
+        List<PhieuTiepNhan> danhSachPhieu = this.phieuTiepNhanService.findAll();
+        Map<String, String> tenKhachHangTheoPhieu = this.tenKhachHangTheoPhieu(khachHangTheoMa, danhSachPhieu);
+        Map<String, String> bienSoTheoPhieu = this.bienSoTheoPhieu(danhSachPhieu);
+        Map<String, Voucher> voucherTheoMa = this.voucherTheoMa();
 
-        Map<String, String> tenKhachHangTheoPhieu = new HashMap<>();
-        Map<String, String> bienSoTheoPhieu = new HashMap<>();
-        for (PhieuTiepNhan phieu : this.phieuTiepNhanService.findAll()) {
-            KhachHang khachHang = khachHangTheoMa.get(phieu.getMaKhachHang());
-            tenKhachHangTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
-                    khachHang == null || khachHang.getHoTen() == null ? "" : khachHang.getHoTen());
-            bienSoTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
-                    phieu.getBienSo() == null ? "" : phieu.getBienSo());
-        }
-
-        Map<String, Voucher> voucherTheoMa = new HashMap<>();
-        for (Voucher voucher : this.voucherDAO.findAll()) {
-            voucherTheoMa.put(voucher.getMaVoucher(), voucher);
-        }
-
-        List<HoaDonView> views = new ArrayList<>();
-        for (HoaDon hoaDon : this.hoaDonDAO.findAllWithDetails()) {
-            HoaDonView view = new HoaDonView(
-                    hoaDon.getMaHoaDon(),
-                    hoaDon.getMaPhieuTiepNhan(),
-                    tenKhachHangTheoPhieu.getOrDefault(hoaDon.getMaPhieuTiepNhan(), ""),
-                    bienSoTheoPhieu.getOrDefault(hoaDon.getMaPhieuTiepNhan(), ""),
-                    hoaDon.getNgayTao(),
-                    hoaDon.getTrangThaiHoaDon(),
-                    this.tinhTongTien(hoaDon, voucherTheoMa),
-                    hoaDon.getThoiGianThanhToan(),
-                    hoaDon.getGhiChu(),
-                    hoaDon.getMaVoucher(),
-                    hoaDon.getLyDoHuy());
-            if (this.matches(view, filter)) {
-                views.add(view);
-            }
-        }
+        List<HoaDonView> views = this.taoViews(filter, tenKhachHangTheoPhieu, bienSoTheoPhieu, voucherTheoMa);
 
         views.sort(Comparator
                 .comparing(HoaDonView::ngayTao, Comparator.nullsLast(Comparator.reverseOrder()))
                 .thenComparing(HoaDonView::maHoaDon, Comparator.reverseOrder()));
 
         return PaginatedResult.of(views, filter);
+    }
+
+    private Map<String, KhachHang> khachHangTheoMa() throws SQLException {
+        Map<String, KhachHang> khachHangTheoMa = new HashMap<>();
+        for (KhachHang khachHang : this.khachHangDAO.findAll()) {
+            khachHangTheoMa.put(khachHang.getMaKhachHang(), khachHang);
+        }
+        return khachHangTheoMa;
+    }
+
+    private Map<String, String> tenKhachHangTheoPhieu(Map<String, KhachHang> khachHangTheoMa,
+            List<PhieuTiepNhan> danhSachPhieu) {
+        Map<String, String> tenKhachHangTheoPhieu = new HashMap<>();
+        for (PhieuTiepNhan phieu : danhSachPhieu) {
+            KhachHang khachHang = khachHangTheoMa.get(phieu.getMaKhachHang());
+            tenKhachHangTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
+                    khachHang == null || khachHang.getHoTen() == null ? "" : khachHang.getHoTen());
+        }
+        return tenKhachHangTheoPhieu;
+    }
+
+    private Map<String, String> bienSoTheoPhieu(List<PhieuTiepNhan> danhSachPhieu) {
+        Map<String, String> bienSoTheoPhieu = new HashMap<>();
+        for (PhieuTiepNhan phieu : danhSachPhieu) {
+            bienSoTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
+                    phieu.getBienSo() == null ? "" : phieu.getBienSo());
+        }
+        return bienSoTheoPhieu;
+    }
+
+    private Map<String, Voucher> voucherTheoMa() throws SQLException {
+        Map<String, Voucher> voucherTheoMa = new HashMap<>();
+        for (Voucher voucher : this.voucherDAO.findAll()) {
+            voucherTheoMa.put(voucher.getMaVoucher(), voucher);
+        }
+        return voucherTheoMa;
+    }
+
+    private List<HoaDonView> taoViews(DanhSachHoaDonCriteria filter,
+            Map<String, String> tenKhachHangTheoPhieu, Map<String, String> bienSoTheoPhieu,
+            Map<String, Voucher> voucherTheoMa) throws SQLException {
+        List<HoaDonView> views = new ArrayList<>();
+        for (HoaDon hoaDon : this.hoaDonDAO.findAllWithDetails()) {
+            HoaDonView view = this.taoView(hoaDon, tenKhachHangTheoPhieu, bienSoTheoPhieu, voucherTheoMa);
+            if (this.matches(view, filter)) {
+                views.add(view);
+            }
+        }
+        return views;
+    }
+
+    private HoaDonView taoView(HoaDon hoaDon, Map<String, String> tenKhachHangTheoPhieu,
+            Map<String, String> bienSoTheoPhieu, Map<String, Voucher> voucherTheoMa) {
+        return new HoaDonView(
+                hoaDon.getMaHoaDon(),
+                hoaDon.getMaPhieuTiepNhan(),
+                tenKhachHangTheoPhieu.getOrDefault(hoaDon.getMaPhieuTiepNhan(), ""),
+                bienSoTheoPhieu.getOrDefault(hoaDon.getMaPhieuTiepNhan(), ""),
+                hoaDon.getNgayTao(),
+                hoaDon.getTrangThaiHoaDon(),
+                this.tinhTongTien(hoaDon, voucherTheoMa),
+                hoaDon.getThoiGianThanhToan(),
+                hoaDon.getGhiChu(),
+                hoaDon.getMaVoucher(),
+                hoaDon.getLyDoHuy());
     }
 
     public double tinhTongTien(HoaDon hoaDon) {
@@ -373,12 +399,20 @@ public class HoaDonService {
 
     private void capNhatTonKho(TransactionScope scope, List<ChiTietHoaDon> danhSachMoi,
             List<ChiTietHoaDon> danhSachCu) throws SQLException {
-        for (ChiTietHoaDon ct : danhSachCu) {
+        this.hoanTon(scope, danhSachCu);
+        this.truTon(scope, danhSachMoi);
+    }
+
+    private void hoanTon(TransactionScope scope, List<ChiTietHoaDon> chiTiets) throws SQLException {
+        for (ChiTietHoaDon ct : chiTiets) {
             if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
                 this.phuTungService.increaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
             }
         }
-        for (ChiTietHoaDon ct : danhSachMoi) {
+    }
+
+    private void truTon(TransactionScope scope, List<ChiTietHoaDon> chiTiets) throws SQLException {
+        for (ChiTietHoaDon ct : chiTiets) {
             if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
                 this.phuTungService.decreaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
             }
