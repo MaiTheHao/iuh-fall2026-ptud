@@ -43,15 +43,15 @@ public final class PageRegistry {
         return instance;
     }
 
-    public void register(AbstractPage page) {
-        pages.put(page.getClass(), page);
+    private void register(AbstractPage page) {
+        this.pages.put(page.getClass(), page);
     }
 
     public AbstractPage get(Class<? extends AbstractPage> type) {
-        return pages.get(type);
+        return this.pages.get(type);
     }
 
     public Collection<AbstractPage> all() {
-        return Collections.unmodifiableCollection(pages.values());
+        return Collections.unmodifiableCollection(this.pages.values());
     }
 }
