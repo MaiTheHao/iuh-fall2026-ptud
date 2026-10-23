@@ -1,6 +1,6 @@
 # P3 — Nhập phụ tùng và thanh toán
 
-**Trạng thái:** `[PARTIAL]` — 2/5 màn, cập nhật 21/10/2026.
+**Trạng thái:** `[DONE]` — 5/5 màn, cập nhật 22/10/2026.
 
 - **Lane:** L3 — Nhập phụ tùng & Thanh toán · **Phụ trách:** Nguyễn Trần Trọng Khang · **Nhánh:** `feat/p3-nhap-thanh-toan` · **Review:** Mai Thế Hào
 
@@ -10,11 +10,11 @@
 |---|---|---|
 | SCR-07 Lập phiếu nhập | `[DONE]` | `LapPhieuNhapPage` + `PhieuNhapPhuTungService`: nhiều dòng, chọn phụ tùng, tổng chi phí; ghi đầu phiếu, chi tiết và tăng tồn trong cùng `TransactionScope` |
 | SCR-07B Quản lý phiếu nhập | `[DONE]` | Danh sách, lọc, khoảng ngày, phân trang, xóa, mở màn lập phiếu |
-| SCR-10 Lập hóa đơn | `[TODO]` | Trang giữ chỗ; chưa có `HoaDonService` |
-| SCR-10B Quản lý hóa đơn | `[TODO]` | Trang giữ chỗ |
-| SCR-15 Đổi mật khẩu | `[TODO]` | Trang giữ chỗ; `AuthService.updatePassword` chưa kiểm tra mật khẩu hiện tại |
+| SCR-10 Lập hóa đơn | `[DONE]` | `LapHoaDonPage` + `HoaDonService.create/capNhat`: chọn phiếu, thêm dịch vụ/phụ tùng, gộp dòng trùng, áp voucher, trừ tồn trong `TransactionScope`, tính lại tổng tiền |
+| SCR-10B Quản lý hóa đơn | `[DONE]` | `QuanLyHoaDonPage`: danh sách + lọc + phân trang, mở hóa đơn, xóa hẳn hóa đơn khỏi danh sách (hoàn tồn cho hóa đơn chưa hủy, cảnh báo riêng với hóa đơn đã thanh toán); dùng `HoaDonService.search` + `HoaDonView` |
+| SCR-15 Đổi mật khẩu | `[DONE]` | `DoiMatKhauPage`: 3 trường mật khẩu, `AuthService.updatePassword(hienTai, moi, xacNhan)` xác minh mật khẩu hiện tại qua `NhanVienDAO.login`, kiểm tra trùng khớp + độ mạnh, xóa trắng sau khi thành công |
 
-Ngoài phạm vi: xuất Excel, hủy hóa đơn kèm lý do trên giao diện, giảm giá nâng cao, badge màu, bộ lọc nâng cao mọi cột, hoàn thiện bản dịch tiếng Anh.
+Ngoài phạm vi: xuất Excel, giảm giá nâng cao, badge màu, bộ lọc nâng cao mọi cột, hoàn thiện bản dịch tiếng Anh.
 
 ## 2. Việc còn lại: hóa đơn và thanh toán
 
@@ -48,7 +48,8 @@ Cần làm:
 - [x] Lập phiếu nhập nhiều dòng, thành tiền và tổng chi phí đúng.
 - [x] Tồn kho tăng đúng sau khi lưu phiếu nhập.
 - [x] SCR-07B hiển thị phiếu nhập mới.
-- [ ] Lập hóa đơn từ phiếu tiếp nhận, tổng tiền và giảm giá đúng.
-- [ ] Không tạo hóa đơn thứ hai cho cùng một phiếu.
-- [ ] Xác nhận thanh toán chuyển `DA_THANH_TOAN`, SCR-10B hiển thị nhãn tiếng Việt.
-- [ ] Đổi mật khẩu kiểm tra đúng mật khẩu hiện tại và độ mạnh.
+- [x] Lập hóa đơn từ phiếu tiếp nhận, tổng tiền và giảm giá đúng.
+- [x] Không tạo hóa đơn thứ hai cho cùng một phiếu.
+- [x] Hủy hóa đơn chờ thanh toán kèm lý do, hoàn tồn phụ tùng; form giữ nguyên và khóa lại.
+- [x] Xác nhận thanh toán chuyển `DA_THANH_TOAN`, SCR-10B hiển thị nhãn tiếng Việt.
+- [x] Đổi mật khẩu kiểm tra đúng mật khẩu hiện tại và độ mạnh.
