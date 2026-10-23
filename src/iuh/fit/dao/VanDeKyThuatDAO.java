@@ -8,8 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public final class VanDeKyThuatDAO extends BaseDao<VanDeKyThuat> {
@@ -18,6 +17,22 @@ public final class VanDeKyThuatDAO extends BaseDao<VanDeKyThuat> {
             SELECT maVanDe, maPhieuTiepNhan, tieuDe, moTa, mucDoUuTien, giaiPhap, khachHangDongY, ngayTao
             FROM VanDeKyThuat
             """;
+
+    public List<VanDeKyThuat> findAll() throws SQLException {
+        return this.findAll(SQL_SELECT);
+    }
+
+    public List<VanDeKyThuat> findByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
+        String sql = SQL_SELECT + " WHERE maPhieuTiepNhan = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, maPhieuTiepNhan);
+            try (ResultSet rs = ps.executeQuery()) {
+                return this.mapRows(rs);
+            }
+        }
+    }
 
     public boolean insert(TransactionScope scope, VanDeKyThuat vanDe) throws SQLException {
         String sql = """
@@ -32,49 +47,17 @@ public final class VanDeKyThuatDAO extends BaseDao<VanDeKyThuat> {
             ps.setString(4, vanDe.getMoTa());
             ps.setInt(5, vanDe.getMucDoUuTien());
             ps.setString(6, vanDe.getGiaiPhap());
-            ps.setString(7, vanDe.getKhachHangDongY() != null ? vanDe.getKhachHangDongY().name() : TrangThaiVanDeKyThuat.CHUA_XAC_NHAN.name());
-            ps.setTimestamp(8, Timestamp.valueOf(vanDe.getNgayTao()));
+            ps.setString(7, vanDe.getKhachHangDongY().name());
+            ps.setObject(8, vanDe.getNgayTao() != null ? vanDe.getNgayTao() : LocalDateTime.now());
 
             return ps.executeUpdate() > 0;
         }
     }
 
-    public List<VanDeKyThuat> findByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
-        String sql = SQL_SELECT + " WHERE maPhieuTiepNhan = ? ORDER BY mucDoUuTien ASC, ngayTao DESC";
-        List<VanDeKyThuat> list = new ArrayList<>();
-
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maPhieuTiepNhan);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-        }
-        return list;
-    }
-
-    public List<VanDeKyThuat> findByPhieuTiepNhan(TransactionScope scope, String maPhieuTiepNhan) throws SQLException {
-        String sql = SQL_SELECT + " WHERE maPhieuTiepNhan = ? ORDER BY mucDoUuTien ASC, ngayTao DESC";
-        List<VanDeKyThuat> list = new ArrayList<>();
-
-        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
-            ps.setString(1, maPhieuTiepNhan);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapRow(rs));
-                }
-            }
-        }
-        return list;
-    }
-
     @Override
     protected VanDeKyThuat mapRow(ResultSet rs) throws SQLException {
-        Timestamp timestamp = rs.getTimestamp("ngayTao");
-        String trangThaiStr = rs.getString("khachHangDongY");
-        TrangThaiVanDeKyThuat trangThai = trangThaiStr != null ? TrangThaiVanDeKyThuat.valueOf(trangThaiStr) : TrangThaiVanDeKyThuat.CHUA_XAC_NHAN;
+        String trangThai = rs.getString("khachHangDongY");
+        LocalDateTime ngayTao = rs.getObject("ngayTao", LocalDateTime.class);
 
         return new VanDeKyThuat(
                 rs.getString("maVanDe"),
@@ -83,8 +66,7 @@ public final class VanDeKyThuatDAO extends BaseDao<VanDeKyThuat> {
                 rs.getString("moTa"),
                 rs.getInt("mucDoUuTien"),
                 rs.getString("giaiPhap"),
-                trangThai,
-                timestamp != null ? timestamp.toLocalDateTime() : null
-        );
+                trangThai != null ? TrangThaiVanDeKyThuat.valueOf(trangThai) : TrangThaiVanDeKyThuat.CHUA_XAC_NHAN,
+                ngayTao);
     }
 }

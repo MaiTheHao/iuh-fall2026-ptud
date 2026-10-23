@@ -3,160 +3,270 @@ package iuh.fit.gui.page;
 import iuh.fit.dto.DanhSachPhieuTiepNhanCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhieuTiepNhanView;
-import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.entity.VanDeKyThuat;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
+import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
+import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.service.VanDeKyThuatService;
+import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Màn hình lập chẩn đoán kỹ thuật cho một phiếu tiếp nhận đã có.
+ */
 public class LapChanDoanPage extends AbstractPage {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = Logger.getLogger(LapChanDoanPage.class.getName());
+
+    private static final int SO_DONG_MOI_TRANG = 20;
 
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
     private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
 
-    private JTextField txtTimKiem, txtTieuDe, txtMucDoUuTien;
-    private JTextArea txtMoTa, txtGiaiPhap;
-    private JTable tblPhieu;
-    private DefaultTableModel tableModel;
-    private PhieuTiepNhan phieuDangChon;
+    private ManagementPanel managementPanel;
+    private ManagementFormPanel form;
+    private ManagementPanel.BoLocChon boLocTrangThai;
+    private JTextField txtMaPhieu;
+    private JTextField txtBienSo;
+    private JTextField txtTieuDe;
+    private JTextField txtMucDoUuTien;
+    private JTextArea txtMoTa;
+    private JTextArea txtGiaiPhap;
+    private List<PhieuTiepNhanView> danhSachHienTai = new ArrayList<>();
+    private PhieuTiepNhanView phieuDangChon;
+    private int trang = 1;
 
     public LapChanDoanPage() {
+        this.setLayout(new BorderLayout());
+        this.setBackground(Theme.BG);
     }
 
     @Override
     public void render() {
-        removeAll();
-        setLayout(new BorderLayout(10, 10));
+        this.removeAll();
+        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBackground(Theme.BG);
 
-        // West Panel: Search & Pick Intake Slip
-        JPanel pnlWest = new JPanel(new BorderLayout(5, 5));
-        pnlWest.setBorder(BorderFactory.createTitledBorder("Chọn phiếu tiếp nhận"));
-        pnlWest.setPreferredSize(new Dimension(400, 0));
+        this.managementPanel = new ManagementPanel();
+        this.managementPanel.setListTitle("app.chanDoan.danhSachTitle");
+        this.managementPanel.setHeaders(
+                I18nReaderUtil.get("app.chanDoan.ma"),
+                I18nReaderUtil.get("app.chanDoan.bienSo"),
+                I18nReaderUtil.get("app.chanDoan.khachHang"),
+                I18nReaderUtil.get("app.chanDoan.trangThai")
+        );
 
-        JPanel pnlSearch = new JPanel(new BorderLayout(5, 5));
-        txtTimKiem = new JTextField();
-        JButton btnTim = new JButton("Tìm");
-        btnTim.addActionListener(e -> timKiemPhieu());
-        pnlSearch.add(txtTimKiem, BorderLayout.CENTER);
-        pnlSearch.add(btnTim, BorderLayout.EAST);
-        pnlWest.add(pnlSearch, BorderLayout.NORTH);
+        this.managementPanel.addActionColumn("app.common.actions",
+                new ThaoTac("check", "app.chanDoan.chon", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.chonPhieu(row)));
 
-        tableModel = new DefaultTableModel(new String[]{"Mã phiếu", "Biển số", "Khách hàng"}, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
-        };
-        tblPhieu = new JTable(tableModel);
-        tblPhieu.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && tblPhieu.getSelectedRow() != -1) {
-                int row = tblPhieu.getSelectedRow();
-                String maPhieu = (String) tableModel.getValueAt(row, 0);
-                try {
-                    // Sửa lại thành getById thay vì findById
-                    phieuDangChon = phieuTiepNhanService.getById(maPhieu);
-                } catch (SQLException ex) {
-                    phieuDangChon = null;
-                    JOptionPane.showMessageDialog(this, "Không thể lấy thông tin phiếu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
+        this.boLocTrangThai = this.managementPanel.addComboBoxFilter(
+                "app.chanDoan.trangThai", TrangThaiPhieuTiepNhan.values());
+
+        this.managementPanel.setFilterChangeListener(() -> this.taiLaiData(1));
+        this.managementPanel.getClearFilterButton().addActionListener(
+                e -> this.managementPanel.clearFilters());
+        this.managementPanel.getPrevButton().addActionListener(
+                e -> this.taiLaiData(this.trang - 1));
+        this.managementPanel.getNextButton().addActionListener(
+                e -> this.taiLaiData(this.trang + 1));
+
+        this.managementPanel.getTable().getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                this.capNhatPhieuDangChon();
             }
         });
-        pnlWest.add(new JScrollPane(tblPhieu), BorderLayout.CENTER);
 
-        // Center Panel: Form Entry
-        JPanel pnlCenter = new JPanel(new GridBagLayout());
-        pnlCenter.setBorder(BorderFactory.createTitledBorder("Lập chẩn đoán kỹ thuật"));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.txtMaPhieu = new JTextField();
+        Theme.applyReadOnly(this.txtMaPhieu);
 
-        txtTieuDe = new JTextField(20);
-        txtMucDoUuTien = new JTextField("50", 20);
-        txtMoTa = new JTextArea(4, 20);
-        txtGiaiPhap = new JTextArea(4, 20);
+        this.txtBienSo = new JTextField();
+        Theme.applyReadOnly(this.txtBienSo);
 
-        gbc.gridx = 0; gbc.gridy = 0; pnlCenter.add(new JLabel("Tiêu đề (*):"), gbc);
-        gbc.gridx = 1; pnlCenter.add(txtTieuDe, gbc);
+        this.txtTieuDe = new JTextField();
+        this.txtMucDoUuTien = new JTextField("50");
 
-        gbc.gridx = 0; gbc.gridy = 1; pnlCenter.add(new JLabel("Mức ưu tiên (1-100):"), gbc);
-        gbc.gridx = 1; pnlCenter.add(txtMucDoUuTien, gbc);
+        this.txtMoTa = new JTextArea();
+        this.txtMoTa.setLineWrap(true);
+        this.txtMoTa.setWrapStyleWord(true);
+        JScrollPane cuonMoTa = new JScrollPane(this.txtMoTa);
+        cuonMoTa.setPreferredSize(new Dimension(200, 100));
 
-        gbc.gridx = 0; gbc.gridy = 2; pnlCenter.add(new JLabel("Mô tả:"), gbc);
-        gbc.gridx = 1; pnlCenter.add(new JScrollPane(txtMoTa), gbc);
+        this.txtGiaiPhap = new JTextArea();
+        this.txtGiaiPhap.setLineWrap(true);
+        this.txtGiaiPhap.setWrapStyleWord(true);
+        JScrollPane cuonGiaiPhap = new JScrollPane(this.txtGiaiPhap);
+        cuonGiaiPhap.setPreferredSize(new Dimension(200, 100));
 
-        gbc.gridx = 0; gbc.gridy = 3; pnlCenter.add(new JLabel("Giải pháp đề xuất:"), gbc);
-        gbc.gridx = 1; pnlCenter.add(new JScrollPane(txtGiaiPhap), gbc);
+        this.form = new ManagementFormPanel("app.chanDoan.lapChanDoanTitle");
+        this.form.addField("app.chanDoan.ma", this.txtMaPhieu);
+        this.form.addField("app.chanDoan.bienSo", this.txtBienSo);
+        this.form.addField("app.chanDoan.tieuDe", this.txtTieuDe);
+        this.form.addField("app.chanDoan.mucDoUuTien", this.txtMucDoUuTien);
+        this.form.addField("app.chanDoan.moTa", cuonMoTa);
+        this.form.addField("app.chanDoan.giaiPhap", cuonGiaiPhap);
 
-        JButton btnLuu = new JButton("Lưu chẩn đoán");
-        btnLuu.addActionListener(e -> xuLyLuu());
-        gbc.gridx = 1; gbc.gridy = 4; gbc.anchor = GridBagConstraints.EAST;
-        pnlCenter.add(btnLuu, gbc);
+        JButton nutLuu = new JButton(I18nReaderUtil.get("app.chanDoan.luu"));
+        Theme.applyPrimary(nutLuu);
+        nutLuu.addActionListener(e -> this.luuChanDoan());
+        this.form.thayNut(nutLuu);
 
-        add(pnlWest, BorderLayout.WEST);
-        add(pnlCenter, BorderLayout.CENTER);
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
+        split.setDividerLocation(480);
+        split.setOpaque(false);
+        split.setBorder(null);
 
-        revalidate();
-        repaint();
+        this.add(split, BorderLayout.CENTER);
+
+        this.lamMoiForm();
+        this.taiLaiData(1);
+        this.revalidate();
+        this.repaint();
     }
 
-    private void timKiemPhieu() {
+    private void taiLaiData(int page) {
         try {
-            String tuKhoa = txtTimKiem.getText().trim();
-            DanhSachPhieuTiepNhanCriteria criteria = new DanhSachPhieuTiepNhanCriteria(
-                    null, null, null, null, null, null, null, null,
-                    tuKhoa.isEmpty() ? null : tuKhoa, 1, 50
+            TrangThaiPhieuTiepNhan trangThai = this.boLocTrangThai.giaTri()
+                    instanceof TrangThaiPhieuTiepNhan value ? value : null;
+
+            DanhSachPhieuTiepNhanCriteria tieuChi = new DanhSachPhieuTiepNhanCriteria(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    trangThai,
+                    null,
+                    null,
+                    this.managementPanel.getQuickFilter(),
+                    Math.max(page, 1),
+                    SO_DONG_MOI_TRANG
             );
-            
-            // Sửa kiểu trả về thành PhieuTiepNhanView
-            PaginatedResult<PhieuTiepNhanView> result = phieuTiepNhanService.search(criteria);
-            if (tableModel != null) {
-                tableModel.setRowCount(0);
-                for (PhieuTiepNhanView p : result.items()) {
-                    // Dùng getter theo kiểu record của Java
-                    tableModel.addRow(new Object[]{p.maPhieuTiepNhan(), p.bienSo(), p.tenKhachHang()});
-                }
+
+            PaginatedResult<PhieuTiepNhanView> ketQua = this.phieuTiepNhanService.search(tieuChi);
+
+            List<Object[]> rows = new ArrayList<>();
+            for (PhieuTiepNhanView view : ketQua.items()) {
+                rows.add(new Object[]{
+                        view.maPhieuTiepNhan(),
+                        view.bienSo(),
+                        view.tenKhachHang(),
+                        view.trangThai() == null ? "" : view.trangThai().getI18NBusinessName()
+                });
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi tìm kiếm: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+
+            this.danhSachHienTai = ketQua.items();
+
+            this.managementPanel.setRows(rows);
+            this.managementPanel.setCount(
+                    ketQua.fromIndex(),
+                    ketQua.toIndex(),
+                    ketQua.totalItems());
+            this.managementPanel.setPage(
+                    ketQua.page(),
+                    Math.max(ketQua.totalPages(), 1));
+
+            this.trang = ketQua.page();
+            this.phieuDangChon = null;
+            this.txtMaPhieu.setText("");
+            this.txtBienSo.setText("");
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Khong the tai danh sach phieu tiep nhan", ex);
+            ThongBao.loi(this, "app.chanDoan.loiTaiDanhSach");
         }
     }
 
-    private void xuLyLuu() {
-        if (phieuDangChon == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu tiếp nhận từ danh sách bên trái.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+    private void capNhatPhieuDangChon() {
+        int row = this.managementPanel.getSelectedRow();
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
+            this.phieuDangChon = null;
+            this.txtMaPhieu.setText("");
+            this.txtBienSo.setText("");
             return;
         }
 
-        try {
-            int mucDo = Integer.parseInt(txtMucDoUuTien.getText().trim());
-            VanDeKyThuat vd = new VanDeKyThuat();
-            vd.setMaPhieuTiepNhan(phieuDangChon.getMaPhieuTiepNhan());
-            vd.setTieuDe(txtTieuDe.getText().trim());
-            vd.setMoTa(txtMoTa.getText().trim());
-            vd.setMucDoUuTien(mucDo);
-            vd.setGiaiPhap(txtGiaiPhap.getText().trim());
-
-            vanDeKyThuatService.lapChanDoan(vd);
-            JOptionPane.showMessageDialog(this, "Lập chẩn đoán thành công!");
-
-            // Clear form
-            txtTieuDe.setText("");
-            txtMoTa.setText("");
-            txtGiaiPhap.setText("");
-            txtMucDoUuTien.setText("50");
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Mức độ ưu tiên phải là con số hợp lệ (1-100).", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
+        PhieuTiepNhanView view = this.danhSachHienTai.get(row);
+        this.phieuDangChon = view;
+        this.txtMaPhieu.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
+        this.txtBienSo.setText(view.bienSo() == null ? "" : view.bienSo());
     }
 
-    public void onShow() {
-        timKiemPhieu();
+    private void chonPhieu(int row) {
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
+            return;
+        }
+
+        PhieuTiepNhanView view = this.danhSachHienTai.get(row);
+        this.phieuDangChon = view;
+        this.txtMaPhieu.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
+        this.txtBienSo.setText(view.bienSo() == null ? "" : view.bienSo());
+        this.managementPanel.getTable().setRowSelectionInterval(row, row);
+    }
+
+    private void lamMoiForm() {
+        this.txtTieuDe.setText("");
+        this.txtMoTa.setText("");
+        this.txtGiaiPhap.setText("");
+        this.txtMucDoUuTien.setText("50");
+        this.txtMaPhieu.setText("");
+        this.txtBienSo.setText("");
+        this.phieuDangChon = null;
+        this.managementPanel.getTable().clearSelection();
+        this.txtTieuDe.requestFocus();
+    }
+
+    private void luuChanDoan() {
+        if (this.phieuDangChon == null) {
+            ThongBao.canhBao(this, "app.chanDoan.chuaChonPhieu");
+            return;
+        }
+
+        int mucDo;
+        try {
+            mucDo = Integer.parseInt(this.txtMucDoUuTien.getText().trim());
+        } catch (NumberFormatException ex) {
+            ThongBao.canhBao(this, "app.chanDoan.loiMucDoUuTien");
+            return;
+        }
+
+        VanDeKyThuat vanDe = new VanDeKyThuat();
+        vanDe.setMaPhieuTiepNhan(this.phieuDangChon.maPhieuTiepNhan());
+        vanDe.setTieuDe(this.txtTieuDe.getText().trim());
+        vanDe.setMoTa(this.txtMoTa.getText().trim());
+        vanDe.setGiaiPhap(this.txtGiaiPhap.getText().trim());
+        vanDe.setMucDoUuTien(mucDo);
+
+        try {
+            this.vanDeKyThuatService.lapChanDoan(vanDe);
+            ThongBao.thongTin(this, "app.chanDoan.thanhCong");
+            this.lamMoiForm();
+            this.taiLaiData(this.trang);
+        } catch (IllegalArgumentException ex) {
+            ThongBao.loi(this, ex);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Khong the lap chan doan", ex);
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package iuh.fit.gui.page;
 
+import iuh.fit.core.context.AppContext;
 import iuh.fit.dto.DanhSachPhieuTiepNhanCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhieuTiepNhanView;
@@ -82,7 +83,9 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                 new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
                         row -> this.suaPhieuTiepNhan(row)),
                 new ThaoTac("ban", "app.phieuTiepNhan.huyPhieu", ThaoTac.KieuThaoTac.NGUY_HIEM,
-                        row -> this.huyPhieu(row)));
+                        row -> this.huyPhieu(row)),
+                new ThaoTac("clipboard-list", "app.chanDoan.xemChanDoanTitle", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.xemChanDoan(row)));
 
         this.boLocMa = this.managementPanel.addTextFilter("app.phieuTiepNhan.ma");
         this.boLocBienSo = this.managementPanel.addTextFilter("app.xe.bienSo");
@@ -228,6 +231,15 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
             this.taiLaiData(this.trang);
             this.lamMoiForm();
         }
+    }
+
+    private void xemChanDoan(int row) {
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
+            return;
+        }
+
+        AppContext.getInstance().setSelectedPhieuTiepNhan(this.danhSachHienTai.get(row));
+        this.goTo(XemChanDoanPage.class);
     }
 
     private boolean capNhat(Component parent, PhieuTiepNhan phieu) {
