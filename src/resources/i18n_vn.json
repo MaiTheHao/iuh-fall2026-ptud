@@ -520,7 +520,22 @@
       },
       "shopSchedule": "Lịch làm việc của shop",
       "totalAssignments": "Tổng lượt phân công",
-      "totalEmployees": "Số nhân viên"
+      "totalEmployees": "Số nhân viên",
+	  "assignmentCreated": "Thêm phân công thành công.",
+	  "assignmentUpdated": "Cập nhật phân công thành công.",
+	  "assignmentDeleted": "Xóa phân công thành công.",
+	  "assignmentRequired": "Vui lòng chọn phân công cần xóa.",
+	  "confirmDelete": "Bạn có chắc chắn muốn xóa phân công này?",
+	  "assignmentUpdateFailed": "Cập nhật phân công thất bại.",
+	  "employeeRequired": "Vui lòng chọn nhân viên.",
+	  "dateRequired": "Vui lòng chọn ngày làm việc.",
+	  "shiftRequired": "Vui lòng chọn ca làm việc.",
+	  "noteTooLong": "Ghi chú không được vượt quá 255 ký tự.",
+	  "employeeNotFound": "Không tìm thấy nhân viên.",
+	  "duplicateAssignment": "Nhân viên đã được phân công vào ca này trong ngày đã chọn.",
+	  "assignmentNotFound": "Không tìm thấy phân công.",
+	  "assignmentCreateFailed": "Thêm phân công thất bại.",
+	  "assignmentDeleteFailed": "Xóa phân công thất bại."
     },
     "report": {
       "revenue": {
