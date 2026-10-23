@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,6 +91,31 @@ public final class PhanCongDAO extends BaseDao<PhanCong> {
 			ps.setString(7, phanCong.getMaPhanCong());
 
 			return ps.executeUpdate() > 0;
+		}
+	}
+
+	public List<PhanCong> findByDateRange(LocalDate tuNgay, LocalDate denNgay) throws SQLException {
+
+		String sql = SQL_SELECT + """
+				WHERE DATEFROMPARTS(nam, thang, ngay) BETWEEN ? AND ?
+				ORDER BY nam, thang, ngay, caLamViec, maNhanVien
+				""";
+
+		try (Connection connection = DatabaseConfig.getConnection();
+				PreparedStatement ps = connection.prepareStatement(sql)) {
+
+			ps.setObject(1, tuNgay);
+			ps.setObject(2, denNgay);
+
+			try (ResultSet rs = ps.executeQuery()) {
+				List<PhanCong> danhSach = new ArrayList<>();
+
+				while (rs.next()) {
+					danhSach.add(this.mapRow(rs));
+				}
+
+				return danhSach;
+			}
 		}
 	}
 
