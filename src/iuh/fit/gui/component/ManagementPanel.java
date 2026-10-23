@@ -308,7 +308,7 @@ public class ManagementPanel extends JPanel {
     }
 
     public void setPage(int page, int totalPages) {
-        this.nhanTrang.setText(I18nReaderUtil.get("app.common.nhanTrang") + " " + page + "/" + totalPages);
+        this.nhanTrang.setText(I18nReaderUtil.get("app.common.pageLabel") + " " + page + "/" + totalPages);
         this.nutTruoc.setEnabled(page > 1);
         this.nutSau.setEnabled(page < totalPages);
     }
