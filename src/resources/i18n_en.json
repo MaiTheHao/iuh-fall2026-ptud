@@ -495,7 +495,22 @@
       },
       "shopSchedule": "Shop Work Schedule",
       "totalAssignments": "Total Assignments",
-      "totalEmployees": "Number of Employees"
+      "totalEmployees": "Number of Employees",
+	  "assignmentCreated": "Assignment created successfully.",
+	  "assignmentUpdated": "Assignment updated successfully.",
+	  "assignmentDeleted": "Assignment deleted successfully.",
+	  "assignmentRequired": "Please select an assignment to delete.",
+	  "confirmDelete": "Are you sure you want to delete this assignment?",
+	  "assignmentUpdateFailed": "Failed to update assignment.",
+	  "employeeRequired": "Please select an employee.",
+	  "dateRequired": "Please select a work date.",
+	  "shiftRequired": "Please select a shift.",
+	  "noteTooLong": "The note cannot exceed 255 characters.",
+	  "employeeNotFound": "Employee not found.",
+	  "duplicateAssignment": "This employee is already assigned to this shift on the selected date.",
+	  "assignmentNotFound": "Assignment not found.",
+	  "assignmentCreateFailed": "Failed to create assignment.",
+	  "assignmentDeleteFailed": "Failed to delete assignment."
     },
     "report": {
       "revenue": {
