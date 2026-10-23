@@ -1,106 +1,143 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.core.context.AppContext;
-import iuh.fit.entity.PhieuTiepNhan;
+import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.entity.VanDeKyThuat;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.VanDeKyThuatService;
+import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import java.awt.BorderLayout;
+import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Màn hình chỉ đọc hiển thị chẩn đoán kỹ thuật của phiếu tiếp nhận đang chọn.
+ */
 public class XemChanDoanPage extends AbstractPage {
 
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(XemChanDoanPage.class.getName());
+
+    private static final DateTimeFormatter NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
     private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
-    private JLabel lblMaPhieu, lblBienSo;
-    private JTable tblChanDoan;
-    private DefaultTableModel tableModel;
+
+    private ManagementPanel managementPanel;
+    private ManagementFormPanel form;
+    private JTextField txtMaPhieu;
+    private JTextField txtBienSo;
 
     public XemChanDoanPage() {
+        this.setLayout(new BorderLayout());
+        this.setBackground(Theme.BG);
     }
 
     @Override
     public void render() {
-        removeAll();
-        setLayout(new BorderLayout(10, 10));
+        this.removeAll();
+        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBackground(Theme.BG);
 
-        // Header Info
-        JPanel pnlHeader = new JPanel(new GridLayout(2, 2, 10, 5));
-        pnlHeader.setBorder(BorderFactory.createTitledBorder("Thông tin phiếu tiếp nhận"));
+        this.form = new ManagementFormPanel("app.chanDoan.thongTinTitle");
 
-        lblMaPhieu = new JLabel("-");
-        lblBienSo = new JLabel("-");
+        this.txtMaPhieu = new JTextField();
+        Theme.applyReadOnly(this.txtMaPhieu);
+        this.form.addField("app.chanDoan.ma", this.txtMaPhieu);
 
-        pnlHeader.add(new JLabel("Mã phiếu:"));
-        pnlHeader.add(lblMaPhieu);
-        pnlHeader.add(new JLabel("Biển số xe:"));
-        pnlHeader.add(lblBienSo);
+        this.txtBienSo = new JTextField();
+        Theme.applyReadOnly(this.txtBienSo);
+        this.form.addField("app.chanDoan.bienSo", this.txtBienSo);
 
-        add(pnlHeader, BorderLayout.NORTH);
+        JButton nutQuayLai = new JButton(I18nReaderUtil.get("app.chanDoan.quayLai"));
+        Theme.applySecondary(nutQuayLai);
+        nutQuayLai.addActionListener(e -> this.goTo(QuanLyPhieuTiepNhanPage.class));
+        this.form.thayNut(nutQuayLai);
 
-        // Table
-        String[] columns = {"Mã vấn đề", "Tiêu đề", "Mô tả", "Mức ưu tiên", "Giải pháp", "Khách hàng đồng ý", "Ngày tạo"};
-        tableModel = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Read-only
-            }
-        };
-        tblChanDoan = new JTable(tableModel);
-        add(new JScrollPane(tblChanDoan), BorderLayout.CENTER);
+        this.managementPanel = new ManagementPanel();
+        this.managementPanel.setListTitle("app.chanDoan.danhSachChanDoanTitle");
+        this.managementPanel.setHeaders(
+                I18nReaderUtil.get("app.chanDoan.maVanDe"),
+                I18nReaderUtil.get("app.chanDoan.tieuDe"),
+                I18nReaderUtil.get("app.chanDoan.moTa"),
+                I18nReaderUtil.get("app.chanDoan.mucDoUuTien"),
+                I18nReaderUtil.get("app.chanDoan.giaiPhap"),
+                I18nReaderUtil.get("app.chanDoan.khachHangDongY"),
+                I18nReaderUtil.get("app.chanDoan.ngayTao")
+        );
 
-        // Back Button
-        JButton btnBack = new JButton("Quay lại");
-        btnBack.addActionListener(e -> goTo(QuanLyPhieuTiepNhanPage.class));
-        JPanel pnlSouth = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        pnlSouth.add(btnBack);
-        add(pnlSouth, BorderLayout.SOUTH);
+        this.managementPanel.setFilterChangeListener(() -> this.taiLai());
+        this.managementPanel.getClearFilterButton().addActionListener(
+                e -> this.managementPanel.clearFilters());
 
-        revalidate();
-        repaint();
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
+        split.setDividerLocation(480);
+        split.setOpaque(false);
+        split.setBorder(null);
+
+        this.add(split, BorderLayout.CENTER);
+
+        this.taiLai();
+        this.revalidate();
+        this.repaint();
     }
 
-    public void onShow() {
-        PhieuTiepNhan phieu = AppContext.getInstance().getSelectedPhieuTiepNhan();
-        if (phieu != null) {
-            lblMaPhieu.setText(phieu.getMaPhieuTiepNhan());
-            lblBienSo.setText(phieu.getBienSo());
-            loadData(phieu.getMaPhieuTiepNhan());
-        } else {
-            lblMaPhieu.setText("-");
-            lblBienSo.setText("-");
-            if (tableModel != null) {
-                tableModel.setRowCount(0);
-            }
-        }
-    }
-
-    private void loadData(String maPhieu) {
-        if (tableModel == null) return;
-        tableModel.setRowCount(0);
+    private void taiLai() {
         try {
-            List<VanDeKyThuat> ds = vanDeKyThuatService.layDanhSachTheoPhieu(maPhieu);
+            PhieuTiepNhanView phieu = AppContext.getInstance().getSelectedPhieuTiepNhan();
+
+            if (phieu == null) {
+                this.txtMaPhieu.setText("");
+                this.txtBienSo.setText("");
+                this.managementPanel.setRows(List.of());
+                this.managementPanel.setCount(0, 0, 0);
+                this.managementPanel.setPage(1, 1);
+                return;
+            }
+
+            this.txtMaPhieu.setText(phieu.maPhieuTiepNhan());
+            this.txtBienSo.setText(phieu.bienSo());
+
+            List<VanDeKyThuat> ds = this.vanDeKyThuatService.layDanhSachTheoPhieu(
+                    phieu.maPhieuTiepNhan(), this.managementPanel.getQuickFilter());
+
+            List<Object[]> rows = new ArrayList<>();
             for (VanDeKyThuat vd : ds) {
-                tableModel.addRow(new Object[]{
+                rows.add(new Object[]{
                         vd.getMaVanDe(),
                         vd.getTieuDe(),
                         vd.getMoTa(),
                         vd.getMucDoUuTien(),
                         vd.getGiaiPhap(),
-                        vd.getKhachHangDongY(),
-                        vd.getNgayTao()
+                        vd.getKhachHangDongY() == null ? "" : vd.getKhachHangDongY().getI18NBusinessName(),
+                        vd.getNgayTao() != null ? vd.getNgayTao().format(NGAY_GIO) : ""
                 });
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu chẩn đoán: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+
+            this.managementPanel.setRows(rows);
+            this.managementPanel.setCount(rows.isEmpty() ? 0 : 1, rows.size(), rows.size());
+            this.managementPanel.setPage(1, 1);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Khong the tai danh sach chan doan", ex);
+            ThongBao.loi(this, "app.chanDoan.loiTaiDanhSach");
         }
     }
 
     @Override
     public String getTitleKey() {
-        return "app.menu.diagnoses";
+        return "app.chanDoan.xemChanDoanTitle";
     }
 
     @Override

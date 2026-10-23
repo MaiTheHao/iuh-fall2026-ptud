@@ -1,7 +1,7 @@
 package iuh.fit.core.context;
 
+import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.entity.NhanVien;
-import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.enumeration.AppLocale;
 import iuh.fit.gui.page.AbstractPage;
 
@@ -10,7 +10,7 @@ public final class AppContext {
     private AppLocale locale = AppLocale.VN;
     private NhanVien currentUser = null;
     private Class<? extends AbstractPage> currentPage;
-    private PhieuTiepNhan selectedPhieuTiepNhan;
+    private PhieuTiepNhanView selectedPhieuTiepNhan;
 
     private AppContext() {
     }
@@ -45,13 +45,14 @@ public final class AppContext {
 
     public void logout() {
         this.currentUser = null;
+        this.selectedPhieuTiepNhan = null;
     }
-    
-    public PhieuTiepNhan getSelectedPhieuTiepNhan() {
+
+    public PhieuTiepNhanView getSelectedPhieuTiepNhan() {
         return selectedPhieuTiepNhan;
     }
 
-    public void setSelectedPhieuTiepNhan(PhieuTiepNhan selectedPhieuTiepNhan) {
+    public void setSelectedPhieuTiepNhan(PhieuTiepNhanView selectedPhieuTiepNhan) {
         this.selectedPhieuTiepNhan = selectedPhieuTiepNhan;
     }
 }
