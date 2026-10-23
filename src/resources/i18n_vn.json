@@ -164,6 +164,7 @@
 			"loiDuLieu": "Dữ liệu nhân viên không hợp lệ.",
 			"khongTimThay": "Không tìm thấy nhân viên.",
 			"loiLayThongTin": "Không thể lấy thông tin nhân viên.",
+			"loiTaiDanhSach": "Không thể tải danh sách nhân viên.",
 			"themThanhCong": "Thêm nhân viên thành công.",
 			"capNhatThanhCong": "Cập nhật nhân viên thành công.",
 			"xoaThanhCong": "Xóa nhân viên thành công.",
@@ -231,7 +232,8 @@
 			"khongTaiDuocAnh": "Không tải được ảnh",
 			"duLieuKhongPhaiAnh": "Dữ liệu nhận được không phải ảnh.",
 			"khongTimThay": "Không tìm thấy phụ tùng.",
-			"duLieuKhongHopLe": "Dữ liệu phụ tùng không hợp lệ."
+			"duLieuKhongHopLe": "Dữ liệu phụ tùng không hợp lệ.",
+			"khongDuTon": "Số lượng tồn không đủ để xuất."
 		},
 		"dichVu": {
 			"thongTinTitle": "Thông Tin Dịch Vụ",
@@ -291,7 +293,8 @@
 			"trangThaiTienDo": "Trạng Thái Tiến Độ:",
 			"noiDungYeuCau": "Nội Dung Yêu Cầu:",
 			"luu": "Lưu",
-			"xoaTrang": "Xóa Trắng"
+			"xoaTrang": "Xóa Trắng",
+			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận."
 		},
 		"tiepNhan": {
 			"loiDuLieu": "Dữ liệu tiếp nhận không được để trống.",
@@ -361,7 +364,8 @@
 			"loiTrangThaiCuoi": "Khiếu nại đã xử lý xong, không thể thay đổi trạng thái.",
 			"loiPhieuDaHuy": "Phiếu tiếp nhận đã hủy, không thể tạo khiếu nại.",
 			"loiGhiDuLieu": "Không thể ghi khiếu nại vào cơ sở dữ liệu.",
-			"luuThanhCong": "Lưu khiếu nại thành công: {0}"
+			"luuThanhCong": "Lưu khiếu nại thành công: {0}",
+			"loiTaiDanhSach": "Không thể tải danh sách khiếu nại."
 		},
 		"voucher": {
 			"thongTinTitle": "Thông Tin Voucher",
@@ -430,7 +434,8 @@
 			"bienSo": "Biển Số",
 			"khachHang": "Khách Hàng",
 			"trangThai": "Trạng Thái",
-			"chon": "Chọn"
+			"chon": "Chọn",
+			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận."
 		},
 		"hoaDon": {
 			"danhSachTitle": "Danh Sách Hóa Đơn",
@@ -474,7 +479,9 @@
 			"xacNhanXoaDaThanhToan": "Hóa đơn đã thanh toán sẽ bị xóa khỏi doanh thu. Bạn có chắc chắn muốn xóa?",
 			"tieuDeXoa": "Xác nhận xóa hóa đơn",
 			"loiLyDoHuy": "Vui lòng nhập lý do hủy",
-			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự"
+			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự",
+			"chuaLuu": "Hóa đơn chưa được lưu.",
+			"daTonTai": "Phiếu tiếp nhận này đã có hóa đơn."
 		},
 		"doiMatKhau": {
 			"title": "Đổi Mật Khẩu",

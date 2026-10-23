@@ -157,7 +157,9 @@ CREATE TABLE HoaDon (
     ghiChu             nvarchar(255) NULL,
     ngayTao            datetime2(3)  DEFAULT sysdatetime() NOT NULL,
     thoiGianThanhToan  datetime2(3)  NULL,
+    mucGiamApDung      decimal(5,4)  NULL,
     CONSTRAINT PK_HoaDon PRIMARY KEY (maHoaDon),
+    CONSTRAINT UQ_HoaDon_maPhieuTiepNhan UNIQUE (maPhieuTiepNhan),
     CONSTRAINT FK_HoaDon_PhieuTiepNhan FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan) ON DELETE CASCADE,
     CONSTRAINT FK_HoaDon_Voucher       FOREIGN KEY (maVoucher)       REFERENCES Voucher(maVoucher)             ON DELETE CASCADE
 );

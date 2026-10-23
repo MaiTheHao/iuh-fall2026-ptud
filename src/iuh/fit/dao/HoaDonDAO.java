@@ -23,7 +23,7 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
 
     private static final String SQL_SELECT = """
             SELECT maHoaDon, maPhieuTiepNhan, maVoucher, trangThaiHoaDon,
-                   lyDoHuy, ghiChu, ngayTao, thoiGianThanhToan
+                   lyDoHuy, ghiChu, ngayTao, thoiGianThanhToan, mucGiamApDung
             FROM HoaDon
             """;
 
@@ -81,8 +81,8 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
             throws SQLException {
         String sqlHoaDon = """
                 INSERT INTO HoaDon (maHoaDon, maPhieuTiepNhan, maVoucher, trangThaiHoaDon,
-                                    lyDoHuy, ghiChu, ngayTao, thoiGianThanhToan)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                                    lyDoHuy, ghiChu, ngayTao, thoiGianThanhToan, mucGiamApDung)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sqlHoaDon)) {
             ps.setString(1, hoaDon.getMaHoaDon());
@@ -97,6 +97,11 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
                 ps.setTimestamp(8, Timestamp.valueOf(hoaDon.getThoiGianThanhToan()));
             } else {
                 ps.setNull(8, Types.TIMESTAMP);
+            }
+            if (hoaDon.getMucGiamApDung() != null) {
+                ps.setDouble(9, hoaDon.getMucGiamApDung());
+            } else {
+                ps.setNull(9, Types.DECIMAL);
             }
             ps.executeUpdate();
         }
@@ -138,11 +143,11 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
     }
 
-    public boolean updateThongTin(TransactionScope scope, String maHoaDon, String maVoucher, String ghiChu)
-            throws SQLException {
+    public boolean updateThongTin(TransactionScope scope, String maHoaDon, String maVoucher, String ghiChu,
+            Double mucGiamApDung) throws SQLException {
         String sql = """
                 UPDATE HoaDon
-                SET maVoucher = ?, ghiChu = ?
+                SET maVoucher = ?, ghiChu = ?, mucGiamApDung = ?
                 WHERE maHoaDon = ? AND trangThaiHoaDon = ?
                 """;
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
@@ -156,8 +161,13 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
             } else {
                 ps.setString(2, ghiChu);
             }
-            ps.setString(3, maHoaDon);
-            ps.setString(4, TrangThaiHoaDon.CHO_THANH_TOAN.name());
+            if (mucGiamApDung == null) {
+                ps.setNull(3, Types.DECIMAL);
+            } else {
+                ps.setDouble(3, mucGiamApDung);
+            }
+            ps.setString(4, maHoaDon);
+            ps.setString(5, TrangThaiHoaDon.CHO_THANH_TOAN.name());
             return ps.executeUpdate() > 0;
         }
     }
@@ -186,21 +196,27 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
     }
 
-    public boolean capNhatThanhToan(TransactionScope scope, String maHoaDon, LocalDateTime thoiGian)
-            throws SQLException {
+    public boolean capNhatThanhToan(TransactionScope scope, String maHoaDon, LocalDateTime thoiGian,
+            Double mucGiamApDung) throws SQLException {
         String sql = """
                 UPDATE HoaDon
-                SET trangThaiHoaDon = ?, thoiGianThanhToan = ?
-                WHERE maHoaDon = ?
+                SET trangThaiHoaDon = ?, thoiGianThanhToan = ?, mucGiamApDung = ?
+                WHERE maHoaDon = ? AND trangThaiHoaDon = ?
                 """;
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             ps.setString(1, TrangThaiHoaDon.DA_THANH_TOAN.name());
             ps.setTimestamp(2, Timestamp.valueOf(thoiGian != null ? thoiGian : LocalDateTime.now()));
-            ps.setString(3, maHoaDon);
+            if (mucGiamApDung == null) {
+                ps.setNull(3, Types.DECIMAL);
+            } else {
+                ps.setDouble(3, mucGiamApDung);
+            }
+            ps.setString(4, maHoaDon);
+            ps.setString(5, TrangThaiHoaDon.CHO_THANH_TOAN.name());
             return ps.executeUpdate() > 0;
         }
     }
-    
+
     @Override
     protected HoaDon mapRow(ResultSet rs) throws SQLException {
         HoaDon hoaDon = new HoaDon();
@@ -212,6 +228,8 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         hoaDon.setGhiChu(rs.getString("ghiChu"));
         hoaDon.setNgayTao(rs.getObject("ngayTao", LocalDateTime.class));
         hoaDon.setThoiGianThanhToan(rs.getObject("thoiGianThanhToan", LocalDateTime.class));
+        double mucGiamApDung = rs.getDouble("mucGiamApDung");
+        hoaDon.setMucGiamApDung(rs.wasNull() ? null : mucGiamApDung);
         return hoaDon;
     }
 

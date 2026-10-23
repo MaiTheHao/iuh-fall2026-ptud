@@ -5,7 +5,6 @@ import iuh.fit.dao.KhieuNaiDAO;
 import iuh.fit.dao.PhanCongDAO;
 import iuh.fit.dao.PhieuTiepNhanDAO;
 import iuh.fit.dto.ThongKeDashboard;
-import iuh.fit.entity.ChiTietHoaDon;
 import iuh.fit.entity.HoaDon;
 import iuh.fit.entity.KhieuNai;
 import iuh.fit.entity.PhanCong;
@@ -24,6 +23,7 @@ public class DashboardService {
     private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
     private final KhieuNaiDAO khieuNaiDAO = new KhieuNaiDAO();
     private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
+    private final HoaDonService hoaDonService = new HoaDonService();
     private final PhanCongDAO phanCongDAO = new PhanCongDAO();
 
     public ThongKeDashboard thongKe(String maNhanVien) throws SQLException {
@@ -42,12 +42,12 @@ public class DashboardService {
             if (hoaDon.getTrangThaiHoaDon() == TrangThaiHoaDon.DA_THANH_TOAN
                     && hoaDon.getThoiGianThanhToan() != null
                     && hoaDon.getThoiGianThanhToan().toLocalDate().equals(homNay)) {
-                doanhThuHomNay += this.tongTien(hoaDon);
+                doanhThuHomNay += this.hoaDonService.tinhTongTien(hoaDon);
             }
 
             if (hoaDon.getTrangThaiHoaDon() == TrangThaiHoaDon.CHO_THANH_TOAN) {
                 hoaDonChuaThanhToan++;
-                tongHoaDonChuaThanhToan += this.tongTien(hoaDon);
+                tongHoaDonChuaThanhToan += this.hoaDonService.tinhTongTien(hoaDon);
             }
         }
 
@@ -97,17 +97,5 @@ public class DashboardService {
         }
 
         return Optional.empty();
-    }
-
-    private double tongTien(HoaDon hoaDon) {
-        double tong = 0;
-
-        for (ChiTietHoaDon chiTiet : hoaDon.getDanhSachChiTietHoaDon()) {
-            if (chiTiet.getDonGia() != null) {
-                tong += chiTiet.getSoLuong() * chiTiet.getDonGia();
-            }
-        }
-
-        return tong;
     }
 }

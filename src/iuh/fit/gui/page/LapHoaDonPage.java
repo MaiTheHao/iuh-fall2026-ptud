@@ -613,6 +613,17 @@ public class LapHoaDonPage extends AbstractPage {
 			ThongBao.canhBao(this, "app.hoaDon.loiPhieuTiepNhan");
 			return false;
 		}
+		try {
+			HoaDon daCo = this.hoaDonService.getByPhieuTiepNhan(maPhieu);
+			if (daCo != null) {
+				ThongBao.canhBao(this, "app.hoaDon.daTonTai");
+				this.taiHoaDon(daCo);
+				return false;
+			}
+		} catch (SQLException e) {
+			ThongBao.loi(this, "app.login.errorSystem");
+			return false;
+		}
 		if (this.chiTiets.isEmpty()) {
 			ThongBao.canhBao(this, "app.hoaDon.loiChiTietTrong");
 			return false;
@@ -638,6 +649,10 @@ public class LapHoaDonPage extends AbstractPage {
 	}
 
 	private boolean capNhatHoaDon() {
+		return this.capNhatHoaDon(true);
+	}
+
+	private boolean capNhatHoaDon(boolean hienThongBao) {
 		if (this.chiTiets.isEmpty()) {
 			ThongBao.canhBao(this, "app.hoaDon.loiChiTietTrong");
 			return false;
@@ -651,7 +666,9 @@ public class LapHoaDonPage extends AbstractPage {
 			HoaDon hoaDon = this.hoaDonService.capNhat(this.maHoaDonHienTai, maVoucher, this.ghiChuField.getText(),
 					new ArrayList<>(this.chiTiets));
 			this.taiHoaDon(hoaDon);
-			ThongBao.thongTin(this, "app.common.update_succeed");
+			if (hienThongBao) {
+				ThongBao.thongTin(this, "app.common.update_succeed");
+			}
 			return true;
 		} catch (IllegalArgumentException | IllegalStateException e) {
 			ThongBao.loi(this, e);
@@ -696,6 +713,9 @@ public class LapHoaDonPage extends AbstractPage {
 			if (!this.luuHoaDon()) {
 				return;
 			}
+		} else if (!this.capNhatHoaDon(false)) {
+			// Phai luu cac dong dang sua truoc khi thu tien, neu khong tien thu khac voi so tien hien tren man hinh.
+			return;
 		}
 		if (!ThongBao.xacNhan(this, "app.hoaDon.xacNhanThanhToan", "app.common.notification")) {
 			return;

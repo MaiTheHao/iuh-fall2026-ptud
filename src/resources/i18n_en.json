@@ -164,6 +164,7 @@
 			"loiDuLieu": "Invalid employee data.",
 			"khongTimThay": "Employee not found.",
 			"loiLayThongTin": "Unable to retrieve employee information.",
+			"loiTaiDanhSach": "Unable to load the employee list.",
 			"themThanhCong": "Employee added successfully.",
 			"capNhatThanhCong": "Employee updated successfully.",
 			"xoaThanhCong": "Employee deleted successfully.",
@@ -231,7 +232,8 @@
 			"khongTaiDuocAnh": "Unable to load image",
 			"duLieuKhongPhaiAnh": "The received data is not an image.",
 			"khongTimThay": "Part not found.",
-			"duLieuKhongHopLe": "Invalid part data."
+			"duLieuKhongHopLe": "Invalid part data.",
+			"khongDuTon": "Insufficient stock for this part."
 		},
 		"dichVu": {
 			"thongTinTitle": "Service Information",
@@ -291,7 +293,8 @@
 			"trangThaiTienDo": "Progress Status:",
 			"noiDungYeuCau": "Request Content:",
 			"luu": "Save",
-			"xoaTrang": "Clear"
+			"xoaTrang": "Clear",
+			"loiTaiDanhSach": "Error loading the intake slip list."
 		},
 		"tiepNhan": {
 			"loiDuLieu": "Intake data must not be empty.",
@@ -361,7 +364,8 @@
 			"loiTrangThaiCuoi": "The complaint is closed, its status can no longer change.",
 			"loiPhieuDaHuy": "The intake slip is cancelled; a complaint cannot be created.",
 			"loiGhiDuLieu": "Unable to write the complaint to the database.",
-			"luuThanhCong": "Complaint saved successfully: {0}"
+			"luuThanhCong": "Complaint saved successfully: {0}",
+			"loiTaiDanhSach": "Unable to load the complaint list."
 		},
 		"voucher": {
 			"thongTinTitle": "Voucher Information",
@@ -430,7 +434,8 @@
 			"bienSo": "License Plate",
 			"khachHang": "Customer",
 			"trangThai": "Status",
-			"chon": "Select"
+			"chon": "Select",
+			"loiTaiDanhSach": "Failed to load intake slips."
 		},
 		"hoaDon": {
 			"danhSachTitle": "Invoice List",
@@ -474,7 +479,9 @@
 			"xacNhanXoaDaThanhToan": "This invoice is paid and will be removed from revenue reports. Delete it anyway?",
 			"tieuDeXoa": "Confirm invoice deletion",
 			"loiLyDoHuy": "Please enter a cancellation reason",
-			"loiLyDoHuyDai": "Cancellation reason cannot exceed 255 characters"
+			"loiLyDoHuyDai": "Cancellation reason cannot exceed 255 characters",
+			"chuaLuu": "Invoice has not been saved yet.",
+			"daTonTai": "This intake slip already has an invoice."
 		},
 		"doiMatKhau": {
 			"title": "Change Password",
