@@ -1,6 +1,6 @@
 # DGRAPH — Sơ đồ phụ thuộc Gara Ô tô Lúa
 
-Trạng thái đối chiếu mã nguồn ngày 21/10/2026. `[DONE]` đã chạy trên dữ liệu thật · `[PARTIAL]` một phần đã có mã · `[TODO]` mới có khung giữ chỗ · `[P1..P4]` lane phụ trách.
+Trạng thái đối chiếu mã nguồn ngày 23/10/2026. `[DONE]` đã chạy trên dữ liệu thật · `[PARTIAL]` một phần đã có mã · `[TODO]` mới có khung giữ chỗ · `[P1..P4]` lane phụ trách.
 
 Nguồn: `assets/tasks/2026-10-14-p1..p4-*.md`, `assets/mockui/docs/screen-flow.md`, `src/iuh/fit/**`, `infra/migrations/**`.
 
@@ -11,20 +11,20 @@ Nguồn: `assets/tasks/2026-10-14-p1..p4-*.md`, `assets/mockui/docs/screen-flow.
 ```mermaid
 flowchart TD
     p1["P1 To chuc - Quoc<br/>6/6 man [DONE]"]
-    p2["P2 Tiep nhan & Khieu nai - Thang<br/>4/6 man [PARTIAL]"]
-    p3["P3 Nhap & Thanh toan - Khang<br/>2/5 man [PARTIAL]"]
+    p2["P2 Tiep nhan & Khieu nai - Thang<br/>6/6 man [DONE]"]
+    p3["P3 Nhap & Thanh toan - Khang<br/>5/5 man [DONE]"]
     p4["P4 Ke hoach & Tong ket - Binh<br/>0/6 man [TODO]"]
 
     p1 -->|"KhachHang / Xe / NhanVien - da co"| p2
     p1 -->|"PhuTung / DichVu / Voucher / NhanVien - da co"| p3
     p1 -->|"NhanVien - da co"| p4
     p2 -->|"PhieuTiepNhan - da co"| p3
-    p3 -->|"HoaDon / ChiTietHoaDon - con thieu"| p4
+    p3 -->|"HoaDon / ChiTietHoaDon - da co"| p4
 ```
 
 ## 2. Contract service liên lane
 
-Nút ghi `chua co` là phần chưa tồn tại trong mã nguồn.
+Nút ghi `[TODO]` là phần chưa tồn tại trong mã nguồn.
 
 ```mermaid
 flowchart LR
@@ -39,18 +39,18 @@ flowchart LR
 
     subgraph sgP2["P2"]
         ptns["PhieuTiepNhanService"]
-        vdks["VanDeKyThuatService - chua co"]
+        vdks["VanDeKyThuatService"]
         kns["KhieuNaiService"]
     end
 
     subgraph sgP3["P3"]
         pnps["PhieuNhapPhuTungService"]
-        hds["HoaDonService - chua co"]
+        hds["HoaDonService"]
     end
 
     subgraph sgP4["P4"]
-        pcs["PhanCongService - chua co"]
-        bcs["BaoCaoService - chua co"]
+        pcs["PhanCongService - [TODO]"]
+        bcs["BaoCaoService - [TODO]"]
     end
 
     khs --> ptns
@@ -105,11 +105,11 @@ flowchart TD
         scr11["SCR-11 Nhan vien<br/>[DONE]"]
     end
 
-    subgraph sgIntake["Tiep nhan - P2 (4/6)"]
+    subgraph sgIntake["Tiep nhan - P2 (6/6)"]
         scr04["SCR-04 Tiep nhan khach hang<br/>[DONE]"]
         scr04b["SCR-04B Quan ly phieu tiep nhan<br/>[DONE]"]
-        scr04c["SCR-04C Xem chan doan<br/>[TODO] - an, khong vao menubar"]
-        scr04d["SCR-04D Lap chan doan<br/>[PARTIAL] - moi chon phieu"]
+        scr04c["SCR-04C Xem chan doan<br/>[DONE] - an, khong vao menubar"]
+        scr04d["SCR-04D Lap chan doan<br/>[DONE]"]
         scr16["SCR-16 Tiep nhan khieu nai<br/>[DONE]"]
         scr16b["SCR-16B Quan ly khieu nai<br/>[DONE]"]
     end
@@ -119,9 +119,9 @@ flowchart TD
         scr07b["SCR-07B Quan ly phieu nhap<br/>[DONE]"]
     end
 
-    subgraph sgPay["Thanh toan - P3 (0/2)"]
-        scr10["SCR-10 Lap hoa don<br/>[TODO]"]
-        scr10b["SCR-10B Quan ly hoa don<br/>[TODO]"]
+    subgraph sgPay["Thanh toan - P3 (2/2)"]
+        scr10["SCR-10 Lap hoa don<br/>[DONE]"]
+        scr10b["SCR-10B Quan ly hoa don<br/>[DONE]"]
     end
 
     subgraph sgPlan["Ke hoach - P4 (0/6)"]
@@ -137,7 +137,7 @@ flowchart TD
     end
 
     subgraph sgSet["Cai dat"]
-        scr15["SCR-15 Doi mat khau<br/>[TODO] - P3"]
+        scr15["SCR-15 Doi mat khau<br/>[DONE] - P3"]
     end
 ```
 
@@ -175,7 +175,7 @@ flowchart LR
     scr02 --- scr01
 
     scr04 --- scr04b
-    scr04b -.->|"can truyen phieu dang chon"| scr04c["Xem chan doan (an)"]
+    scr04b -.->|"truyen qua AppContext"| scr04c["Xem chan doan (an)"]
     scr16 --- scr16b
     scr07 --- scr07b
     scr10 --- scr10b
@@ -208,7 +208,7 @@ erDiagram
 
 ### 6b. Cụm hóa đơn
 
-`HoaDon` không có cột tổng tiền hay tiền giảm; doanh thu phải tính từ `ChiTietHoaDon` rồi áp `Voucher.mucGiam`.
+`HoaDon` không có cột tổng tiền; mức giảm chốt ở `mucGiamApDung`; doanh thu vẫn tính từ `ChiTietHoaDon` rồi áp `Voucher.mucGiam`.
 
 ```mermaid
 erDiagram
@@ -220,6 +220,7 @@ erDiagram
         string lyDoHuy
         datetime ngayTao
         datetime thoiGianThanhToan
+        decimal mucGiamApDung
     }
     ChiTietHoaDon {
         string maHoaDon PK
@@ -238,26 +239,12 @@ erDiagram
     Voucher ||--o{ HoaDon : "giam gia"
 ```
 
-`trangThaiHoaDon`: `CHO_THANH_TOAN`, `DA_THANH_TOAN`, `DA_HUY`. `loaiSanPham`: `DICH_VU`, `PHU_TUNG`. DB không có ràng buộc duy nhất trên `maPhieuTiepNhan` hay tổ hợp nhân viên/ngày/ca của `PhanCong`; service phải kiểm tra trùng.
+`trangThaiHoaDon`: `CHO_THANH_TOAN`, `DA_THANH_TOAN`, `DA_HUY`. `loaiSanPham`: `DICH_VU`, `PHU_TUNG`. DB đã có `UQ_HoaDon_maPhieuTiepNhan` ràng buộc duy nhất trên `maPhieuTiepNhan` (V11); `PhanCong` vẫn không có ràng buộc duy nhất trên tổ hợp nhân viên/ngày/ca nên service phải kiểm tra trùng.
 
 ## 7. Việc còn lại
 
 ```mermaid
 flowchart TD
-    subgraph sgP2["P2 con lai"]
-        p2a["VanDeKyThuatDAO + Service<br/>[TODO]"]
-        p2b["SCR-04D bieu mau lap chan doan<br/>[PARTIAL]"]
-        p2c["SCR-04C xem chan doan + dieu huong<br/>[TODO]"]
-        p2a --> p2b --> p2c
-    end
-
-    subgraph sgP3["P3 con lai"]
-        p3a["HoaDonDAO ghi + HoaDonService<br/>[TODO]"]
-        p3b["SCR-10 + SCR-10B<br/>[TODO]"]
-        p3c["SCR-15 doi mat khau<br/>[TODO]"]
-        p3a --> p3b
-    end
-
     subgraph sgP4["P4 con lai"]
         p4a["PhanCongDAO ghi + PhanCongService<br/>[TODO]"]
         p4b["SCR-05 + SCR-05B + SCR-05C<br/>[TODO]"]
@@ -266,8 +253,6 @@ flowchart TD
         p4a --> p4b
         p4c --> p4d
     end
-
-    p3a -.->|"chot cong thuc doanh thu"| p4c
 ```
 
 ## 8. Trong tuần làm gì / hoãn gì
@@ -302,8 +287,8 @@ flowchart LR
 flowchart LR
     dev["develop<br/>nhanh goc - da co"]
     b1["feat/p1-to-chuc<br/>[DONE] da gop"]
-    b2["feat/p2-tiep-nhan-khieu-nai<br/>[PARTIAL] da gop mot phan"]
-    b3["feat/p3-nhap-thanh-toan<br/>[PARTIAL] dang lam"]
+    b2["feat/p2-tiep-nhan-khieu-nai<br/>[DONE] da gop"]
+    b3["feat/p3-nhap-thanh-toan<br/>[DONE] da gop"]
     b4["feat/p4-ke-hoach-tong-ket<br/>[TODO]"]
 
     dev -->|"git switch -c"| b1
