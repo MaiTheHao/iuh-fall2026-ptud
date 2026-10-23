@@ -105,12 +105,13 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
         String sql = """
                 UPDATE PhuTung
                 SET soLuongTon = soLuongTon - ?
-                WHERE maPhuTung = ?
+                WHERE maPhuTung = ? AND soLuongTon >= ?
                 """;
 
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             ps.setInt(1, soLuong);
             ps.setString(2, maPhuTung);
+            ps.setInt(3, soLuong);
 
             return ps.executeUpdate() > 0;
         }

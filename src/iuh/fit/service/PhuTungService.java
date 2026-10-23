@@ -22,6 +22,7 @@ public class PhuTungService {
     private static final String ERROR_PRICE = "app.phuTung.loiDonGia";
     private static final String ERROR_QUANTITY = "app.phuTung.loiSoLuong";
     private static final String ERROR_ID = "app.phuTung.khongTimThay";
+    private static final String ERROR_STOCK = "app.phuTung.khongDuTon";
     private static final String ERROR_RANGE = "app.phuTung.loiKhoangLoc";
 
     private final PhuTungDAO phuTungDAO = new PhuTungDAO();
@@ -109,7 +110,10 @@ public class PhuTungService {
         }
 
         if (!this.phuTungDAO.decreaseStock(scope, maPhuTung, soLuong)) {
-            throw new IllegalArgumentException(ERROR_ID);
+            if (this.phuTungDAO.findById(maPhuTung).isEmpty()) {
+                throw new IllegalArgumentException(ERROR_ID);
+            }
+            throw new IllegalArgumentException(ERROR_STOCK);
         }
     }
 

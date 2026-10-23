@@ -75,25 +75,42 @@ public class HoaDonService {
         hoaDon.setMaVoucher(voucher == null ? null : voucher.getMaVoucher());
         hoaDon.setGhiChu(this.chuanHoaGhiChu(ghiChu));
         hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.CHO_THANH_TOAN);
+        hoaDon.setMucGiamApDung(voucher == null ? null : this.tinhMucGiam(voucher));
 
         LocalDateTime now = LocalDateTime.now();
-        MaRetryUtil.thucHien(
-                lan -> MaGeneratorUtil.sinhMa("HD", now.plusSeconds(lan)),
-                ma -> {
-                    hoaDon.setMaHoaDon(ma);
-                    hoaDon.setNgayTao(now);
-                    for (ChiTietHoaDon ct : danhSachGop) {
-                        ct.setMaHoaDon(ma);
-                    }
+        try {
+            MaRetryUtil.thucHien(
+                    lan -> MaGeneratorUtil.sinhMa("HD", now.plusSeconds(lan)),
+                    ma -> {
+                        hoaDon.setMaHoaDon(ma);
+                        hoaDon.setNgayTao(now);
+                        for (ChiTietHoaDon ct : danhSachGop) {
+                            ct.setMaHoaDon(ma);
+                        }
 
-                    try (TransactionScope scope = TransactionScope.begin()) {
-                        this.hoaDonDAO.insert(scope, hoaDon, danhSachGop);
-                        this.capNhatTonKho(scope, danhSachGop, List.of());
-                        scope.commit();
-                    }
-                });
+                        try (TransactionScope scope = TransactionScope.begin()) {
+                            this.hoaDonDAO.insert(scope, hoaDon, danhSachGop);
+                            this.capNhatTonKho(scope, danhSachGop, List.of());
+                            scope.commit();
+                        }
+                    });
+        } catch (SQLException ex) {
+            // Hai may cung lap hoa don cho mot phieu: rang buoc UNIQUE thang truoc, tra ve hoa don da co.
+            HoaDon daCo = this.laLoiTrungKhoa(ex)
+                    ? this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(null)
+                    : null;
+            if (daCo != null) {
+                return daCo;
+            }
+            throw ex;
+        }
 
         return this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(hoaDon);
+    }
+
+    private boolean laLoiTrungKhoa(SQLException ex) {
+        int errorCode = ex.getErrorCode();
+        return errorCode == 2627 || errorCode == 2601;
     }
 
     public HoaDon capNhat(String maHoaDon, String maVoucher, String ghiChu, List<ChiTietHoaDon> chiTiets)
@@ -110,12 +127,14 @@ public class HoaDonService {
 
         Voucher voucher = this.resolveVoucher(maVoucher);
         String maVoucherMoi = voucher == null ? null : voucher.getMaVoucher();
+        Double mucGiamMoi = voucher == null ? null : this.tinhMucGiam(voucher);
 
         List<ChiTietHoaDon> danhSachMoi = this.gopChiTietTrung(chiTiets);
         this.kiemTraTonKho(danhSachMoi, hienTai.getDanhSachChiTietHoaDon());
 
         try (TransactionScope scope = TransactionScope.begin()) {
-            if (!this.hoaDonDAO.updateThongTin(scope, maHoaDon, maVoucherMoi, this.chuanHoaGhiChu(ghiChu))) {
+            if (!this.hoaDonDAO.updateThongTin(scope, maHoaDon, maVoucherMoi,
+                    this.chuanHoaGhiChu(ghiChu), mucGiamMoi)) {
                 throw new IllegalStateException(ERROR_TRANG_THAI);
             }
             this.capNhatTonKho(scope, danhSachMoi, hienTai.getDanhSachChiTietHoaDon());
@@ -134,15 +153,22 @@ public class HoaDonService {
         }
 
         LocalDateTime now = LocalDateTime.now();
+        // Chot muc giam tai thoi diem thanh toan de tong tien khong doi sau khi voucher het han.
+        Double mucGiamChot = hoaDon.getMucGiamApDung();
+        if (mucGiamChot == null && hoaDon.getMaVoucher() != null && !hoaDon.getMaVoucher().isBlank()) {
+            mucGiamChot = this.tinhMucGiam(hoaDon);
+        }
+
         try (TransactionScope scope = TransactionScope.begin()) {
-            if (!this.hoaDonDAO.capNhatThanhToan(scope, maHoaDon, now)) {
-                throw new IllegalArgumentException(ERROR_NOT_FOUND);
+            if (!this.hoaDonDAO.capNhatThanhToan(scope, maHoaDon, now, mucGiamChot)) {
+                throw new IllegalStateException(ERROR_TRANG_THAI);
             }
             scope.commit();
         }
 
         hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.DA_THANH_TOAN);
         hoaDon.setThoiGianThanhToan(now);
+        hoaDon.setMucGiamApDung(mucGiamChot);
         return hoaDon;
     }
 
@@ -267,10 +293,23 @@ public class HoaDonService {
     }
 
     private double tinhTongTien(HoaDon hoaDon, Map<String, Voucher> voucherTheoMa) {
-        if (hoaDon == null || hoaDon.getMaVoucher() == null || hoaDon.getMaVoucher().isBlank()) {
-            return this.tinhTongTienGoc(hoaDon);
+        if (hoaDon == null) {
+            return 0.0;
         }
-        return this.tinhTongTien(hoaDon.getDanhSachChiTietHoaDon(), voucherTheoMa.get(hoaDon.getMaVoucher()));
+        return this.tinhTongTienGoc(hoaDon) * (1.0 - this.tinhMucGiam(hoaDon, voucherTheoMa));
+    }
+
+    private double tinhMucGiam(HoaDon hoaDon, Map<String, Voucher> voucherTheoMa) {
+        if (hoaDon == null) {
+            return 0.0;
+        }
+        if (hoaDon.getMucGiamApDung() != null) {
+            return Math.min(Math.max(hoaDon.getMucGiamApDung(), 0.0), 1.0);
+        }
+        if (hoaDon.getMaVoucher() == null || hoaDon.getMaVoucher().isBlank()) {
+            return 0.0;
+        }
+        return this.tinhMucGiam(voucherTheoMa.get(hoaDon.getMaVoucher()));
     }
 
     public double tinhTongTienGoc(HoaDon hoaDon) {
@@ -290,7 +329,13 @@ public class HoaDonService {
     }
 
     public double tinhMucGiam(HoaDon hoaDon) {
-        if (hoaDon == null || hoaDon.getMaVoucher() == null || hoaDon.getMaVoucher().isBlank()) {
+        if (hoaDon == null) {
+            return 0.0;
+        }
+        if (hoaDon.getMucGiamApDung() != null) {
+            return Math.min(Math.max(hoaDon.getMucGiamApDung(), 0.0), 1.0);
+        }
+        if (hoaDon.getMaVoucher() == null || hoaDon.getMaVoucher().isBlank()) {
             return 0.0;
         }
         try {
