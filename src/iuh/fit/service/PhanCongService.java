@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -252,44 +253,88 @@ public final class PhanCongService {
 			throw new IllegalStateException("app.schedule.assignmentUpdateFailed");
 		}
 	}
-	
-	public List<PhanCong> getLichCuaNhanVien(String maNhanVien, LocalDate ngayDauTuan)
-	        throws SQLException {
-	    if (maNhanVien == null || maNhanVien.isBlank()) {
-	        throw new IllegalArgumentException("app.schedule.employeeRequired");
-	    }
 
-	    if (ngayDauTuan == null) {
-	        throw new IllegalArgumentException("app.schedule.dateRequired");
-	    }
+	public List<PhanCong> getLichCuaNhanVien(String maNhanVien, LocalDate ngayDauTuan) throws SQLException {
+		if (maNhanVien == null || maNhanVien.isBlank()) {
+			throw new IllegalArgumentException("app.schedule.employeeRequired");
+		}
 
-	    LocalDate tuNgay = ngayDauTuan;
-	    LocalDate denNgay = tuNgay.plusDays(6);
-	    String maNhanVienCanTim = maNhanVien.trim();
+		if (ngayDauTuan == null) {
+			throw new IllegalArgumentException("app.schedule.dateRequired");
+		}
 
-	    List<PhanCong> danhSach = new ArrayList<>();
+		LocalDate tuNgay = ngayDauTuan;
+		LocalDate denNgay = tuNgay.plusDays(6);
+		String maNhanVienCanTim = maNhanVien.trim();
 
-	    for (PhanCong phanCong : this.phanCongDAO.findAll()) {
-	        if (!maNhanVienCanTim.equals(phanCong.getMaNhanVien())) {
-	            continue;
-	        }
+		List<PhanCong> danhSach = new ArrayList<>();
 
-	        LocalDate ngayLam = LocalDate.of(
-	                phanCong.getNam(),
-	                phanCong.getThang(),
-	                phanCong.getNgay());
+		for (PhanCong phanCong : this.phanCongDAO.findAll()) {
+			if (!maNhanVienCanTim.equals(phanCong.getMaNhanVien())) {
+				continue;
+			}
 
-	        if (!ngayLam.isBefore(tuNgay) && !ngayLam.isAfter(denNgay)) {
-	            danhSach.add(phanCong);
-	        }
-	    }
+			LocalDate ngayLam = LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay());
 
-	    danhSach.sort(Comparator.comparing(
-	            phanCong -> LocalDate.of(
-	                    phanCong.getNam(),
-	                    phanCong.getThang(),
-	                    phanCong.getNgay())));
+			if (!ngayLam.isBefore(tuNgay) && !ngayLam.isAfter(denNgay)) {
+				danhSach.add(phanCong);
+			}
+		}
 
-	    return danhSach;
+		danhSach.sort(Comparator
+				.comparing(phanCong -> LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay())));
+
+		return danhSach;
+	}
+
+	public Map<LocalDate, Map<CaLamViec, List<String>>> getLichCuaShop(LocalDate ngayDauTuan) throws SQLException {
+
+		if (ngayDauTuan == null) {
+			throw new IllegalArgumentException("app.schedule.dateRequired");
+		}
+
+		if (ngayDauTuan.getDayOfWeek() != java.time.DayOfWeek.MONDAY) {
+			throw new IllegalArgumentException("app.schedule.dateRequired");
+		}
+
+		LocalDate ngayCuoiTuan = ngayDauTuan.plusDays(6);
+
+		List<PhanCong> danhSachPhanCong = this.phanCongDAO.findByDateRange(ngayDauTuan, ngayCuoiTuan);
+
+		Map<String, String> tenNhanVienTheoMa = new HashMap<>();
+
+		for (NhanVien nhanVien : this.nhanVienDAO.findAll()) {
+			tenNhanVienTheoMa.put(nhanVien.getMaNhanVien(),
+					nhanVien.getHoTen() == null ? nhanVien.getMaNhanVien() : nhanVien.getHoTen());
+		}
+
+		Map<LocalDate, Map<CaLamViec, List<String>>> lich = new LinkedHashMap<>();
+
+		for (int i = 0; i < 7; i++) {
+			LocalDate ngay = ngayDauTuan.plusDays(i);
+			Map<CaLamViec, List<String>> lichTheoCa = new LinkedHashMap<>();
+
+			for (CaLamViec ca : CaLamViec.values()) {
+				lichTheoCa.put(ca, new ArrayList<>());
+			}
+
+			lich.put(ngay, lichTheoCa);
+		}
+
+		for (PhanCong phanCong : danhSachPhanCong) {
+			LocalDate ngayLam = LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay());
+
+			Map<CaLamViec, List<String>> lichTheoCa = lich.get(ngayLam);
+
+			if (lichTheoCa == null || phanCong.getCaLamViec() == null) {
+				continue;
+			}
+
+			String tenNhanVien = tenNhanVienTheoMa.getOrDefault(phanCong.getMaNhanVien(), phanCong.getMaNhanVien());
+
+			lichTheoCa.get(phanCong.getCaLamViec()).add(tenNhanVien);
+		}
+
+		return lich;
 	}
 }
