@@ -1,12 +1,16 @@
 
 package iuh.fit.gui.page;
 
+import iuh.fit.core.context.AppContext;
+import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.service.PhanCongService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -17,11 +21,13 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 public class LichCuaToiPage extends AbstractPage {
@@ -50,8 +56,8 @@ public class LichCuaToiPage extends AbstractPage {
         "app.schedule.afternoon",
         "app.schedule.allday"
     };
-
-    private final String[][] congViec = new String[SO_CA][SO_NGAY];
+    
+    private final PhanCongService phanCongService = new PhanCongService();
 
     private LocalDate ngayDauTuan;
     private Locale locale;
@@ -61,16 +67,6 @@ public class LichCuaToiPage extends AbstractPage {
 
         this.locale = Locale.getDefault();
         this.ngayDauTuan = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        
-        congViec[0][0] = "Tiếp nhận xe";
-        congViec[0][2] = "Kiểm tra xe";
-        congViec[0][4] = "Bảo dưỡng xe";
-
-        congViec[1][1] = "Nhận phụ tùng";
-        congViec[1][3] = "Thay linh kiện";
-
-        congViec[2][0] = "Bảo dưỡng tổng quát";
-        congViec[2][5] = "Kiểm tra động cơ";
 
         this.khoiTaoSuKien();
     }
@@ -148,36 +144,94 @@ public class LichCuaToiPage extends AbstractPage {
     private void capNhatBangLich() {
         this.lblKhoangTuan.setText(
                 I18nReaderUtil.get("app.schedule.week")
-                +" "+ this.ngayDauTuan.get(
+                + " " + this.ngayDauTuan.get(
                         WeekFields.of(DayOfWeek.MONDAY, 4).weekOfWeekBasedYear())
-                
-                +" · "+ this.ngayDauTuan.format(
-                        DateTimeFormatter.ofPattern(I18nReaderUtil.get("app.date.format")))
-                
-                +" – "+ this.ngayDauTuan.plusDays(6).format(
-                        DateTimeFormatter.ofPattern(I18nReaderUtil.get("app.date.format"))));
+                + " · " + this.ngayDauTuan.format(
+                        DateTimeFormatter.ofPattern(
+                                I18nReaderUtil.get("app.date.format")))
+                + " – " + this.ngayDauTuan.plusDays(6).format(
+                        DateTimeFormatter.ofPattern(
+                                I18nReaderUtil.get("app.date.format"))));
 
         this.pnlBangLich.removeAll();
+
+        String[][] congViec = new String[SO_CA][SO_NGAY];
+        int tongCa = 0;
+
+        try {
+            if (AppContext.getInstance().getCurrentUser() == null) {
+                throw new IllegalArgumentException(
+                        "app.schedule.employeeRequired");
+            }
+
+            String maNhanVien = AppContext.getInstance()
+                    .getCurrentUser().getMaNhanVien();
+
+            List<PhanCong> danhSach = this.phanCongService.getLichCuaNhanVien(
+                    maNhanVien, this.ngayDauTuan);
+
+            for (PhanCong phanCong : danhSach) {
+                LocalDate ngayLam = LocalDate.of(
+                        phanCong.getNam(),
+                        phanCong.getThang(),
+                        phanCong.getNgay());
+
+                int viTriNgay = (int) java.time.temporal.ChronoUnit.DAYS.between(
+                        this.ngayDauTuan, ngayLam);
+
+                int viTriCa = switch (phanCong.getCaLamViec()) {
+                    case CA_SANG -> 0;
+                    case CA_CHIEU -> 1;
+                    case CA_NGAY -> 2;
+                };
+
+                String ghiChu = phanCong.getGhiChu();
+
+                congViec[viTriCa][viTriNgay] =
+                        ghiChu == null || ghiChu.isBlank() ? "✓" : ghiChu;
+
+                tongCa++;
+            }
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    I18nReaderUtil.get(ex.getMessage()),
+                    I18nReaderUtil.get("app.title"),
+                    JOptionPane.WARNING_MESSAGE);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+                    I18nReaderUtil.get("app.title"),
+                    JOptionPane.ERROR_MESSAGE);
+        }
 
         this.themO("app.schedule.shift", true, false);
 
         for (int ngay = 0; ngay < SO_NGAY; ngay++) {
             LocalDate ngayHienTai = this.ngayDauTuan.plusDays(ngay);
-            String khoaThu = "app.schedule.day." + ngayHienTai.getDayOfWeek().name().toLowerCase(Locale.ROOT);
 
-            JPanel oNgay = this.taoO(I18nReaderUtil.get(khoaThu)
-            		+"\n"+ ngayHienTai.format(DateTimeFormatter.ofPattern("dd/MM")),true, ngay % 2 == 1);
+            String khoaThu = "app.schedule.day."
+                    + ngayHienTai.getDayOfWeek().name().toLowerCase(Locale.ROOT);
+
+            JPanel oNgay = this.taoO(
+                    I18nReaderUtil.get(khoaThu)
+                    + "\n" + ngayHienTai.format(
+                            DateTimeFormatter.ofPattern("dd/MM")),
+                    true,
+                    ngay % 2 == 1);
+
             this.pnlBangLich.add(oNgay);
         }
-
-        int tongCa = 0;
 
         for (int ca = 0; ca < SO_CA; ca++) {
             this.themO(this.khoaCa[ca], false, false);
 
             for (int ngay = 0; ngay < SO_NGAY; ngay++) {
-                String noiDung = this.congViec[ca][ngay];
-                
+                String noiDung = congViec[ca][ngay];
+
                 JPanel oLich = this.taoO("", false, ngay % 2 == 1);
                 oLich.setLayout(new BorderLayout(0, 4));
 
@@ -194,8 +248,8 @@ public class LichCuaToiPage extends AbstractPage {
                             BorderFactory.createLineBorder(
                                     new Color(80, 145, 210)),
                             BorderFactory.createEmptyBorder(4, 6, 4, 6)));
+
                     oLich.add(lblCongViec, BorderLayout.NORTH);
-                    tongCa++;
                 }
 
                 this.pnlBangLich.add(oLich);
