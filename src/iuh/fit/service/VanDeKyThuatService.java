@@ -18,6 +18,12 @@ import java.util.List;
 
 public class VanDeKyThuatService {
 
+    private static final int DO_DAI_TIEU_DE = 200;
+    private static final int DO_DAI_MO_TA = 1000;
+    private static final int DO_DAI_GIAI_PHAP = 1000;
+    private static final int MUC_DO_UU_TIEN_MIN = 1;
+    private static final int MUC_DO_UU_TIEN_MAX = 100;
+
     private static final String ERROR_DU_LIEU = "app.chanDoan.loiDuLieu";
     private static final String ERROR_MA_PHIEU = "app.chanDoan.loiMaPhieu";
     private static final String ERROR_TIEU_DE = "app.chanDoan.loiTieuDe";
@@ -37,36 +43,9 @@ public class VanDeKyThuatService {
             throw new IllegalArgumentException(ERROR_DU_LIEU);
         }
 
-        String maPhieu = vanDe.getMaPhieuTiepNhan() == null ? "" : vanDe.getMaPhieuTiepNhan().trim();
-        if (maPhieu.isBlank()) {
-            throw new IllegalArgumentException(ERROR_MA_PHIEU);
-        }
-        vanDe.setMaPhieuTiepNhan(maPhieu);
+        this.chuanHoaDuLieu(vanDe);
 
-        String tieuDe = vanDe.getTieuDe() == null ? "" : vanDe.getTieuDe().trim();
-        if (tieuDe.isBlank()) {
-            throw new IllegalArgumentException(ERROR_TIEU_DE);
-        }
-        if (tieuDe.length() > 200) {
-            throw new IllegalArgumentException(ERROR_TIEU_DE_DAI);
-        }
-        vanDe.setTieuDe(tieuDe);
-
-        String moTa = vanDe.getMoTa() == null ? "" : vanDe.getMoTa().trim();
-        if (moTa.length() > 1000) {
-            throw new IllegalArgumentException(ERROR_MO_TA_DAI);
-        }
-        vanDe.setMoTa(moTa.isBlank() ? null : moTa);
-
-        String giaiPhap = vanDe.getGiaiPhap() == null ? "" : vanDe.getGiaiPhap().trim();
-        if (giaiPhap.length() > 1000) {
-            throw new IllegalArgumentException(ERROR_GIAI_PHAP_DAI);
-        }
-        vanDe.setGiaiPhap(giaiPhap.isBlank() ? null : giaiPhap);
-
-        if (vanDe.getMucDoUuTien() < 1 || vanDe.getMucDoUuTien() > 100) {
-            throw new IllegalArgumentException(ERROR_MUC_DO_UU_TIEN);
-        }
+        String maPhieu = vanDe.getMaPhieuTiepNhan();
 
         vanDe.setKhachHangDongY(TrangThaiVanDeKyThuat.CHUA_XAC_NHAN);
 
@@ -92,6 +71,39 @@ public class VanDeKyThuatService {
                         scope.commit();
                     }
                 });
+    }
+
+    private void chuanHoaDuLieu(VanDeKyThuat vanDe) {
+        String maPhieu = vanDe.getMaPhieuTiepNhan() == null ? "" : vanDe.getMaPhieuTiepNhan().trim();
+        if (maPhieu.isBlank()) {
+            throw new IllegalArgumentException(ERROR_MA_PHIEU);
+        }
+        vanDe.setMaPhieuTiepNhan(maPhieu);
+
+        String tieuDe = vanDe.getTieuDe() == null ? "" : vanDe.getTieuDe().trim();
+        if (tieuDe.isBlank()) {
+            throw new IllegalArgumentException(ERROR_TIEU_DE);
+        }
+        if (tieuDe.length() > DO_DAI_TIEU_DE) {
+            throw new IllegalArgumentException(ERROR_TIEU_DE_DAI);
+        }
+        vanDe.setTieuDe(tieuDe);
+
+        String moTa = vanDe.getMoTa() == null ? "" : vanDe.getMoTa().trim();
+        if (moTa.length() > DO_DAI_MO_TA) {
+            throw new IllegalArgumentException(ERROR_MO_TA_DAI);
+        }
+        vanDe.setMoTa(moTa.isBlank() ? null : moTa);
+
+        String giaiPhap = vanDe.getGiaiPhap() == null ? "" : vanDe.getGiaiPhap().trim();
+        if (giaiPhap.length() > DO_DAI_GIAI_PHAP) {
+            throw new IllegalArgumentException(ERROR_GIAI_PHAP_DAI);
+        }
+        vanDe.setGiaiPhap(giaiPhap.isBlank() ? null : giaiPhap);
+
+        if (vanDe.getMucDoUuTien() < MUC_DO_UU_TIEN_MIN || vanDe.getMucDoUuTien() > MUC_DO_UU_TIEN_MAX) {
+            throw new IllegalArgumentException(ERROR_MUC_DO_UU_TIEN);
+        }
     }
 
     public List<VanDeKyThuat> layDanhSachTheoPhieu(String maPhieuTiepNhan) throws SQLException {
