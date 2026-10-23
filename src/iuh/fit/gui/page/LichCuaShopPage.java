@@ -1,6 +1,7 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.service.PhanCongService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
@@ -8,6 +9,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -18,6 +20,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,276 +28,248 @@ import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+
+import iuh.fit.entity.PhanCong;
+import iuh.fit.enumeration.CaLamViec;
+import iuh.fit.service.PhanCongService;
 
 /**
  * Trang lịch làm việc của cửa hàng.
  */
 public class LichCuaShopPage extends AbstractPage {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private static final int SO_NGAY = 7;
-    private static final int SO_CA = 3;
+	private static final int SO_NGAY = 7;
+	private static final int SO_CA = 3;
 
-    private static final Color MAU_TIEU_DE = new Color(232, 235, 238);
-    private static final Color MAU_O_LE = new Color(234, 242, 249);
-    private static final Color MAU_VIEN = new Color(195, 202, 210);
-    private static final Color MAU_CHU = new Color(35, 85, 135);
+	private static final Color MAU_TIEU_DE = new Color(232, 235, 238);
+	private static final Color MAU_O_LE = new Color(234, 242, 249);
+	private static final Color MAU_VIEN = new Color(195, 202, 210);
+	private static final Color MAU_CHU = new Color(35, 85, 135);
 
-    private final JButton btnTuanTruoc = new JButton("‹");
-    private final JButton btnTuanSau = new JButton("›");
-    private final JButton btnTuanNay = new JButton();
+	private final JButton btnTuanTruoc = new JButton("‹");
+	private final JButton btnTuanSau = new JButton("›");
+	private final JButton btnTuanNay = new JButton();
 
-    private final JLabel lblKhoangTuan = new JLabel();
-    private final JLabel lblTongPhanCong = new JLabel();
-    private final JLabel lblTongNhanVien = new JLabel();
+	private final JLabel lblKhoangTuan = new JLabel();
+	private final JLabel lblTongPhanCong = new JLabel();
+	private final JLabel lblTongNhanVien = new JLabel();
 
-    private final JPanel pnlBangLich = new JPanel(
-            new GridLayout(4, 8, 0, 0));
+	private final JPanel pnlBangLich = new JPanel(new GridLayout(4, 8, 0, 0));
 
-    private final String[] khoaCa = {
-        "app.schedule.morning",
-        "app.schedule.afternoon",
-        "app.schedule.allday"
-    };
+	private final String[] khoaCa = { "app.schedule.morning", "app.schedule.afternoon", "app.schedule.allday" };
 
-    private final List<String>[][] nhanVienTheoCa = this.taoMangDuLieu();
+	private final PhanCongService phanCongService = new PhanCongService();
 
-    private LocalDate ngayDauTuan;
+	private LocalDate ngayDauTuan;
 
-    public LichCuaShopPage() {
-        this.setLayout(new BorderLayout(0, 8));
-       
-        this.ngayDauTuan = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        nhanVienTheoCa[0][0].add("Nguyễn Thị Mỹ Quốc");
-        nhanVienTheoCa[0][2].add("Võ Hoàng Long");
-        nhanVienTheoCa[1][1].add("Phạm Nát Bét");
-        nhanVienTheoCa[1][3].add("Nguyễn Thị Mỹ Quốc");
-        nhanVienTheoCa[2][0].add("Phạm Nát Bét");
-        nhanVienTheoCa[2][5].add("Nguyễn Thị Mỹ Quốc");
+	public LichCuaShopPage() {
+		this.setLayout(new BorderLayout(0, 8));
 
-        this.khoiTaoSuKien();
-    }
-   
-    @Override
-    public void render() {
-        this.removeAll();
-        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		this.ngayDauTuan = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-        JLabel lblTieuDe = new JLabel(
-                I18nReaderUtil.get("app.schedule.shopSchedule"));
-        lblTieuDe.setFont(
-                lblTieuDe.getFont().deriveFont(Font.BOLD, 16f));
+		this.khoiTaoSuKien();
+	}
 
-        JPanel pnlDieuHuong = new JPanel(
-                new FlowLayout(FlowLayout.LEFT, 8, 4));
+	@Override
+	public void render() {
+		this.removeAll();
+		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        this.btnTuanTruoc.setToolTipText(
-                I18nReaderUtil.get("app.schedule.previousWeek"));
-        this.btnTuanSau.setToolTipText(
-                I18nReaderUtil.get("app.schedule.nextWeek"));
-        this.btnTuanNay.setText(
-                I18nReaderUtil.get("app.schedule.thisWeek"));
+		JLabel lblTieuDe = new JLabel(I18nReaderUtil.get("app.schedule.shopSchedule"));
+		lblTieuDe.setFont(lblTieuDe.getFont().deriveFont(Font.BOLD, 16f));
 
-        pnlDieuHuong.add(this.btnTuanTruoc);
-        pnlDieuHuong.add(this.lblKhoangTuan);
-        pnlDieuHuong.add(this.btnTuanSau);
-        pnlDieuHuong.add(this.btnTuanNay);
+		JPanel pnlDieuHuong = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
 
-        JPanel pnlTren = new JPanel(new BorderLayout());
-        pnlTren.add(lblTieuDe, BorderLayout.NORTH);
-        pnlTren.add(pnlDieuHuong, BorderLayout.CENTER);
+		this.btnTuanTruoc.setToolTipText(I18nReaderUtil.get("app.schedule.previousWeek"));
+		this.btnTuanSau.setToolTipText(I18nReaderUtil.get("app.schedule.nextWeek"));
+		this.btnTuanNay.setText(I18nReaderUtil.get("app.schedule.thisWeek"));
 
-        this.pnlBangLich.setBorder(
-                BorderFactory.createLineBorder(MAU_VIEN));
+		pnlDieuHuong.add(this.btnTuanTruoc);
+		pnlDieuHuong.add(this.lblKhoangTuan);
+		pnlDieuHuong.add(this.btnTuanSau);
+		pnlDieuHuong.add(this.btnTuanNay);
 
-        JPanel pnlThongKe = new JPanel(new FlowLayout(
-                FlowLayout.LEFT, 16, 4));
-        pnlThongKe.add(this.lblTongPhanCong);
-        pnlThongKe.add(this.lblTongNhanVien);
+		JPanel pnlTren = new JPanel(new BorderLayout());
+		pnlTren.add(lblTieuDe, BorderLayout.NORTH);
+		pnlTren.add(pnlDieuHuong, BorderLayout.CENTER);
 
-        this.add(pnlTren, BorderLayout.NORTH);
-        this.add(this.pnlBangLich, BorderLayout.CENTER);
-        this.add(pnlThongKe, BorderLayout.SOUTH);
+		this.pnlBangLich.setBorder(BorderFactory.createLineBorder(MAU_VIEN));
 
-        this.capNhatBangLich();
+		JPanel pnlThongKe = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 4));
+		pnlThongKe.add(this.lblTongPhanCong);
+		pnlThongKe.add(this.lblTongNhanVien);
 
-        this.revalidate();
-        this.repaint();
-    }
+		this.add(pnlTren, BorderLayout.NORTH);
+		this.add(this.pnlBangLich, BorderLayout.CENTER);
+		this.add(pnlThongKe, BorderLayout.SOUTH);
 
-    private void khoiTaoSuKien() {
-        this.btnTuanTruoc.addActionListener(e -> {
-            this.ngayDauTuan = this.ngayDauTuan.minusWeeks(1);
-            this.capNhatBangLich();
-        });
+		this.capNhatBangLich();
 
-        this.btnTuanSau.addActionListener(e -> {
-            this.ngayDauTuan = this.ngayDauTuan.plusWeeks(1);
-            this.capNhatBangLich();
-        });
+		this.revalidate();
+		this.repaint();
+	}
 
-        this.btnTuanNay.addActionListener(e -> {
-            this.ngayDauTuan = LocalDate.now().with(
-                    TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-            this.capNhatBangLich();
-        });
-    }
+	private void khoiTaoSuKien() {
+		this.btnTuanTruoc.addActionListener(e -> {
+			this.ngayDauTuan = this.ngayDauTuan.minusWeeks(1);
+			this.capNhatBangLich();
+		});
 
-    private void capNhatBangLich() {
-        DateTimeFormatter dinhDangNgay = DateTimeFormatter.ofPattern(
-                I18nReaderUtil.get("app.date.format"));
+		this.btnTuanSau.addActionListener(e -> {
+			this.ngayDauTuan = this.ngayDauTuan.plusWeeks(1);
+			this.capNhatBangLich();
+		});
 
-        int soTuan = this.ngayDauTuan.get(
-                WeekFields.of(DayOfWeek.MONDAY, 4)
-                        .weekOfWeekBasedYear());
+		this.btnTuanNay.addActionListener(e -> {
+			this.ngayDauTuan = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+			this.capNhatBangLich();
+		});
+	}
 
-        this.lblKhoangTuan.setText(
-                I18nReaderUtil.get("app.schedule.week")
-                + " " + soTuan
-                + " · " + this.ngayDauTuan.format(dinhDangNgay)
-                + " – " + this.ngayDauTuan.plusDays(6)
-                        .format(dinhDangNgay));
+	private void capNhatBangLich() {
+		this.pnlBangLich.removeAll();
 
-        this.pnlBangLich.removeAll();
+		int tongPhanCong = 0;
+		Set<String> danhSachNhanVien = new LinkedHashSet<>();
 
-        this.themO("app.schedule.shift", true, false);
+		try {
+			Map<LocalDate, Map<CaLamViec, List<String>>> lich = this.phanCongService.getLichCuaShop(this.ngayDauTuan);
 
-        for (int ngay = 0; ngay < SO_NGAY; ngay++) {
-            LocalDate ngayHienTai = this.ngayDauTuan.plusDays(ngay);
+			CaLamViec[] cacCa = { CaLamViec.CA_SANG, CaLamViec.CA_CHIEU, CaLamViec.CA_NGAY };
 
-            String khoaThu = "app.schedule.day."
-                    + ngayHienTai.getDayOfWeek().name().toLowerCase(
-                            Locale.ROOT);
+			DateTimeFormatter dinhDangNgay = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-            String tieuDeNgay = I18nReaderUtil.get(khoaThu)
-                    + "\n"
-                    + ngayHienTai.format(
-                            DateTimeFormatter.ofPattern("dd/MM"));
+			LocalDate ngayCuoiTuan = this.ngayDauTuan.plusDays(SO_NGAY - 1);
 
-            this.pnlBangLich.add(this.taoO(
-                    tieuDeNgay, true, ngay % 2 == 1));
-        }
+			this.lblKhoangTuan
+					.setText(this.ngayDauTuan.format(dinhDangNgay) + " - " + ngayCuoiTuan.format(dinhDangNgay));
 
-        int tongPhanCong = 0;
-        Set<String> danhSachNhanVien = new HashSet<>();
+			this.themO("app.schedule.shift", true, false);
 
-        for (int ca = 0; ca < SO_CA; ca++) {
-            this.themO(this.khoaCa[ca], true, false);
+			String[] khoaThu = { "app.schedule.day.monday", "app.schedule.day.tuesday", "app.schedule.day.wednesday",
+					"app.schedule.day.thursday", "app.schedule.day.friday", "app.schedule.day.saturday",
+					"app.schedule.day.sunday" };
 
-            for (int ngay = 0; ngay < SO_NGAY; ngay++) {
-                JPanel oLich = this.taoO("", false, ngay % 2 == 1);
+			DateTimeFormatter dateformatter = DateTimeFormatter.ofPattern("dd/MM");
 
-                oLich.setLayout(new BorderLayout(0, 4));
+			for (int ngay = 0; ngay < SO_NGAY; ngay++) {
+				LocalDate ngayHienTai = this.ngayDauTuan.plusDays(ngay);
 
-                List<String> danhSach = this.nhanVienTheoCa[ca][ngay];
+				String thu = I18nReaderUtil.get(khoaThu[ngay]);
+				String ngayThang = ngayHienTai.format(dinhDangNgay);
 
-                if (danhSach == null || danhSach.isEmpty()) {
-                    JLabel lblTrong = new JLabel(
-                            "–", SwingConstants.CENTER);
-                    lblTrong.setForeground(Color.GRAY);
-                    oLich.add(lblTrong, BorderLayout.NORTH);
-                }else {
-                    JPanel pnlNhanVien = new JPanel();
-                    pnlNhanVien.setOpaque(false);
-                    pnlNhanVien.setLayout(new BoxLayout(pnlNhanVien, BoxLayout.Y_AXIS));
+				JPanel oNgay = this.taoO(thu + "\n" + ngayThang, true, false);
 
-                    for (String tenNhanVien : danhSach) {
-                        JLabel lblNhanVien = new JLabel(tenNhanVien);
-                        lblNhanVien.setForeground(MAU_CHU);
-                        lblNhanVien.setOpaque(true);
-                        lblNhanVien.setBackground(MAU_O_LE);
-                        lblNhanVien.setBorder(
-                                BorderFactory.createCompoundBorder(
-                                        BorderFactory.createLineBorder(
-                                                new Color(80, 145, 210)),
-                                        BorderFactory.createEmptyBorder(
-                                                4, 6, 4, 6)));
+				this.pnlBangLich.add(oNgay);
+			}
 
-                        lblNhanVien.setAlignmentX(
-                                JLabel.LEFT_ALIGNMENT);
+			for (CaLamViec ca : cacCa) {
+				this.themO(this.khoaCa[this.layViTriCa(ca)], true, false);
 
-                        pnlNhanVien.add(lblNhanVien);
-                        pnlNhanVien.add(
-                                Box.createVerticalStrut(4));
+				for (int ngay = 0; ngay < SO_NGAY; ngay++) {
+					LocalDate ngayHienTai = this.ngayDauTuan.plusDays(ngay);
 
-                        danhSachNhanVien.add(tenNhanVien);
-                        tongPhanCong++;
-                    }
+					List<String> nhanViens = lich.getOrDefault(ngayHienTai, Map.of()).getOrDefault(ca, List.of());
 
-                    oLich.add(pnlNhanVien, BorderLayout.NORTH);
-                }
+					JPanel oLich = this.taoO("", false, ngay % 2 == 1);
+					oLich.setLayout(new BorderLayout(0, 4));
 
-                this.pnlBangLich.add(oLich);
-            }
-        }
+					if (nhanViens.isEmpty()) {
+						JLabel lblTrong = new JLabel("–", SwingConstants.CENTER);
+						lblTrong.setForeground(Color.GRAY);
+						oLich.add(lblTrong, BorderLayout.NORTH);
+					} else {
+						JPanel pnlNhanVien = new JPanel();
+						pnlNhanVien.setOpaque(false);
+						pnlNhanVien.setLayout(new BoxLayout(pnlNhanVien, BoxLayout.Y_AXIS));
 
-        this.lblTongPhanCong.setText(
-                I18nReaderUtil.get("app.schedule.totalAssignments")
-                + ": " + tongPhanCong);
+						for (String tenNhanVien : nhanViens) {
+							JLabel lblNhanVien = new JLabel(tenNhanVien);
+							lblNhanVien.setForeground(MAU_CHU);
+							lblNhanVien.setOpaque(true);
+							lblNhanVien.setBackground(MAU_O_LE);
+							lblNhanVien.setBorder(BorderFactory.createCompoundBorder(
+									BorderFactory.createLineBorder(new Color(80, 145, 210)),
+									BorderFactory.createEmptyBorder(4, 6, 4, 6)));
 
-        this.lblTongNhanVien.setText(
-                I18nReaderUtil.get("app.schedule.totalEmployees")
-                + ": " + danhSachNhanVien.size());
+							lblNhanVien.setAlignmentX(JLabel.LEFT_ALIGNMENT);
 
-        this.pnlBangLich.revalidate();
-        this.pnlBangLich.repaint();
-    }
+							pnlNhanVien.add(lblNhanVien);
+							pnlNhanVien.add(Box.createVerticalStrut(4));
 
-    private void themO(String khoa, boolean tieuDe, boolean le) {
-        this.pnlBangLich.add(this.taoO(
-                I18nReaderUtil.get(khoa), tieuDe, le));
-    }
+							danhSachNhanVien.add(tenNhanVien);
+							tongPhanCong++;
+						}
 
-    private JPanel taoO(
-            String noiDung, boolean tieuDe, boolean le) {
+						oLich.add(pnlNhanVien, BorderLayout.NORTH);
+					}
 
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setOpaque(true);
-        panel.setBackground(tieuDe
-                ? MAU_TIEU_DE
-                : (le ? MAU_O_LE : Color.WHITE));
+					this.pnlBangLich.add(oLich);
+				}
+			}
 
-        Border vien = BorderFactory.createLineBorder(MAU_VIEN);
-        Border dem = BorderFactory.createEmptyBorder(6, 8, 6, 8);
+			this.lblTongPhanCong.setText(I18nReaderUtil.get("app.schedule.totalAssignments") + ": " + tongPhanCong);
 
-        panel.setBorder(BorderFactory.createCompoundBorder(vien, dem));
+			this.lblTongNhanVien
+					.setText(I18nReaderUtil.get("app.schedule.totalEmployees") + ": " + danhSachNhanVien.size());
 
-        JLabel label = new JLabel(
-                "<html>" + noiDung.replace("\n", "<br>") + "</html>");
-        label.setFont(label.getFont().deriveFont(
-                tieuDe ? Font.BOLD : Font.PLAIN));
+		} catch (SQLException | IllegalArgumentException ex) {
+			ex.printStackTrace();
 
-        panel.add(label, BorderLayout.CENTER);
-        panel.setMinimumSize(new Dimension(80, 48));
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+					I18nReaderUtil.get("app.title"), JOptionPane.ERROR_MESSAGE);
+		}
 
-        return panel;
-    }
+		this.pnlBangLich.revalidate();
+		this.pnlBangLich.repaint();
+	}
 
-    @SuppressWarnings("unchecked")
-    private List<String>[][] taoMangDuLieu() {
-        List<String>[][] duLieu =
-                (List<String>[][]) new List<?>[SO_CA][SO_NGAY];
+	private int layViTriCa(CaLamViec ca) {
+		return switch (ca) {
+		case CA_SANG -> 0;
+		case CA_CHIEU -> 1;
+		case CA_NGAY -> 2;
+		};
+	}
 
-        for (int ca = 0; ca < SO_CA; ca++) {
-            for (int ngay = 0; ngay < SO_NGAY; ngay++) {
-                duLieu[ca][ngay] = new ArrayList<>();
-            }            
-        }
+	private void themO(String khoa, boolean tieuDe, boolean le) {
+		this.pnlBangLich.add(this.taoO(I18nReaderUtil.get(khoa), tieuDe, le));
+	}
 
-        return duLieu;
-    }
-    
-    @Override
-    public String getTitleKey() {
-        return "app.menu.shopSchedule";
-    }
+	private JPanel taoO(String noiDung, boolean tieuDe, boolean le) {
 
-    @Override
-    public MenuGroup getGroup() {
-        return MenuGroup.KE_HOACH;
-    }
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setOpaque(true);
+		panel.setBackground(tieuDe ? MAU_TIEU_DE : (le ? MAU_O_LE : Color.WHITE));
+
+		Border vien = BorderFactory.createLineBorder(MAU_VIEN);
+		Border dem = BorderFactory.createEmptyBorder(6, 8, 6, 8);
+
+		panel.setBorder(BorderFactory.createCompoundBorder(vien, dem));
+
+		JLabel label = new JLabel("<html>" + noiDung.replace("\n", "<br>") + "</html>");
+		label.setFont(label.getFont().deriveFont(tieuDe ? Font.BOLD : Font.PLAIN));
+
+		panel.add(label, BorderLayout.CENTER);
+		panel.setMinimumSize(new Dimension(80, 48));
+
+		return panel;
+	}
+
+	@Override
+	public String getTitleKey() {
+		return "app.menu.shopSchedule";
+	}
+
+	@Override
+	public MenuGroup getGroup() {
+		return MenuGroup.KE_HOACH;
+	}
 }
