@@ -11,6 +11,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -249,5 +251,45 @@ public final class PhanCongService {
 		if (!this.phanCongDAO.update(phanCong)) {
 			throw new IllegalStateException("app.schedule.assignmentUpdateFailed");
 		}
+	}
+	
+	public List<PhanCong> getLichCuaNhanVien(String maNhanVien, LocalDate ngayDauTuan)
+	        throws SQLException {
+	    if (maNhanVien == null || maNhanVien.isBlank()) {
+	        throw new IllegalArgumentException("app.schedule.employeeRequired");
+	    }
+
+	    if (ngayDauTuan == null) {
+	        throw new IllegalArgumentException("app.schedule.dateRequired");
+	    }
+
+	    LocalDate tuNgay = ngayDauTuan;
+	    LocalDate denNgay = tuNgay.plusDays(6);
+	    String maNhanVienCanTim = maNhanVien.trim();
+
+	    List<PhanCong> danhSach = new ArrayList<>();
+
+	    for (PhanCong phanCong : this.phanCongDAO.findAll()) {
+	        if (!maNhanVienCanTim.equals(phanCong.getMaNhanVien())) {
+	            continue;
+	        }
+
+	        LocalDate ngayLam = LocalDate.of(
+	                phanCong.getNam(),
+	                phanCong.getThang(),
+	                phanCong.getNgay());
+
+	        if (!ngayLam.isBefore(tuNgay) && !ngayLam.isAfter(denNgay)) {
+	            danhSach.add(phanCong);
+	        }
+	    }
+
+	    danhSach.sort(Comparator.comparing(
+	            phanCong -> LocalDate.of(
+	                    phanCong.getNam(),
+	                    phanCong.getThang(),
+	                    phanCong.getNgay())));
+
+	    return danhSach;
 	}
 }
