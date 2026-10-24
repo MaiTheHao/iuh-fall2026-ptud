@@ -19,10 +19,7 @@ public class TieuThuPhuTungService {
     }
 
     public BaoCaoTieuThuPhuTungDTO taoBaoCao(YearMonth thang) throws SQLException {
-        if (thang == null) {
-            throw new IllegalArgumentException("app.report.parts.invalidMonth");
-        }
-
+     
         List<TieuThuPhuTungDTO> duLieu = this.tieuThuPhuTungDAO.findAll(thang);
 
         int tongNhap = 0;
