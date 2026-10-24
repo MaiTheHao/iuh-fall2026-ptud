@@ -560,7 +560,12 @@
         "customer": "Khách hàng",
         "licensePlate": "Biển số",
         "status": "Trạng thái",
-        "amount": "Số tiền"
+        "amount": "Số tiền",
+		"invalidDate": "Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc.",
+		"invalidDateRange": "Ngày bắt đầu không được sau ngày kết thúc.",
+		"loadError": "Không thể tải báo cáo doanh thu.",
+		"paymentTime": "Thời gian thanh toán",
+		"status": "Trạng thái"
       },
       "service": {
         "title": "Tiêu thụ dịch vụ",
