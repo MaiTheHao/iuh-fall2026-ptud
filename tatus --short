@@ -1,202 +1,235 @@
-[1mdiff --git a/src/iuh/fit/gui/page/DoanhThuPage.java b/src/iuh/fit/gui/page/DoanhThuPage.java[m
-[1mindex afe5314..dc9a2c5 100644[m
-[1m--- a/src/iuh/fit/gui/page/DoanhThuPage.java[m
-[1m+++ b/src/iuh/fit/gui/page/DoanhThuPage.java[m
-[36m@@ -1,10 +1,12 @@[m
+[1mdiff --git a/src/iuh/fit/gui/page/LichCuaToiPage.java b/src/iuh/fit/gui/page/LichCuaToiPage.java[m
+[1mindex 9b96ea2..fb95b1a 100644[m
+[1m--- a/src/iuh/fit/gui/page/LichCuaToiPage.java[m
+[1m+++ b/src/iuh/fit/gui/page/LichCuaToiPage.java[m
+[36m@@ -1,4 +1,3 @@[m
 [31m-[m
  package iuh.fit.gui.page;[m
  [m
- import com.github.lgooddatepicker.components.DatePicker;[m
- import com.github.lgooddatepicker.components.DatePickerSettings;[m
+ import iuh.fit.core.context.AppContext;[m
+[1mdiff --git a/src/iuh/fit/gui/page/TieuThuDichVuPage.java b/src/iuh/fit/gui/page/TieuThuDichVuPage.java[m
+[1mindex 609c344..dec275e 100644[m
+[1m--- a/src/iuh/fit/gui/page/TieuThuDichVuPage.java[m
+[1m+++ b/src/iuh/fit/gui/page/TieuThuDichVuPage.java[m
+[36m@@ -1,4 +1,3 @@[m
+[31m-[m
+ package iuh.fit.gui.page;[m
  [m
-[32m+[m[32mimport iuh.fit.dto.BaoCaoDoanhThuDTO;[m
-[32m+[m[32mimport iuh.fit.dto.HoaDonDoanhThuDTO;[m
  import iuh.fit.enumeration.MenuGroup;[m
-[32m+[m[32mimport iuh.fit.service.DoanhThuService;[m
- import iuh.fit.util.I18nReaderUtil;[m
- [m
- import org.jfree.chart.ChartFactory;[m
-[36m@@ -32,7 +34,13 @@[m [mimport java.awt.GridBagConstraints;[m
- import java.awt.GridBagLayout;[m
- import java.awt.GridLayout;[m
- import java.awt.Insets;[m
-[32m+[m[32mimport java.sql.SQLException;[m
- import java.text.DecimalFormat;[m
-[32m+[m[32mimport java.text.NumberFormat;[m
-[32m+[m[32mimport java.time.LocalDate;[m
-[32m+[m[32mimport java.time.format.DateTimeFormatter;[m
-[32m+[m[32mimport java.util.List;[m
-[32m+[m[32mimport java.util.Locale;[m
- [m
- public class DoanhThuPage extends AbstractPage {[m
- [m
-[36m@@ -50,8 +58,9 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m
- [m
- 	private final DefaultTableModel modelHoaDon = new DefaultTableModel(new Object[0][0], new String[] {[m
- 			I18nReaderUtil.get("app.report.revenue.invoiceCode"), I18nReaderUtil.get("app.report.revenue.createdDate"),[m
-[31m-			I18nReaderUtil.get("app.report.revenue.customer"), I18nReaderUtil.get("app.report.revenue.licensePlate"),[m
-[31m-			I18nReaderUtil.get("app.report.revenue.status"), I18nReaderUtil.get("app.report.revenue.amount") }) {[m
-[32m+[m			[32mI18nReaderUtil.get("app.report.revenue.paymentTime"), I18nReaderUtil.get("app.report.revenue.customer"),[m
-[32m+[m			[32mI18nReaderUtil.get("app.report.revenue.licensePlate"), I18nReaderUtil.get("app.report.revenue.status"),[m
-[32m+[m			[32mI18nReaderUtil.get("app.report.revenue.amount") }) {[m
- 		private static final long serialVersionUID = 1L;[m
- [m
- 		@Override[m
-[36m@@ -60,6 +69,9 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m
- 		}[m
- 	};[m
- [m
-[32m+[m	[32mprivate final DoanhThuService doanhThuService = new DoanhThuService();[m
-[32m+[m	[32mprivate final NumberFormat dinhDangTien = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"));[m
-[32m+[m
- 	private final JTable tblHoaDon = new JTable(this.modelHoaDon);[m
- [m
- 	private ChartPanel pnlBieuDo;[m
-[36m@@ -68,13 +80,12 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m
- 		this.setLayout(new BorderLayout(8, 8));[m
- 		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));[m
- [m
+[1mdiff --git a/src/iuh/fit/gui/page/TieuThuPhuTungPage.java b/src/iuh/fit/gui/page/TieuThuPhuTungPage.java[m
+[1mindex faeb187..a19ee87 100644[m
+[1m--- a/src/iuh/fit/gui/page/TieuThuPhuTungPage.java[m
+[1m+++ b/src/iuh/fit/gui/page/TieuThuPhuTungPage.java[m
+[36m@@ -1,4 +1,3 @@[m
 [31m-[m
- 	}[m
+ package iuh.fit.gui.page;[m
  [m
- 	@Override[m
- 	public void render() {[m
- 		this.removeAll();[m
-[31m-[m
-[32m+[m[41m		[m
- 		this.add(this.taoBoLoc(), BorderLayout.NORTH);[m
- 		this.add(this.taoNoiDung(), BorderLayout.CENTER);[m
- 		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);[m
-[36m@@ -102,7 +113,7 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m
- [m
- 		JButton btnXemBaoCao = new JButton(I18nReaderUtil.get("app.report.revenue.viewReport"));[m
- [m
-[31m-		btnXemBaoCao.addActionListener(e -> this.thongBaoChuaKetNoi());[m
-[32m+[m		[32mbtnXemBaoCao.addActionListener(e -> this.taiBaoCao());[m
- [m
- 		pnl.add(new JLabel(I18nReaderUtil.get("app.report.revenue.statisticsType")));[m
- 		pnl.add(this.cboKieuThongKe);[m
-[36m@@ -118,6 +129,69 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m
- 		return pnl;[m
- 	}[m
- [m
-[32m+[m	[32mprivate void taiBaoCao() {[m
-[32m+[m		[32mtry {[m
-[32m+[m			[32mLocalDate tuNgay = this.dpTuNgay.getDate();[m
-[32m+[m			[32mLocalDate denNgay = this.dpDenNgay.getDate();[m
-[32m+[m
-[32m+[m			[32mBaoCaoDoanhThuDTO baoCao = this.doanhThuService.taoBaoCao(tuNgay, denNgay);[m
-[32m+[m
-[32m+[m			[32mthis.capNhatThongKe(baoCao);[m
-[32m+[m			[32mthis.capNhatBangHoaDon(baoCao.danhSachHoaDon());[m
-[32m+[m			[32mthis.capNhatBieuDo(baoCao);[m
-[32m+[m
-[32m+[m		[32m} catch (IllegalArgumentException e) {[m
-[32m+[m			[32mJOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()),[m
-[32m+[m					[32mI18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);[m
-[32m+[m		[32m} catch (SQLException e) {[m
-[32m+[m			[32mJOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.loadError"),[m
-[32m+[m					[32mI18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);[m
-[32m+[m		[32m}[m
-[32m+[m	[32m}[m
-[32m+[m
-[32m+[m	[32mprivate void capNhatBangHoaDon(List<HoaDonDoanhThuDTO> danhSachHoaDon) {[m
-[32m+[m		[32mDefaultTableModel model = (DefaultTableModel) this.tblHoaDon.getModel();[m
-[32m+[m
-[32m+[m		[32mmodel.setRowCount(0);[m
-[32m+[m
-[32m+[m		[32mDateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm",[m
-[32m+[m				[32mLocale.forLanguageTag("vi-VN"));[m
-[32m+[m
-[32m+[m		[32mfor (HoaDonDoanhThuDTO hoaDon : danhSachHoaDon) {[m
-[32m+[m			[32mString ngayTao = hoaDon.ngayTao() == null ? "" : hoaDon.ngayTao().format(dateTimeFormatter);[m
-[32m+[m
-[32m+[m			[32mString thoiGianThanhToan = hoaDon.thoiGianThanhToan() == null ? ""[m
-[32m+[m					[32m: hoaDon.thoiGianThanhToan().format(dateTimeFormatter);[m
-[32m+[m
-[32m+[m			[32mmodel.addRow(new Object[] { hoaDon.maHoaDon(), ngayTao, thoiGianThanhToan, hoaDon.tenKhachHang(),[m
-[32m+[m					[32mhoaDon.bienSo(), hoaDon.trangThaiHoaDon(), this.dinhDangTien.format(hoaDon.tongDoanhThu()) });[m
-[32m+[m		[32m}[m
-[32m+[m	[32m}[m
-[32m+[m
-[32m+[m	[32mprivate void capNhatBieuDo(BaoCaoDoanhThuDTO baoCao) {[m
-[32m+[m		[32mDefaultPieDataset<String> dataset = new DefaultPieDataset<>();[m
-[32m+[m
-[32m+[m		[32mdataset.setValue(I18nReaderUtil.get("app.report.revenue.serviceRevenue"), baoCao.doanhThuDichVu());[m
-[32m+[m		[32mdataset.setValue(I18nReaderUtil.get("app.report.revenue.partsRevenue"), baoCao.doanhThuPhuTung());[m
-[32m+[m
-[32m+[m		[32mJFreeChart bieuDo = this.pnlBieuDo.getChart();[m
-[32m+[m
-[32m+[m		[32m@SuppressWarnings("unchecked")[m
-[32m+[m		[32mPiePlot<String> piePlot = (PiePlot<String>) bieuDo.getPlot();[m
-[32m+[m
-[32m+[m		[32mpiePlot.setDataset(dataset);[m
-[32m+[m	[32m}[m
-[32m+[m
-[32m+[m	[32mprivate void capNhatThongKe(BaoCaoDoanhThuDTO baoCao) {[m
-[32m+[m		[32mthis.lblTongDoanhThu.setText(this.dinhDangTien.format(baoCao.tongDoanhThu()));[m
-[32m+[m
-[32m+[m		[32mthis.lblDoanhThuDichVu.setText(this.dinhDangTien.format(baoCao.doanhThuDichVu()));[m
-[32m+[m
-[32m+[m		[32mthis.lblDoanhThuPhuTung.setText(this.dinhDangTien.format(baoCao.doanhThuPhuTung()));[m
-[32m+[m
-[32m+[m		[32mthis.lblSoHoaDon.setText(String.valueOf(baoCao.soLuongHoaDon()));[m
-[32m+[m	[32m}[m
-[32m+[m
- 	private JPanel taoNoiDung() {[m
- 		JPanel pnl = new JPanel(new BorderLayout(8, 8));[m
- [m
-[36m@@ -138,15 +212,12 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m
- [m
- 		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();[m
- [m
-[31m-		// dữ liệu mẫu cho chart[m
-[31m-		dataset.setValue(I18nReaderUtil.get("app.menu.servicePriceList"), 5);[m
-[31m-		dataset.setValue(I18nReaderUtil.get("app.menu.inventory"), 5);[m
-[31m-[m
- 		this.pnlBieuDo = new ChartPanel(ChartFactory.createPieChart(null, dataset, true, true, false));[m
- [m
- 		JFreeChart bieuDo = this.pnlBieuDo.getChart();[m
- [m
-[31m-		PiePlot<?> piePlot = (PiePlot<?>) bieuDo.getPlot();[m
-[32m+[m		[32m@SuppressWarnings("unchecked")[m
-[32m+[m		[32mPiePlot<String> piePlot = (PiePlot<String>) bieuDo.getPlot();[m
- [m
- 		piePlot.setLabelGenerator([m
- 				new StandardPieSectionLabelGenerator("{2}", new DecimalFormat("#,##0"), new DecimalFormat("0.00%")));[m
-[1mdiff --git a/src/resources/i18n_en.json b/src/resources/i18n_en.json[m
-[1mindex 9b1d713..6295b70 100644[m
-[1m--- a/src/resources/i18n_en.json[m
-[1m+++ b/src/resources/i18n_en.json[m
-[36m@@ -535,7 +535,12 @@[m
-         "customer": "Customer",[m
-         "licensePlate": "License Plate",[m
-         "status": "Status",[m
-[31m-        "amount": "Amount"[m
-[32m+[m[32m        "amount": "Amount",[m
-[32m+[m		[32m"invalidDate": "Please select both the start date and end date.",[m
-[32m+[m		[32m"invalidDateRange": "The start date must not be after the end date.",[m
-[32m+[m		[32m"loadError": "Unable to load the revenue report.",[m
-[32m+[m		[32m"paymentTime": "Payment Time",[m
-[32m+[m		[32m"status": "Status"[m
-       },[m
-       "service": {[m
-         "title": "Service Consumption",[m
-[1mdiff --git a/src/resources/i18n_vn.json b/src/resources/i18n_vn.json[m
-[1mindex 181aa6c..ab6d3a8 100644[m
-[1m--- a/src/resources/i18n_vn.json[m
-[1m+++ b/src/resources/i18n_vn.json[m
-[36m@@ -535,7 +535,12 @@[m
-         "customer": "Khách hàng",[m
-         "licensePlate": "Biển số",[m
-         "status": "Trạng thái",[m
-[31m-        "amount": "Số tiền"[m
-[32m+[m[32m        "amount": "Số tiền",[m
-[32m+[m		[32m"invalidDate": "Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc.",[m
-[32m+[m		[32m"invalidDateRange": "Ngày bắt đầu không được sau ngày kết thúc.",[m
-[32m+[m		[32m"loadError": "Không thể tải báo cáo doanh thu.",[m
-[32m+[m		[32m"paymentTime": "Thời gian thanh toán",[m
-[32m+[m		[32m"status": "Trạng thái"[m
-       },[m
-       "service": {[m
-         "title": "Tiêu thụ dịch vụ",[m
+ import iuh.fit.enumeration.MenuGroup;[m
+[1mdiff --git a/tatus --short b/tatus --short[m
+[1mdeleted file mode 100644[m
+[1mindex a5751f8..0000000[m
+[1m--- a/tatus --short[m	
+[1m+++ /dev/null[m
+[36m@@ -1,202 +0,0 @@[m
+[31m-[1mdiff --git a/src/iuh/fit/gui/page/DoanhThuPage.java b/src/iuh/fit/gui/page/DoanhThuPage.java[m[m
+[31m-[1mindex afe5314..dc9a2c5 100644[m[m
+[31m-[1m--- a/src/iuh/fit/gui/page/DoanhThuPage.java[m[m
+[31m-[1m+++ b/src/iuh/fit/gui/page/DoanhThuPage.java[m[m
+[31m-[36m@@ -1,10 +1,12 @@[m[m
+[31m-[31m-[m[m
+[31m- package iuh.fit.gui.page;[m[m
+[31m- [m[m
+[31m- import com.github.lgooddatepicker.components.DatePicker;[m[m
+[31m- import com.github.lgooddatepicker.components.DatePickerSettings;[m[m
+[31m- [m[m
+[31m-[32m+[m[32mimport iuh.fit.dto.BaoCaoDoanhThuDTO;[m[m
+[31m-[32m+[m[32mimport iuh.fit.dto.HoaDonDoanhThuDTO;[m[m
+[31m- import iuh.fit.enumeration.MenuGroup;[m[m
+[31m-[32m+[m[32mimport iuh.fit.service.DoanhThuService;[m[m
+[31m- import iuh.fit.util.I18nReaderUtil;[m[m
+[31m- [m[m
+[31m- import org.jfree.chart.ChartFactory;[m[m
+[31m-[36m@@ -32,7 +34,13 @@[m [mimport java.awt.GridBagConstraints;[m[m
+[31m- import java.awt.GridBagLayout;[m[m
+[31m- import java.awt.GridLayout;[m[m
+[31m- import java.awt.Insets;[m[m
+[31m-[32m+[m[32mimport java.sql.SQLException;[m[m
+[31m- import java.text.DecimalFormat;[m[m
+[31m-[32m+[m[32mimport java.text.NumberFormat;[m[m
+[31m-[32m+[m[32mimport java.time.LocalDate;[m[m
+[31m-[32m+[m[32mimport java.time.format.DateTimeFormatter;[m[m
+[31m-[32m+[m[32mimport java.util.List;[m[m
+[31m-[32m+[m[32mimport java.util.Locale;[m[m
+[31m- [m[m
+[31m- public class DoanhThuPage extends AbstractPage {[m[m
+[31m- [m[m
+[31m-[36m@@ -50,8 +58,9 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m[m
+[31m- [m[m
+[31m- 	private final DefaultTableModel modelHoaDon = new DefaultTableModel(new Object[0][0], new String[] {[m[m
+[31m- 			I18nReaderUtil.get("app.report.revenue.invoiceCode"), I18nReaderUtil.get("app.report.revenue.createdDate"),[m[m
+[31m-[31m-			I18nReaderUtil.get("app.report.revenue.customer"), I18nReaderUtil.get("app.report.revenue.licensePlate"),[m[m
+[31m-[31m-			I18nReaderUtil.get("app.report.revenue.status"), I18nReaderUtil.get("app.report.revenue.amount") }) {[m[m
+[31m-[32m+[m			[32mI18nReaderUtil.get("app.report.revenue.paymentTime"), I18nReaderUtil.get("app.report.revenue.customer"),[m[m
+[31m-[32m+[m			[32mI18nReaderUtil.get("app.report.revenue.licensePlate"), I18nReaderUtil.get("app.report.revenue.status"),[m[m
+[31m-[32m+[m			[32mI18nReaderUtil.get("app.report.revenue.amount") }) {[m[m
+[31m- 		private static final long serialVersionUID = 1L;[m[m
+[31m- [m[m
+[31m- 		@Override[m[m
+[31m-[36m@@ -60,6 +69,9 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m[m
+[31m- 		}[m[m
+[31m- 	};[m[m
+[31m- [m[m
+[31m-[32m+[m	[32mprivate final DoanhThuService doanhThuService = new DoanhThuService();[m[m
+[31m-[32m+[m	[32mprivate final NumberFormat dinhDangTien = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"));[m[m
+[31m-[32m+[m[m
+[31m- 	private final JTable tblHoaDon = new JTable(this.modelHoaDon);[m[m
+[31m- [m[m
+[31m- 	private ChartPanel pnlBieuDo;[m[m
+[31m-[36m@@ -68,13 +80,12 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m[m
+[31m- 		this.setLayout(new BorderLayout(8, 8));[m[m
+[31m- 		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));[m[m
+[31m- [m[m
+[31m-[31m-[m[m
+[31m- 	}[m[m
+[31m- [m[m
+[31m- 	@Override[m[m
+[31m- 	public void render() {[m[m
+[31m- 		this.removeAll();[m[m
+[31m-[31m-[m[m
+[31m-[32m+[m[41m		[m[m
+[31m- 		this.add(this.taoBoLoc(), BorderLayout.NORTH);[m[m
+[31m- 		this.add(this.taoNoiDung(), BorderLayout.CENTER);[m[m
+[31m- 		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);[m[m
+[31m-[36m@@ -102,7 +113,7 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m[m
+[31m- [m[m
+[31m- 		JButton btnXemBaoCao = new JButton(I18nReaderUtil.get("app.report.revenue.viewReport"));[m[m
+[31m- [m[m
+[31m-[31m-		btnXemBaoCao.addActionListener(e -> this.thongBaoChuaKetNoi());[m[m
+[31m-[32m+[m		[32mbtnXemBaoCao.addActionListener(e -> this.taiBaoCao());[m[m
+[31m- [m[m
+[31m- 		pnl.add(new JLabel(I18nReaderUtil.get("app.report.revenue.statisticsType")));[m[m
+[31m- 		pnl.add(this.cboKieuThongKe);[m[m
+[31m-[36m@@ -118,6 +129,69 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m[m
+[31m- 		return pnl;[m[m
+[31m- 	}[m[m
+[31m- [m[m
+[31m-[32m+[m	[32mprivate void taiBaoCao() {[m[m
+[31m-[32m+[m		[32mtry {[m[m
+[31m-[32m+[m			[32mLocalDate tuNgay = this.dpTuNgay.getDate();[m[m
+[31m-[32m+[m			[32mLocalDate denNgay = this.dpDenNgay.getDate();[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m			[32mBaoCaoDoanhThuDTO baoCao = this.doanhThuService.taoBaoCao(tuNgay, denNgay);[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m			[32mthis.capNhatThongKe(baoCao);[m[m
+[31m-[32m+[m			[32mthis.capNhatBangHoaDon(baoCao.danhSachHoaDon());[m[m
+[31m-[32m+[m			[32mthis.capNhatBieuDo(baoCao);[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32m} catch (IllegalArgumentException e) {[m[m
+[31m-[32m+[m			[32mJOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()),[m[m
+[31m-[32m+[m					[32mI18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);[m[m
+[31m-[32m+[m		[32m} catch (SQLException e) {[m[m
+[31m-[32m+[m			[32mJOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.loadError"),[m[m
+[31m-[32m+[m					[32mI18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);[m[m
+[31m-[32m+[m		[32m}[m[m
+[31m-[32m+[m	[32m}[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m	[32mprivate void capNhatBangHoaDon(List<HoaDonDoanhThuDTO> danhSachHoaDon) {[m[m
+[31m-[32m+[m		[32mDefaultTableModel model = (DefaultTableModel) this.tblHoaDon.getModel();[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32mmodel.setRowCount(0);[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32mDateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm",[m[m
+[31m-[32m+[m				[32mLocale.forLanguageTag("vi-VN"));[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32mfor (HoaDonDoanhThuDTO hoaDon : danhSachHoaDon) {[m[m
+[31m-[32m+[m			[32mString ngayTao = hoaDon.ngayTao() == null ? "" : hoaDon.ngayTao().format(dateTimeFormatter);[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m			[32mString thoiGianThanhToan = hoaDon.thoiGianThanhToan() == null ? ""[m[m
+[31m-[32m+[m					[32m: hoaDon.thoiGianThanhToan().format(dateTimeFormatter);[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m			[32mmodel.addRow(new Object[] { hoaDon.maHoaDon(), ngayTao, thoiGianThanhToan, hoaDon.tenKhachHang(),[m[m
+[31m-[32m+[m					[32mhoaDon.bienSo(), hoaDon.trangThaiHoaDon(), this.dinhDangTien.format(hoaDon.tongDoanhThu()) });[m[m
+[31m-[32m+[m		[32m}[m[m
+[31m-[32m+[m	[32m}[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m	[32mprivate void capNhatBieuDo(BaoCaoDoanhThuDTO baoCao) {[m[m
+[31m-[32m+[m		[32mDefaultPieDataset<String> dataset = new DefaultPieDataset<>();[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32mdataset.setValue(I18nReaderUtil.get("app.report.revenue.serviceRevenue"), baoCao.doanhThuDichVu());[m[m
+[31m-[32m+[m		[32mdataset.setValue(I18nReaderUtil.get("app.report.revenue.partsRevenue"), baoCao.doanhThuPhuTung());[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32mJFreeChart bieuDo = this.pnlBieuDo.getChart();[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32m@SuppressWarnings("unchecked")[m[m
+[31m-[32m+[m		[32mPiePlot<String> piePlot = (PiePlot<String>) bieuDo.getPlot();[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32mpiePlot.setDataset(dataset);[m[m
+[31m-[32m+[m	[32m}[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m	[32mprivate void capNhatThongKe(BaoCaoDoanhThuDTO baoCao) {[m[m
+[31m-[32m+[m		[32mthis.lblTongDoanhThu.setText(this.dinhDangTien.format(baoCao.tongDoanhThu()));[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32mthis.lblDoanhThuDichVu.setText(this.dinhDangTien.format(baoCao.doanhThuDichVu()));[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32mthis.lblDoanhThuPhuTung.setText(this.dinhDangTien.format(baoCao.doanhThuPhuTung()));[m[m
+[31m-[32m+[m[m
+[31m-[32m+[m		[32mthis.lblSoHoaDon.setText(String.valueOf(baoCao.soLuongHoaDon()));[m[m
+[31m-[32m+[m	[32m}[m[m
+[31m-[32m+[m[m
+[31m- 	private JPanel taoNoiDung() {[m[m
+[31m- 		JPanel pnl = new JPanel(new BorderLayout(8, 8));[m[m
+[31m- [m[m
+[31m-[36m@@ -138,15 +212,12 @@[m [mpublic class DoanhThuPage extends AbstractPage {[m[m
+[31m- [m[m
+[31m- 		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();[m[m
+[31m- [m[m
+[31m-[31m-		// dữ liệu mẫu cho chart[m[m
+[31m-[31m-		dataset.setValue(I18nReaderUtil.get("app.menu.servicePriceList"), 5);[m[m
+[31m-[31m-		dataset.setValue(I18nReaderUtil.get("app.menu.inventory"), 5);[m[m
+[31m-[31m-[m[m
+[31m- 		this.pnlBieuDo = new ChartPanel(ChartFactory.createPieChart(null, dataset, true, true, false));[m[m
+[31m- [m[m
+[31m- 		JFreeChart bieuDo = this.pnlBieuDo.getChart();[m[m
+[31m- [m[m
+[31m-[31m-		PiePlot<?> piePlot = (PiePlot<?>) bieuDo.getPlot();[m[m
+[31m-[32m+[m		[32m@SuppressWarnings("unchecked")[m[m
+[31m-[32m+[m		[32mPiePlot<String> piePlot = (PiePlot<String>) bieuDo.getPlot();[m[m
+[31m- [m[m
+[31m- 		piePlot.setLabelGenerator([m[m
+[31m- 				new StandardPieSectionLabelGenerator("{2}", new DecimalFormat("#,##0"), new DecimalFormat("0.00%")));[m[m
+[31m-[1mdiff --git a/src/resources/i18n_en.json b/src/resources/i18n_en.json[m[m
+[31m-[1mindex 9b1d713..6295b70 100644[m[m
+[31m-[1m--- a/src/resources/i18n_en.json[m[m
+[31m-[1m+++ b/src/resources/i18n_en.json[m[m
+[31m-[36m@@ -535,7 +535,12 @@[m[m
+[31m-         "customer": "Customer",[m[m
+[31m-         "licensePlate": "License Plate",[m[m
+[31m-         "status": "Status",[m[m
+[31m-[31m-        "amount": "Amount"[m[m
+[31m-[32m+[m[32m        "amount": "Amount",[m[m
+[31m-[32m+[m		[32m"invalidDate": "Please select both the start date and end date.",[m[m
+[31m-[32m+[m		[32m"invalidDateRange": "The start date must not be after the end date.",[m[m
+[31m-[32m+[m		[32m"loadError": "Unable to load the revenue report.",[m[m
+[31m-[32m+[m		[32m"paymentTime": "Payment Time",[m[m
+[31m-[32m+[m		[32m"status": "Status"[m[m
+[31m-       },[m[m
+[31m-       "service": {[m[m
+[31m-         "title": "Service Consumption",[m[m
+[31m-[1mdiff --git a/src/resources/i18n_vn.json b/src/resources/i18n_vn.json[m[m
+[31m-[1mindex 181aa6c..ab6d3a8 100644[m[m
+[31m-[1m--- a/src/resources/i18n_vn.json[m[m
+[31m-[1m+++ b/src/resources/i18n_vn.json[m[m
+[31m-[36m@@ -535,7 +535,12 @@[m[m
+[31m-         "customer": "Khách hàng",[m[m
+[31m-         "licensePlate": "Biển số",[m[m
+[31m-         "status": "Trạng thái",[m[m
+[31m-[31m-        "amount": "Số tiền"[m[m
+[31m-[32m+[m[32m        "amount": "Số tiền",[m[m
+[31m-[32m+[m		[32m"invalidDate": "Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc.",[m[m
+[31m-[32m+[m		[32m"invalidDateRange": "Ngày bắt đầu không được sau ngày kết thúc.",[m[m
+[31m-[32m+[m		[32m"loadError": "Không thể tải báo cáo doanh thu.",[m[m
+[31m-[32m+[m		[32m"paymentTime": "Thời gian thanh toán",[m[m
+[31m-[32m+[m		[32m"status": "Trạng thái"[m[m
+[31m-       },[m[m
+[31m-       "service": {[m[m
+[31m-         "title": "Tiêu thụ dịch vụ",[m[m
