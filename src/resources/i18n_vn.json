@@ -585,7 +585,7 @@
         "consumptionRateColumn": "Mức Tiêu Thụ",
         "actionNotConnected": "Chức năng này chưa được kết nối dữ liệu.",
         "exportNotImplemented": "Chức năng xuất Excel chưa được kết nối.",
-		"invalidMonth": "Vui lòng chọn tháng cần xem báo cáo."
+		"loadError": "Không thể tải báo cáo tiêu thụ phụ tùng."
       }
     }
   }
