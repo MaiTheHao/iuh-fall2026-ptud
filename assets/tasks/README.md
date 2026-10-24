@@ -1,6 +1,6 @@
 # Kế hoạch tuần 1 — Gara Ô tô Lúa
 
-**Cập nhật:** 23/10/2026, đối chiếu trực tiếp với `src/iuh/fit`, `src/resources/i18n_*.json` và `infra/migrations`.
+**Cập nhật:** 24/10/2026, đối chiếu trực tiếp với `src/iuh/fit`, `src/resources/i18n_*.json` và `infra/migrations`.
 
 **Chú giải:** `[DONE]` đã chạy trên dữ liệu thật · `[PARTIAL]` một phần đã có mã · `[TODO]` mới có khung giữ chỗ.
 
@@ -21,13 +21,15 @@
 | [P1 — Tổ chức](./2026-10-14-p1-to-chuc.md) | 6 | `[DONE]` 6/6 | Không còn |
 | [P2 — Tiếp nhận và khiếu nại](./2026-10-14-p2-tiep-nhan-khieu-nai.md) | 6 | `[DONE]` 6/6 | Không còn |
 | [P3 — Nhập phụ tùng và thanh toán](./2026-10-14-p3-nhap-thanh-toan.md) | 5 | `[DONE]` 5/5 | Không còn |
-| [P4 — Kế hoạch và tổng kết](./2026-10-14-p4-ke-hoach-tong-ket.md) | 6 | `[TODO]` 0/6 | Toàn bộ 6 màn |
+| [P4 — Kế hoạch và tổng kết](./2026-10-14-p4-ke-hoach-tong-ket.md) | 6 | `[DONE]` 6/6 | Không còn |
+
+Tổng: 25/25 màn đã có mã và đăng ký trong `PageRegistry`. P4 đối chiếu mã nguồn + `javac` ngày 24/10/2026; chạy lại end-to-end trên DB trước khi báo cáo.
 
 Sơ đồ phụ thuộc và bản đồ màn hình: [`DGRAPH.md`](./DGRAPH.md).
 
 ## 3. Nền tảng đã có
 
-`LoginPage`, `DashboardPage`, `Layout.goTo(Class)`; `ManagementPanel`, `ManagementFormPanel`, `ThaoTac`, `SuaDialog`, `ThongBao`; `I18nEnum` + `BoHienThiI18n` cho nhãn enum, `PaginatedResult`, `DanhSach*Criteria`; `TransactionScope`; `MaGeneratorUtil` + `MaRetryUtil`; `TextNormalizerUtil`, `NumberParseUtil`; `BoChonNgayGio`, `AnhField`, `ChonPhuTungDialog`; i18n `src/resources/i18n_vn.json` + `i18n_en.json` (481 key mỗi tệp, cùng tập key).
+`LoginPage`, `DashboardPage`, `Layout.goTo(Class)`; `ManagementPanel`, `ManagementFormPanel`, `ThaoTac`, `SuaDialog`, `ThongBao`; `I18nEnum` + `BoHienThiI18n` cho nhãn enum, `PaginatedResult`, `DanhSach*Criteria`; `TransactionScope`; `MaGeneratorUtil` + `MaRetryUtil`; `TextNormalizerUtil`, `NumberParseUtil`; `BoChonNgayGio`, `AnhField`, `ChonPhuTungDialog`, `ComboGoiY`; `jfreechart-1.5.6.jar` cho biểu đồ báo cáo; i18n `src/resources/i18n_vn.json` + `i18n_en.json` (600 key mỗi tệp, cùng tập key).
 
 ## 4. Quy ước chung
 
@@ -41,13 +43,11 @@ Mỗi nhóm làm trên nhánh riêng tách từ `develop`, commit theo Conventio
 
 - **P1 → P2/P3/P4:** `[DONE]` service dữ liệu nền đã sẵn sàng.
 - **P2 → P3:** `[DONE]` `PhieuTiepNhanService` đã có; P3 không chờ phần chẩn đoán.
-- **P3 → P4:** `[DONE]` phiếu nhập và hóa đơn đã có service; P4 vẫn làm được trên dữ liệu mẫu `V4__mock_data.sql` và còn thiếu riêng `BaoCaoService`.
+- **P3 → P4:** `[DONE]` phiếu nhập và hóa đơn đã có service; báo cáo của P4 (`DoanhThuService`, `TieuThuPhuTungService`, `TieuThuDichVuService` + DAO chỉ đọc) đọc thẳng `HoaDon`/`ChiTietHoaDon` nên số liệu phát sinh từ SCR-10 vào báo cáo ngay.
 
 ## 6. Việc còn lại
 
-| Lane | Việc | Chặn ai |
-|---|---|---|
-| P4 | Phân công ca, hai màn lịch, ba báo cáo | — |
+Không còn màn nào ở trạng thái `[TODO]`. Việc mở: chốt nghiệp vụ doanh thu gộp hay trừ voucher (`DoanhThuService` đang cộng gộp, `HoaDonService.tinhTongTien` thì trừ), và thống nhất thụt lề cho 25 tệp Java của P4 (đang dùng tab, phần còn lại của repo dùng 4 dấu cách).
 
 ## 7. Tiêu chí hoàn thành một màn
 

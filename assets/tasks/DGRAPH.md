@@ -1,6 +1,6 @@
 # DGRAPH — Sơ đồ phụ thuộc Gara Ô tô Lúa
 
-Trạng thái đối chiếu mã nguồn ngày 23/10/2026. `[DONE]` đã chạy trên dữ liệu thật · `[PARTIAL]` một phần đã có mã · `[TODO]` mới có khung giữ chỗ · `[P1..P4]` lane phụ trách.
+Trạng thái đối chiếu mã nguồn ngày 24/10/2026. `[DONE]` đã chạy trên dữ liệu thật · `[PARTIAL]` một phần đã có mã · `[TODO]` mới có khung giữ chỗ · `[P1..P4]` lane phụ trách.
 
 Nguồn: `assets/tasks/2026-10-14-p1..p4-*.md`, `assets/mockui/docs/screen-flow.md`, `src/iuh/fit/**`, `infra/migrations/**`.
 
@@ -13,18 +13,18 @@ flowchart TD
     p1["P1 To chuc - Quoc<br/>6/6 man [DONE]"]
     p2["P2 Tiep nhan & Khieu nai - Thang<br/>6/6 man [DONE]"]
     p3["P3 Nhap & Thanh toan - Khang<br/>5/5 man [DONE]"]
-    p4["P4 Ke hoach & Tong ket - Binh<br/>0/6 man [TODO]"]
+    p4["P4 Ke hoach & Tong ket - Binh<br/>6/6 man [DONE]"]
 
     p1 -->|"KhachHang / Xe / NhanVien - da co"| p2
     p1 -->|"PhuTung / DichVu / Voucher / NhanVien - da co"| p3
     p1 -->|"NhanVien - da co"| p4
     p2 -->|"PhieuTiepNhan - da co"| p3
-    p3 -->|"HoaDon / ChiTietHoaDon - da co"| p4
+    p3 -->|"HoaDon / ChiTietHoaDon / PhieuNhap - da co"| p4
 ```
 
 ## 2. Contract service liên lane
 
-Nút ghi `[TODO]` là phần chưa tồn tại trong mã nguồn.
+Không còn nút `[TODO]`: mọi contract của P4 đã có service tương ứng.
 
 ```mermaid
 flowchart LR
@@ -48,9 +48,11 @@ flowchart LR
         hds["HoaDonService"]
     end
 
-    subgraph sgP4["P4"]
-        pcs["PhanCongService - [TODO]"]
-        bcs["BaoCaoService - [TODO]"]
+    subgraph sgP4["P4 - da co"]
+        pcs["PhanCongService"]
+        dts["DoanhThuService"]
+        tts["TieuThuPhuTungService"]
+        tvs["TieuThuDichVuService"]
     end
 
     khs --> ptns
@@ -60,8 +62,10 @@ flowchart LR
     dvs --> hds
     vcs --> hds
     ptns --> hds
-    hds --> bcs
-    pnps --> bcs
+    hds -.->|"doc HoaDon/ChiTietHoaDon"| dts
+    hds -.->|"doc ChiTietHoaDon"| tvs
+    pnps -.->|"doc phieu nhap"| tts
+    pts -.->|"doc ton kho"| tts
 ```
 
 ## 3. Kiến trúc 3 tầng
@@ -124,16 +128,16 @@ flowchart TD
         scr10b["SCR-10B Quan ly hoa don<br/>[DONE]"]
     end
 
-    subgraph sgPlan["Ke hoach - P4 (0/6)"]
-        scr05["SCR-05 Phan cong ca<br/>[TODO]"]
-        scr05b["SCR-05B Lich cua toi<br/>[TODO]"]
-        scr05c["SCR-05C Lich cua shop<br/>[TODO]"]
+    subgraph sgPlan["Ke hoach - P4 (3/3)"]
+        scr05["SCR-05 Phan cong ca<br/>[DONE]"]
+        scr05b["SCR-05B Lich cua toi<br/>[DONE]"]
+        scr05c["SCR-05C Lich cua shop<br/>[DONE]"]
     end
 
-    subgraph sgReport["Tong ket - P4 (0/3)"]
-        scr12["SCR-12 Doanh thu<br/>[TODO]"]
-        scr12b["SCR-12B Tieu thu phu tung<br/>[TODO]"]
-        scr12c["SCR-12C Tieu thu dich vu<br/>[TODO]"]
+    subgraph sgReport["Tong ket - P4 (3/3)"]
+        scr12["SCR-12 Doanh thu<br/>[DONE] - bieu do + in + Excel"]
+        scr12b["SCR-12B Tieu thu phu tung<br/>[DONE] - Top 20 + in + Excel"]
+        scr12c["SCR-12C Tieu thu dich vu<br/>[DONE] - Top 20 + in + Excel"]
     end
 
     subgraph sgSet["Cai dat"]
@@ -185,7 +189,7 @@ flowchart LR
 
 ## 6. Mô hình dữ liệu
 
-Toàn bộ bảng đã tồn tại trong DB (`V0` + `V3`).
+Toàn bộ bảng đã tồn tại trong DB (`V0`..`V11`; `init.sql` là bản gộp cuối của chuỗi migration).
 
 ```mermaid
 erDiagram
@@ -243,17 +247,12 @@ erDiagram
 
 ## 7. Việc còn lại
 
-```mermaid
-flowchart TD
-    subgraph sgP4["P4 con lai"]
-        p4a["PhanCongDAO ghi + PhanCongService<br/>[TODO]"]
-        p4b["SCR-05 + SCR-05B + SCR-05C<br/>[TODO]"]
-        p4c["BaoCaoDAO + BaoCaoService<br/>[TODO]"]
-        p4d["SCR-12 + SCR-12B + SCR-12C<br/>[TODO]"]
-        p4a --> p4b
-        p4c --> p4d
-    end
-```
+Không còn màn nào `[TODO]` — P1–P4 đủ 25/25 màn. Hai điểm mở cần chốt, không chặn màn nào:
+
+| Điểm mở | Ảnh hưởng |
+|---|---|
+| Doanh thu gộp hay trừ voucher | `DoanhThuService` cộng `soLuong * donGia` của `ChiTietHoaDon`; `HoaDonService.tinhTongTien` trừ `mucGiamApDung`/`Voucher` → SCR-12 lệch SCR-10 khi hóa đơn có voucher |
+| Thụt lề tệp Java P4 | 25 tệp của P4 dùng tab, phần còn lại của repo dùng 4 dấu cách |
 
 ## 8. Trong tuần làm gì / hoãn gì
 
@@ -269,8 +268,8 @@ flowchart LR
     subgraph sgOut["Hoan - make it right"]
         hn1["Badge mau ngu nghia"]
         hn2["Filter day du moi cot"]
-        hn3["Bieu do + Top 20 (Java2D)"]
-        hn4["Dich EN day du"]
+        hn3["Bieu do + Top 20 - da lam bang JFreeChart"]
+        hn4["Dich EN day du - da du 600 key"]
         hn5["Lam dep / anh"]
     end
 
@@ -289,7 +288,7 @@ flowchart LR
     b1["feat/p1-to-chuc<br/>[DONE] da gop"]
     b2["feat/p2-tiep-nhan-khieu-nai<br/>[DONE] da gop"]
     b3["feat/p3-nhap-thanh-toan<br/>[DONE] da gop"]
-    b4["feat/p4-ke-hoach-tong-ket<br/>[TODO]"]
+    b4["feat/p4-ke-hoach-tong-ket<br/>[DONE] da gop"]
 
     dev -->|"git switch -c"| b1
     dev -->|"git switch -c"| b2
@@ -311,6 +310,6 @@ flowchart LR
 | 4 | 25 màn thuộc nhóm nào, lane nào, đã xong chưa |
 | 5 | Điều hướng menu và cặp thao tác ↔ quản lý |
 | 6 | Khóa ngoại / bản số dữ liệu |
-| 7 | Việc còn lại của P2, P3, P4 và thứ tự làm |
+| 7 | Điểm mở còn lại sau khi P1–P4 xong |
 | 8 | Việc làm trong tuần vs việc hoãn |
 | 9 | Mỗi lane tách nhánh từ `develop` và PR ngược lại |
