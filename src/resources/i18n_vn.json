@@ -615,6 +615,8 @@
 				"title": "Tiêu thụ phụ tùng",
 				"month": "Tháng:",
 				"view": "Xem Báo Cáo",
+				"print": "In báo cáo",
+				"export": "Xuất Excel",
 				"totalImported": "TỔNG NHẬP TRONG THÁNG",
 				"totalExported": "TỔNG XUẤT TRONG THÁNG",
 				"currentStock": "TỒN KHO HIỆN TẠI",
