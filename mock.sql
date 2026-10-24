@@ -2,6 +2,13 @@
 BEGIN TRANSACTION;
 
 -- ============================================================
+-- Gara Ô tô Lúa — dữ liệu mẫu cho DB dựng thủ công
+-- Dùng kèm init.sql. Dữ liệu đã ở trạng thái sau V5/V6: soDienThoai
+-- của NhanVien đã điền, biển số Xe đã chuẩn hoá (viết hoa, bỏ dấu phân
+-- cách). HoaDon không có mucGiamApDung vì V10 cố ý không backfill.
+-- ============================================================
+
+-- ============================================================
 -- DichVu (15)
 -- ============================================================
 INSERT INTO DichVu (maDichVu, tenDichVu, moTa, anhUrl, donGia) VALUES
