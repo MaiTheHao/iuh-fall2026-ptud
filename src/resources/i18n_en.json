@@ -584,7 +584,8 @@
         "revenue": "Revenue",
         "consumptionRateColumn": "Consumption Rate",
         "actionNotConnected": "This function is not connected to data yet.",
-        "exportNotImplemented": "Excel export has not been implemented yet."
+        "exportNotImplemented": "Excel export has not been implemented yet.",
+		"invalidMonth": "Please select a month to view the report."
       }
     }
   }

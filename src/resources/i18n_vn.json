@@ -584,7 +584,8 @@
         "revenue": "Doanh Thu",
         "consumptionRateColumn": "Mức Tiêu Thụ",
         "actionNotConnected": "Chức năng này chưa được kết nối dữ liệu.",
-        "exportNotImplemented": "Chức năng xuất Excel chưa được kết nối."
+        "exportNotImplemented": "Chức năng xuất Excel chưa được kết nối.",
+		"invalidMonth": "Vui lòng chọn tháng cần xem báo cáo."
       }
     }
   }
