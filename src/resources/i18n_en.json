@@ -540,7 +540,11 @@
 		"invalidDateRange": "The start date must not be after the end date.",
 		"loadError": "Unable to load the revenue report.",
 		"paymentTime": "Payment Time",
-		"status": "Status"
+		"status": "Status",
+		"noData": "There is no report data to print or export.",
+		"printError": "Unable to print the report.",
+		"exportSuccess": "Report exported successfully.",
+		"exportError": "Unable to export the report."
       },
       "service": {
         "title": "Service Consumption",

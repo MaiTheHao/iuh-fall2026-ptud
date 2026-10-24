@@ -540,7 +540,11 @@
 		"invalidDateRange": "Ngày bắt đầu không được sau ngày kết thúc.",
 		"loadError": "Không thể tải báo cáo doanh thu.",
 		"paymentTime": "Thời gian thanh toán",
-		"status": "Trạng thái"
+		"status": "Trạng thái",
+		"noData": "Không có dữ liệu báo cáo để in hoặc xuất.",
+		"printError": "Không thể in báo cáo.",
+		"exportSuccess": "Xuất báo cáo thành công.",
+		"exportError": "Không thể xuất báo cáo."
       },
       "service": {
         "title": "Tiêu thụ dịch vụ",
@@ -568,8 +572,6 @@
         "title": "Tiêu thụ phụ tùng",
         "month": "Tháng:",
         "view": "Xem Báo Cáo",
-        "print": "In",
-        "export": "Xuất Excel",
         "totalImported": "TỔNG NHẬP TRONG THÁNG",
         "totalExported": "TỔNG XUẤT TRONG THÁNG",
         "currentStock": "TỒN KHO HIỆN TẠI",
