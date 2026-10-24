@@ -9,12 +9,14 @@ import iuh.fit.util.I18nReaderUtil;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -24,6 +26,13 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.print.PrinterException;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.YearMonth;
@@ -84,7 +93,6 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		this.revalidate();
 		this.repaint();
 
-		this.taiBaoCao();
 	}
 
 	private void khoiTaoThang() {
@@ -155,8 +163,6 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 		btnXemBaoCao.addActionListener(e -> this.taiBaoCao());
 
-		this.cboThang.addActionListener(e -> this.taiBaoCao());
-
 		pnlNut.add(btnXemBaoCao);
 
 		pnl.add(pnlThang, BorderLayout.WEST);
@@ -208,12 +214,12 @@ public class TieuThuPhuTungPage extends AbstractPage {
 	private JPanel taoThanhCongCu() {
 		JPanel pnl = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 6));
 
-		JButton btnIn = new JButton(I18nReaderUtil.get("app.report.parts.print"));
+		JButton btnIn = new JButton(I18nReaderUtil.get("app.report.revenue.print"));
 
-		JButton btnXuatExcel = new JButton(I18nReaderUtil.get("app.report.parts.export"));
+		JButton btnXuatExcel = new JButton(I18nReaderUtil.get("app.report.revenue.exportExcel"));
 
-		btnIn.addActionListener(e -> this.thongBaoChuaKetNoi());
-		btnXuatExcel.addActionListener(e -> this.thongBaoChuaKetNoi());
+		btnIn.addActionListener(e -> this.inBaoCao());
+		btnXuatExcel.addActionListener(e -> this.xuatBaoCao());
 
 		pnl.add(btnIn);
 		pnl.add(btnXuatExcel);
@@ -221,11 +227,91 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		return pnl;
 	}
 
+	private void xuatBaoCao() {
+		if (this.modelPhuTung.getRowCount() == 0) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.noData"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.parts.export"));
+		fileChooser.setSelectedFile(new File("BaoCaoTieuThuPhuTung.csv"));
+		fileChooser.setFileFilter(new FileNameExtensionFilter("CSV (*.csv)", "csv"));
+
+		if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+
+		File file = fileChooser.getSelectedFile();
+
+		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".csv")) {
+			file = new File(file.getAbsolutePath() + ".csv");
+		}
+
+		try (BufferedWriter writer = new BufferedWriter(
+				new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
+
+			writer.write('\uFEFF');
+
+			for (int column = 0; column < this.modelPhuTung.getColumnCount(); column++) {
+
+				if (column > 0) {
+					writer.write(';');
+				}
+
+				writer.write(this.escCsv(this.modelPhuTung.getColumnName(column)));
+			}
+
+			writer.newLine();
+
+			for (int row = 0; row < this.modelPhuTung.getRowCount(); row++) {
+
+				for (int column = 0; column < this.modelPhuTung.getColumnCount(); column++) {
+
+					if (column > 0) {
+						writer.write(';');
+					}
+
+					Object value = this.modelPhuTung.getValueAt(row, column);
+
+					writer.write(this.escCsv(value == null ? "" : value.toString()));
+				}
+
+				writer.newLine();
+			}
+
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.exportSuccess"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
+
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.exportError"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
+
+			ex.printStackTrace();
+		}
+	}
+
+	private void inBaoCao() {
+		if (this.modelPhuTung.getRowCount() == 0) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.noData"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		try {
+			this.tblPhuTung.print(JTable.PrintMode.FIT_WIDTH, null, null);
+		} catch (PrinterException e) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.printError"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
 	private void taiBaoCao() {
 		String thangDuocChon = (String) this.cboThang.getSelectedItem();
 
 		if (thangDuocChon == null || thangDuocChon.isBlank()) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.invalidMonth"),
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.invalidMonth"),
 					I18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);
 			return;
 		}
@@ -243,7 +329,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 					I18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);
 
 		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.loadError"),
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.loadError"),
 					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
 		}
 	}
@@ -277,6 +363,10 @@ public class TieuThuPhuTungPage extends AbstractPage {
 	private void thongBaoChuaKetNoi() {
 		JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.actionNotConnected"),
 				I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	private String escCsv(String value) {
+		return "\"" + value.replace("\"", "\"\"") + "\"";
 	}
 
 	@Override

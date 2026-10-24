@@ -19,11 +19,13 @@ import org.jfree.data.general.DefaultPieDataset;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
@@ -34,6 +36,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.print.PrinterException;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -85,7 +94,7 @@ public class DoanhThuPage extends AbstractPage {
 	@Override
 	public void render() {
 		this.removeAll();
-		
+
 		this.add(this.taoBoLoc(), BorderLayout.NORTH);
 		this.add(this.taoNoiDung(), BorderLayout.CENTER);
 		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);
@@ -286,8 +295,8 @@ public class DoanhThuPage extends AbstractPage {
 
 		JButton btnXuatExcel = new JButton(I18nReaderUtil.get("app.report.revenue.exportExcel"));
 
-		btnIn.addActionListener(e -> this.thongBaoChuaKetNoi());
-		btnXuatExcel.addActionListener(e -> this.thongBaoChuaKetNoi());
+		btnIn.addActionListener(e -> this.inBaoCao());
+		btnXuatExcel.addActionListener(e -> this.xuatBaoCao());
 
 		pnl.add(btnIn);
 		pnl.add(btnXuatExcel);
@@ -295,9 +304,94 @@ public class DoanhThuPage extends AbstractPage {
 		return pnl;
 	}
 
-	private void thongBaoChuaKetNoi() {
-		JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.actionNotConnected"),
-				I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
+	private void xuatBaoCao() {
+		if (this.modelHoaDon.getRowCount() == 0) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.noData"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		JFileChooser fileChooser = new JFileChooser();
+
+		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.revenue.exportExcel"));
+
+		fileChooser.setSelectedFile(new File("BaoCaoDoanhThu.csv"));
+
+		fileChooser.setFileFilter(new FileNameExtensionFilter("CSV (*.csv)", "csv"));
+
+		if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+
+		File file = fileChooser.getSelectedFile();
+
+		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".csv")) {
+			file = new File(file.getAbsolutePath() + ".csv");
+		}
+
+		try (BufferedWriter writer = new BufferedWriter(
+				new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
+
+			writer.write('\uFEFF');
+
+			for (int column = 0; column < this.modelHoaDon.getColumnCount(); column++) {
+
+				if (column > 0) {
+					writer.write(';');
+				}
+
+				writer.write(this.escCsv(this.modelHoaDon.getColumnName(column)));
+			}
+
+			writer.newLine();
+
+			for (int row = 0; row < this.modelHoaDon.getRowCount(); row++) {
+
+				for (int column = 0; column < this.modelHoaDon.getColumnCount(); column++) {
+
+					if (column > 0) {
+						writer.write(';');
+					}
+
+					Object value = this.modelHoaDon.getValueAt(row, column);
+
+					writer.write(this.escCsv(value == null ? "" : value.toString()));
+				}
+
+				writer.newLine();
+			}
+
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.exportSuccess"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
+
+		} catch (IOException ex) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.exportError"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
+
+			ex.printStackTrace();
+		}
+	}
+
+	private void inBaoCao() {
+		if (this.modelHoaDon.getRowCount() == 0) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.noData"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		try {
+			this.tblHoaDon.print(JTable.PrintMode.FIT_WIDTH, null, null);
+
+		} catch (PrinterException ex) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.printError"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
+
+			ex.printStackTrace();
+		}
+	}
+
+	private String escCsv(String value) {
+		return "\"" + value.replace("\"", "\"\"") + "\"";
 	}
 
 	@Override
