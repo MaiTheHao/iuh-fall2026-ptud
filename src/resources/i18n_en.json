@@ -535,7 +535,12 @@
         "customer": "Customer",
         "licensePlate": "License Plate",
         "status": "Status",
-        "amount": "Amount"
+        "amount": "Amount",
+		"invalidDate": "Please select both the start date and end date.",
+		"invalidDateRange": "The start date must not be after the end date.",
+		"loadError": "Unable to load the revenue report.",
+		"paymentTime": "Payment Time",
+		"status": "Status"
       },
       "service": {
         "title": "Service Consumption",

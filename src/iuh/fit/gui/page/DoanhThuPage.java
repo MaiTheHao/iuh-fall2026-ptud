@@ -1,10 +1,12 @@
-
 package iuh.fit.gui.page;
 
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 
+import iuh.fit.dto.BaoCaoDoanhThuDTO;
+import iuh.fit.dto.HoaDonDoanhThuDTO;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.service.DoanhThuService;
 import iuh.fit.util.I18nReaderUtil;
 
 import org.jfree.chart.ChartFactory;
@@ -32,7 +34,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
 
 public class DoanhThuPage extends AbstractPage {
 
@@ -50,8 +58,9 @@ public class DoanhThuPage extends AbstractPage {
 
 	private final DefaultTableModel modelHoaDon = new DefaultTableModel(new Object[0][0], new String[] {
 			I18nReaderUtil.get("app.report.revenue.invoiceCode"), I18nReaderUtil.get("app.report.revenue.createdDate"),
-			I18nReaderUtil.get("app.report.revenue.customer"), I18nReaderUtil.get("app.report.revenue.licensePlate"),
-			I18nReaderUtil.get("app.report.revenue.status"), I18nReaderUtil.get("app.report.revenue.amount") }) {
+			I18nReaderUtil.get("app.report.revenue.paymentTime"), I18nReaderUtil.get("app.report.revenue.customer"),
+			I18nReaderUtil.get("app.report.revenue.licensePlate"), I18nReaderUtil.get("app.report.revenue.status"),
+			I18nReaderUtil.get("app.report.revenue.amount") }) {
 		private static final long serialVersionUID = 1L;
 
 		@Override
@@ -59,6 +68,9 @@ public class DoanhThuPage extends AbstractPage {
 			return false;
 		}
 	};
+
+	private final DoanhThuService doanhThuService = new DoanhThuService();
+	private final NumberFormat dinhDangTien = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"));
 
 	private final JTable tblHoaDon = new JTable(this.modelHoaDon);
 
@@ -68,13 +80,12 @@ public class DoanhThuPage extends AbstractPage {
 		this.setLayout(new BorderLayout(8, 8));
 		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-
 	}
 
 	@Override
 	public void render() {
 		this.removeAll();
-
+		
 		this.add(this.taoBoLoc(), BorderLayout.NORTH);
 		this.add(this.taoNoiDung(), BorderLayout.CENTER);
 		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);
@@ -102,7 +113,7 @@ public class DoanhThuPage extends AbstractPage {
 
 		JButton btnXemBaoCao = new JButton(I18nReaderUtil.get("app.report.revenue.viewReport"));
 
-		btnXemBaoCao.addActionListener(e -> this.thongBaoChuaKetNoi());
+		btnXemBaoCao.addActionListener(e -> this.taiBaoCao());
 
 		pnl.add(new JLabel(I18nReaderUtil.get("app.report.revenue.statisticsType")));
 		pnl.add(this.cboKieuThongKe);
@@ -116,6 +127,69 @@ public class DoanhThuPage extends AbstractPage {
 		pnl.add(btnXemBaoCao);
 
 		return pnl;
+	}
+
+	private void taiBaoCao() {
+		try {
+			LocalDate tuNgay = this.dpTuNgay.getDate();
+			LocalDate denNgay = this.dpDenNgay.getDate();
+
+			BaoCaoDoanhThuDTO baoCao = this.doanhThuService.taoBaoCao(tuNgay, denNgay);
+
+			this.capNhatThongKe(baoCao);
+			this.capNhatBangHoaDon(baoCao.danhSachHoaDon());
+			this.capNhatBieuDo(baoCao);
+
+		} catch (IllegalArgumentException e) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);
+		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.loadError"),
+					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void capNhatBangHoaDon(List<HoaDonDoanhThuDTO> danhSachHoaDon) {
+		DefaultTableModel model = (DefaultTableModel) this.tblHoaDon.getModel();
+
+		model.setRowCount(0);
+
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm",
+				Locale.forLanguageTag("vi-VN"));
+
+		for (HoaDonDoanhThuDTO hoaDon : danhSachHoaDon) {
+			String ngayTao = hoaDon.ngayTao() == null ? "" : hoaDon.ngayTao().format(dateTimeFormatter);
+
+			String thoiGianThanhToan = hoaDon.thoiGianThanhToan() == null ? ""
+					: hoaDon.thoiGianThanhToan().format(dateTimeFormatter);
+
+			model.addRow(new Object[] { hoaDon.maHoaDon(), ngayTao, thoiGianThanhToan, hoaDon.tenKhachHang(),
+					hoaDon.bienSo(), hoaDon.trangThaiHoaDon(), this.dinhDangTien.format(hoaDon.tongDoanhThu()) });
+		}
+	}
+
+	private void capNhatBieuDo(BaoCaoDoanhThuDTO baoCao) {
+		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
+
+		dataset.setValue(I18nReaderUtil.get("app.report.revenue.serviceRevenue"), baoCao.doanhThuDichVu());
+		dataset.setValue(I18nReaderUtil.get("app.report.revenue.partsRevenue"), baoCao.doanhThuPhuTung());
+
+		JFreeChart bieuDo = this.pnlBieuDo.getChart();
+
+		@SuppressWarnings("unchecked")
+		PiePlot<String> piePlot = (PiePlot<String>) bieuDo.getPlot();
+
+		piePlot.setDataset(dataset);
+	}
+
+	private void capNhatThongKe(BaoCaoDoanhThuDTO baoCao) {
+		this.lblTongDoanhThu.setText(this.dinhDangTien.format(baoCao.tongDoanhThu()));
+
+		this.lblDoanhThuDichVu.setText(this.dinhDangTien.format(baoCao.doanhThuDichVu()));
+
+		this.lblDoanhThuPhuTung.setText(this.dinhDangTien.format(baoCao.doanhThuPhuTung()));
+
+		this.lblSoHoaDon.setText(String.valueOf(baoCao.soLuongHoaDon()));
 	}
 
 	private JPanel taoNoiDung() {
@@ -138,15 +212,12 @@ public class DoanhThuPage extends AbstractPage {
 
 		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
 
-		// dữ liệu mẫu cho chart
-		dataset.setValue(I18nReaderUtil.get("app.menu.servicePriceList"), 5);
-		dataset.setValue(I18nReaderUtil.get("app.menu.inventory"), 5);
-
 		this.pnlBieuDo = new ChartPanel(ChartFactory.createPieChart(null, dataset, true, true, false));
 
 		JFreeChart bieuDo = this.pnlBieuDo.getChart();
 
-		PiePlot<?> piePlot = (PiePlot<?>) bieuDo.getPlot();
+		@SuppressWarnings("unchecked")
+		PiePlot<String> piePlot = (PiePlot<String>) bieuDo.getPlot();
 
 		piePlot.setLabelGenerator(
 				new StandardPieSectionLabelGenerator("{2}", new DecimalFormat("#,##0"), new DecimalFormat("0.00%")));
