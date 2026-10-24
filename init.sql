@@ -1,4 +1,15 @@
 -- ============================================================
+-- Gara Ô tô Lúa — schema snapshot để dựng DB thủ công
+-- Nội dung là kết quả cuối cùng của chuỗi infra/migrations/V0..V11
+-- (V0 bảng gốc, V1/V5 cột+độ rộng, V2 khoá ngoại CASCADE, V3 KhieuNai,
+--  V7/V8/V9/V10/V11 độ rộng + unique + cột chốt giảm giá).
+-- Dữ liệu mẫu tương ứng: mock.sql (đã ở trạng thái sau V5/V6).
+--
+-- Quy ước: mỗi migration mới phải được phản chiếu ngay vào tệp này,
+-- sau đó đối chiếu lại DDL để init.sql luôn bằng V0..V(n).
+-- ============================================================
+
+-- ============================================================
 -- TABLE: DichVu
 -- ============================================================
 CREATE TABLE DichVu (
