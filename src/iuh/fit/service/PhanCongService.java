@@ -5,6 +5,8 @@ import iuh.fit.dao.PhanCongDAO;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
+import iuh.fit.enumeration.TrangThaiNhanVien;
+import iuh.fit.enumeration.VaiTro;
 import iuh.fit.util.MaGeneratorUtil;
 
 import java.sql.SQLException;
@@ -29,6 +31,10 @@ public final class PhanCongService {
 
 	public List<PhanCong> getAll() throws SQLException {
 		return this.phanCongDAO.findAll();
+	}
+	
+	public List<NhanVien> getDanhSachNhanVien() throws SQLException {
+	    return this.nhanVienDAO.findAll();
 	}
 
 	public List<PhanCong> search(String maPhanCong, String tenNhanVien, LocalDate tuNgay, LocalDate denNgay,
@@ -133,8 +139,12 @@ public final class PhanCongService {
 			throw new IllegalArgumentException("app.schedule.noteTooLong");
 		}
 
-		if (this.nhanVienDAO.findById(maNhanVienDaChuanHoa).isEmpty()) {
-			throw new IllegalArgumentException("app.schedule.employeeNotFound");
+		NhanVien nhanVien = this.nhanVienDAO.findById(maNhanVienDaChuanHoa)
+		        .orElseThrow(() -> new IllegalArgumentException("app.schedule.employeeNotFound"));
+
+		if (nhanVien.getTrangThai() != TrangThaiNhanVien.HOAT_DONG
+		        || nhanVien.getVaiTro() == VaiTro.NHAN_VIEN_QUAN_LY) {
+		    throw new IllegalArgumentException("app.schedule.employeeNotEligible");
 		}
 
 		boolean biTrungTrongDatabase = this.phanCongDAO.findAll().stream()
@@ -336,5 +346,13 @@ public final class PhanCongService {
 		}
 
 		return lich;
+	}
+
+	public List<NhanVien> getNhanVienCoThePhanCong() throws SQLException {
+		return this.nhanVienDAO.findAll().stream()
+				.filter(nhanVien -> nhanVien.getTrangThai() == TrangThaiNhanVien.HOAT_DONG)
+				.filter(nhanVien -> nhanVien.getVaiTro() != VaiTro.NHAN_VIEN_QUAN_LY)
+				.sorted(Comparator.comparing(NhanVien::getHoTen, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+				.toList();
 	}
 }

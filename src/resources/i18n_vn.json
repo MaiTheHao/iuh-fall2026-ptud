@@ -554,7 +554,8 @@
 			"duplicateAssignment": "Nhân viên đã được phân công vào ca này trong ngày đã chọn.",
 			"assignmentNotFound": "Không tìm thấy phân công.",
 			"assignmentCreateFailed": "Thêm phân công thất bại.",
-			"assignmentDeleteFailed": "Xóa phân công thất bại."
+			"assignmentDeleteFailed": "Xóa phân công thất bại.",
+			"employeeNotEligible": "Nhân viên này không đủ điều kiện để được phân ca."
 		},
 		"report": {
 			"revenue": {

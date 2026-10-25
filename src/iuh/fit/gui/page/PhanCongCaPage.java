@@ -2,7 +2,6 @@ package iuh.fit.gui.page;
 
 import com.github.lgooddatepicker.components.DatePicker;
 
-import iuh.fit.dao.NhanVienDAO;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
@@ -22,6 +21,8 @@ import javax.swing.JTextField;
 import javax.swing.JSplitPane;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -31,6 +32,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 
 public class PhanCongCaPage extends AbstractPage {
 
@@ -43,15 +45,12 @@ public class PhanCongCaPage extends AbstractPage {
 	private ManagementFormPanel managementFormPanel;
 
 	private final JTextField txtMaPhanCong = new JTextField(14);
-	private final JTextField txtNhanVien = new JTextField(14);
+	private final JComboBox<NhanVien> cboNhanVien = new JComboBox<>();
 	private final DatePicker dpNgayLam = BoChonNgayGio.taoBoChonNgay();
 	private final JComboBox<CaLamViec> cboCaLam = new JComboBox<>(CaLamViec.values());
 	private final JTextField txtGhiChu = new JTextField(14);
 
 	private final PhanCongService phanCongService = new PhanCongService();
-	private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
-
-	private final List<PhanCong> danhSachChoLuu = new ArrayList<>();
 
 	private JTextField boLocMa;
 	private JTextField boLocNhanVien;
@@ -60,11 +59,10 @@ public class PhanCongCaPage extends AbstractPage {
 	private JTextField boLocGhiChu;
 
 	private int trangHienTai = 1;
-	private int demMaTam;
 
 	public PhanCongCaPage() {
 		this.setLayout(new BorderLayout());
-		this.dpNgayLam.getSettings().setFormatForDatesCommonEra(DATE_FORMATTER);
+		this.dpNgayLam.getSettings().setFormatForDatesCommonEra("dd/MM/yyyy");
 	}
 
 	@Override
@@ -76,6 +74,7 @@ public class PhanCongCaPage extends AbstractPage {
 		this.managementFormPanel = new ManagementFormPanel("app.schedule.assignmentId");
 
 		this.khoiTaoForm();
+		this.taiDanhSachNhanVien();
 		this.khoiTaoDanhSach();
 		this.ganSuKien();
 
@@ -103,7 +102,24 @@ public class PhanCongCaPage extends AbstractPage {
 		this.cboCaLam.setRenderer(BoHienThiI18n.tao());
 
 		this.managementFormPanel.addField("app.schedule.assignmentId", this.txtMaPhanCong);
-		this.managementFormPanel.addField("app.schedule.employee", this.txtNhanVien);
+		this.cboNhanVien.setRenderer(new DefaultListCellRenderer() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+					boolean cellHasFocus) {
+
+				String hienThi = "";
+
+				if (value instanceof NhanVien nhanVien) {
+					hienThi = nhanVien.getHoTen() + " (" + nhanVien.getMaNhanVien() + ")";
+				}
+
+				return super.getListCellRendererComponent(list, hienThi, index, isSelected, cellHasFocus);
+			}
+		});
+
+		this.managementFormPanel.addField("app.schedule.employee", this.cboNhanVien);
 		this.managementFormPanel.addField("app.schedule.date", this.dpNgayLam);
 		this.managementFormPanel.addField("app.schedule.shift", this.cboCaLam);
 		this.managementFormPanel.addField("app.schedule.note", this.txtGhiChu);
@@ -186,92 +202,148 @@ public class PhanCongCaPage extends AbstractPage {
 	}
 
 	private void themVaoBang() {
-		try {
-			String maNhanVien = this.txtNhanVien.getText().trim();
-			LocalDate ngayLam = this.dpNgayLam.getDate();
-			CaLamViec caLamViec = (CaLamViec) this.cboCaLam.getSelectedItem();
-			String ghiChu = this.txtGhiChu.getText().trim();
+	    NhanVien nhanVien = (NhanVien) this.cboNhanVien.getSelectedItem();
 
-			this.phanCongService.kiemTraDuLieuTao(maNhanVien, ngayLam, caLamViec, ghiChu, this.danhSachChoLuu);
+	    if (nhanVien == null) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.schedule.employeeRequired"),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
 
-			PhanCong phanCong = new PhanCong("TMP-" + this.demMaTam++, maNhanVien, ngayLam.getDayOfMonth(),
-					ngayLam.getMonthValue(), ngayLam.getYear(), caLamViec, ghiChu.isBlank() ? null : ghiChu);
+	    LocalDate ngayLam = this.dpNgayLam.getDate();
+	    CaLamViec caLamViec = (CaLamViec) this.cboCaLam.getSelectedItem();
+	    String ghiChu = this.txtGhiChu.getText();
 
-			this.danhSachChoLuu.add(phanCong);
+	    try {
+	        this.phanCongService.create(
+	                nhanVien.getMaNhanVien(),
+	                ngayLam,
+	                caLamViec,
+	                ghiChu);
 
-			this.trangHienTai = 1;
-			this.taiLaiDanhSach();
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.schedule.assignmentCreated"),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.INFORMATION_MESSAGE);
 
-			this.lamMoiForm();
+	        this.lamMoiForm();
+	        this.trangHienTai = 1;
+	        this.taiLaiDanhSach();
 
-		} catch (IllegalArgumentException | IllegalStateException ex) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get(ex.getMessage()),
-					I18nReaderUtil.get("app.common.error"), JOptionPane.WARNING_MESSAGE);
-		} catch (SQLException ex) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.common.error"),
-					I18nReaderUtil.get("app.common.error"), JOptionPane.ERROR_MESSAGE);
-		}
+	    } catch (IllegalArgumentException | IllegalStateException ex) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get(ex.getMessage()),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.WARNING_MESSAGE);
+
+	    } catch (SQLException ex) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.ERROR_MESSAGE);
+	    }
 	}
 
 	private void taiLaiDanhSach() {
-		try {
-			Object giaTriCa = this.boLocCa.giaTri();
+	    try {
+	        Object giaTriCa = this.boLocCa.giaTri();
+	        CaLamViec caLamViec =
+	                giaTriCa instanceof CaLamViec ca ? ca : null;
 
-			CaLamViec caLamViec = giaTriCa instanceof CaLamViec ca ? ca : null;
+	        List<PhanCong> danhSach = this.phanCongService.search(
+	                this.boLocMa.getText(),
+	                this.boLocNhanVien.getText(),
+	                this.boLocNgay.tuNgay(),
+	                this.boLocNgay.denNgay(),
+	                caLamViec,
+	                this.boLocGhiChu.getText(),
+	                this.managementPanel.getQuickFilter());
 
-			List<PhanCong> danhSach = this.phanCongService.search(this.boLocMa.getText(), this.boLocNhanVien.getText(),
-					this.boLocNgay.tuNgay(), this.boLocNgay.denNgay(), caLamViec, this.boLocGhiChu.getText(),
-					this.managementPanel.getQuickFilter());
+	        int tongSoDong = danhSach.size();
+	        int tongSoTrang = Math.max(
+	                1,
+	                (int) Math.ceil((double) tongSoDong / PAGE_SIZE));
 
-			int tongSoDong = danhSach.size();
-			int tongSoTrang = Math.max(1, (int) Math.ceil((double) tongSoDong / PAGE_SIZE));
+	        if (this.trangHienTai > tongSoTrang) {
+	            this.trangHienTai = tongSoTrang;
+	        }
 
-			if (this.trangHienTai > tongSoTrang) {
-				this.trangHienTai = tongSoTrang;
-			}
+	        if (this.trangHienTai < 1) {
+	            this.trangHienTai = 1;
+	        }
 
-			if (this.trangHienTai < 1) {
-				this.trangHienTai = 1;
-			}
+	        int viTriBatDau = (this.trangHienTai - 1) * PAGE_SIZE;
+	        int viTriKetThuc = Math.min(
+	                viTriBatDau + PAGE_SIZE,
+	                tongSoDong);
 
-			int viTriBatDau = (this.trangHienTai - 1) * PAGE_SIZE;
-			int viTriKetThuc = Math.min(viTriBatDau + PAGE_SIZE, tongSoDong);
+	        List<PhanCong> trangDuLieu = tongSoDong == 0
+	                ? List.of()
+	                : danhSach.subList(viTriBatDau, viTriKetThuc);
 
-			List<PhanCong> trangDuLieu = tongSoDong == 0 ? List.of() : danhSach.subList(viTriBatDau, viTriKetThuc);
+	        java.util.Map<String, String> tenNhanVienTheoMa =
+	                new java.util.HashMap<>();
 
-			List<NhanVien> nhanViens = this.nhanVienDAO.findAll();
+	        for (int i = 0; i < this.cboNhanVien.getItemCount(); i++) {
+	            NhanVien nhanVien = this.cboNhanVien.getItemAt(i);
 
-			java.util.Map<String, String> tenNhanVienTheoMa = new java.util.HashMap<>();
+	            tenNhanVienTheoMa.put(
+	                    nhanVien.getMaNhanVien(),
+	                    nhanVien.getHoTen() == null
+	                            ? ""
+	                            : nhanVien.getHoTen());
+	        }
 
-			for (NhanVien nhanVien : nhanViens) {
-				tenNhanVienTheoMa.put(nhanVien.getMaNhanVien(), nhanVien.getHoTen());
-			}
+	        List<Object[]> duLieu = new ArrayList<>();
 
-			List<Object[]> duLieu = new ArrayList<>();
+	        for (PhanCong phanCong : trangDuLieu) {
+	            LocalDate ngayLam = LocalDate.of(
+	                    phanCong.getNam(),
+	                    phanCong.getThang(),
+	                    phanCong.getNgay());
 
-			for (PhanCong phanCong : trangDuLieu) {
-				LocalDate ngayLam = LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay());
+	            duLieu.add(new Object[] {
+	                    phanCong.getMaPhanCong(),
+	                    tenNhanVienTheoMa.getOrDefault(
+	                            phanCong.getMaNhanVien(),
+	                            phanCong.getMaNhanVien()),
+	                    ngayLam,
+	                    phanCong.getCaLamViec(),
+	                    phanCong.getGhiChu() == null
+	                            ? ""
+	                            : phanCong.getGhiChu()
+	            });
+	        }
 
-				duLieu.add(new Object[] { phanCong.getMaPhanCong(),
-						tenNhanVienTheoMa.getOrDefault(phanCong.getMaNhanVien(), phanCong.getMaNhanVien()), ngayLam,
-						phanCong.getCaLamViec(), phanCong.getGhiChu() == null ? "" : phanCong.getGhiChu() });
-			}
+	        this.managementPanel.setRows(duLieu);
 
-			this.managementPanel.setRows(duLieu);
+	        long tuDong = tongSoDong == 0
+	                ? 0
+	                : viTriBatDau + 1L;
+	        long denDong = viTriKetThuc;
 
-			long tuDong = tongSoDong == 0 ? 0 : viTriBatDau + 1L;
-			long denDong = viTriKetThuc;
+	        this.managementPanel.setCount(
+	                tuDong,
+	                denDong,
+	                tongSoDong);
 
-			this.managementPanel.setCount(tuDong, denDong, tongSoDong);
+	        this.managementPanel.setPage(
+	                this.trangHienTai,
+	                tongSoTrang);
 
-			this.managementPanel.setPage(this.trangHienTai, tongSoTrang);
-
-		} catch (SQLException ex) {
-			ex.printStackTrace();
-
-			JOptionPane.showMessageDialog(this, "Không thể tải danh sách phân công: " + ex.getMessage(),
-					I18nReaderUtil.get("app.title"), JOptionPane.ERROR_MESSAGE);
-		}
+	    } catch (SQLException ex) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.ERROR_MESSAGE);
+	    }
 	}
 
 	private void chonDong() {
@@ -302,7 +374,17 @@ public class PhanCongCaPage extends AbstractPage {
 
 			this.txtMaPhanCong.setText(phanCong.getMaPhanCong());
 
-			this.txtNhanVien.setText(phanCong.getMaNhanVien());
+			this.cboNhanVien.setSelectedIndex(-1);
+
+			for (int i = 0; i < this.cboNhanVien.getItemCount(); i++) {
+			    NhanVien nhanVien = this.cboNhanVien.getItemAt(i);
+
+			    if (nhanVien.getMaNhanVien().equals(
+			            phanCong.getMaNhanVien())) {
+			        this.cboNhanVien.setSelectedIndex(i);
+			        break;
+			    }
+			}
 
 			this.dpNgayLam.setDate(LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay()));
 
@@ -317,39 +399,66 @@ public class PhanCongCaPage extends AbstractPage {
 	}
 
 	private void luu() {
-		String maPhanCong = this.txtMaPhanCong.getText().trim();
-		String maNhanVien = this.txtNhanVien.getText().trim();
-		LocalDate ngayLam = this.dpNgayLam.getDate();
-		CaLamViec caLamViec = (CaLamViec) this.cboCaLam.getSelectedItem();
-		String ghiChu = this.txtGhiChu.getText();
+	    String maPhanCong = this.txtMaPhanCong.getText().trim();
 
-		try {
-			if (maPhanCong.isEmpty()) {
-				this.phanCongService.create(maNhanVien, ngayLam, caLamViec, ghiChu);
+	    if (maPhanCong.isEmpty()) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.schedule.employeeRequired"),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
 
-				JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.schedule.assignmentCreated"),
-						I18nReaderUtil.get("app.title"), JOptionPane.INFORMATION_MESSAGE);
-			} else {
-				this.phanCongService.update(maPhanCong, maNhanVien, ngayLam, caLamViec, ghiChu);
+	    NhanVien nhanVien =
+	            (NhanVien) this.cboNhanVien.getSelectedItem();
 
-				JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.schedule.assignmentUpdated"),
-						I18nReaderUtil.get("app.title"), JOptionPane.INFORMATION_MESSAGE);
-			}
+	    if (nhanVien == null) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.schedule.employeeRequired"),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
 
-			this.lamMoiForm();
-			this.trangHienTai = 1;
-			this.taiLaiDanhSach();
+	    LocalDate ngayLam = this.dpNgayLam.getDate();
+	    CaLamViec caLamViec =
+	            (CaLamViec) this.cboCaLam.getSelectedItem();
+	    String ghiChu = this.txtGhiChu.getText();
 
-		} catch (IllegalArgumentException | IllegalStateException ex) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get(ex.getMessage()), I18nReaderUtil.get("app.title"),
-					JOptionPane.WARNING_MESSAGE);
+	    try {
+	        this.phanCongService.update(
+	                maPhanCong,
+	                nhanVien.getMaNhanVien(),
+	                ngayLam,
+	                caLamViec,
+	                ghiChu);
 
-		} catch (SQLException ex) {
-			ex.printStackTrace();
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.schedule.assignmentUpdated"),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.INFORMATION_MESSAGE);
 
-			JOptionPane.showMessageDialog(this, ex.getMessage(), I18nReaderUtil.get("app.title"),
-					JOptionPane.ERROR_MESSAGE);
-		}
+	        this.lamMoiForm();
+	        this.trangHienTai = 1;
+	        this.taiLaiDanhSach();
+
+	    } catch (IllegalArgumentException | IllegalStateException ex) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get(ex.getMessage()),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.WARNING_MESSAGE);
+
+	    } catch (SQLException ex) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.ERROR_MESSAGE);
+	    }
 	}
 
 	private void xoa() {
@@ -389,9 +498,30 @@ public class PhanCongCaPage extends AbstractPage {
 		}
 	}
 
+	private void taiDanhSachNhanVien() {
+	    try {
+	        List<NhanVien> danhSach =
+	                this.phanCongService.getDanhSachNhanVien();
+
+	        this.cboNhanVien.removeAllItems();
+
+	        for (NhanVien nhanVien : danhSach) {
+	            this.cboNhanVien.addItem(nhanVien);
+	        }
+	    } catch (SQLException ex) {
+	        JOptionPane.showMessageDialog(
+	                this,
+	                I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+	                I18nReaderUtil.get("app.title"),
+	                JOptionPane.ERROR_MESSAGE);
+	    }
+	}
+
 	private void lamMoiForm() {
 		this.txtMaPhanCong.setText("");
-		this.txtNhanVien.setText("");
+		if (this.cboNhanVien.getItemCount() > 0) {
+			this.cboNhanVien.setSelectedIndex(0);
+		}
 		this.dpNgayLam.clear();
 		this.cboCaLam.setSelectedIndex(0);
 		this.txtGhiChu.setText("");
