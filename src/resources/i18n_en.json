@@ -554,7 +554,8 @@
 			"duplicateAssignment": "This employee is already assigned to this shift on the selected date.",
 			"assignmentNotFound": "Assignment not found.",
 			"assignmentCreateFailed": "Failed to create assignment.",
-			"assignmentDeleteFailed": "Failed to delete assignment."
+			"assignmentDeleteFailed": "Failed to delete assignment.",
+			"employeeNotEligible": "This employee is not eligible for shift assignment."
 		},
 		"report": {
 			"revenue": {
