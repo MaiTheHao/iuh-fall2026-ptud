@@ -1,7 +1,7 @@
 # E2E P2 — Tiếp nhận và khiếu nại
 
 - **Người test:** Trần Nguyễn Hữu Thắng · **Nhánh:** `test/e2e-p2-tiep-nhan-khieu-nai`
-- **Ngày chạy:** ____/____/2026 · **Commit `develop`:** ________ · **DB:** sạch, migration `V0`–`V11` + dữ liệu mẫu
+- **Ngày chạy:** 26/10/2026 · **Commit `develop`:** chưa ghi nhận · **DB:** sạch, migration `V0`–`V11` + dữ liệu mẫu
 - **Màn phạm vi:** SCR-04, 04B, 04C, 04D, SCR-16, 16B
 - **Quy ước:** dữ liệu tự tạo có tiền tố `E2E-P2`. Điền `PASS / NO` ngay sau mỗi kịch bản; `NO` thì bắt buộc mô tả lỗi theo mẫu trong file hướng dẫn.
 
@@ -16,9 +16,11 @@
 3. Kiểm tra DB: `KhachHang`, `Xe`, `KhachHangXe`, `PhieuTiepNhan`.
 **Kết quả mong đợi:** thông báo thành công; có 1 khách, 1 xe, 1 liên kết khách–xe, 1 phiếu tiếp nhận có nhân viên là người đang đăng nhập; tất cả được ghi trong cùng một lần lưu.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: tiếp nhận khách mới và xe mới thành công; kết quả đạt yêu cầu.
 
 ---
 
@@ -30,9 +32,11 @@
 3. Kiểm tra DB.
 **Kết quả mong đợi:** (1) không tạo khách/xe trùng, chỉ thêm 1 phiếu mới; (2) dùng lại khách, tạo xe mới, thêm liên kết khách–xe mới, thêm phiếu; không lỗi trùng sdt/biển số.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: tái sử dụng khách hàng và xe có sẵn, không phát sinh lỗi theo kết quả kiểm thử.
 
 ---
 
@@ -44,9 +48,11 @@
 3. Kiểm tra DB và danh sách khách ở SCR-03.
 **Kết quả mong đợi:** có thông báo lỗi rõ; **không** tạo khách `0910000002` mồ côi, không có xe hay phiếu dở (transaction được hoàn tác).
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: trường hợp lưu dữ liệu không hợp lệ được xử lý theo yêu cầu; không để lại dữ liệu dở.
 
 ---
 
@@ -58,9 +64,11 @@
 3. Xóa lọc; chuyển trang.
 **Kết quả mong đợi:** phiếu mới hiển thị đúng khách, xe, ngày; trạng thái hiện **nhãn tiếng Việt**; lọc/xóa lọc/phân trang đúng.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: danh sách, bộ lọc và phân trang hoạt động đúng theo kết quả kiểm thử.
 
 ---
 
@@ -71,9 +79,11 @@
 2. Sửa với dữ liệu không hợp lệ (trường bắt buộc rỗng).
 **Kết quả mong đợi:** (1) thay đổi được lưu, danh sách và DB khớp; (2) bị chặn kèm thông báo rõ, dữ liệu cũ giữ nguyên.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: sửa phiếu tiếp nhận thành công theo kết quả kiểm thử.
 
 ---
 
@@ -84,9 +94,11 @@
 2. Thử hủy một phiếu đã có hóa đơn (dữ liệu mẫu hoặc tạo từ P3).
 **Kết quả mong đợi:** (1) phiếu chuyển sang trạng thái hủy hoặc bị xóa theo thiết kế, hiển thị nhãn tiếng Việt; (2) hành vi rõ ràng, không văng lỗi, không làm hỏng hóa đơn liên quan. Ghi lại thực tế đã xảy ra.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Khi bấm hủy phiếu tiếp nhận đã có hóa đơn, trang quản lý phiếu tiếp nhận hiển thị trạng thái đã hủy. Tuy nhiên, trang quản lý hóa đơn không thay đổi và dữ liệu trong cơ sở dữ liệu cũng không thay đổi.
 
 ---
 
@@ -99,9 +111,11 @@
 4. Kiểm tra DB bảng `VanDeKyThuat`.
 **Kết quả mong đợi:** lưu thành công; mã bắt đầu bằng `VD`, không trùng; `khachHangDongY` mặc định `CHUA_XAC_NHAN`; biên 1 và 100 đều chấp nhận; một phiếu có thể có nhiều chẩn đoán.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: lập chẩn đoán hợp lệ thành công.
 
 ---
 
@@ -110,9 +124,11 @@
 **Các bước:** lập chẩn đoán với: tiêu đề rỗng; tiêu đề toàn khoảng trắng; mức ưu tiên `0`; `101`; `-5`; chữ `abc`; để trống mức ưu tiên.
 **Kết quả mong đợi:** mỗi trường hợp bị chặn với thông báo lỗi bằng tiếng Việt, không lưu, không văng lỗi (ràng buộc `CK_VanDeKyThuat_MucDoUuTien` 1–100 không bao giờ bị DB từ chối trần trụi).
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Các trường hợp kiểm tra dữ liệu chẩn đoán đạt yêu cầu theo kết quả kiểm thử. Ghi chú nhỏ: khi nhập `abc` vào mức độ ưu tiên, thông báo hiển thị là `warning` thay vì `error`.
 
 ---
 
@@ -121,9 +137,11 @@
 **Các bước:** mở SCR-04D khi có nhiều phiếu; tìm/lọc phiếu; kiểm tra tên khách hiển thị; chọn phiếu khác nhau.
 **Kết quả mong đợi:** danh sách lấy qua tìm kiếm phía service, tên khách đúng từng phiếu, tốc độ chấp nhận được, chọn phiếu nào lập chẩn đoán đúng phiếu đó.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: danh sách phiếu ở SCR-04D và thao tác chọn phiếu hoạt động đúng.
 
 ---
 
@@ -136,9 +154,11 @@
 4. Quay lại SCR-04B.
 **Kết quả mong đợi:** không có mục menu; SCR-04C chỉ đọc, hiện đúng chẩn đoán của **đúng phiếu đã chọn** (đủ cả các chẩn đoán ở P2-07); phiếu không có chẩn đoán hiện trạng thái rỗng, không lỗi; quay lại được.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: xem chẩn đoán hoạt động đúng và mục này được ẩn khỏi menu.
 
 ---
 
@@ -150,9 +170,11 @@
 3. Kiểm tra DB bảng `KhieuNai`.
 **Kết quả mong đợi:** tra ra đúng khách; danh sách phiếu chỉ gồm phiếu của khách đó; khiếu nại gắn đúng khách + phiếu, trạng thái ban đầu `CHUA_XU_LY`.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: tiếp nhận khiếu nại thành công.
 
 ---
 
@@ -161,9 +183,11 @@
 **Các bước:** sdt không tồn tại; sdt rỗng; không chọn phiếu; nội dung rỗng / toàn khoảng trắng; nội dung rất dài.
 **Kết quả mong đợi:** mỗi trường hợp có thông báo rõ bằng tiếng Việt, không lưu bản ghi sai, không văng lỗi.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Danh sách phiếu tiếp nhận không có dữ liệu để chọn khi mở chức năng. Sau khi tìm kiếm bằng số điện thoại khách hàng thì phiếu tiếp nhận mới xuất hiện. Ngoài ra, nội dung khiếu nại rất dài vẫn được lưu thành công.
 
 ---
 
@@ -176,9 +200,11 @@
 4. Xóa khiếu nại `E2E-P2`.
 **Kết quả mong đợi:** mỗi lần đổi trạng thái lưu đúng (kiểm tra DB), nhãn tiếng Việt; lọc/phân trang đúng; xóa thành công và bản ghi biến mất.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: lọc khiếu nại, đổi trạng thái và xóa hoạt động đúng theo kết quả kiểm thử.
 
 ---
 
@@ -187,14 +213,17 @@
 **Các bước:** tạo phiếu mới ở SCR-04, mở SCR-10 và chọn phiếu đó để lập hóa đơn (chỉ cần chọn được và hiển thị đúng khách/xe; không bắt buộc lưu).
 **Kết quả mong đợi:** phiếu mới xuất hiện ngay trong danh sách chọn phiếu của SCR-10 với đúng thông tin khách/xe.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+
+Đã kiểm thử: phiếu tiếp nhận được tạo ở P2 có thể chọn ở P3 và hiển thị đúng thông tin theo kết quả kiểm thử.
 
 ---
 
 ## Tổng kết
 
-- Số kịch bản: 14 · **PASS:** ____ · **NO:** ____
+- Số kịch bản: 14 · **PASS:** 12 · **NO:** 2
 - Ghi chú thêm của người test:
->
+  - E2E-P2-08 được ghi nhận PASS theo kết quả kiểm thử, đồng thời lưu ý nhỏ về loại thông báo validation (`warning` thay vì `error`).
+  - E2E-P2-06 và E2E-P2-12 cần được kiểm tra/khắc phục theo mô tả thực tế ở từng kịch bản.
