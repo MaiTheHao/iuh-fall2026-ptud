@@ -315,9 +315,9 @@ public class DoanhThuPage extends AbstractPage {
 
 		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.revenue.exportExcel"));
 
-		fileChooser.setSelectedFile(new File("BaoCaoDoanhThu.csv"));
+		fileChooser.setSelectedFile(new File("BaoCaoDoanhThu.xlsx"));
 
-		fileChooser.setFileFilter(new FileNameExtensionFilter("CSV (*.csv)", "csv"));
+		fileChooser.setFileFilter(new FileNameExtensionFilter("XLSX (*.xlsx)", "xlsx"));
 
 		if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
 			return;

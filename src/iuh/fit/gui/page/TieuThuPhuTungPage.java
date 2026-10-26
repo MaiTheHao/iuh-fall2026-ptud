@@ -236,8 +236,8 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.parts.export"));
-		fileChooser.setSelectedFile(new File("BaoCaoTieuThuPhuTung.csv"));
-		fileChooser.setFileFilter(new FileNameExtensionFilter("CSV (*.csv)", "csv"));
+		fileChooser.setSelectedFile(new File("BaoCaoTieuThuPhuTung.xlsx"));
+		fileChooser.setFileFilter(new FileNameExtensionFilter("XLSX (*.xlsx)", "xlsx"));
 
 		if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
 			return;
