@@ -32,9 +32,9 @@ public final class PhanCongService {
 	public List<PhanCong> getAll() throws SQLException {
 		return this.phanCongDAO.findAll();
 	}
-	
+
 	public List<NhanVien> getDanhSachNhanVien() throws SQLException {
-	    return this.nhanVienDAO.findAll();
+		return this.nhanVienDAO.findAll();
 	}
 
 	public List<PhanCong> search(String maPhanCong, String tenNhanVien, LocalDate tuNgay, LocalDate denNgay,
@@ -140,11 +140,11 @@ public final class PhanCongService {
 		}
 
 		NhanVien nhanVien = this.nhanVienDAO.findById(maNhanVienDaChuanHoa)
-		        .orElseThrow(() -> new IllegalArgumentException("app.schedule.employeeNotFound"));
+				.orElseThrow(() -> new IllegalArgumentException("app.schedule.employeeNotFound"));
 
 		if (nhanVien.getTrangThai() != TrangThaiNhanVien.HOAT_DONG
-		        || nhanVien.getVaiTro() == VaiTro.NHAN_VIEN_QUAN_LY) {
-		    throw new IllegalArgumentException("app.schedule.employeeNotEligible");
+				|| nhanVien.getVaiTro() == VaiTro.NHAN_VIEN_QUAN_LY) {
+			throw new IllegalArgumentException("app.schedule.employeeNotEligible");
 		}
 
 		boolean biTrungTrongDatabase = this.phanCongDAO.findAll().stream()

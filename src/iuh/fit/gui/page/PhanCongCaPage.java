@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 public class PhanCongCaPage extends AbstractPage {
 
 	private static final long serialVersionUID = 1L;
@@ -202,148 +201,94 @@ public class PhanCongCaPage extends AbstractPage {
 	}
 
 	private void themVaoBang() {
-	    NhanVien nhanVien = (NhanVien) this.cboNhanVien.getSelectedItem();
+		NhanVien nhanVien = (NhanVien) this.cboNhanVien.getSelectedItem();
 
-	    if (nhanVien == null) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.schedule.employeeRequired"),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.WARNING_MESSAGE);
-	        return;
-	    }
+		if (nhanVien == null) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.schedule.employeeRequired"),
+					I18nReaderUtil.get("app.title"), JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 
-	    LocalDate ngayLam = this.dpNgayLam.getDate();
-	    CaLamViec caLamViec = (CaLamViec) this.cboCaLam.getSelectedItem();
-	    String ghiChu = this.txtGhiChu.getText();
+		LocalDate ngayLam = this.dpNgayLam.getDate();
+		CaLamViec caLamViec = (CaLamViec) this.cboCaLam.getSelectedItem();
+		String ghiChu = this.txtGhiChu.getText();
 
-	    try {
-	        this.phanCongService.create(
-	                nhanVien.getMaNhanVien(),
-	                ngayLam,
-	                caLamViec,
-	                ghiChu);
+		try {
+			this.phanCongService.create(nhanVien.getMaNhanVien(), ngayLam, caLamViec, ghiChu);
 
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.schedule.assignmentCreated"),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.schedule.assignmentCreated"),
+					I18nReaderUtil.get("app.title"), JOptionPane.INFORMATION_MESSAGE);
 
-	        this.lamMoiForm();
-	        this.trangHienTai = 1;
-	        this.taiLaiDanhSach();
+			this.lamMoiForm();
+			this.trangHienTai = 1;
+			this.taiLaiDanhSach();
 
-	    } catch (IllegalArgumentException | IllegalStateException ex) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get(ex.getMessage()),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.WARNING_MESSAGE);
+		} catch (IllegalArgumentException | IllegalStateException ex) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get(ex.getMessage()), I18nReaderUtil.get("app.title"),
+					JOptionPane.WARNING_MESSAGE);
 
-	    } catch (SQLException ex) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.common.loiKhongXacDinh"),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.ERROR_MESSAGE);
-	    }
+		} catch (SQLException ex) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+					I18nReaderUtil.get("app.title"), JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private void taiLaiDanhSach() {
-	    try {
-	        Object giaTriCa = this.boLocCa.giaTri();
-	        CaLamViec caLamViec =
-	                giaTriCa instanceof CaLamViec ca ? ca : null;
+		try {
+			Object giaTriCa = this.boLocCa.giaTri();
+			CaLamViec caLamViec = giaTriCa instanceof CaLamViec ca ? ca : null;
 
-	        List<PhanCong> danhSach = this.phanCongService.search(
-	                this.boLocMa.getText(),
-	                this.boLocNhanVien.getText(),
-	                this.boLocNgay.tuNgay(),
-	                this.boLocNgay.denNgay(),
-	                caLamViec,
-	                this.boLocGhiChu.getText(),
-	                this.managementPanel.getQuickFilter());
+			List<PhanCong> danhSach = this.phanCongService.search(this.boLocMa.getText(), this.boLocNhanVien.getText(),
+					this.boLocNgay.tuNgay(), this.boLocNgay.denNgay(), caLamViec, this.boLocGhiChu.getText(),
+					this.managementPanel.getQuickFilter());
 
-	        int tongSoDong = danhSach.size();
-	        int tongSoTrang = Math.max(
-	                1,
-	                (int) Math.ceil((double) tongSoDong / PAGE_SIZE));
+			int tongSoDong = danhSach.size();
+			int tongSoTrang = Math.max(1, (int) Math.ceil((double) tongSoDong / PAGE_SIZE));
 
-	        if (this.trangHienTai > tongSoTrang) {
-	            this.trangHienTai = tongSoTrang;
-	        }
+			if (this.trangHienTai > tongSoTrang) {
+				this.trangHienTai = tongSoTrang;
+			}
 
-	        if (this.trangHienTai < 1) {
-	            this.trangHienTai = 1;
-	        }
+			if (this.trangHienTai < 1) {
+				this.trangHienTai = 1;
+			}
 
-	        int viTriBatDau = (this.trangHienTai - 1) * PAGE_SIZE;
-	        int viTriKetThuc = Math.min(
-	                viTriBatDau + PAGE_SIZE,
-	                tongSoDong);
+			int viTriBatDau = (this.trangHienTai - 1) * PAGE_SIZE;
+			int viTriKetThuc = Math.min(viTriBatDau + PAGE_SIZE, tongSoDong);
 
-	        List<PhanCong> trangDuLieu = tongSoDong == 0
-	                ? List.of()
-	                : danhSach.subList(viTriBatDau, viTriKetThuc);
+			List<PhanCong> trangDuLieu = tongSoDong == 0 ? List.of() : danhSach.subList(viTriBatDau, viTriKetThuc);
 
-	        java.util.Map<String, String> tenNhanVienTheoMa =
-	                new java.util.HashMap<>();
+			java.util.Map<String, String> tenNhanVienTheoMa = new java.util.HashMap<>();
 
-	        for (int i = 0; i < this.cboNhanVien.getItemCount(); i++) {
-	            NhanVien nhanVien = this.cboNhanVien.getItemAt(i);
+			for (int i = 0; i < this.cboNhanVien.getItemCount(); i++) {
+				NhanVien nhanVien = this.cboNhanVien.getItemAt(i);
 
-	            tenNhanVienTheoMa.put(
-	                    nhanVien.getMaNhanVien(),
-	                    nhanVien.getHoTen() == null
-	                            ? ""
-	                            : nhanVien.getHoTen());
-	        }
+				tenNhanVienTheoMa.put(nhanVien.getMaNhanVien(), nhanVien.getHoTen() == null ? "" : nhanVien.getHoTen());
+			}
 
-	        List<Object[]> duLieu = new ArrayList<>();
+			List<Object[]> duLieu = new ArrayList<>();
 
-	        for (PhanCong phanCong : trangDuLieu) {
-	            LocalDate ngayLam = LocalDate.of(
-	                    phanCong.getNam(),
-	                    phanCong.getThang(),
-	                    phanCong.getNgay());
+			for (PhanCong phanCong : trangDuLieu) {
+				LocalDate ngayLam = LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay());
 
-	            duLieu.add(new Object[] {
-	                    phanCong.getMaPhanCong(),
-	                    tenNhanVienTheoMa.getOrDefault(
-	                            phanCong.getMaNhanVien(),
-	                            phanCong.getMaNhanVien()),
-	                    ngayLam,
-	                    phanCong.getCaLamViec(),
-	                    phanCong.getGhiChu() == null
-	                            ? ""
-	                            : phanCong.getGhiChu()
-	            });
-	        }
+				duLieu.add(new Object[] { phanCong.getMaPhanCong(),
+						tenNhanVienTheoMa.getOrDefault(phanCong.getMaNhanVien(), phanCong.getMaNhanVien()), ngayLam,
+						phanCong.getCaLamViec(), phanCong.getGhiChu() == null ? "" : phanCong.getGhiChu() });
+			}
 
-	        this.managementPanel.setRows(duLieu);
+			this.managementPanel.setRows(duLieu);
 
-	        long tuDong = tongSoDong == 0
-	                ? 0
-	                : viTriBatDau + 1L;
-	        long denDong = viTriKetThuc;
+			long tuDong = tongSoDong == 0 ? 0 : viTriBatDau + 1L;
+			long denDong = viTriKetThuc;
 
-	        this.managementPanel.setCount(
-	                tuDong,
-	                denDong,
-	                tongSoDong);
+			this.managementPanel.setCount(tuDong, denDong, tongSoDong);
 
-	        this.managementPanel.setPage(
-	                this.trangHienTai,
-	                tongSoTrang);
+			this.managementPanel.setPage(this.trangHienTai, tongSoTrang);
 
-	    } catch (SQLException ex) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.common.loiKhongXacDinh"),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.ERROR_MESSAGE);
-	    }
+		} catch (SQLException ex) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+					I18nReaderUtil.get("app.title"), JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private void chonDong() {
@@ -377,13 +322,12 @@ public class PhanCongCaPage extends AbstractPage {
 			this.cboNhanVien.setSelectedIndex(-1);
 
 			for (int i = 0; i < this.cboNhanVien.getItemCount(); i++) {
-			    NhanVien nhanVien = this.cboNhanVien.getItemAt(i);
+				NhanVien nhanVien = this.cboNhanVien.getItemAt(i);
 
-			    if (nhanVien.getMaNhanVien().equals(
-			            phanCong.getMaNhanVien())) {
-			        this.cboNhanVien.setSelectedIndex(i);
-			        break;
-			    }
+				if (nhanVien.getMaNhanVien().equals(phanCong.getMaNhanVien())) {
+					this.cboNhanVien.setSelectedIndex(i);
+					break;
+				}
 			}
 
 			this.dpNgayLam.setDate(LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay()));
@@ -399,66 +343,44 @@ public class PhanCongCaPage extends AbstractPage {
 	}
 
 	private void luu() {
-	    String maPhanCong = this.txtMaPhanCong.getText().trim();
+		String maPhanCong = this.txtMaPhanCong.getText().trim();
 
-	    if (maPhanCong.isEmpty()) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.schedule.employeeRequired"),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.WARNING_MESSAGE);
-	        return;
-	    }
+		if (maPhanCong.isEmpty()) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.schedule.employeeRequired"),
+					I18nReaderUtil.get("app.title"), JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 
-	    NhanVien nhanVien =
-	            (NhanVien) this.cboNhanVien.getSelectedItem();
+		NhanVien nhanVien = (NhanVien) this.cboNhanVien.getSelectedItem();
 
-	    if (nhanVien == null) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.schedule.employeeRequired"),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.WARNING_MESSAGE);
-	        return;
-	    }
+		if (nhanVien == null) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.schedule.employeeRequired"),
+					I18nReaderUtil.get("app.title"), JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 
-	    LocalDate ngayLam = this.dpNgayLam.getDate();
-	    CaLamViec caLamViec =
-	            (CaLamViec) this.cboCaLam.getSelectedItem();
-	    String ghiChu = this.txtGhiChu.getText();
+		LocalDate ngayLam = this.dpNgayLam.getDate();
+		CaLamViec caLamViec = (CaLamViec) this.cboCaLam.getSelectedItem();
+		String ghiChu = this.txtGhiChu.getText();
 
-	    try {
-	        this.phanCongService.update(
-	                maPhanCong,
-	                nhanVien.getMaNhanVien(),
-	                ngayLam,
-	                caLamViec,
-	                ghiChu);
+		try {
+			this.phanCongService.update(maPhanCong, nhanVien.getMaNhanVien(), ngayLam, caLamViec, ghiChu);
 
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.schedule.assignmentUpdated"),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.schedule.assignmentUpdated"),
+					I18nReaderUtil.get("app.title"), JOptionPane.INFORMATION_MESSAGE);
 
-	        this.lamMoiForm();
-	        this.trangHienTai = 1;
-	        this.taiLaiDanhSach();
+			this.lamMoiForm();
+			this.trangHienTai = 1;
+			this.taiLaiDanhSach();
 
-	    } catch (IllegalArgumentException | IllegalStateException ex) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get(ex.getMessage()),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.WARNING_MESSAGE);
+		} catch (IllegalArgumentException | IllegalStateException ex) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get(ex.getMessage()), I18nReaderUtil.get("app.title"),
+					JOptionPane.WARNING_MESSAGE);
 
-	    } catch (SQLException ex) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.common.loiKhongXacDinh"),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.ERROR_MESSAGE);
-	    }
+		} catch (SQLException ex) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+					I18nReaderUtil.get("app.title"), JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private void xoa() {
@@ -499,22 +421,18 @@ public class PhanCongCaPage extends AbstractPage {
 	}
 
 	private void taiDanhSachNhanVien() {
-	    try {
-	        List<NhanVien> danhSach =
-	                this.phanCongService.getDanhSachNhanVien();
+		try {
+			List<NhanVien> danhSach = this.phanCongService.getDanhSachNhanVien();
 
-	        this.cboNhanVien.removeAllItems();
+			this.cboNhanVien.removeAllItems();
 
-	        for (NhanVien nhanVien : danhSach) {
-	            this.cboNhanVien.addItem(nhanVien);
-	        }
-	    } catch (SQLException ex) {
-	        JOptionPane.showMessageDialog(
-	                this,
-	                I18nReaderUtil.get("app.common.loiKhongXacDinh"),
-	                I18nReaderUtil.get("app.title"),
-	                JOptionPane.ERROR_MESSAGE);
-	    }
+			for (NhanVien nhanVien : danhSach) {
+				this.cboNhanVien.addItem(nhanVien);
+			}
+		} catch (SQLException ex) {
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.common.loiKhongXacDinh"),
+					I18nReaderUtil.get("app.title"), JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private void lamMoiForm() {
