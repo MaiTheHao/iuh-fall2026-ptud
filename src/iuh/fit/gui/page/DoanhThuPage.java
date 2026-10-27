@@ -8,6 +8,7 @@ import iuh.fit.dto.HoaDonDoanhThuDTO;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.service.DoanhThuService;
 import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.XlsxExportUtil;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -37,12 +38,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.print.PrinterException;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -293,7 +290,7 @@ public class DoanhThuPage extends AbstractPage {
 
 		JButton btnIn = new JButton(I18nReaderUtil.get("app.report.revenue.print"));
 
-		JButton btnXuatExcel = new JButton(I18nReaderUtil.get("app.report.revenue.exportExcel"));
+		JButton btnXuatExcel = new JButton(I18nReaderUtil.get("app.report.revenue.export"));
 
 		btnIn.addActionListener(e -> this.inBaoCao());
 		btnXuatExcel.addActionListener(e -> this.xuatBaoCao());
@@ -313,7 +310,7 @@ public class DoanhThuPage extends AbstractPage {
 
 		JFileChooser fileChooser = new JFileChooser();
 
-		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.revenue.exportExcel"));
+		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.revenue.export"));
 
 		fileChooser.setSelectedFile(new File("BaoCaoDoanhThu.xlsx"));
 
@@ -325,41 +322,12 @@ public class DoanhThuPage extends AbstractPage {
 
 		File file = fileChooser.getSelectedFile();
 
-		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".csv")) {
-			file = new File(file.getAbsolutePath() + ".csv");
+		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
+			file = new File(file.getAbsolutePath() + ".xlsx");
 		}
 
-		try (BufferedWriter writer = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-
-			writer.write('\uFEFF');
-
-			for (int column = 0; column < this.modelHoaDon.getColumnCount(); column++) {
-
-				if (column > 0) {
-					writer.write(';');
-				}
-
-				writer.write(this.escCsv(this.modelHoaDon.getColumnName(column)));
-			}
-
-			writer.newLine();
-
-			for (int row = 0; row < this.modelHoaDon.getRowCount(); row++) {
-
-				for (int column = 0; column < this.modelHoaDon.getColumnCount(); column++) {
-
-					if (column > 0) {
-						writer.write(';');
-					}
-
-					Object value = this.modelHoaDon.getValueAt(row, column);
-
-					writer.write(this.escCsv(value == null ? "" : value.toString()));
-				}
-
-				writer.newLine();
-			}
+		try {
+			XlsxExportUtil.write(file, I18nReaderUtil.get("app.menu.revenueReport"), this.modelHoaDon);
 
 			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.exportSuccess"),
 					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
@@ -388,10 +356,6 @@ public class DoanhThuPage extends AbstractPage {
 
 			ex.printStackTrace();
 		}
-	}
-
-	private String escCsv(String value) {
-		return "\"" + value.replace("\"", "\"\"") + "\"";
 	}
 
 	@Override

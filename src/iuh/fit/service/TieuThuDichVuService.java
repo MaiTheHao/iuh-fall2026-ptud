@@ -21,7 +21,7 @@ public class TieuThuDichVuService {
 	public BaoCaoTieuThuDichVuDTO taoBaoCao(YearMonth thang) throws SQLException {
 
 		if (thang == null) {
-			throw new IllegalArgumentException("app.report.services.invalidMonth");
+			throw new IllegalArgumentException("app.report.service.invalidMonth");
 		}
 
 		List<TieuThuDichVuDTO> duLieu = this.tieuThuDichVuDAO.findAll(thang);

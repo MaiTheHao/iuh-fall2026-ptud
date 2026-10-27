@@ -544,6 +544,7 @@
 			"assignmentUpdated": "Cập nhật phân công thành công.",
 			"assignmentDeleted": "Xóa phân công thành công.",
 			"assignmentRequired": "Vui lòng chọn phân công cần xóa.",
+			"assignmentIdRequired": "Vui lòng chọn phân công.",
 			"confirmDelete": "Bạn có chắc chắn muốn xóa phân công này?",
 			"assignmentUpdateFailed": "Cập nhật phân công thất bại.",
 			"employeeRequired": "Vui lòng chọn nhân viên.",
@@ -573,8 +574,7 @@
 				"revenueStructure": "Cơ cấu doanh thu",
 				"invoiceList": "Bảng kê hóa đơn trong kỳ",
 				"print": "In báo cáo",
-				"exportExcel": "Xuất Excel",
-				"actionNotConnected": "Chức năng này chưa được kết nối dữ liệu.",
+				"export": "Xuất Excel",
 				"invoiceCode": "Mã hóa đơn",
 				"createdDate": "Ngày tạo",
 				"customer": "Khách hàng",
@@ -609,8 +609,8 @@
 				"ratio": "Tỷ Trọng",
 				"uses": "lượt",
 				"totalRows": "Tổng",
-				"actionNotConnected": "Chức năng này chưa được kết nối dữ liệu.",
-				"exportNotImplemented": "Chức năng xuất Excel chưa được kết nối."
+				"invalidMonth": "Vui lòng chọn tháng.",
+				"loadError": "Không thể tải báo cáo tiêu thụ dịch vụ."
 			},
 			"parts": {
 				"title": "Tiêu thụ phụ tùng",
@@ -631,9 +631,11 @@
 				"unitPrice": "Đơn Giá",
 				"revenue": "Doanh Thu",
 				"consumptionRateColumn": "Mức Tiêu Thụ",
-				"actionNotConnected": "Chức năng này chưa được kết nối dữ liệu.",
-				"exportNotImplemented": "Chức năng xuất Excel chưa được kết nối.",
-				"loadError": "Không thể tải báo cáo tiêu thụ phụ tùng."
+				"loadError": "Không thể tải báo cáo tiêu thụ phụ tùng.",
+				"invalidMonth": "Vui lòng chọn tháng.",
+				"noData": "Không có dữ liệu báo cáo để in hoặc xuất.",
+				"exportSuccess": "Xuất báo cáo thành công.",
+				"exportError": "Không thể xuất báo cáo."
 			}
 		},
 		"doiMatKhau": {
