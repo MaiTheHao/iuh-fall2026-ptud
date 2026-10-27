@@ -1,7 +1,7 @@
 # E2E P4 — Kế hoạch và tổng kết
 
 - **Người test:** Đặng Thanh Bình · **Nhánh:** `test/e2e-p4-ke-hoach-tong-ket`
-- **Ngày chạy:** 26/10/2026 · **Commit `develop`:** ________ · **DB:** sạch, migration `V0`–`V11` + dữ liệu mẫu
+- **Ngày chạy:** 27/10/2026 · **Commit `develop`:** ________ · **DB:** sạch, migration `V0`–`V11` + dữ liệu mẫu
 - **Màn phạm vi:** SCR-05, 05B, 05C, SCR-12, 12B, 12C
 - **Quy ước:** dữ liệu tự tạo có ghi chú tiền tố `E2E-P4`. Điền `PASS / NO` ngay sau mỗi kịch bản; `NO` thì bắt buộc mô tả lỗi theo mẫu trong file hướng dẫn.
 - **Lưu ý:** P4-13 là kịch bản chạy xuyên suốt cả bốn lane; chạy sau khi P1–P3 đã có kết quả. Điểm mở "doanh thu gộp hay trừ voucher" đã biết, xem P4-09.
