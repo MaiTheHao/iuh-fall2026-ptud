@@ -5,6 +5,7 @@ import iuh.fit.dto.TieuThuPhuTungBaoCaoDTO;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.service.TieuThuPhuTungService;
 import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.XlsxExportUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -27,12 +28,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.print.PrinterException;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.YearMonth;
@@ -216,7 +213,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 		JButton btnIn = new JButton(I18nReaderUtil.get("app.report.revenue.print"));
 
-		JButton btnXuatExcel = new JButton(I18nReaderUtil.get("app.report.revenue.exportExcel"));
+		JButton btnXuatExcel = new JButton(I18nReaderUtil.get("app.report.parts.export"));
 
 		btnIn.addActionListener(e -> this.inBaoCao());
 		btnXuatExcel.addActionListener(e -> this.xuatBaoCao());
@@ -245,41 +242,12 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 		File file = fileChooser.getSelectedFile();
 
-		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".csv")) {
-			file = new File(file.getAbsolutePath() + ".csv");
+		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
+			file = new File(file.getAbsolutePath() + ".xlsx");
 		}
 
-		try (BufferedWriter writer = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-
-			writer.write('\uFEFF');
-
-			for (int column = 0; column < this.modelPhuTung.getColumnCount(); column++) {
-
-				if (column > 0) {
-					writer.write(';');
-				}
-
-				writer.write(this.escCsv(this.modelPhuTung.getColumnName(column)));
-			}
-
-			writer.newLine();
-
-			for (int row = 0; row < this.modelPhuTung.getRowCount(); row++) {
-
-				for (int column = 0; column < this.modelPhuTung.getColumnCount(); column++) {
-
-					if (column > 0) {
-						writer.write(';');
-					}
-
-					Object value = this.modelPhuTung.getValueAt(row, column);
-
-					writer.write(this.escCsv(value == null ? "" : value.toString()));
-				}
-
-				writer.newLine();
-			}
+		try {
+			XlsxExportUtil.write(file, I18nReaderUtil.get("app.report.parts.title"), this.modelPhuTung);
 
 			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.exportSuccess"),
 					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
@@ -311,7 +279,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		String thangDuocChon = (String) this.cboThang.getSelectedItem();
 
 		if (thangDuocChon == null || thangDuocChon.isBlank()) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.invalidMonth"),
+			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.invalidMonth"),
 					I18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);
 			return;
 		}
@@ -358,15 +326,6 @@ public class TieuThuPhuTungPage extends AbstractPage {
 					this.dinhDangSo.format(phuTung.soLuongTon()), this.dinhDangTien.format(phuTung.donGiaBan()),
 					this.dinhDangTien.format(phuTung.doanhThu()), tyLeTieuThu });
 		}
-	}
-
-	private void thongBaoChuaKetNoi() {
-		JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.actionNotConnected"),
-				I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	private String escCsv(String value) {
-		return "\"" + value.replace("\"", "\"\"") + "\"";
 	}
 
 	@Override

@@ -544,6 +544,7 @@
 			"assignmentUpdated": "Assignment updated successfully.",
 			"assignmentDeleted": "Assignment deleted successfully.",
 			"assignmentRequired": "Please select an assignment to delete.",
+			"assignmentIdRequired": "Please select an assignment.",
 			"confirmDelete": "Are you sure you want to delete this assignment?",
 			"assignmentUpdateFailed": "Failed to update assignment.",
 			"employeeRequired": "Please select an employee.",
@@ -573,8 +574,7 @@
 				"revenueStructure": "Revenue Structure",
 				"invoiceList": "Invoices During Period",
 				"print": "Print Report",
-				"exportExcel": "Export Excel",
-				"actionNotConnected": "This function is not connected to data yet.",
+				"export": "Export Excel",
 				"invoiceCode": "Invoice ID",
 				"createdDate": "Created Date",
 				"customer": "Customer",
@@ -609,8 +609,8 @@
 				"ratio": "Share",
 				"uses": "visits",
 				"totalRows": "Total",
-				"actionNotConnected": "This function is not connected to data yet.",
-				"exportNotImplemented": "Excel export has not been connected yet."
+				"invalidMonth": "Please select a month.",
+				"loadError": "Unable to load the service consumption report."
 			},
 			"parts": {
 				"title": "Parts Consumption",
@@ -631,9 +631,11 @@
 				"unitPrice": "Unit Price",
 				"revenue": "Revenue",
 				"consumptionRateColumn": "Consumption Rate",
-				"actionNotConnected": "This function is not connected to data yet.",
-				"exportNotImplemented": "Excel export has not been implemented yet.",
-				"loadError": "Unable to load the parts consumption report."
+				"loadError": "Unable to load the parts consumption report.",
+				"invalidMonth": "Please select a month.",
+				"noData": "There is no report data to print or export.",
+				"exportSuccess": "Report exported successfully.",
+				"exportError": "Unable to export the report."
 			}
 		},
 		"doiMatKhau": {

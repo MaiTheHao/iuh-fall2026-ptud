@@ -6,6 +6,7 @@ import iuh.fit.dto.TieuThuDichVuBaoCaoDTO;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.service.TieuThuDichVuService;
 import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.XlsxExportUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -27,12 +28,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -219,7 +216,7 @@ public class TieuThuDichVuPage extends AbstractPage {
 		JPanel pnl = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 6));
 
 		JButton btnIn = new JButton(I18nReaderUtil.get("app.report.revenue.print"));
-		JButton btnXuat = new JButton(I18nReaderUtil.get("app.report.revenue.exportExcel"));
+		JButton btnXuat = new JButton(I18nReaderUtil.get("app.report.service.export"));
 
 		btnIn.addActionListener(e -> this.inBaoCao());
 		btnXuat.addActionListener(e -> this.xuatBaoCao());
@@ -325,7 +322,7 @@ public class TieuThuDichVuPage extends AbstractPage {
 		}
 
 		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.revenue.export"));
+		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.service.export"));
 		fileChooser.setSelectedFile(new File("BaoCaoTieuThuDichVu.xlsx"));
 		fileChooser.setFileFilter(new FileNameExtensionFilter("XLSX (*.xlsx)", "xlsx"));
 
@@ -335,38 +332,12 @@ public class TieuThuDichVuPage extends AbstractPage {
 
 		File file = fileChooser.getSelectedFile();
 
-		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".csv")) {
-			file = new File(file.getAbsolutePath() + ".csv");
+		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
+			file = new File(file.getAbsolutePath() + ".xlsx");
 		}
 
-		try (BufferedWriter writer = new BufferedWriter(
-				new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-
-			writer.write('\uFEFF');
-
-			for (int column = 0; column < this.modelDichVu.getColumnCount(); column++) {
-				if (column > 0) {
-					writer.write(';');
-				}
-
-				writer.write(this.escCsv(this.modelDichVu.getColumnName(column)));
-			}
-
-			writer.newLine();
-
-			for (int row = 0; row < this.modelDichVu.getRowCount(); row++) {
-				for (int column = 0; column < this.modelDichVu.getColumnCount(); column++) {
-					if (column > 0) {
-						writer.write(';');
-					}
-
-					Object value = this.modelDichVu.getValueAt(row, column);
-
-					writer.write(this.escCsv(value == null ? "" : value.toString()));
-				}
-
-				writer.newLine();
-			}
+		try {
+			XlsxExportUtil.write(file, I18nReaderUtil.get("app.report.service.title"), this.modelDichVu);
 
 			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.exportSuccess"),
 					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
@@ -376,10 +347,6 @@ public class TieuThuDichVuPage extends AbstractPage {
 					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
 			ex.printStackTrace();
 		}
-	}
-
-	private String escCsv(String value) {
-		return "\"" + value.replace("\"", "\"\"") + "\"";
 	}
 
 	@Override
