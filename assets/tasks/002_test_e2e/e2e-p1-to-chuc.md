@@ -1,7 +1,7 @@
 # E2E P1 — Tổ chức và dữ liệu nền
 
 - **Người test:** Nguyễn Minh Quốc · **Nhánh:** `test/e2e-p1-to-chuc`
-- **Ngày chạy:** ____/____/2026 · **Commit `develop`:** ________ · **DB:** sạch, migration `V0`–`V11` + dữ liệu mẫu
+- **Ngày chạy:** 27/10/2026 · **Commit `develop`:** ________ · **DB:** sạch, migration `V0`–`V11` + dữ liệu mẫu
 - **Màn phạm vi:** SCR-03 Khách hàng, SCR-03B Xe, SCR-06 Phụ tùng, SCR-08 Dịch vụ, SCR-09 Voucher, SCR-11 Nhân viên
 - **Quy ước:** dữ liệu tự tạo có tiền tố `E2E-P1`. Điền `PASS / NO` ngay sau mỗi kịch bản; `NO` thì bắt buộc mô tả lỗi theo mẫu trong file hướng dẫn.
 
@@ -15,10 +15,10 @@
 2. Từ Trang chủ, mở lần lượt menu Tổ chức: Khách hàng, Xe, Phụ tùng, Dịch vụ, Voucher, Nhân viên.
 **Kết quả mong đợi:** cả 6 màn mở được, hiển thị dữ liệu mẫu từ DB (không rỗng, không văng lỗi), tiêu đề/nhãn là tiếng Việt.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	 chưa có phân quyền
 ---
 
 ### E2E-P1-02 · Khách hàng: thêm, tìm, sửa, xóa
@@ -30,7 +30,7 @@
 4. Xóa khách này.
 **Kết quả mong đợi:** (1) khách xuất hiện trong danh sách; (2) tìm ra đúng 1 bản ghi; (3) tên mới hiển thị, DB cập nhật; (4) khách biến mất khỏi danh sách và DB, có thông báo thành công.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -44,7 +44,7 @@
 3. Thêm khách với sdt rỗng; sdt chứa chữ (`09abc`); sdt quá ngắn; tên rỗng.
 **Kết quả mong đợi:** (2) bị từ chối, thông báo rõ ràng (ràng buộc duy nhất `V8`), không tạo bản ghi mới, ứng dụng không văng lỗi; (3) mỗi trường hợp có thông báo lỗi riêng từ i18n, không lưu.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -60,9 +60,15 @@
 5. Xóa xe.
 **Kết quả mong đợi:** (1) lưu thành công; (2) bị từ chối với thông báo rõ; (3) danh sách hãng/dòng xe đúng, dòng xe thu hẹp theo hãng, kết quả lọc đúng; (4) thay đổi được lưu; (5) xe biến mất.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
+	NO
+	1.1 biển số phải "^[0-9]{2}[A-Z]{1,2}[0-9]{4,6}$" không như này E2E-P1-0001
+	1.2 lỗi đời xe rỗng và km rỗng
+	1.3 đổi mã xe thành 52E10001 và đời xe 2020 và km 5000
+	PASS 2 -> 5
+	
 
 ---
 
@@ -76,10 +82,20 @@
 5. Xóa phụ tùng vừa tạo.
 **Kết quả mong đợi:** (1)(2) lưu và tìm đúng; (3) bị từ chối với thông báo rõ; (4) phân trang hiển thị đúng số trang, không trùng/mất dòng; (5) xóa thành công.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	1.1 mâu thuẫn có sinh mã lại cho phép người dùng nhập mã 
+	1.2 mâu thuẫn việc thêm số lượng mặc định sl > 0 mà ui không cho ng dùng nhập ( lỗi vì sl chỉ thay đổi khi thêm từ phiếu nhập )
+	1.3 không nhập mã cho nhập sl 
+	1.4 lỗi cho nhập tồn kho luôn set về không 0( vẫn báo khách hàng thêm tc)
+	
+	2.1 lỗi ghi lại tồn kho luôn set về không ( vẫn báo khách hàng lưu tc)0	
+	3.1 lỗi những lỗi đơn giá âm, số lượng tồn âm, tên rỗng không hiện lên trên ui mà hiện trong console	
+	
+	4.1 lỗi không biết 1 trang có sl item bao nhiêu để test
+	
+	5 pass
 ---
 
 ### E2E-P1-06 · Dịch vụ: CRUD và kiểm tra dữ liệu
@@ -91,10 +107,12 @@
 4. Xóa dịch vụ.
 **Kết quả mong đợi:** thêm/sửa/xóa đúng; dữ liệu sai bị chặn với thông báo i18n; DB khớp giao diện.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	3.1 âm / chữ / rỗng; tên rỗng không hiện lên trên ui mà hiện trong console	
+	
+	PASS 1 2 4
 ---
 
 ### E2E-P1-07 · Voucher: mức giảm, thời hạn, kích hoạt
@@ -107,10 +125,10 @@
 5. Xóa voucher.
 **Kết quả mong đợi:** (1) lưu đúng, mức giảm lưu dạng phân số 0–1 trong DB (10% → `0.1000`); (2) bị từ chối; (3) hành vi nhất quán với quy định (ghi rõ nếu cho lưu); (4) trạng thái đổi đúng; (5) xóa thành công.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	3. Thêm voucher thời hạn đã qua vẫn thêm đc
 ---
 
 ### E2E-P1-08 · Nhân viên: CRUD và số điện thoại
@@ -123,10 +141,10 @@
 5. Xóa nhân viên.
 **Kết quả mong đợi:** (1)(2)(3) đúng; (4) hành vi rõ ràng và nhất quán (lưu ý `soDienThoai` là `NULL` ở migration `V1` nhưng `NOT NULL` ở `init.sql`: ghi rõ ứng dụng cho hay chặn, và có văng lỗi hay không); (5) xóa thành công.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	4. văn lỗi 
 ---
 
 ### E2E-P1-09 · Bộ lọc, xóa lọc và phân trang trên cả 6 màn
@@ -138,10 +156,10 @@
 4. Chuyển trang, đổi điều kiện lọc khi đang ở trang 2.
 **Kết quả mong đợi:** 0 kết quả hiển thị bảng rỗng không lỗi; xóa lọc trả lại toàn bộ danh sách và về trang 1; đổi lọc khi ở trang 2 không hiện trang trống sai.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	4 không biết sl item 1 trang là bao nhiêu để test
 ---
 
 ### E2E-P1-10 · Xóa bản ghi đang được tham chiếu
@@ -150,10 +168,11 @@
 **Các bước:** thử xóa từng loại bản ghi đang được tham chiếu.
 **Kết quả mong đợi:** ứng dụng báo lỗi dễ hiểu bằng tiếng Việt (hoặc cascade đúng thiết kế); không văng stack trace, không treo, không để dữ liệu mồ côi hoặc xóa dở.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	có hiện thông báo không tìm thấy phụ tùng trong hóa đơn 
+	có hiện thông báo khi xe khác có liên kết
 ---
 
 ### E2E-P1-11 · Ngôn ngữ và nhãn enum
@@ -163,7 +182,7 @@
 2. Đổi sang tiếng Anh (nếu có công tắc), rà lại.
 **Kết quả mong đợi:** không có key i18n thô (dạng `app.xxx.yyy`) hiển thị; enum hiện nhãn tiếng Việt; bản tiếng Anh có thể chưa dịch hết nhưng không lộ key thiếu hay lỗi.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -179,14 +198,15 @@
 4. Tạo nhân viên mới, mở SCR-05 và chọn nhân viên.
 **Kết quả mong đợi:** mọi dữ liệu vừa tạo xuất hiện ngay ở màn lane khác, không cần khởi động lại.
 
-**PASS / NO:** `__________`
+**PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	Tạo nhân viên mới, mở SCR-05 và chọn nhân viên. không có chọn nhân viên
+	pass 123
 ---
 
 ## Tổng kết
 
-- Số kịch bản: 12 · **PASS:** ____ · **NO:** ____
+- Số kịch bản: 12 · **PASS:** 7 · **NO:** 5
 - Ghi chú thêm của người test:
 >
