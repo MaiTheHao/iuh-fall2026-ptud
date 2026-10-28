@@ -84,6 +84,20 @@ public final class DichVuDAO extends BaseDao<DichVu> {
         }
     }
 
+    public boolean existsChiTietHoaDon(String maDichVu) throws SQLException {
+        String sql = """
+                SELECT 1 FROM ChiTietHoaDon
+                WHERE loaiSanPham = 'DICH_VU' AND maSanPham = ?
+                """;
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maDichVu);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     @Override
     protected DichVu mapRow(ResultSet rs) throws SQLException {
         return new DichVu(

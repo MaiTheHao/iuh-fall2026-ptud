@@ -15,6 +15,7 @@ import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -81,8 +82,8 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		panel.addActionColumn("app.common.actions",
 				new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
 						row -> this.moHoaDon(row)),
-				new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
-						row -> this.xoaHoaDon(panel, row)));
+				new ThaoTac("trash-2", "app.hoaDon.huyHoaDon", ThaoTac.KieuThaoTac.NGUY_HIEM,
+						row -> this.huyHoaDon(panel, row)));
 
 		this.boLocMaHoaDon = panel.addTextFilter("app.hoaDon.maHoaDon");
 		this.boLocMaPhieu = panel.addTextFilter("app.hoaDon.maPhieuTiepNhan");
@@ -132,6 +133,14 @@ public class QuanLyHoaDonPage extends AbstractPage {
 
 		JTable table = panel.getTable();
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.getColumnModel().getColumn(0).setPreferredWidth(50);
+		table.getColumnModel().getColumn(1).setPreferredWidth(170);
+		table.getColumnModel().getColumn(2).setPreferredWidth(190);
+		table.getColumnModel().getColumn(3).setPreferredWidth(180);
+		table.getColumnModel().getColumn(4).setPreferredWidth(110);
+		table.getColumnModel().getColumn(5).setPreferredWidth(120);
+		table.getColumnModel().getColumn(6).setPreferredWidth(140);
+		table.getColumnModel().getColumn(7).setPreferredWidth(150);
 		table.setRowHeight(42);
 
 		this.taiLai(panel, 1);
@@ -237,21 +246,28 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		this.goTo(LapHoaDonPage.class);
 	}
 
-	private void xoaHoaDon(ManagementPanel panel, int row) {
+	private void huyHoaDon(ManagementPanel panel, int row) {
 		if (row < 0 || row >= this.danhSachHienTai.size()) {
 			return;
 		}
 		HoaDonView view = this.danhSachHienTai.get(row);
-		String keyXacNhan = view.trangThai() == TrangThaiHoaDon.DA_THANH_TOAN
-				? "app.hoaDon.xacNhanXoaDaThanhToan"
-				: "app.hoaDon.xacNhanXoa";
-		if (!ThongBao.xacNhan(this, keyXacNhan, "app.hoaDon.tieuDeXoa")) {
+		if (view.trangThai() == TrangThaiHoaDon.DA_HUY) {
+			ThongBao.canhBao(this, "app.hoaDon.loiDaHuy");
+			return;
+		}
+
+		if (!ThongBao.xacNhan(this, "app.hoaDon.xacNhanHuy", "app.hoaDon.huyHoaDon")) {
+			return;
+		}
+
+		String lyDo = JOptionPane.showInputDialog(this, I18nReaderUtil.get("app.hoaDon.lyDoHuy"));
+		if (lyDo == null || lyDo.isBlank()) {
 			return;
 		}
 
 		try {
-			this.hoaDonService.xoa(view.maHoaDon());
-			ThongBao.thongTin(this, "app.common.delete_succeed");
+			this.hoaDonService.huy(view.maHoaDon(), lyDo);
+			ThongBao.thongTin(this, "app.common.update_succeed");
 			this.taiLai(panel, this.trang);
 		} catch (IllegalArgumentException | IllegalStateException e) {
 			ThongBao.loi(this, e);

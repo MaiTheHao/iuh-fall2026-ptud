@@ -263,10 +263,6 @@ public class PhuTungPage extends AbstractPage {
         if (data.donGiaNhap() == null || !Double.isFinite(data.donGiaNhap()) || data.donGiaNhap() < 0) {
             throw new IllegalArgumentException("app.phuTung.loiDonGia");
         }
-
-        if (data.maPhuTung() != null && (data.soLuongTon() == null || data.soLuongTon() < 0)) {
-            throw new IllegalArgumentException("app.phuTung.loiSoLuong");
-        }
     }
 
     private PhuTung taoPhuTung(PhuTungFormData data, int soLuongTon) {
@@ -282,9 +278,9 @@ public class PhuTungPage extends AbstractPage {
 
     private void them() {
         PhuTungFormData data = this.getFormData();
-        this.validateFormData(data);
 
         try {
+            this.validateFormData(data);
             this.phuTungService.create(this.taoPhuTung(data, 0));
             ThongBao.thongTin(this, "app.common.create_succeed");
 
@@ -301,14 +297,12 @@ public class PhuTungPage extends AbstractPage {
 
     private void luu() {
         PhuTungFormData data = this.getFormData();
-        this.validateFormData(data);
 
         boolean taoMoi = data.maPhuTung() == null;
-        int soLuong = taoMoi ? 0 : data.soLuongTon();
-
-        PhuTung phuTung = this.taoPhuTung(data, soLuong);
 
         try {
+            this.validateFormData(data);
+            PhuTung phuTung = this.taoPhuTung(data, 0);
             if (taoMoi) {
                 this.phuTungService.create(phuTung);
                 ThongBao.thongTin(this, "app.common.create_succeed");

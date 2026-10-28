@@ -403,6 +403,7 @@ public class LapHoaDonPage extends AbstractPage {
 		if (this.nutHuy != null) {
 			this.nutHuy.setEnabled(choThanhToan && this.maHoaDonHienTai != null);
 		}
+		this.lineTable.setEnabled(this.choPhepSua());
 	}
 
 	private void themDichVu() {
@@ -492,9 +493,13 @@ public class LapHoaDonPage extends AbstractPage {
 			ChonPhuTungDialog dlg = new ChonPhuTungDialog(SwingUtilities.getWindowAncestor(this), hienThi);
 
 			dlg.showDialog().ifPresent(kq -> {
+				if (kq.soLuong() <= 0) {
+					ThongBao.canhBao(this, "app.hoaDon.loiSoLuong");
+					return;
+				}
 				int conLai = kq.phuTung().getSoLuongTon();
 				if (kq.soLuong() > conLai) {
-					ThongBao.canhBao(this, "app.hoaDon.loiSoLuong");
+					ThongBao.canhBao(this, "app.hoaDon.loiTonKho");
 					return;
 				}
 
@@ -545,7 +550,11 @@ public class LapHoaDonPage extends AbstractPage {
 
 	private void xoaDong(int row) {
 		if (!this.choPhepSua()) {
-			ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
+			if (this.trangThaiHienTai == TrangThaiHoaDon.DA_HUY) {
+				ThongBao.canhBao(this, "app.hoaDon.loiDaHuy");
+			} else {
+				ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
+			}
 			return;
 		}
 		if (row < 0 || row >= this.chiTiets.size()) {

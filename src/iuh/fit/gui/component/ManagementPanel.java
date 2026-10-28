@@ -17,6 +17,10 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -209,6 +213,10 @@ public class ManagementPanel extends JPanel {
         JTextField fromField = new JTextField(14);
         JTextField toField = new JTextField(14);
 
+        LocSoDocumentFilter locSo = new LocSoDocumentFilter();
+        ((AbstractDocument) fromField.getDocument()).setDocumentFilter(locSo);
+        ((AbstractDocument) toField.getDocument()).setDocumentFilter(locSo);
+
         this.boLocText.add(fromField);
         this.boLocText.add(toField);
 
@@ -354,6 +362,31 @@ public class ManagementPanel extends JPanel {
 
     public int getSelectedRow() {
         return this.bang.getSelectedRow();
+    }
+
+    private static final class LocSoDocumentFilter extends DocumentFilter {
+        @Override
+        public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+                throws BadLocationException {
+            if (string == null) {
+                return;
+            }
+            StringBuilder proposed = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+            proposed.insert(offset, string);
+            if (proposed.toString().matches("\\d*")) {
+                super.insertString(fb, offset, string, attr);
+            }
+        }
+
+        @Override
+        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                throws BadLocationException {
+            StringBuilder proposed = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+            proposed.replace(offset, offset + length, text == null ? "" : text);
+            if (proposed.toString().matches("\\d*")) {
+                super.replace(fb, offset, length, text, attrs);
+            }
+        }
     }
 
     private void attachTextListener(JTextField field) {

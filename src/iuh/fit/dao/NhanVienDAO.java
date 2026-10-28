@@ -201,6 +201,48 @@ public final class NhanVienDAO extends BaseDao<NhanVien> {
         }
     }
 
+    public boolean existsPhieuTiepNhan(String maNhanVien) throws SQLException {
+        String sql = """
+                SELECT 1 FROM PhieuTiepNhan
+                WHERE maNhanVien = ?
+                """;
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, maNhanVien);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean existsPhieuNhap(String maNhanVien) throws SQLException {
+        String sql = """
+                SELECT 1 FROM PhieuNhapPhuTung
+                WHERE maNhanVien = ?
+                """;
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, maNhanVien);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean existsPhanCong(String maNhanVien) throws SQLException {
+        String sql = """
+                SELECT 1 FROM PhanCong
+                WHERE maNhanVien = ?
+                """;
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, maNhanVien);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     public boolean delete(String maNhanVien) throws SQLException {
 
         String sql = """

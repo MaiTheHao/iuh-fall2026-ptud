@@ -263,9 +263,9 @@ public class DichVuPage extends AbstractPage {
 
     private void them() {
         DichVuFormData data = this.getFormData();
-        this.validateFormData(data);
 
         try {
+            this.validateFormData(data);
             this.dichVuService.create(this.taoDichVu(data));
 
             ThongBao.thongTin(
@@ -289,11 +289,11 @@ public class DichVuPage extends AbstractPage {
 
     private void luu() {
         DichVuFormData data = this.getFormData();
-        this.validateFormData(data);
 
         DichVu dichVu = this.taoDichVu(data);
 
         try {
+            this.validateFormData(data);
             if (data.maDichVu() == null) {
                 this.dichVuService.create(dichVu);
 

@@ -2,6 +2,7 @@ package iuh.fit.service;
 
 import iuh.fit.dao.HoaDonDAO;
 import iuh.fit.dao.KhachHangDAO;
+import iuh.fit.dao.PhieuTiepNhanDAO;
 import iuh.fit.dao.TransactionScope;
 import iuh.fit.dao.VoucherDAO;
 import iuh.fit.dto.DanhSachHoaDonCriteria;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class HoaDonService {
 
@@ -43,12 +45,13 @@ public class HoaDonService {
     private static final String ERROR_PHAN_TRANG = "app.hoaDon.loiPhanTrang";
     private static final String ERROR_LY_DO_HUY = "app.hoaDon.loiLyDoHuy";
     private static final String ERROR_LY_DO_HUY_DAI = "app.hoaDon.loiLyDoHuyDai";
+    private static final String ERROR_PHIEU_NOT_FOUND = "app.phieuTiepNhan.khongTonTai";
 
     private static final int MAX_LY_DO_HUY = 255;
 
     private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
-    private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
+    private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
     private final PhuTungService phuTungService = new PhuTungService();
     private final VoucherDAO voucherDAO = new VoucherDAO();
 
@@ -59,7 +62,7 @@ public class HoaDonService {
 
     public HoaDon create(String maPhieuTiepNhan, String maVoucher, String ghiChu,
             List<ChiTietHoaDon> chiTiets) throws SQLException {
-        PhieuTiepNhan phieu = this.phieuTiepNhanService.getById(maPhieuTiepNhan);
+        PhieuTiepNhan phieu = this.timPhieuTiepNhan(maPhieuTiepNhan);
         HoaDon existing = this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(null);
         if (existing != null) {
             return existing;
@@ -174,44 +177,42 @@ public class HoaDonService {
 
     public HoaDon huy(String maHoaDon, String lyDoHuy) throws SQLException {
         HoaDon hoaDon = this.getById(maHoaDon);
-        if (hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.CHO_THANH_TOAN) {
-            throw new IllegalStateException(ERROR_TRANG_THAI);
-        }
-
-        String lyDo = lyDoHuy == null ? "" : lyDoHuy.trim();
-        if (lyDo.isEmpty()) {
-            throw new IllegalArgumentException(ERROR_LY_DO_HUY);
-        }
-        if (lyDo.length() > MAX_LY_DO_HUY) {
-            throw new IllegalArgumentException(ERROR_LY_DO_HUY_DAI);
-        }
+        this.kiemTraHuy(hoaDon, lyDoHuy);
 
         try (TransactionScope scope = TransactionScope.begin()) {
-            if (!this.hoaDonDAO.huy(scope, maHoaDon, lyDo)) {
-                throw new IllegalStateException(ERROR_TRANG_THAI);
-            }
-            this.hoanTon(scope, hoaDon.getDanhSachChiTietHoaDon());
+            this.huy(scope, hoaDon, lyDoHuy);
             scope.commit();
         }
 
         hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.DA_HUY);
-        hoaDon.setLyDoHuy(lyDo);
+        hoaDon.setLyDoHuy(lyDoHuy.trim());
         return hoaDon;
     }
 
-    public void xoa(String maHoaDon) throws SQLException {
-        HoaDon hoaDon = this.getById(maHoaDon);
-        boolean daHoanTon = hoaDon.getTrangThaiHoaDon() == TrangThaiHoaDon.DA_HUY;
-
-        try (TransactionScope scope = TransactionScope.begin()) {
-            if (!daHoanTon) {
-                this.hoanTon(scope, hoaDon.getDanhSachChiTietHoaDon());
-            }
-            if (!this.hoaDonDAO.delete(scope, maHoaDon)) {
-                throw new IllegalArgumentException(ERROR_NOT_FOUND);
-            }
-            scope.commit();
+    public void huy(TransactionScope scope, HoaDon hoaDon, String lyDoHuy) throws SQLException {
+        this.kiemTraHuy(hoaDon, lyDoHuy);
+        if (!this.hoaDonDAO.huy(scope, hoaDon.getMaHoaDon(), lyDoHuy.trim(),
+                hoaDon.getTrangThaiHoaDon())) {
+            throw new IllegalStateException(ERROR_TRANG_THAI);
         }
+        this.hoanTon(scope, hoaDon.getDanhSachChiTietHoaDon());
+    }
+
+    private void kiemTraHuy(HoaDon hoaDon, String lyDoHuy) {
+        if (hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.CHO_THANH_TOAN
+                && hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.DA_THANH_TOAN) {
+            throw new IllegalStateException(ERROR_TRANG_THAI);
+        }
+        if (lyDoHuy == null || lyDoHuy.isBlank()) {
+            throw new IllegalArgumentException(ERROR_LY_DO_HUY);
+        }
+        if (lyDoHuy.trim().length() > MAX_LY_DO_HUY) {
+            throw new IllegalArgumentException(ERROR_LY_DO_HUY_DAI);
+        }
+    }
+
+    public Optional<HoaDon> timTheoPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
+        return this.hoaDonDAO.findByPhieuTiepNhan(maPhieuTiepNhan);
     }
 
     public HoaDon getById(String maHoaDon) throws SQLException {
@@ -223,6 +224,15 @@ public class HoaDonService {
         return this.hoaDonDAO.findByPhieuTiepNhan(maPhieuTiepNhan).orElse(null);
     }
 
+    private PhieuTiepNhan timPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
+        String ma = maPhieuTiepNhan == null ? "" : maPhieuTiepNhan.trim();
+        if (ma.isEmpty()) {
+            throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
+        }
+        return this.phieuTiepNhanDAO.findById(ma)
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND));
+    }
+
     public PaginatedResult<HoaDonView> search(DanhSachHoaDonCriteria criteria) throws SQLException {
         DanhSachHoaDonCriteria filter = criteria == null
                 ? DanhSachHoaDonCriteria.macDinh()
@@ -231,7 +241,7 @@ public class HoaDonService {
         this.validateFilter(filter);
 
         Map<String, KhachHang> khachHangTheoMa = this.khachHangTheoMa();
-        List<PhieuTiepNhan> danhSachPhieu = this.phieuTiepNhanService.findAll();
+        List<PhieuTiepNhan> danhSachPhieu = this.phieuTiepNhanDAO.findAll();
         Map<String, String> tenKhachHangTheoPhieu = this.tenKhachHangTheoPhieu(khachHangTheoMa, danhSachPhieu);
         Map<String, String> bienSoTheoPhieu = this.bienSoTheoPhieu(danhSachPhieu);
         Map<String, Voucher> voucherTheoMa = this.voucherTheoMa();

@@ -148,6 +148,18 @@ public final class ChonPhuTungDialog extends JDialog {
 	}
 
 	private void chon() {
+		try {
+			this.spinner.commitEdit();
+		} catch (java.text.ParseException ex) {
+			ThongBao.canhBao(this, "app.phieuNhap.loiSoLuong");
+			return;
+		}
+		int soLuong = (Integer) this.spinner.getValue();
+		if (soLuong <= 0) {
+			ThongBao.canhBao(this, "app.phieuNhap.loiSoLuong");
+			return;
+		}
+
 		int selectedRow = this.table.getSelectedRow();
 		if (selectedRow < 0) {
 			ThongBao.canhBao(this, "app.phieuNhap.loiPhuTung");
@@ -155,7 +167,7 @@ public final class ChonPhuTungDialog extends JDialog {
 		}
 
 		PhuTung phuTung = this.filtered.get(this.table.convertRowIndexToModel(selectedRow));
-		this.result = new KetQua(phuTung, (Integer) this.spinner.getValue());
+		this.result = new KetQua(phuTung, soLuong);
 		this.dispose();
 	}
 

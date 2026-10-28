@@ -181,7 +181,8 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         }
     }
 
-    public boolean huy(TransactionScope scope, String maHoaDon, String lyDoHuy) throws SQLException {
+    public boolean huy(TransactionScope scope, String maHoaDon, String lyDoHuy,
+            TrangThaiHoaDon trangThaiNguon) throws SQLException {
         String sql = """
                 UPDATE HoaDon
                 SET trangThaiHoaDon = ?, lyDoHuy = ?
@@ -191,7 +192,7 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
             ps.setString(1, TrangThaiHoaDon.DA_HUY.name());
             ps.setString(2, lyDoHuy);
             ps.setString(3, maHoaDon);
-            ps.setString(4, TrangThaiHoaDon.CHO_THANH_TOAN.name());
+            ps.setString(4, trangThaiNguon.name());
             return ps.executeUpdate() > 0;
         }
     }

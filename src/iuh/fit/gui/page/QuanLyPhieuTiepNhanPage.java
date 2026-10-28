@@ -4,8 +4,10 @@ import iuh.fit.core.context.AppContext;
 import iuh.fit.dto.DanhSachPhieuTiepNhanCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhieuTiepNhanView;
+import iuh.fit.entity.HoaDon;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
@@ -14,10 +16,12 @@ import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.PhieuTiepNhanFormPanel;
 import iuh.fit.gui.theme.Theme;
+import iuh.fit.service.HoaDonService;
 import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -27,6 +31,7 @@ import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +45,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
     private static final DateTimeFormatter NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
+    private final HoaDonService hoaDonService = new HoaDonService();
 
     private ManagementFormPanel form;
     private ManagementPanel managementPanel;
@@ -247,7 +253,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
             this.phieuTiepNhanService.update(phieu);
             ThongBao.thongTin(parent, "app.common.update_succeed");
             return true;
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException | IllegalStateException ex) {
             ThongBao.loi(parent, ex);
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Khong the cap nhat phieu tiep nhan", ex);
@@ -276,8 +282,26 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
             return;
         }
 
-        this.formPanel.setTrangThai(TrangThaiPhieuTiepNhan.DA_HUY);
-        this.luuPhieuTiepNhan();
+        try {
+            Optional<HoaDon> hoaDon = this.hoaDonService.timTheoPhieuTiepNhan(view.maPhieuTiepNhan());
+
+            String lyDo = null;
+            if (hoaDon.isPresent() && hoaDon.get().getTrangThaiHoaDon() == TrangThaiHoaDon.CHO_THANH_TOAN) {
+                lyDo = JOptionPane.showInputDialog(this, I18nReaderUtil.get("app.phieuTiepNhan.lyDoHuy"));
+                if (lyDo == null || lyDo.isBlank()) {
+                    return;
+                }
+            }
+
+            this.phieuTiepNhanService.huyPhieu(view.maPhieuTiepNhan(), lyDo);
+            ThongBao.thongTin(this, "app.common.update_succeed");
+            this.taiLaiData(this.trang);
+            this.lamMoiForm();
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            ThongBao.loi(this, ex);
+        } catch (SQLException ex) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
     }
 
     @Override

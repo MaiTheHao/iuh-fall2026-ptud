@@ -23,16 +23,12 @@ public class DoanhThuService {
 
 	public BaoCaoDoanhThuDTO taoBaoCao(LocalDate tuNgay, LocalDate denNgay) throws SQLException {
 
-		if (tuNgay == null || denNgay == null) {
-			throw new IllegalArgumentException("app.report.revenue.invalidDate");
-		}
-
-		if (tuNgay.isAfter(denNgay)) {
+		if (tuNgay != null && denNgay != null && tuNgay.isAfter(denNgay)) {
 			throw new IllegalArgumentException("app.report.revenue.invalidDateRange");
 		}
 
-		LocalDateTime batDau = tuNgay.atStartOfDay();
-		LocalDateTime ketThuc = denNgay.plusDays(1).atStartOfDay();
+		LocalDateTime batDau = tuNgay == null ? null : tuNgay.atStartOfDay();
+		LocalDateTime ketThuc = denNgay == null ? null : denNgay.plusDays(1).atStartOfDay();
 
 		List<DoanhThuDTO> duLieu = this.doanhThuDAO.findAllChiTietDoanhThu();
 
@@ -46,9 +42,21 @@ public class DoanhThuService {
 		for (DoanhThuDTO dong : duLieu) {
 			boolean daThanhToan = "DA_THANH_TOAN".equals(dong.trangThaiHoaDon());
 
-			LocalDateTime ngayLoc = daThanhToan ? dong.thoiGianThanhToan() : dong.ngayTao();
+			if (!daThanhToan) {
+				continue;
+			}
 
-			if (ngayLoc == null || ngayLoc.isBefore(batDau) || !ngayLoc.isBefore(ketThuc)) {
+			LocalDateTime ngayLoc = dong.thoiGianThanhToan();
+
+			if (ngayLoc == null) {
+				continue;
+			}
+
+			if (batDau != null && ngayLoc.isBefore(batDau)) {
+				continue;
+			}
+
+			if (ketThuc != null && !ngayLoc.isBefore(ketThuc)) {
 				continue;
 			}
 
@@ -65,17 +73,11 @@ public class DoanhThuService {
 			switch (dong.loaiSanPham()) {
 			case "DICH_VU" -> {
 				tongTheoLoai[0] += thanhTien;
-
-				if (daThanhToan) {
-					tongDoanhThuDichVu += thanhTien;
-				}
+				tongDoanhThuDichVu += thanhTien;
 			}
 			case "PHU_TUNG" -> {
 				tongTheoLoai[1] += thanhTien;
-
-				if (daThanhToan) {
-					tongDoanhThuPhuTung += thanhTien;
-				}
+				tongDoanhThuPhuTung += thanhTien;
 			}
 			default -> {
 			}

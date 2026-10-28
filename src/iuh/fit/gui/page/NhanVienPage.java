@@ -305,17 +305,22 @@ public class NhanVienPage extends AbstractPage {
     }
 
     private void validateFormData(NhanVienFormData data) {
+        if (data.hoTen() == null || data.hoTen().isBlank()) {
+            throw new IllegalArgumentException("app.nhanVien.loiHoTen");
+        }
+        String soDienThoai = data.soDienThoai();
+        if (soDienThoai == null || soDienThoai.isBlank() || !soDienThoai.trim().matches("\\d{9,10}")) {
+            throw new IllegalArgumentException("app.nhanVien.loiSoDienThoai");
+        }
     }
 
     private void them() {
         NhanVienFormData data = this.getFormData();
-        this.validateFormData(data);
-
-        String dienThoai = data.soDienThoai().isEmpty() ? null : data.soDienThoai();
-
-        String anh = data.anhDaiDien().isEmpty() ? null : data.anhDaiDien();
 
         try {
+            this.validateFormData(data);
+            String dienThoai = data.soDienThoai().isEmpty() ? null : data.soDienThoai();
+            String anh = data.anhDaiDien().isEmpty() ? null : data.anhDaiDien();
             NhanVien nv = new NhanVien(data.maNhanVien(), data.tenDangNhap(), data.matKhau(), data.hoTen(),
                     dienThoai, anh, data.vaiTro(), data.trangThai(), LocalDateTime.now());
 
@@ -335,13 +340,11 @@ public class NhanVienPage extends AbstractPage {
 
     private void luu() {
         NhanVienFormData data = this.getFormData();
-        this.validateFormData(data);
-
-        String dienThoai = data.soDienThoai().isEmpty() ? null : data.soDienThoai();
-
-        String anh = data.anhDaiDien().isEmpty() ? null : data.anhDaiDien();
 
         try {
+            this.validateFormData(data);
+            String dienThoai = data.soDienThoai().isEmpty() ? null : data.soDienThoai();
+            String anh = data.anhDaiDien().isEmpty() ? null : data.anhDaiDien();
             if (this.dangSua) {
                 NhanVien nv = this.nhanVienService.getById(this.maNhanVienDangSua);
 
@@ -374,6 +377,7 @@ public class NhanVienPage extends AbstractPage {
     // ==================== XÓA ====================
 
     private void capNhatThongTin(NhanVien nv, NhanVienFormData data) {
+        this.validateFormData(data);
         nv.setHoTen(data.hoTen());
         nv.setSoDienThoai(data.soDienThoai().isEmpty() ? null : data.soDienThoai());
         nv.setAnhDaiDien(data.anhDaiDien().isEmpty() ? null : data.anhDaiDien());

@@ -20,6 +20,7 @@ public class KhachHangService {
     private static final String ERROR_FULL_NAME = "app.khachHang.loiHoTen";
     private static final String ERROR_FULL_NAME_TOO_LONG = "app.khachHang.loiHoTenQuaDai";
     private static final String ERROR_DUPLICATE_PHONE = "app.khachHang.trungSdt";
+    private static final String ERROR_IN_USE = "app.khachHang.loiDangSuDung";
 
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
 
@@ -68,6 +69,10 @@ public class KhachHangService {
     }
 
     public void delete(String maKhachHang) throws SQLException {
+        if (this.khachHangDAO.existsPhieuTiepNhan(maKhachHang)
+                || this.khachHangDAO.existsKhieuNai(maKhachHang)) {
+            throw new IllegalArgumentException(ERROR_IN_USE);
+        }
         this.khachHangDAO.delete(maKhachHang);
     }
 

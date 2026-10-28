@@ -133,6 +133,10 @@ public class XeService {
             throw new IllegalStateException(ERROR_XE_IN_USE);
         }
 
+        if (this.xeDAO.existsPhieuTiepNhan(normalized)) {
+            throw new IllegalStateException(ERROR_XE_IN_USE);
+        }
+
         if (!this.xeDAO.delete(normalized)) {
             throw new IllegalArgumentException(ERROR_XE_NOT_FOUND);
         }

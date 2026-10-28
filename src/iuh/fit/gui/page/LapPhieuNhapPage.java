@@ -28,6 +28,10 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -252,6 +256,9 @@ public class LapPhieuNhapPage extends AbstractPage {
 		if (row < 0 || row >= this.modelDetails.getRowCount()) {
 			return;
 		}
+		if (!ThongBao.xacNhan(this, "app.phieuNhap.xacNhanXoaDong", "app.phieuNhap.tieuDeXoaDong")) {
+			return;
+		}
 
 		this.modelDetails.removeRow(row);
 		for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
@@ -316,25 +323,30 @@ public class LapPhieuNhapPage extends AbstractPage {
 			return;
 		}
 
-		List<ChiTietPhieuNhapPhuTung> listChiTiet = new ArrayList<>();
-		for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
-			String maPhuTung = this.getMaFromRow(i);
-			int qty = this.getSoLuongRow(i);
-			double price = this.getDonGiaRow(i);
+		try {
+			List<ChiTietPhieuNhapPhuTung> listChiTiet = new ArrayList<>();
+			for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
+				String maPhuTung = this.getMaFromRow(i);
+				int qty = this.getSoLuongRow(i);
+				double price = this.getDonGiaRow(i);
 
-			if (maPhuTung.isBlank() || qty <= 0 || price < 0) {
-				ThongBao.loi(this, "app.phieuNhap.loiDongNhapLieu");
-				return;
+				if (maPhuTung.isBlank()) {
+					throw new IllegalArgumentException("app.phieuNhap.loiPhuTung");
+				}
+				if (qty <= 0) {
+					throw new IllegalArgumentException("app.phieuNhap.loiSoLuong");
+				}
+				if (price < 0 || !Double.isFinite(price)) {
+					throw new IllegalArgumentException("app.phieuNhap.loiDonGia");
+				}
+
+				ChiTietPhieuNhapPhuTung ct = new ChiTietPhieuNhapPhuTung();
+				ct.setMaPhuTung(maPhuTung);
+				ct.setSoLuong(qty);
+				ct.setDonGiaNhap(price);
+				listChiTiet.add(ct);
 			}
 
-			ChiTietPhieuNhapPhuTung ct = new ChiTietPhieuNhapPhuTung();
-			ct.setMaPhuTung(maPhuTung);
-			ct.setSoLuong(qty);
-			ct.setDonGiaNhap(price);
-			listChiTiet.add(ct);
-		}
-
-		try {
 			PhieuNhapPhuTung phieu = new PhieuNhapPhuTung();
 			phieu.setMoTa(moTa);
 
@@ -381,29 +393,67 @@ public class LapPhieuNhapPage extends AbstractPage {
 			super(new JTextField());
 			this.errorKey = errorKey;
 			this.laSoLuong = laSoLuong;
+			JTextField field = (JTextField) this.getComponent();
+			((AbstractDocument) field.getDocument()).setDocumentFilter(new DocumentFilter() {
+				@Override
+				public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+						throws BadLocationException {
+					if (string == null) {
+						return;
+					}
+					StringBuilder proposed = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+					proposed.insert(offset, string);
+					if (proposed.toString().matches("\\d*")) {
+						super.insertString(fb, offset, string, attr);
+					}
+				}
+
+				@Override
+				public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+						throws BadLocationException {
+					StringBuilder proposed = new StringBuilder(fb.getDocument().getText(0, fb.getDocument().getLength()));
+					proposed.replace(offset, offset + length, text == null ? "" : text);
+					if (proposed.toString().matches("\\d*")) {
+						super.replace(fb, offset, length, text, attrs);
+					}
+				}
+			});
 		}
 
 		@Override
 		public boolean stopCellEditing() {
-			String text = ((JTextField) this.getComponent()).getText().trim();
-			if (!text.matches("\\d+")) {
-				ThongBao.canhBao(LapPhieuNhapPage.this, this.errorKey);
-				return false;
+			JTextField field = (JTextField) this.getComponent();
+			String text = field.getText().trim();
+			if (text.isEmpty() || !text.matches("\\d+")) {
+				ThongBao.canhBao(LapPhieuNhapPage.this, "app.phieuNhap.loiDinhDangSo");
+				field.setText(NumberParseUtil.textOf(LapPhieuNhapPage.this.modelDetails.getValueAt(
+						LapPhieuNhapPage.this.tableDetails.getEditingRow(),
+						LapPhieuNhapPage.this.tableDetails.getEditingColumn())));
+				return super.stopCellEditing();
 			}
 
 			try {
 				if (this.laSoLuong) {
 					if (Integer.parseInt(text) == 0) {
 						ThongBao.canhBao(LapPhieuNhapPage.this, this.errorKey);
-						return false;
+						field.setText(NumberParseUtil.textOf(LapPhieuNhapPage.this.modelDetails.getValueAt(
+								LapPhieuNhapPage.this.tableDetails.getEditingRow(),
+								LapPhieuNhapPage.this.tableDetails.getEditingColumn())));
+						return super.stopCellEditing();
 					}
 				} else if (!Double.isFinite(Double.parseDouble(text))) {
 					ThongBao.canhBao(LapPhieuNhapPage.this, this.errorKey);
-					return false;
+					field.setText(NumberParseUtil.textOf(LapPhieuNhapPage.this.modelDetails.getValueAt(
+							LapPhieuNhapPage.this.tableDetails.getEditingRow(),
+							LapPhieuNhapPage.this.tableDetails.getEditingColumn())));
+					return super.stopCellEditing();
 				}
 			} catch (NumberFormatException e) {
 				ThongBao.canhBao(LapPhieuNhapPage.this, this.errorKey);
-				return false;
+				field.setText(NumberParseUtil.textOf(LapPhieuNhapPage.this.modelDetails.getValueAt(
+						LapPhieuNhapPage.this.tableDetails.getEditingRow(),
+						LapPhieuNhapPage.this.tableDetails.getEditingColumn())));
+				return super.stopCellEditing();
 			}
 
 			return super.stopCellEditing();

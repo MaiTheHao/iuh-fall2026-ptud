@@ -128,6 +128,23 @@ public final class XeDAO extends BaseDao<Xe> {
         }
     }
 
+    public boolean existsPhieuTiepNhan(String bienSo)
+            throws SQLException {
+        String sql = """
+                SELECT 1 FROM PhieuTiepNhan
+                WHERE bienSo = ?
+                """;
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, bienSo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     public boolean delete(String bienSo) throws SQLException {
         try (TransactionScope scope = TransactionScope.begin()) {
             boolean deleted = this.delete(scope, bienSo);

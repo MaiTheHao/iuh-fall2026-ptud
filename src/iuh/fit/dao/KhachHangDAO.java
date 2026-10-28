@@ -66,6 +66,34 @@ public final class KhachHangDAO extends BaseDao<KhachHang> {
         }
     }
 
+    public boolean existsPhieuTiepNhan(String maKhachHang) throws SQLException {
+        String sql = """
+                SELECT 1 FROM PhieuTiepNhan
+                WHERE maKhachHang = ?
+                """;
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maKhachHang);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean existsKhieuNai(String maKhachHang) throws SQLException {
+        String sql = """
+                SELECT 1 FROM KhieuNai
+                WHERE maKhachHang = ?
+                """;
+        try (Connection conn = DatabaseConfig.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maKhachHang);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     public List<KhachHang> findAll() throws SQLException {
         return this.findAll(SQL_SELECT);
     }

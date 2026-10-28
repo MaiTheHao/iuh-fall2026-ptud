@@ -140,7 +140,8 @@
 			"xacNhanXoa": "Bạn có chắc chắn muốn xóa khách hàng này không?",
 			"tieuDeXoa": "Xác nhận xóa khách hàng",
 			"loiHoTenQuaDai": "Họ tên không được vượt quá 50 ký tự.",
-			"trungSdt": "Số điện thoại này đã được dùng cho khách hàng khác."
+			"trungSdt": "Số điện thoại này đã được dùng cho khách hàng khác.",
+			"loiDangSuDung": "Khách hàng đang được phiếu tiếp nhận hoặc khiếu nại tham chiếu, không thể xóa."
 		},
 		"nhanVien": {
 			"thongTinTitle": "Thông Tin Nhân Viên",
@@ -177,7 +178,8 @@
 			"chuaCoAnh": "Chưa có ảnh",
 			"khongTaiDuocAnh": "Không thể tải ảnh.",
 			"loaiTepAnh": "Tệp hình ảnh (PNG, JPG, JPEG, GIF)",
-			"duLieuKhongPhaiAnh": "Tệp không phải dữ liệu hình ảnh hợp lệ."
+			"duLieuKhongPhaiAnh": "Tệp không phải dữ liệu hình ảnh hợp lệ.",
+			"loiDangSuDung": "Nhân viên đang được phiếu tiếp nhận, phiếu nhập hoặc phân công tham chiếu, không thể xóa."
 		},
 		"xe": {
 			"thongTinTitle": "Thông Tin Xe",
@@ -233,7 +235,8 @@
 			"duLieuKhongPhaiAnh": "Dữ liệu nhận được không phải ảnh.",
 			"khongTimThay": "Không tìm thấy phụ tùng.",
 			"duLieuKhongHopLe": "Dữ liệu phụ tùng không hợp lệ.",
-			"khongDuTon": "Số lượng tồn không đủ để xuất."
+			"khongDuTon": "Số lượng tồn không đủ để xuất.",
+			"loiDangSuDung": "Phụ tùng đã được dùng trong hóa đơn hoặc phiếu nhập, không thể xóa."
 		},
 		"dichVu": {
 			"thongTinTitle": "Thông Tin Dịch Vụ",
@@ -262,7 +265,8 @@
 			"khongTaiDuocAnh": "Không thể tải ảnh.",
 			"duLieuKhongPhaiAnh": "Tệp không phải dữ liệu hình ảnh hợp lệ.",
 			"khongTimThay": "Không tìm thấy dịch vụ.",
-			"loiDuLieu": "Dữ liệu dịch vụ không hợp lệ."
+			"loiDuLieu": "Dữ liệu dịch vụ không hợp lệ.",
+			"loiDangSuDung": "Dịch vụ đã được dùng trong hóa đơn, không thể xóa."
 		},
 		"phieuTiepNhan": {
 			"ma": "Mã Tiếp Nhận",
@@ -294,7 +298,10 @@
 			"noiDungYeuCau": "Nội Dung Yêu Cầu:",
 			"luu": "Lưu",
 			"xoaTrang": "Xóa Trắng",
-			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận."
+			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận.",
+			"lyDoHuy": "Lý do hủy (sẽ ghi vào hóa đơn liên kết)",
+			"loiHoaDonDaThanhToan": "Phiếu đã có hóa đơn đã thanh toán. Vui lòng sang trang Hóa đơn để hủy hóa đơn trước, rồi quay lại hủy phiếu.",
+			"huyBangNut": "Vui lòng dùng nút Hủy Phiếu để hủy phiếu tiếp nhận."
 		},
 		"tiepNhan": {
 			"loiDuLieu": "Dữ liệu tiếp nhận không được để trống.",
@@ -390,7 +397,8 @@
 			"thamSoPhanTrangKhongHopLe": "Thông tin phân trang không hợp lệ.",
 			"khoangMucGiamKhongHopLe": "Khoảng mức giảm không hợp lệ.",
 			"khoangThoiHanKhongHopLe": "Khoảng thời hạn không hợp lệ.",
-			"huongDanMucGiam": "Nhập mức giảm từ 0 đến 1. Ví dụ: 0.1 tương ứng giảm 10%."
+			"huongDanMucGiam": "Nhập mức giảm từ 0 đến 1. Ví dụ: 0.1 tương ứng giảm 10%.",
+			"loiDangSuDung": "Voucher đã được hóa đơn sử dụng, không thể xóa."
 		},
 		"phieuNhap": {
 			"thongTinTitle": "Thông Tin Phiếu Nhập",
@@ -425,7 +433,11 @@
 			"timPhuTung": "Tìm theo mã hoặc tên",
 			"khongCoPhuTungPhuHop": "Không tìm thấy phụ tùng phù hợp.",
 			"taoPhieuMoi": "Lập phiếu mới",
-			"thaoTac": "Thao tác"
+			"thaoTac": "Thao tác",
+			"xacNhanXoaDong": "Bạn có chắc chắn muốn xóa dòng chi tiết này khỏi phiếu nhập?",
+			"tieuDeXoaDong": "Xác nhận xóa dòng chi tiết",
+			"loiDinhDangSo": "Chỉ được nhập chữ số.",
+			"loiKhoangChiPhi": "Khoảng tổng chi phí không hợp lệ."
 		},
 		"chanDoan": {
 			"thongTinTitle": "Thông tin phiếu tiếp nhận",
@@ -505,7 +517,8 @@
 			"loiLyDoHuy": "Vui lòng nhập lý do hủy",
 			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự",
 			"chuaLuu": "Hóa đơn chưa được lưu.",
-			"daTonTai": "Phiếu tiếp nhận này đã có hóa đơn."
+			"daTonTai": "Phiếu tiếp nhận này đã có hóa đơn.",
+			"loiDaHuy": "Hóa đơn đã hủy"
 		},
 		"schedule": {
 			"assignmentId": "Mã phân công",
@@ -556,7 +569,8 @@
 			"assignmentNotFound": "Không tìm thấy phân công.",
 			"assignmentCreateFailed": "Thêm phân công thất bại.",
 			"assignmentDeleteFailed": "Xóa phân công thất bại.",
-			"employeeNotEligible": "Nhân viên này không đủ điều kiện để được phân ca."
+			"employeeNotEligible": "Nhân viên này không đủ điều kiện để được phân ca.",
+			"chuaCoNhanVienPhuHop": "Chưa có nhân viên đủ điều kiện phân ca (đang hoạt động và không phải quản lý)."
 		},
 		"report": {
 			"revenue": {
