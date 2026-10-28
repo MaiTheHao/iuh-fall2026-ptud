@@ -1,380 +1,378 @@
 package iuh.fit.gui.page;
 
+import iuh.fit.dto.BaseFormDialogConfig;
 import iuh.fit.dto.DanhSachPhuTungCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhuTungFormData;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.AnhTableCellRenderer;
-import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.PhuTungFormPanel;
+import iuh.fit.gui.form.PhuTungSuaFormPanel;
+import iuh.fit.gui.form.PhuTungTaoFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhuTungService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import java.awt.BorderLayout;
-
 import java.sql.SQLException;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class PhuTungPage extends AbstractPage {
 
-    private static final long serialVersionUID = 1L;
-    private static final int SO_DONG_MOI_TRANG = 20;
+  private static final long serialVersionUID = 1L;
+  private static final int SO_DONG_MOI_TRANG = 20;
 
-    private final PhuTungService phuTungService =
-            new PhuTungService();
+  /** Dialog tạo mới: 5 trường nhập + 1 ảnh. */
+  private static final int CHIEU_CAO_TAO = 680;
 
-    private PhuTungFormPanel formPanel;
+  /** Dialog cập nhật: 6 trường nhập + 1 ảnh. */
+  private static final int CHIEU_CAO_SUA = 800;
 
-    private ManagementPanel panel;
-    private ManagementFormPanel form;
+  private static final int COT_ANH = 1;
+  private static final int COT_MA = 2;
+  private static final int COT_TEN = 3;
+  private static final int COT_MO_TA = 4;
+  private static final int COT_DON_GIA = 5;
+  private static final int COT_SO_LUONG = 6;
 
-    private JTextField boLocMa;
-    private JTextField boLocTen;
-    private ManagementPanel.BoLocKhoang boLocDonGia;
-    private ManagementPanel.BoLocKhoang boLocSoLuong;
+  private final PhuTungService phuTungService = new PhuTungService();
 
-    private int trang = 1;
+  private ManagementPanel panel;
 
-    public PhuTungPage() {
-        this.setLayout(new BorderLayout());
+  private JTextField boLocMa;
+  private JTextField boLocTen;
+  private ManagementPanel.BoLocKhoang boLocDonGia;
+  private ManagementPanel.BoLocKhoang boLocSoLuong;
+
+  private int trang = 1;
+
+  public PhuTungPage() {
+    this.setLayout(new BorderLayout());
+  }
+
+  @Override
+  public void render() {
+    this.removeAll();
+    this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    this.setBackground(Theme.BG);
+
+    this.panel = new ManagementPanel();
+    this.panel.setListTitle("app.phuTung.danhSachTitle");
+    this.panel.enableMultiSelection(true);
+
+    this.panel.setHeaders(
+            I18nReaderUtil.get("app.phuTung.hinhAnh"),
+            I18nReaderUtil.get("app.phuTung.ma"),
+            I18nReaderUtil.get("app.phuTung.ten"),
+            I18nReaderUtil.get("app.phuTung.moTa"),
+            I18nReaderUtil.get("app.phuTung.donGia"),
+            I18nReaderUtil.get("app.phuTung.soLuongTon"));
+
+    this.panel.addActionColumn("app.common.actions",
+            new ThaoTac("pencil",
+                    "app.common.edit",
+                    ThaoTac.KieuThaoTac.THUONG,
+                    this::moDialogSua),
+            new ThaoTac("trash-2",
+                    "app.common.delete",
+                    ThaoTac.KieuThaoTac.NGUY_HIEM,
+                    this::xoa));
+
+    this.panel.setAddAction("app.common.add_new", this::moDialogThem);
+    this.panel.setBatchAction("app.common.batch_delete",
+            "trash-2",
+            ThaoTac.KieuThaoTac.NGUY_HIEM,
+            this::xoaNhieu);
+    this.panel.setRowDoubleClickListener(this::moDialogSua);
+
+    this.khoiTaoBoLoc();
+
+    this.panel.getClearFilterButton().addActionListener(e -> this.panel.clearFilters());
+    this.panel.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
+    this.panel.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
+
+    this.taiLai(1);
+
+    this.add(this.panel, BorderLayout.CENTER);
+    this.revalidate();
+    this.repaint();
+  }
+
+  private void khoiTaoBoLoc() {
+    this.boLocMa = this.panel.addTextFilter("app.phuTung.ma");
+    this.boLocTen = this.panel.addTextFilter("app.phuTung.ten");
+    this.boLocDonGia = this.panel.addRangeFilter("app.phuTung.donGiaTuDen");
+    this.boLocSoLuong = this.panel.addRangeFilter("app.phuTung.soLuongTuDen");
+    this.panel.setFilterChangeListener(() -> this.taiLai(1));
+  }
+
+  private void taiLai(int page) {
+    try {
+      DanhSachPhuTungCriteria tieuChi = new DanhSachPhuTungCriteria(
+              this.boLocMa.getText(),
+              this.boLocTen.getText(),
+              this.panel.getQuickFilter(),
+              NumberParseUtil.toDoubleOrNull(this.boLocDonGia.tuText()),
+              NumberParseUtil.toDoubleOrNull(this.boLocDonGia.denText()),
+              NumberParseUtil.toIntegerOrNull(this.boLocSoLuong.tuText()),
+              NumberParseUtil.toIntegerOrNull(this.boLocSoLuong.denText()),
+              Math.max(page, 1),
+              SO_DONG_MOI_TRANG);
+
+      PaginatedResult<PhuTung> ketQua = this.phuTungService.search(tieuChi);
+      List<Object[]> rows = new ArrayList<>();
+
+      for (PhuTung phuTung : ketQua.items()) {
+        rows.add(new Object[] {
+            phuTung.getAnhUrl(),
+            phuTung.getMaPhuTung(),
+            phuTung.getTenPhuTung(),
+            phuTung.getMoTa(),
+            phuTung.getDonGiaNhap(),
+            phuTung.getSoLuongTon()
+        });
+      }
+
+      this.panel.setRows(rows);
+      this.cauHinhCotAnh();
+      this.panel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+      this.panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
+      this.trang = ketQua.page();
+
+    } catch (NumberFormatException e) {
+      ThongBao.loi(this, "app.phuTung.loiBoLocSo");
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void cauHinhCotAnh() {
+    AnhTableCellRenderer.ganVao(this.panel,
+            COT_ANH,
+            "app.phuTung.chuaCoAnh",
+            "app.phuTung.khongTaiDuocAnh");
+  }
+
+  private PhuTungFormData docDuLieuDong(int row) {
+    return new PhuTungFormData(
+            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA)),
+            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_TEN)),
+            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MO_TA)),
+            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_ANH)),
+            NumberParseUtil.toDoubleOrNull(
+                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_DON_GIA))),
+            NumberParseUtil.toIntegerOrNull(
+                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_SO_LUONG))));
+  }
+
+  private String layMaDong(int row) {
+    return NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA));
+  }
+
+  // ==================== DIALOG ====================
+
+  private void moDialogThem() {
+    PhuTungTaoFormPanel form = new PhuTungTaoFormPanel();
+    BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+            SwingUtilities.getWindowAncestor(this),
+            "app.phuTung.themTitle",
+            form,
+            () -> this.taoPhuTung(form),
+            CHIEU_CAO_TAO));
+
+    if (dialog.showAndGet()) {
+      this.taiLai(1);
+    }
+  }
+
+  private void moDialogSua(int row) {
+    PhuTungFormData duLieu = this.docDuLieuDong(row);
+    PhuTungSuaFormPanel form = new PhuTungSuaFormPanel();
+
+    try {
+      PhuTung phuTung = this.phuTungService.getById(duLieu.maPhuTung())
+              .orElseThrow(() -> new IllegalArgumentException("app.phuTung.khongTimThay"));
+
+      form.napDuLieu(this.taoFormData(phuTung));
+
+      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+              SwingUtilities.getWindowAncestor(this),
+              "app.phuTung.suaTitle",
+              form,
+              () -> this.capNhatPhuTung(form, phuTung),
+              CHIEU_CAO_SUA));
+
+      if (dialog.showAndGet()) {
+        this.taiLai(this.trang);
+      }
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private PhuTungFormData taoFormData(PhuTung phuTung) {
+    return new PhuTungFormData(
+            phuTung.getMaPhuTung(),
+            phuTung.getTenPhuTung(),
+            phuTung.getMoTa(),
+            phuTung.getAnhUrl(),
+            phuTung.getDonGiaNhap(),
+            phuTung.getSoLuongTon());
+  }
+
+  private boolean taoPhuTung(PhuTungFormPanel form) {
+    if (!this.kiemTraForm(form)) {
+      return false;
     }
 
-    @Override
-    public void render() {
-        this.removeAll();
-        this.setBorder(
-                BorderFactory.createEmptyBorder(8, 8, 8, 8)
-        );
-        this.setBackground(Theme.BG);
+    PhuTungFormData data = form.layDuLieu();
 
-        this.panel = new ManagementPanel();
-        this.panel.setListTitle("app.phuTung.danhSachTitle");
-
-        this.panel.setHeaders(
-                I18nReaderUtil.get("app.phuTung.hinhAnh"),
-                I18nReaderUtil.get("app.phuTung.ma"),
-                I18nReaderUtil.get("app.phuTung.ten"),
-                I18nReaderUtil.get("app.phuTung.moTa"),
-                I18nReaderUtil.get("app.phuTung.donGia"),
-                I18nReaderUtil.get("app.phuTung.soLuongTon")
-        );
-
-        this.panel.addActionColumn("app.common.actions",
-                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
-                        row -> this.xoa(row)));
-
-        this.form = new ManagementFormPanel("app.phuTung.thongTinTitle");
-
-        this.khoiTaoForm();
-        this.khoiTaoBoLoc();
-        this.ganSuKien();
-
-        this.taiLai(this.panel, 1);
-
-        JSplitPane split = new JSplitPane(
-                JSplitPane.HORIZONTAL_SPLIT,
-                this.form,
-                this.panel
-        );
-        split.setDividerLocation(480);
-        split.setOpaque(false);
-        split.setBorder(null);
-
-        this.add(split, BorderLayout.CENTER);
-
-        this.revalidate();
-        this.repaint();
+    try {
+      this.phuTungService.create(new PhuTung(
+              null,
+              data.tenPhuTung(),
+              data.moTa(),
+              data.anhUrl(),
+              data.donGiaNhap(),
+              0));
+      ThongBao.thongTin(this, "app.common.create_succeed");
+      return true;
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
     }
 
-    private void khoiTaoForm() {
-        this.formPanel = new PhuTungFormPanel();
-        this.form.addBlock(this.formPanel);
+    return false;
+  }
+
+  private boolean capNhatPhuTung(PhuTungFormPanel form, PhuTung phuTung) {
+    if (!this.kiemTraForm(form)) {
+      return false;
     }
 
-    private void khoiTaoBoLoc() {
-        // Mã phụ tùng, tên phụ tùng
-        this.boLocMa = this.panel.addTextFilter("app.phuTung.ma");
-        this.boLocTen = this.panel.addTextFilter("app.phuTung.ten");
+    PhuTungFormData data = form.layDuLieu();
 
-        // Đơn giá từ - đến
-        this.boLocDonGia = this.panel.addRangeFilter("app.phuTung.donGiaTuDen");
-
-        // Tồn kho từ - đến
-        this.boLocSoLuong = this.panel.addRangeFilter("app.phuTung.soLuongTuDen");
-
-        this.panel.setFilterChangeListener(
-                () -> this.taiLai(this.panel, 1)
-        );
+    try {
+      this.phuTungService.update(new PhuTung(
+              phuTung.getMaPhuTung(),
+              data.tenPhuTung(),
+              data.moTa(),
+              data.anhUrl(),
+              data.donGiaNhap(),
+              phuTung.getSoLuongTon()));
+      ThongBao.thongTin(this, "app.common.update_succeed");
+      return true;
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
     }
 
-    private void ganSuKien() {
-        this.form.getNutThem().addActionListener(
-                e -> this.them()
-        );
+    return false;
+  }
 
-        this.form.getNutLuu().addActionListener(
-                e -> this.luu()
-        );
-
-        this.form.getNutXoaTrang().addActionListener(
-                e -> this.lamMoi()
-        );
-
-        this.form.getNutXoa().addActionListener(
-                e -> this.xoa(this.panel.getSelectedRow())
-        );
-
-        this.panel.getClearFilterButton().addActionListener(
-                e -> this.panel.clearFilters()
-        );
-
-        this.panel.getPrevButton().addActionListener(
-                e -> this.taiLai(this.panel, this.trang - 1)
-        );
-
-        this.panel.getNextButton().addActionListener(
-                e -> this.taiLai(this.panel, this.trang + 1)
-        );
-
-        this.panel.getTable().getSelectionModel()
-                .addListSelectionListener(e -> {
-                    if (!e.getValueIsAdjusting()) {
-                        this.chonDong();
-                    }
-                });
+  private boolean kiemTraForm(PhuTungFormPanel form) {
+    if (form.validateInput()) {
+      return true;
     }
 
-    private void taiLai(ManagementPanel panel, int page) {
-        if (page < 1) {
-            page = 1;
-        }
+    ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
+    return false;
+  }
 
-        try {
-            DanhSachPhuTungCriteria tieuChi =
-                    new DanhSachPhuTungCriteria(
-                            this.boLocMa.getText(),
-                            this.boLocTen.getText(),
-                            panel.getQuickFilter(),
-                            NumberParseUtil.toDoubleOrNull(
-                                    this.boLocDonGia.tuText()
-                            ),
-                            NumberParseUtil.toDoubleOrNull(
-                                    this.boLocDonGia.denText()
-                            ),
-                            NumberParseUtil.toIntegerOrNull(
-                                    this.boLocSoLuong.tuText()
-                            ),
-                            NumberParseUtil.toIntegerOrNull(
-                                    this.boLocSoLuong.denText()
-                            ),
-                            page,
-                            SO_DONG_MOI_TRANG
-                    );
+  // ==================== XÓA ====================
 
-            PaginatedResult<PhuTung> ketQua =
-                    this.phuTungService.search(tieuChi);
+  private void xoa(int row) {
+    String maPhuTung = this.layMaDong(row);
 
-            List<Object[]> rows = new ArrayList<>();
-
-            for (PhuTung phuTung : ketQua.items()) {
-                rows.add(new Object[]{
-                        phuTung.getAnhUrl(),
-                        phuTung.getMaPhuTung(),
-                        phuTung.getTenPhuTung(),
-                        phuTung.getMoTa(),
-                        phuTung.getDonGiaNhap(),
-                        phuTung.getSoLuongTon()
-                });
-            }
-
-            panel.setRows(rows);
-
-            this.cauHinhCotAnh();
-
-            panel.setCount(
-                    ketQua.fromIndex(),
-                    ketQua.toIndex(),
-                    ketQua.totalItems()
-            );
-
-            panel.setPage(
-                    ketQua.page(),
-                    Math.max(ketQua.totalPages(), 1)
-            );
-
-            this.trang = ketQua.page();
-
-        } catch (NumberFormatException e) {
-            ThongBao.loi(this, "app.phuTung.loiBoLocSo");
-
-        } catch (IllegalArgumentException e) {
-            ThongBao.loi(this, e);
-
-        } catch (SQLException e) {
-            ThongBao.loi(this, "app.login.errorSystem");
-        }
+    if (maPhuTung.isBlank()) {
+      ThongBao.loi(this, "app.phuTung.chuaChonXoa");
+      return;
     }
 
-    private void cauHinhCotAnh() {
-        AnhTableCellRenderer.ganVao(
-                this.panel,
-                0,
-                "app.phuTung.chuaCoAnh",
-                "app.phuTung.khongTaiDuocAnh"
-        );
+    if (!ThongBao.xacNhan(this, "app.phuTung.xacNhanXoa", "app.phuTung.tieuDeXoa")) {
+      return;
     }
 
-    private void chonDong() {
-        int row = this.panel.getSelectedRow();
+    try {
+      this.phuTungService.delete(maPhuTung);
+      ThongBao.thongTin(this, "app.common.delete_succeed");
+      this.taiLai(this.trang);
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
 
-        if (row < 0) {
-            return;
-        }
-
-        this.formPanel.napDuLieu(this.docDuLieuDong(row));
+  private void xoaNhieu(List<Integer> rows) {
+    if (rows.isEmpty()) {
+      return;
     }
 
-    private void lamMoi() {
-        this.formPanel.lamMoi();
-        this.panel.getTable().clearSelection();
+    if (!ThongBao.xacNhanDinhDang(this,
+            "app.common.batch_delete_confirm",
+            "app.common.confirm",
+            rows.size())) {
+      return;
     }
 
-    private PhuTungFormData getFormData() {
-        return this.formPanel.layDuLieu();
+    int thanhCong = 0;
+    boolean loiHeThong = false;
+
+    for (int row : rows) {
+      try {
+        this.phuTungService.delete(this.layMaDong(row));
+        thanhCong++;
+      } catch (IllegalArgumentException | IllegalStateException ignored) {
+        // Phụ tùng đã phát sinh phiếu nhập / hóa đơn: ghi nhận vào báo cáo tổng hợp.
+      } catch (SQLException e) {
+        loiHeThong = true;
+        break;
+      }
     }
 
-    private void validateFormData(PhuTungFormData data) {
-        if (data.tenPhuTung().isBlank()) {
-            throw new IllegalArgumentException("app.phuTung.loiTen");
-        }
+    this.baoKetQuaHangLoat(thanhCong, rows.size(), loiHeThong);
+    this.taiLai(this.trang);
+  }
 
-        if (data.donGiaNhap() == null || !Double.isFinite(data.donGiaNhap()) || data.donGiaNhap() < 0) {
-            throw new IllegalArgumentException("app.phuTung.loiDonGia");
-        }
+  private void baoKetQuaHangLoat(int thanhCong, int tong, boolean loiHeThong) {
+    if (loiHeThong) {
+      ThongBao.loi(this, "app.login.errorSystem");
+      return;
     }
 
-    private PhuTung taoPhuTung(PhuTungFormData data, int soLuongTon) {
-        return new PhuTung(
-                data.maPhuTung(),
-                data.tenPhuTung(),
-                data.moTa(),
-                data.anhUrl(),
-                data.donGiaNhap(),
-                soLuongTon
-        );
+    if (thanhCong == tong) {
+      ThongBao.thongTin(this, "app.common.delete_succeed");
+      return;
     }
 
-    private void them() {
-        PhuTungFormData data = this.getFormData();
+    ThongBao.canhBaoDinhDang(this, "app.common.batch_delete_result", thanhCong, tong);
+  }
 
-        try {
-            this.validateFormData(data);
-            this.phuTungService.create(this.taoPhuTung(data, 0));
-            ThongBao.thongTin(this, "app.common.create_succeed");
+  @Override
+  public String getTitleKey() {
+    return "app.menu.inventory";
+  }
 
-            this.lamMoi();
-            this.taiLai(this.panel, 1);
-
-        } catch (IllegalArgumentException e) {
-            ThongBao.loi(this, e);
-
-        } catch (SQLException e) {
-            ThongBao.loi(this, "app.login.errorSystem");
-        }
-    }
-
-    private void luu() {
-        PhuTungFormData data = this.getFormData();
-
-        boolean taoMoi = data.maPhuTung() == null;
-
-        try {
-            this.validateFormData(data);
-            PhuTung phuTung = this.taoPhuTung(data, 0);
-            if (taoMoi) {
-                this.phuTungService.create(phuTung);
-                ThongBao.thongTin(this, "app.common.create_succeed");
-            } else {
-                this.phuTungService.update(phuTung);
-                ThongBao.thongTin(this, "app.common.update_succeed");
-            }
-
-            this.lamMoi();
-            this.taiLai(this.panel, 1);
-
-        } catch (IllegalArgumentException e) {
-            ThongBao.loi(this, e);
-
-        } catch (SQLException e) {
-            ThongBao.loi(this, "app.login.errorSystem");
-        }
-    }
-
-    private PhuTungFormData docDuLieuDong(int row) {
-        return new PhuTungFormData(
-                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 1)),
-                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 2)),
-                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 3)),
-                NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 0)),
-                NumberParseUtil.toDoubleOrNull(
-                        NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 4))),
-                NumberParseUtil.toIntegerOrNull(
-                        NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, 5))));
-    }
-
-    private void xoa(int row) {
-        try {
-            if (row < 0) {
-                throw new IllegalArgumentException(
-                        "app.phuTung.chuaChonXoa"
-                );
-            }
-
-            String maPhuTung = String.valueOf(
-                    this.panel.getModel().getValueAt(row, 1)
-            );
-
-            if (!ThongBao.xacNhan(
-                    this,
-                    "app.phuTung.xacNhanXoa",
-                    "app.phuTung.tieuDeXoa"
-            )) {
-                return;
-            }
-
-            this.phuTungService.delete(maPhuTung);
-            ThongBao.thongTin(this, "app.common.delete_succeed");
-
-            this.lamMoi();
-            this.taiLai(this.panel, this.trang);
-
-        } catch (IllegalArgumentException e) {
-            ThongBao.loi(this, e);
-
-        } catch (SQLException e) {
-            ThongBao.loi(this, "app.login.errorSystem");
-        }
-    }
-
-    @Override
-    public String getTitleKey() {
-        return "app.menu.inventory";
-    }
-
-    @Override
-    public MenuGroup getGroup() {
-        return MenuGroup.TO_CHUC;
-    }
+  @Override
+  public MenuGroup getGroup() {
+    return MenuGroup.TO_CHUC;
+  }
 }

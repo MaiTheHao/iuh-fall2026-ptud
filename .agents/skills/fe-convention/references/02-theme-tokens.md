@@ -39,4 +39,4 @@ R1. No `new Color(...)`, `new Font(...)`, hex literal, or `BorderFactory.*` outs
 R2. Express states with tokens: hover `ACCENT_HOVER`, focus `FOCUS`, selection `TABLE_SELECTION_BG`, muted/helper text `INK_MUTED`.
 R3. Text over image or scrim uses `chuTrenAnh()`. Never use `chuTrenAnh()` on a light panel — use `INK`.
 R4. FlatLaf configuration in `install()` sets global defaults: `Button.arc = 8`, `Component.arc = 8`, `ScrollBar.thumbArc = 999`, `Table.rowHeight = 34`, and enables system text anti-aliasing.
-R5. `LoginPage`, `DashboardPage`, `PlaceholderPage`, and `SuaDialog` are fully clean of inline color/font drift; keep them clean.
+R5. `LoginPage`, `DashboardPage`, `PlaceholderPage`, and `BaseFormDialog` are fully clean of inline color/font drift; keep them clean.

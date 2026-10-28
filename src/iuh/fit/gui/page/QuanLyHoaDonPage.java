@@ -1,24 +1,25 @@
 package iuh.fit.gui.page;
 
+import iuh.fit.dto.BaseFormDialogConfig;
 import iuh.fit.dto.DanhSachHoaDonCriteria;
 import iuh.fit.dto.HoaDonView;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiHoaDon;
-import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.HoaDonChiTietFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.HoaDonService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -29,6 +30,9 @@ import java.util.List;
 public class QuanLyHoaDonPage extends AbstractPage {
 
 	private static final int SO_DONG_MOI_TRANG = 20;
+
+	/** Dialog xem chi tiết hóa đơn: 10 trường chỉ đọc. */
+	private static final int CHIEU_CAO_CHI_TIET = 800;
 
 	private final HoaDonService hoaDonService = new HoaDonService();
 	private final DecimalFormat currencyFormat = new DecimalFormat("#,##0");
@@ -44,17 +48,6 @@ public class QuanLyHoaDonPage extends AbstractPage {
 	private ManagementPanel.BoLocNgay boLocNgayTao;
 	private ManagementPanel.BoLocChon boLocTrangThai;
 	private ManagementPanel.BoLocKhoang boLocTongTien;
-
-	private final JTextField maHoaDonField = new JTextField();
-	private final JTextField maPhieuField = new JTextField();
-	private final JTextField khachHangField = new JTextField();
-	private final JTextField bienSoField = new JTextField();
-	private final JTextField ngayTaoField = new JTextField();
-	private final JTextField trangThaiField = new JTextField();
-	private final JTextField tongTienField = new JTextField();
-	private final JTextField thoiGianTTField = new JTextField();
-	private final JTextField ghiChuField = new JTextField();
-	private final JTextField lyDoHuyField = new JTextField();
 
 	public QuanLyHoaDonPage() {
 		this.setLayout(new BorderLayout());
@@ -82,8 +75,13 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		panel.addActionColumn("app.common.actions",
 				new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
 						row -> this.moHoaDon(row)),
+				new ThaoTac("eye", "app.common.view", ThaoTac.KieuThaoTac.THUONG,
+						row -> this.xemChiTiet(row)),
 				new ThaoTac("trash-2", "app.hoaDon.huyHoaDon", ThaoTac.KieuThaoTac.NGUY_HIEM,
 						row -> this.huyHoaDon(panel, row)));
+
+		panel.setAddAction("app.hoaDon.taoMoi", () -> this.goTo(LapHoaDonPage.class));
+		panel.setRowDoubleClickListener(this::xemChiTiet);
 
 		this.boLocMaHoaDon = panel.addTextFilter("app.hoaDon.maHoaDon");
 		this.boLocMaPhieu = panel.addTextFilter("app.hoaDon.maPhieuTiepNhan");
@@ -91,40 +89,6 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		this.boLocNgayTao = panel.addDateRangeFilter("app.hoaDon.ngayTao");
 		this.boLocTrangThai = panel.addComboBoxFilter("app.hoaDon.trangThai", TrangThaiHoaDon.values());
 		this.boLocTongTien = panel.addRangeFilter("app.hoaDon.tongTien");
-
-		ManagementFormPanel form = new ManagementFormPanel("app.hoaDon.thongTinTitle");
-		Theme.applyReadOnly(this.maHoaDonField);
-		Theme.applyReadOnly(this.maPhieuField);
-		Theme.applyReadOnly(this.khachHangField);
-		Theme.applyReadOnly(this.bienSoField);
-		Theme.applyReadOnly(this.ngayTaoField);
-		Theme.applyReadOnly(this.trangThaiField);
-		Theme.applyReadOnly(this.tongTienField);
-		Theme.applyReadOnly(this.thoiGianTTField);
-		Theme.applyReadOnly(this.ghiChuField);
-		Theme.applyReadOnly(this.lyDoHuyField);
-
-		form.addField("app.hoaDon.maHoaDon", this.maHoaDonField);
-		form.addField("app.hoaDon.maPhieuTiepNhan", this.maPhieuField);
-		form.addField("app.khachHang.hoTen", this.khachHangField);
-		form.addField("app.xe.bienSo", this.bienSoField);
-		form.addField("app.hoaDon.ngayTao", this.ngayTaoField);
-		form.addField("app.hoaDon.trangThai", this.trangThaiField);
-		form.addField("app.hoaDon.tongTien", this.tongTienField);
-		form.addField("app.hoaDon.thoiGianThanhToan", this.thoiGianTTField);
-		form.addField("app.hoaDon.ghiChu", this.ghiChuField);
-		form.addField("app.hoaDon.lyDoHuy", this.lyDoHuyField);
-
-		JButton taoMoi = new JButton(I18nReaderUtil.get("app.hoaDon.taoMoi"));
-		Theme.applyPrimary(taoMoi);
-		taoMoi.addActionListener(e -> this.goTo(LapHoaDonPage.class));
-		form.thayNut(taoMoi);
-
-		panel.getTable().getSelectionModel().addListSelectionListener(e -> {
-			if (!e.getValueIsAdjusting()) {
-				this.chonDong(panel);
-			}
-		});
 
 		panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
 		panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
@@ -145,11 +109,7 @@ public class QuanLyHoaDonPage extends AbstractPage {
 
 		this.taiLai(panel, 1);
 
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, panel);
-		split.setDividerLocation(480);
-		split.setOpaque(false);
-		split.setBorder(null);
-		this.add(split, BorderLayout.CENTER);
+		this.add(panel, BorderLayout.CENTER);
 
 		this.revalidate();
 		this.repaint();
@@ -199,7 +159,6 @@ public class QuanLyHoaDonPage extends AbstractPage {
 			panel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
 			panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
 			this.trang = ketQua.page();
-			this.xoaTrangForm();
 		} catch (IllegalArgumentException e) {
 			ThongBao.loi(this, e);
 		} catch (SQLException e) {
@@ -217,24 +176,22 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		return Double.valueOf(value.trim());
 	}
 
-	private void chonDong(ManagementPanel panel) {
-		int row = panel.getSelectedRow();
+	private void xemChiTiet(int row) {
 		if (row < 0 || row >= this.danhSachHienTai.size()) {
 			return;
 		}
-		HoaDonView view = this.danhSachHienTai.get(row);
-		this.maHoaDonField.setText(view.maHoaDon());
-		this.maPhieuField.setText(view.maPhieuTiepNhan());
-		this.khachHangField.setText(view.tenKhachHang());
-		this.bienSoField.setText(view.bienSo());
-		this.ngayTaoField.setText(view.ngayTao() == null ? "" : view.ngayTao().format(this.dateTimeFormat));
-		this.trangThaiField.setText(view.trangThai() == null ? "" : view.trangThai().getI18NBusinessName());
-		this.tongTienField.setText(this.currencyFormat.format(view.tongTien()));
-		this.thoiGianTTField.setText(view.thoiGianThanhToan() == null
-				? ""
-				: view.thoiGianThanhToan().format(this.dateTimeFormat));
-		this.ghiChuField.setText(view.ghiChu() == null ? "" : view.ghiChu());
-		this.lyDoHuyField.setText(view.lyDoHuy() == null ? "" : view.lyDoHuy());
+
+		HoaDonChiTietFormPanel form = new HoaDonChiTietFormPanel();
+		form.napDuLieu(this.danhSachHienTai.get(row));
+
+		BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+				SwingUtilities.getWindowAncestor(this),
+				"app.hoaDon.thongTinTitle",
+				form,
+				null,
+				CHIEU_CAO_CHI_TIET,
+				true));
+		dialog.showAndGet();
 	}
 
 	private void moHoaDon(int row) {
@@ -274,19 +231,6 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		} catch (SQLException e) {
 			ThongBao.loi(this, "app.login.errorSystem");
 		}
-	}
-
-	private void xoaTrangForm() {
-		this.maHoaDonField.setText("");
-		this.maPhieuField.setText("");
-		this.khachHangField.setText("");
-		this.bienSoField.setText("");
-		this.ngayTaoField.setText("");
-		this.trangThaiField.setText("");
-		this.tongTienField.setText("");
-		this.thoiGianTTField.setText("");
-		this.ghiChuField.setText("");
-		this.lyDoHuyField.setText("");
 	}
 
 	@Override

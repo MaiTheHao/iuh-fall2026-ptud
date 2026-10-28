@@ -1,6 +1,7 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.core.context.AppContext;
+import iuh.fit.dto.BaseFormDialogConfig;
 import iuh.fit.dto.DanhSachPhieuTiepNhanCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhieuTiepNhanView;
@@ -9,9 +10,8 @@ import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
-import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
-import iuh.fit.gui.component.SuaDialog;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.PhieuTiepNhanFormPanel;
@@ -22,7 +22,6 @@ import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JOptionPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
@@ -42,12 +41,14 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
     private static final int SO_DONG_MOI_TRANG = 20;
 
+    /** Dialog sửa phiếu tiếp nhận: 6 khối nhập liệu. */
+    private static final int CHIEU_CAO_SUA = 650;
+
     private static final DateTimeFormatter NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
     private final HoaDonService hoaDonService = new HoaDonService();
 
-    private ManagementFormPanel form;
     private ManagementPanel managementPanel;
 
     private JTextField boLocMa;
@@ -57,7 +58,6 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
     private JTextField boLocNoiDung;
     private ManagementPanel.BoLocNgay boLocThoiGianVao;
     private ManagementPanel.BoLocChon boLocTrangThai;
-    private PhieuTiepNhanFormPanel formPanel;
     private List<PhieuTiepNhanView> danhSachHienTai = new ArrayList<>();
     private int trang = 1;
 
@@ -104,38 +104,16 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
         this.managementPanel.setFilterChangeListener(() -> this.taiLaiData(1));
 
-        this.form = new ManagementFormPanel("app.phieuTiepNhan.thongTinTitle");
-
-        this.formPanel = new PhieuTiepNhanFormPanel();
-        this.form.addBlock(this.formPanel);
-
-        this.form.getNutLuu().setText(I18nReaderUtil.get("app.phieuTiepNhan.luu"));
-        this.form.getNutLuu().addActionListener(e -> this.luuPhieuTiepNhan());
-        this.form.getNutXoa().setText(I18nReaderUtil.get("app.phieuTiepNhan.huyPhieu"));
-        this.form.getNutXoa().addActionListener(
-                e -> this.huyPhieu(this.managementPanel.getSelectedRow()));
-        this.form.getNutXoaTrang().setText(I18nReaderUtil.get("app.phieuTiepNhan.xoaTrang"));
-        this.form.getNutXoaTrang().addActionListener(e -> this.lamMoiForm());
-        this.form.getNutThem().addActionListener(e -> this.goTo(TiepNhanKhachHangPage.class));
+        this.managementPanel.setAddAction("app.common.add_new",
+                () -> this.goTo(TiepNhanKhachHangPage.class));
+        this.managementPanel.setRowDoubleClickListener(this::suaPhieuTiepNhan);
 
         this.managementPanel.getClearFilterButton().addActionListener(e -> this.managementPanel.clearFilters());
         this.managementPanel.getPrevButton().addActionListener(e -> this.taiLaiData(this.trang - 1));
         this.managementPanel.getNextButton().addActionListener(e -> this.taiLaiData(this.trang + 1));
 
-        this.managementPanel.getTable().getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                this.chonDong();
-            }
-        });
+        this.add(this.managementPanel, BorderLayout.CENTER);
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
-        split.setDividerLocation(480);
-        split.setOpaque(false);
-        split.setBorder(null);
-
-        this.add(split, BorderLayout.CENTER);
-
-        this.lamMoiForm();
         this.taiLaiData(1);
         this.revalidate();
         this.repaint();
@@ -187,38 +165,6 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         }
     }
 
-    private void chonDong() {
-        int row = this.managementPanel.getSelectedRow();
-        if (row < 0 || row >= this.danhSachHienTai.size()) {
-            return;
-        }
-
-        PhieuTiepNhanView view = this.danhSachHienTai.get(row);
-        this.formPanel.napDuLieu(view);
-        this.form.getNutXoa().setEnabled(view.trangThai() != TrangThaiPhieuTiepNhan.DA_HUY);
-    }
-
-    private void lamMoiForm() {
-        this.formPanel.lamMoi();
-        this.managementPanel.getTable().clearSelection();
-        this.form.getNutXoa().setEnabled(true);
-    }
-
-    private void luuPhieuTiepNhan() {
-        PhieuTiepNhan phieu = this.formPanel.layDuLieu();
-
-        if (phieu.getMaPhieuTiepNhan().isBlank()) {
-            ThongBao.canhBao(this, "app.phieuTiepNhan.loiMa");
-            return;
-        }
-
-        if (!this.capNhat(this, phieu)) {
-            return;
-        }
-
-        this.taiLaiData(this.trang);
-    }
-
     private void suaPhieuTiepNhan(int row) {
         if (row < 0 || row >= this.danhSachHienTai.size()) {
             return;
@@ -229,13 +175,15 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         PhieuTiepNhanFormPanel formSua = new PhieuTiepNhanFormPanel();
         formSua.napDuLieu(view);
 
-        SuaDialog dialog = new SuaDialog(
-                SwingUtilities.getWindowAncestor(this), "app.common.editTitle", formSua);
-        dialog.datXuLyLuu(() -> this.capNhat(dialog, formSua.layDuLieu()));
+        BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+                SwingUtilities.getWindowAncestor(this),
+                "app.common.editTitle",
+                formSua,
+                () -> this.capNhat(SwingUtilities.getWindowAncestor(formSua), formSua.layDuLieu()),
+                CHIEU_CAO_SUA));
 
-        if (dialog.hienThiVaChoKetQua()) {
+        if (dialog.showAndGet()) {
             this.taiLaiData(this.trang);
-            this.lamMoiForm();
         }
     }
 
@@ -276,8 +224,6 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
             return;
         }
 
-        this.chonDong();
-
         if (!ThongBao.xacNhan(this, "app.phieuTiepNhan.xacNhanHuy", "app.phieuTiepNhan.tieuDeHuy")) {
             return;
         }
@@ -296,7 +242,6 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
             this.phieuTiepNhanService.huyPhieu(view.maPhieuTiepNhan(), lyDo);
             ThongBao.thongTin(this, "app.common.update_succeed");
             this.taiLaiData(this.trang);
-            this.lamMoiForm();
         } catch (IllegalArgumentException | IllegalStateException ex) {
             ThongBao.loi(this, ex);
         } catch (SQLException ex) {

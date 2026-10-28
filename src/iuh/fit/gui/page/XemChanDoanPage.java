@@ -4,7 +4,6 @@ import iuh.fit.core.context.AppContext;
 import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.entity.VanDeKyThuat;
 import iuh.fit.enumeration.MenuGroup;
-import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
@@ -13,9 +12,10 @@ import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -36,12 +36,11 @@ public class XemChanDoanPage extends AbstractPage {
     private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
 
     private ManagementPanel managementPanel;
-    private ManagementFormPanel form;
-    private JTextField txtMaPhieu;
-    private JTextField txtBienSo;
+    private JLabel lblMaPhieu;
+    private JLabel lblBienSo;
 
     public XemChanDoanPage() {
-        this.setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout(0, 8));
         this.setBackground(Theme.BG);
     }
 
@@ -50,21 +49,6 @@ public class XemChanDoanPage extends AbstractPage {
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setBackground(Theme.BG);
-
-        this.form = new ManagementFormPanel("app.chanDoan.thongTinTitle");
-
-        this.txtMaPhieu = new JTextField();
-        Theme.applyReadOnly(this.txtMaPhieu);
-        this.form.addField("app.chanDoan.ma", this.txtMaPhieu);
-
-        this.txtBienSo = new JTextField();
-        Theme.applyReadOnly(this.txtBienSo);
-        this.form.addField("app.chanDoan.bienSo", this.txtBienSo);
-
-        JButton nutQuayLai = new JButton(I18nReaderUtil.get("app.chanDoan.quayLai"));
-        Theme.applySecondary(nutQuayLai);
-        nutQuayLai.addActionListener(e -> this.goTo(QuanLyPhieuTiepNhanPage.class));
-        this.form.thayNut(nutQuayLai);
 
         this.managementPanel = new ManagementPanel();
         this.managementPanel.setListTitle("app.chanDoan.danhSachChanDoanTitle");
@@ -82,16 +66,44 @@ public class XemChanDoanPage extends AbstractPage {
         this.managementPanel.getClearFilterButton().addActionListener(
                 e -> this.managementPanel.clearFilters());
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
-        split.setDividerLocation(480);
-        split.setOpaque(false);
-        split.setBorder(null);
-
-        this.add(split, BorderLayout.CENTER);
+        this.add(this.taoThanhThongTin(), BorderLayout.NORTH);
+        this.add(this.managementPanel, BorderLayout.CENTER);
 
         this.taiLai();
         this.revalidate();
         this.repaint();
+    }
+
+    private JPanel taoThanhThongTin() {
+        JPanel thanh = Theme.contentPanel(8);
+
+        JPanel dongThongTin = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
+        dongThongTin.setOpaque(false);
+
+        JLabel nhanMa = new JLabel(I18nReaderUtil.get("app.chanDoan.ma") + ":");
+        nhanMa.setFont(Theme.fieldLabelFont());
+        nhanMa.setForeground(Theme.INK);
+        this.lblMaPhieu = new JLabel("");
+        this.lblMaPhieu.setForeground(Theme.INK);
+
+        JLabel nhanBienSo = new JLabel(I18nReaderUtil.get("app.chanDoan.bienSo") + ":");
+        nhanBienSo.setFont(Theme.fieldLabelFont());
+        nhanBienSo.setForeground(Theme.INK);
+        this.lblBienSo = new JLabel("");
+        this.lblBienSo.setForeground(Theme.INK);
+
+        dongThongTin.add(nhanMa);
+        dongThongTin.add(this.lblMaPhieu);
+        dongThongTin.add(nhanBienSo);
+        dongThongTin.add(this.lblBienSo);
+
+        JButton nutQuayLai = new JButton(I18nReaderUtil.get("app.chanDoan.quayLai"));
+        Theme.applySecondary(nutQuayLai);
+        nutQuayLai.addActionListener(e -> this.goTo(QuanLyPhieuTiepNhanPage.class));
+
+        thanh.add(dongThongTin, BorderLayout.CENTER);
+        thanh.add(nutQuayLai, BorderLayout.EAST);
+        return thanh;
     }
 
     private void taiLai() {
@@ -99,16 +111,16 @@ public class XemChanDoanPage extends AbstractPage {
             PhieuTiepNhanView phieu = AppContext.getInstance().getSelectedPhieuTiepNhan();
 
             if (phieu == null) {
-                this.txtMaPhieu.setText("");
-                this.txtBienSo.setText("");
+                this.lblMaPhieu.setText("");
+                this.lblBienSo.setText("");
                 this.managementPanel.setRows(List.of());
                 this.managementPanel.setCount(0, 0, 0);
                 this.managementPanel.setPage(1, 1);
                 return;
             }
 
-            this.txtMaPhieu.setText(phieu.maPhieuTiepNhan());
-            this.txtBienSo.setText(phieu.bienSo());
+            this.lblMaPhieu.setText(phieu.maPhieuTiepNhan() == null ? "" : phieu.maPhieuTiepNhan());
+            this.lblBienSo.setText(phieu.bienSo() == null ? "" : phieu.bienSo());
 
             List<VanDeKyThuat> ds = this.vanDeKyThuatService.layDanhSachTheoPhieu(
                     phieu.maPhieuTiepNhan(), this.managementPanel.getQuickFilter());

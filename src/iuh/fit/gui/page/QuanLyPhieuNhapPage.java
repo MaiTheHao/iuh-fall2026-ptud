@@ -1,23 +1,24 @@
 package iuh.fit.gui.page;
 
+import iuh.fit.dto.BaseFormDialogConfig;
 import iuh.fit.dto.DanhSachCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.PhieuNhapPhuTung;
 import iuh.fit.enumeration.MenuGroup;
-import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.PhieuNhapChiTietFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuNhapPhuTungService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -27,22 +28,20 @@ import java.util.List;
 
 public class QuanLyPhieuNhapPage extends AbstractPage {
 
+    /** Dialog xem chi tiết phiếu nhập: 5 trường chỉ đọc. */
+    private static final int CHIEU_CAO_CHI_TIET = 500;
+
     private final PhieuNhapPhuTungService phieuNhapService = new PhieuNhapPhuTungService();
     private final DecimalFormat currencyFormat = new DecimalFormat("#,##0");
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(I18nReaderUtil.get("app.date.format") + " HH:mm");
     private int trang = 1;
+    private ManagementPanel managementPanel;
 
     private JTextField boLocMaPhieuNhap;
     private JTextField boLocMoTa;
     private JTextField boLocThuKho;
     private ManagementPanel.BoLocNgay boLocNgayTao;
     private ManagementPanel.BoLocKhoang boLocTongChiPhi;
-
-    private final JTextField maPhieuNhapField = new JTextField();
-    private final JTextField moTaField = new JTextField();
-    private final JTextField thuKhoField = new JTextField();
-    private final JTextField ngayTaoField = new JTextField();
-    private final JTextField tongChiPhiField = new JTextField();
 
     public QuanLyPhieuNhapPage() {
         this.setLayout(new BorderLayout());
@@ -55,6 +54,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         this.setBackground(Theme.BG);
 
         ManagementPanel panel = new ManagementPanel();
+        this.managementPanel = panel;
         panel.setListTitle("app.phieuNhap.danhSachTitle");
 
         panel.setHeaders(
@@ -67,56 +67,19 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         );
 
         panel.addActionColumn("app.common.actions",
+                new ThaoTac("eye", "app.common.view", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.xemChiTiet(row)),
                 new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.xoaTheoDong(panel, row)));
+
+        panel.setAddAction("app.phieuNhap.taoPhieuMoi", () -> this.goTo(LapPhieuNhapPage.class));
+        panel.setRowDoubleClickListener(this::xemChiTiet);
 
         this.boLocMaPhieuNhap = panel.addTextFilter("app.phieuNhap.maPhieuNhap");
         this.boLocMoTa = panel.addTextFilter("app.phieuNhap.moTa");
         this.boLocThuKho = panel.addTextFilter("app.phieuNhap.thuKho");
         this.boLocNgayTao = panel.addDateRangeFilter("app.phieuNhap.ngayTao");
         this.boLocTongChiPhi = panel.addRangeFilter("app.phieuNhap.tongChiPhi");
-
-        ManagementFormPanel form = new ManagementFormPanel("app.phieuNhap.thongTinTitle");
-
-        Theme.applyReadOnly(this.maPhieuNhapField);
-        Theme.applyReadOnly(this.moTaField);
-        Theme.applyReadOnly(this.thuKhoField);
-        Theme.applyReadOnly(this.ngayTaoField);
-        Theme.applyReadOnly(this.tongChiPhiField);
-
-        form.addField("app.phieuNhap.maPhieuNhap", this.maPhieuNhapField);
-        form.addField("app.phieuNhap.moTa", this.moTaField);
-        form.addField("app.phieuNhap.thuKho", this.thuKhoField);
-        form.addField("app.phieuNhap.ngayTao", this.ngayTaoField);
-        form.addField("app.phieuNhap.tongChiPhi", this.tongChiPhiField);
-
-        JButton taoMoi = new JButton(I18nReaderUtil.get("app.phieuNhap.taoPhieuMoi"));
-        Theme.applyPrimary(taoMoi);
-        taoMoi.addActionListener(e -> this.goTo(LapPhieuNhapPage.class));
-
-        JButton xoa = new JButton(I18nReaderUtil.get("app.common.delete"));
-        Theme.applyDanger(xoa);
-        xoa.addActionListener(e -> this.xoaTheoDongChon(panel));
-
-        form.thayNut(taoMoi, xoa);
-
-        panel.getTable().getSelectionModel().addListSelectionListener(e -> {
-            if (e.getValueIsAdjusting()) {
-                return;
-            }
-
-            int row = panel.getSelectedRow();
-
-            if (row < 0) {
-                return;
-            }
-
-            this.maPhieuNhapField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 1)));
-            this.moTaField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 2)));
-            this.thuKhoField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 3)));
-            this.ngayTaoField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 4)));
-            this.tongChiPhiField.setText(NumberParseUtil.textOf(panel.getModel().getValueAt(row, 5)));
-        });
 
         panel.setFilterChangeListener(() -> this.taiLai(panel, 1));
         panel.getClearFilterButton().addActionListener(e -> panel.clearFilters());
@@ -135,11 +98,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
         this.taiLai(panel, 1);
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, panel);
-        split.setDividerLocation(480);
-        split.setOpaque(false);
-        split.setBorder(null);
-        this.add(split, BorderLayout.CENTER);
+        this.add(panel, BorderLayout.CENTER);
 
         this.revalidate();
         this.repaint();
@@ -201,13 +160,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
             panel.setCount(res.fromIndex(), res.toIndex(), res.totalItems());
             panel.setPage(res.page(), Math.max(res.totalPages(), 1));
             this.trang = res.page();
-
-            this.maPhieuNhapField.setText("");
-            this.moTaField.setText("");
-            this.thuKhoField.setText("");
-            this.ngayTaoField.setText("");
-            this.tongChiPhiField.setText("");
-
         } catch (SQLException e) {
             ThongBao.loi(this, "app.login.errorSystem");
         }
@@ -223,17 +175,32 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         return Double.valueOf(val.trim());
     }
 
-    private void xoaTheoDong(ManagementPanel panel, int row) {
+    private void xemChiTiet(int row) {
+        ManagementPanel panel = this.managementPanel;
         if (row < 0 || row >= panel.getModel().getRowCount()) {
             return;
         }
-        this.thucHienXoa(panel, NumberParseUtil.textOf(panel.getModel().getValueAt(row, 1)));
+
+        PhieuNhapChiTietFormPanel form = new PhieuNhapChiTietFormPanel();
+        form.napDuLieu(
+                NumberParseUtil.textOf(panel.getModel().getValueAt(row, 1)),
+                NumberParseUtil.textOf(panel.getModel().getValueAt(row, 2)),
+                NumberParseUtil.textOf(panel.getModel().getValueAt(row, 3)),
+                NumberParseUtil.textOf(panel.getModel().getValueAt(row, 4)),
+                NumberParseUtil.textOf(panel.getModel().getValueAt(row, 5)));
+
+        BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+                SwingUtilities.getWindowAncestor(this),
+                "app.phieuNhap.thongTinTitle",
+                form,
+                null,
+                CHIEU_CAO_CHI_TIET,
+                true));
+        dialog.showAndGet();
     }
 
-    private void xoaTheoDongChon(ManagementPanel panel) {
-        int row = panel.getSelectedRow();
-        if (row < 0) {
-            ThongBao.canhBao(this, "app.phieuNhap.chuaChonXoa");
+    private void xoaTheoDong(ManagementPanel panel, int row) {
+        if (row < 0 || row >= panel.getModel().getRowCount()) {
             return;
         }
         this.thucHienXoa(panel, NumberParseUtil.textOf(panel.getModel().getValueAt(row, 1)));

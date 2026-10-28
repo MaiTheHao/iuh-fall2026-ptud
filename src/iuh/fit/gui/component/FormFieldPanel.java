@@ -8,6 +8,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -69,5 +71,22 @@ public class FormFieldPanel extends JPanel {
             Dimension kichThuoc = field.getPreferredSize();
             field.setPreferredSize(new Dimension(kichThuoc.width, CHIEU_CAO_TRUONG));
         }
+    }
+
+    /** Khung cuộn chuẩn cho vùng mô tả nhiều dòng. */
+    protected static JScrollPane taoKhungMoTa(JTextArea area) {
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+
+        JScrollPane scroll = new JScrollPane(area);
+        scroll.setPreferredSize(new Dimension(200, 100));
+        return scroll;
+    }
+
+    /** Nhãn gợi ý phụ dưới một trường nhập liệu. */
+    protected static JLabel taoGoiY(String labelKey) {
+        JLabel goiY = new JLabel(I18nReaderUtil.get(labelKey));
+        goiY.setForeground(Theme.palette().INK_MUTED());
+        return goiY;
     }
 }

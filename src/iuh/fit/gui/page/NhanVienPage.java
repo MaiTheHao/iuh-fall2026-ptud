@@ -1,5 +1,6 @@
 package iuh.fit.gui.page;
 
+import iuh.fit.dto.BaseFormDialogConfig;
 import iuh.fit.dto.DanhSachNhanVienCriteria;
 import iuh.fit.dto.NhanVienFormData;
 import iuh.fit.dto.PaginatedResult;
@@ -8,20 +9,21 @@ import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiNhanVien;
 import iuh.fit.enumeration.VaiTro;
 import iuh.fit.gui.component.AnhTableCellRenderer;
-import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.NhanVienFormPanel;
+import iuh.fit.gui.form.NhanVienSuaFormPanel;
+import iuh.fit.gui.form.NhanVienTaoFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.NhanVienService;
 import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.TableModel;
+import javax.swing.SwingUtilities;
 
 import java.awt.BorderLayout;
 import java.sql.SQLException;
@@ -31,404 +33,390 @@ import java.util.List;
 
 public class NhanVienPage extends AbstractPage {
 
-    private static final long serialVersionUID = 1L;
-    private static final int PAGE_SIZE = 20;
+  private static final long serialVersionUID = 1L;
 
-    private final NhanVienService nhanVienService = new NhanVienService();
+  private static final int PAGE_SIZE = 20;
 
-    private ManagementPanel managementPanel;
-    private ManagementFormPanel form;
-    private NhanVienFormPanel formPanel;
+  /** Dialog tạo mới: 6 trường nhập + 1 ảnh. */
+  private static final int CHIEU_CAO_TAO = 800;
 
-    private JTextField boLocMa;
-    private JTextField boLocHoTen;
-    private JTextField boLocSoDienThoai;
-    private ManagementPanel.BoLocChon boLocVaiTro;
-    private ManagementPanel.BoLocChon boLocTrangThai;
-    private ManagementPanel.BoLocNgay boLocNgayTao;
+  /** Dialog cập nhật: 8 trường nhập + 1 ảnh. */
+  private static final int CHIEU_CAO_SUA = 800;
 
-    private boolean dangSua = false;
-    private String maNhanVienDangSua;
+  private static final int COT_ANH = 1;
+  private static final int COT_MA = 2;
 
-    private PaginatedResult<NhanVien> ketQua;
-    private int trangHienTai = 1;
+  private final NhanVienService nhanVienService = new NhanVienService();
 
-    public NhanVienPage() {
-        setLayout(new BorderLayout());
+  private ManagementPanel managementPanel;
+
+  private JTextField boLocMa;
+  private JTextField boLocHoTen;
+  private JTextField boLocSoDienThoai;
+  private ManagementPanel.BoLocChon boLocVaiTro;
+  private ManagementPanel.BoLocChon boLocTrangThai;
+  private ManagementPanel.BoLocNgay boLocNgayTao;
+
+  private int trangHienTai = 1;
+
+  public NhanVienPage() {
+    setLayout(new BorderLayout());
+  }
+
+  @Override
+  public void render() {
+    removeAll();
+
+    setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    this.setBackground(Theme.BG);
+
+    this.managementPanel = new ManagementPanel();
+    this.managementPanel.setListTitle("app.nhanVien.danhSachTitle");
+    this.managementPanel.enableMultiSelection(true);
+
+    this.managementPanel.setHeaders(
+            I18nReaderUtil.get("app.nhanVien.hinhAnh"),
+            I18nReaderUtil.get("app.nhanVien.maNhanVien"),
+            I18nReaderUtil.get("app.nhanVien.hoTen"),
+            I18nReaderUtil.get("app.nhanVien.soDienThoai"),
+            I18nReaderUtil.get("app.nhanVien.vaiTro"),
+            I18nReaderUtil.get("app.nhanVien.trangThai"));
+
+    this.managementPanel.addActionColumn("app.common.actions",
+            new ThaoTac("pencil",
+                    "app.common.edit",
+                    ThaoTac.KieuThaoTac.THUONG,
+                    this::moDialogSua),
+            new ThaoTac("trash-2",
+                    "app.common.delete",
+                    ThaoTac.KieuThaoTac.NGUY_HIEM,
+                    this::xoa));
+
+    this.managementPanel.setAddAction("app.common.add_new", this::moDialogThem);
+    this.managementPanel.setBatchAction("app.common.batch_delete",
+            "trash-2",
+            ThaoTac.KieuThaoTac.NGUY_HIEM,
+            this::xoaNhieu);
+    this.managementPanel.setRowDoubleClickListener(this::moDialogSua);
+
+    this.khoiTaoBoLoc();
+    this.ganSuKien();
+
+    this.trangHienTai = 1;
+    this.taiLaiDanhSach();
+
+    this.add(this.managementPanel, BorderLayout.CENTER);
+
+    revalidate();
+    repaint();
+  }
+
+  @Override
+  public String getTitleKey() {
+    return "app.menu.employees";
+  }
+
+  @Override
+  public MenuGroup getGroup() {
+    return MenuGroup.TO_CHUC;
+  }
+
+  @Override
+  public boolean hasSeparatorBefore() {
+    return true;
+  }
+
+  // ==================== BỘ LỌC ====================
+
+  private void khoiTaoBoLoc() {
+    this.boLocMa = this.managementPanel.addTextFilter("app.nhanVien.maNhanVien");
+    this.boLocHoTen = this.managementPanel.addTextFilter("app.nhanVien.hoTen");
+    this.boLocSoDienThoai = this.managementPanel.addTextFilter("app.nhanVien.soDienThoai");
+    this.boLocVaiTro = this.managementPanel.addComboBoxFilter("app.nhanVien.vaiTro", VaiTro.values());
+    this.boLocTrangThai = this.managementPanel.addComboBoxFilter("app.nhanVien.trangThai",
+            TrangThaiNhanVien.values());
+    this.boLocNgayTao = this.managementPanel.addDateRangeFilter("app.nhanVien.ngayTao");
+
+    this.managementPanel.setFilterChangeListener(() -> {
+      this.trangHienTai = 1;
+      this.taiLaiDanhSach();
+    });
+  }
+
+  private String layGiaTriBoLoc(String value) {
+    if (value == null || value.isBlank()) {
+      return null;
     }
 
-    @Override
-    public void render() {
-        removeAll();
+    return value.trim();
+  }
 
-        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        this.setBackground(Theme.BG);
+  private String layTimNhanh() {
+    String value = this.managementPanel.getQuickFilter();
 
-        managementPanel = new ManagementPanel();
-        this.managementPanel.setListTitle("app.nhanVien.danhSachTitle");
-
-        managementPanel.setHeaders(I18nReaderUtil.get("app.nhanVien.hinhAnh"),
-                I18nReaderUtil.get("app.nhanVien.maNhanVien"), I18nReaderUtil.get("app.nhanVien.hoTen"),
-                I18nReaderUtil.get("app.nhanVien.soDienThoai"), I18nReaderUtil.get("app.nhanVien.vaiTro"),
-                I18nReaderUtil.get("app.nhanVien.trangThai"));
-
-        this.managementPanel.addActionColumn("app.common.actions",
-                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
-                        row -> this.xoa(row)));
-
-        this.form = new ManagementFormPanel("app.nhanVien.thongTinTitle");
-
-        khoiTaoForm();
-        khoiTaoBoLoc();
-        ganSuKien();
-
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
-        split.setDividerLocation(480);
-        split.setOpaque(false);
-        split.setBorder(null);
-        this.add(split, BorderLayout.CENTER);
-
-        trangHienTai = 1;
-        taiLaiDanhSach();
-
-        revalidate();
-        repaint();
+    if (value == null || value.isBlank()) {
+      return null;
     }
 
-    @Override
-    public String getTitleKey() {
-        return "app.menu.employees";
+    return value.trim();
+  }
+
+  private void ganSuKien() {
+    this.managementPanel.getClearFilterButton().addActionListener(e -> {
+      this.trangHienTai = 1;
+      this.managementPanel.clearFilters();
+    });
+
+    this.managementPanel.getPrevButton().addActionListener(e -> {
+      if (this.trangHienTai > 1) {
+        this.trangHienTai--;
+        this.taiLaiDanhSach();
+      }
+    });
+
+    this.managementPanel.getNextButton().addActionListener(e -> {
+      this.trangHienTai++;
+      this.taiLaiDanhSach();
+    });
+  }
+
+  // ==================== TẢI DANH SÁCH ====================
+
+  private void taiLaiDanhSach() {
+    try {
+      DanhSachNhanVienCriteria criteria = new DanhSachNhanVienCriteria(
+              this.layGiaTriBoLoc(this.boLocMa.getText()),
+              this.layGiaTriBoLoc(this.boLocHoTen.getText()),
+              this.layGiaTriBoLoc(this.boLocSoDienThoai.getText()),
+              this.boLocVaiTro.ma(),
+              this.boLocTrangThai.ma(),
+              this.layTimNhanh(),
+              this.boLocNgayTao.tuNgay(),
+              this.boLocNgayTao.denNgay(),
+              Math.max(this.trangHienTai, 1),
+              PAGE_SIZE);
+
+      PaginatedResult<NhanVien> ketQua = this.nhanVienService.search(criteria);
+
+      if (ketQua == null) {
+        return;
+      }
+
+      if (ketQua.totalPages() > 0 && this.trangHienTai > ketQua.totalPages()) {
+        this.trangHienTai = ketQua.totalPages();
+        this.taiLaiDanhSach();
+        return;
+      }
+
+      this.hienThiDanhSach(ketQua);
+
+    } catch (SQLException ex) {
+      ThongBao.loi(this, "app.nhanVien.loiTaiDanhSach");
+    }
+  }
+
+  private void hienThiDanhSach(PaginatedResult<NhanVien> ketQua) {
+    List<Object[]> rows = new ArrayList<>();
+
+    for (NhanVien nv : ketQua.items()) {
+      rows.add(new Object[] {
+          nv.getAnhDaiDien(),
+          nv.getMaNhanVien(),
+          nv.getHoTen(),
+          nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai(),
+          nv.getVaiTro() == null ? "" : nv.getVaiTro().getI18NBusinessName(),
+          nv.getTrangThai() == null ? "" : nv.getTrangThai().getI18NBusinessName()
+      });
     }
 
-    @Override
-    public MenuGroup getGroup() {
-        return MenuGroup.TO_CHUC;
+    this.managementPanel.setRows(rows);
+    this.cauHinhCotAnh();
+
+    this.managementPanel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+    this.managementPanel.setPage(ketQua.page(), Math.max(1, ketQua.totalPages()));
+
+    this.trangHienTai = ketQua.page();
+  }
+
+  private void cauHinhCotAnh() {
+    AnhTableCellRenderer.ganVao(this.managementPanel,
+            COT_ANH,
+            "app.nhanVien.chuaCoAnh",
+            "app.nhanVien.khongTaiDuocAnh");
+  }
+
+  private String layMaDong(int row) {
+    return NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, COT_MA));
+  }
+
+  // ==================== DIALOG ====================
+
+  private void moDialogThem() {
+    NhanVienTaoFormPanel form = new NhanVienTaoFormPanel();
+    BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+            SwingUtilities.getWindowAncestor(this),
+            "app.nhanVien.themTitle",
+            form,
+            () -> this.taoNhanVien(form),
+            CHIEU_CAO_TAO));
+
+    if (dialog.showAndGet()) {
+      this.trangHienTai = 1;
+      this.taiLaiDanhSach();
+    }
+  }
+
+  private void moDialogSua(int row) {
+    String ma = this.layMaDong(row);
+
+    try {
+      NhanVien nhanVien = this.nhanVienService.getById(ma);
+      NhanVienSuaFormPanel form = new NhanVienSuaFormPanel();
+      form.napDuLieu(nhanVien);
+
+      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+              SwingUtilities.getWindowAncestor(this),
+              "app.nhanVien.suaTitle",
+              form,
+              () -> this.capNhatNhanVien(form, nhanVien),
+              CHIEU_CAO_SUA));
+
+      if (dialog.showAndGet()) {
+        this.taiLaiDanhSach();
+      }
+    } catch (SQLException | IllegalArgumentException ex) {
+      ThongBao.loi(this, "app.nhanVien.loiLayThongTin");
+    }
+  }
+
+  private boolean taoNhanVien(NhanVienFormPanel form) {
+    if (!this.kiemTraForm(form)) {
+      return false;
     }
 
-    @Override
-    public boolean hasSeparatorBefore() {
-        return true;
+    NhanVienFormData data = form.layDuLieu();
+
+    try {
+      NhanVien nv = new NhanVien(data.maNhanVien(),
+              data.tenDangNhap(),
+              data.matKhau(),
+              data.hoTen(),
+              this.chuanHoaRong(data.soDienThoai()),
+              this.chuanHoaRong(data.anhDaiDien()),
+              data.vaiTro(),
+              data.trangThai(),
+              LocalDateTime.now());
+
+      this.nhanVienService.create(nv);
+      ThongBao.thongTin(this, "app.nhanVien.themThanhCong");
+      return true;
+    } catch (SQLException | IllegalArgumentException ex) {
+      ThongBao.loi(this, ex);
     }
 
-    // ==================== FORM ====================
+    return false;
+  }
 
-    private void khoiTaoForm() {
-        this.formPanel = new NhanVienFormPanel();
-        this.form.addBlock(this.formPanel);
-        this.lamMoiForm();
+  private boolean capNhatNhanVien(NhanVienFormPanel form, NhanVien nhanVien) {
+    if (!this.kiemTraForm(form)) {
+      return false;
     }
 
-    // ==================== BỘ LỌC ====================
+    NhanVienFormData data = form.layDuLieu();
 
-    private void khoiTaoBoLoc() {
-        this.boLocMa = this.managementPanel.addTextFilter("app.nhanVien.maNhanVien");
+    try {
+      nhanVien.setHoTen(data.hoTen());
+      nhanVien.setSoDienThoai(this.chuanHoaRong(data.soDienThoai()));
+      nhanVien.setAnhDaiDien(this.chuanHoaRong(data.anhDaiDien()));
+      nhanVien.setVaiTro(data.vaiTro());
+      nhanVien.setTrangThai(data.trangThai());
+      nhanVien.setMatKhau(data.matKhau().isBlank() ? null : data.matKhau());
 
-        this.boLocHoTen = this.managementPanel.addTextFilter("app.nhanVien.hoTen");
-
-        this.boLocSoDienThoai = this.managementPanel.addTextFilter("app.nhanVien.soDienThoai");
-
-        this.boLocVaiTro = this.managementPanel.addComboBoxFilter("app.nhanVien.vaiTro", VaiTro.values());
-
-        this.boLocTrangThai = this.managementPanel.addComboBoxFilter("app.nhanVien.trangThai",
-                TrangThaiNhanVien.values());
-
-        this.boLocNgayTao = this.managementPanel.addDateRangeFilter("app.nhanVien.ngayTao");
-
-        this.managementPanel.setFilterChangeListener(() -> {
-            this.trangHienTai = 1;
-            this.taiLaiDanhSach();
-        });
+      this.nhanVienService.update(nhanVien);
+      ThongBao.thongTin(this, "app.nhanVien.capNhatThanhCong");
+      return true;
+    } catch (SQLException | IllegalArgumentException ex) {
+      ThongBao.loi(this, ex);
     }
 
-    private String layGiaTriBoLoc(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
+    return false;
+  }
 
-        return value.trim();
+  private String chuanHoaRong(String value) {
+    return value == null || value.isBlank() ? null : value.trim();
+  }
+
+  private boolean kiemTraForm(NhanVienFormPanel form) {
+    if (form.validateInput()) {
+      return true;
     }
 
-    private String layTimNhanh() {
-        String value = this.managementPanel.getQuickFilter();
+    ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
+    return false;
+  }
 
-        if (value == null || value.isBlank()) {
-            return null;
-        }
+  // ==================== XÓA ====================
 
-        return value.trim();
+  private void xoa(int row) {
+    String ma = this.layMaDong(row);
+
+    if (ma.isBlank()) {
+      ThongBao.loi(this, "app.nhanVien.chonNhanVienCanXoa");
+      return;
     }
 
-    // ==================== SỰ KIỆN ====================
-
-    private void ganSuKien() {
-        this.form.getNutThem().addActionListener(e -> this.them());
-
-        this.form.getNutLuu().addActionListener(e -> this.luu());
-
-        this.form.getNutXoaTrang().addActionListener(e -> this.lamMoiForm());
-
-        this.form.getNutXoa().addActionListener(e -> this.xoa(this.managementPanel.getSelectedRow()));
-
-        this.managementPanel.getClearFilterButton().addActionListener(e -> {
-            this.trangHienTai = 1;
-            this.managementPanel.clearFilters();
-        });
-
-        this.managementPanel.getPrevButton().addActionListener(e -> {
-            if (this.trangHienTai > 1) {
-                this.trangHienTai--;
-                this.taiLaiDanhSach();
-            }
-        });
-
-        this.managementPanel.getNextButton().addActionListener(e -> {
-            if (this.ketQua != null && this.trangHienTai < this.ketQua.totalPages()) {
-                this.trangHienTai++;
-                this.taiLaiDanhSach();
-            }
-        });
-
-        this.managementPanel.getTable().getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                this.chonDong();
-            }
-        });
+    if (!ThongBao.xacNhan(this, "app.nhanVien.xacNhanXoa", "app.common.confirm")) {
+      return;
     }
 
-    // ==================== TẢI DANH SÁCH ====================
+    try {
+      this.nhanVienService.delete(ma);
+      ThongBao.thongTin(this, "app.nhanVien.xoaThanhCong");
+      this.taiLaiDanhSach();
+    } catch (IllegalArgumentException ex) {
+      ThongBao.loi(this, ex);
+      ThongBao.canhBao(this, "app.nhanVien.goiYNghiViec");
+    } catch (SQLException ex) {
+      ThongBao.loi(this, ex);
+    }
+  }
 
-    private void taiLaiDanhSach() {
-        try {
-            DanhSachNhanVienCriteria criteria =
-                    new DanhSachNhanVienCriteria(
-                            this.layGiaTriBoLoc(this.boLocMa.getText()),
-                            this.layGiaTriBoLoc(this.boLocHoTen.getText()),
-                            this.layGiaTriBoLoc(this.boLocSoDienThoai.getText()),
-                            this.boLocVaiTro.ma(),
-                            this.boLocTrangThai.ma(),
-                            this.layTimNhanh(),
-                            this.boLocNgayTao.tuNgay(),
-                            this.boLocNgayTao.denNgay(),
-                            this.trangHienTai,
-                            PAGE_SIZE
-                    );
-
-            this.ketQua = this.nhanVienService.search(criteria);
-
-            if (this.ketQua == null) {
-                return;
-            }
-
-            if (this.ketQua.totalPages() > 0 && this.trangHienTai > this.ketQua.totalPages()) {
-
-                this.trangHienTai = this.ketQua.totalPages();
-                this.taiLaiDanhSach();
-                return;
-            }
-
-            this.hienThiDanhSach();
-
-        } catch (SQLException ex) {
-            ThongBao.loi(this, "app.nhanVien.loiTaiDanhSach");
-        }
+  private void xoaNhieu(List<Integer> rows) {
+    if (rows.isEmpty()) {
+      return;
     }
 
-    private void hienThiDanhSach() {
-        if (this.ketQua == null) {
-            return;
-        }
-
-        List<Object[]> rows = new ArrayList<>();
-
-        for (NhanVien nv : this.ketQua.items()) {
-            rows.add(new Object[] { nv.getAnhDaiDien(), nv.getMaNhanVien(), nv.getHoTen(),
-                    nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai(),
-                    nv.getVaiTro() == null ? "" : nv.getVaiTro().getI18NBusinessName(),
-                    nv.getTrangThai() == null ? "" : nv.getTrangThai().getI18NBusinessName() });
-        }
-
-        this.managementPanel.setRows(rows);
-
-        this.cauHinhCotAnh();
-
-        int from = this.ketQua.fromIndex();
-
-        this.managementPanel.setCount(from, this.ketQua.toIndex(), this.ketQua.totalItems());
-
-        this.managementPanel.setPage(this.ketQua.page(), Math.max(1, this.ketQua.totalPages()));
-
-        this.trangHienTai = this.ketQua.page();
+    if (!ThongBao.xacNhanDinhDang(this,
+            "app.common.batch_delete_confirm",
+            "app.common.confirm",
+            rows.size())) {
+      return;
     }
 
-    // ==================== CỘT ẢNH ====================
+    int thanhCong = 0;
+    boolean loiHeThong = false;
 
-    private void cauHinhCotAnh() {
-        AnhTableCellRenderer.ganVao(this.managementPanel, 0,
-                "app.nhanVien.chuaCoAnh", "app.nhanVien.khongTaiDuocAnh");
+    for (int row : rows) {
+      try {
+        this.nhanVienService.delete(this.layMaDong(row));
+        thanhCong++;
+      } catch (IllegalArgumentException | IllegalStateException ignored) {
+        // Nhân viên đã có giao dịch: ghi nhận vào báo cáo tổng hợp.
+      } catch (SQLException ex) {
+        loiHeThong = true;
+        break;
+      }
     }
 
-    // ==================== CHỌN NHÂN VIÊN ====================
-
-    private void chonDong() {
-        JTable table = this.managementPanel.getTable();
-
-        int selectedRow = table.getSelectedRow();
-
-        if (selectedRow < 0) {
-            return;
-        }
-
-        int modelRow = table.convertRowIndexToModel(selectedRow);
-
-        TableModel model = table.getModel();
-
-        // Cột 0 là ảnh, cột 1 là mã nhân viên.
-        String ma = String.valueOf(model.getValueAt(modelRow, 1));
-
-        try {
-            NhanVien nv = this.nhanVienService.getById(ma);
-
-            this.dangSua = true;
-            this.maNhanVienDangSua = nv.getMaNhanVien();
-
-            this.formPanel.napDuLieu(nv);
-
-        } catch (SQLException | IllegalArgumentException ex) {
-            ThongBao.loi(this, "app.nhanVien.loiLayThongTin");
-        }
+    if (loiHeThong) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    } else if (thanhCong == rows.size()) {
+      ThongBao.thongTin(this, "app.nhanVien.xoaThanhCong");
+    } else {
+      ThongBao.canhBaoDinhDang(this, "app.common.batch_delete_result", thanhCong, rows.size());
+      ThongBao.canhBao(this, "app.nhanVien.goiYNghiViec");
     }
 
-    // ==================== THÊM / CẬP NHẬT ====================
-
-    private NhanVienFormData getFormData() {
-        return this.formPanel.layDuLieu();
-    }
-
-    private void validateFormData(NhanVienFormData data) {
-        if (data.hoTen() == null || data.hoTen().isBlank()) {
-            throw new IllegalArgumentException("app.nhanVien.loiHoTen");
-        }
-        String soDienThoai = data.soDienThoai();
-        if (soDienThoai == null || soDienThoai.isBlank() || !soDienThoai.trim().matches("\\d{9,10}")) {
-            throw new IllegalArgumentException("app.nhanVien.loiSoDienThoai");
-        }
-    }
-
-    private void them() {
-        NhanVienFormData data = this.getFormData();
-
-        try {
-            this.validateFormData(data);
-            String dienThoai = data.soDienThoai().isEmpty() ? null : data.soDienThoai();
-            String anh = data.anhDaiDien().isEmpty() ? null : data.anhDaiDien();
-            NhanVien nv = new NhanVien(data.maNhanVien(), data.tenDangNhap(), data.matKhau(), data.hoTen(),
-                    dienThoai, anh, data.vaiTro(), data.trangThai(), LocalDateTime.now());
-
-            this.nhanVienService.create(nv);
-
-            ThongBao.thongTin(this, "app.nhanVien.themThanhCong");
-
-            this.lamMoiForm();
-
-            this.trangHienTai = 1;
-            this.taiLaiDanhSach();
-
-        } catch (SQLException | IllegalArgumentException ex) {
-            ThongBao.loi(this, ex);
-        }
-    }
-
-    private void luu() {
-        NhanVienFormData data = this.getFormData();
-
-        try {
-            this.validateFormData(data);
-            String dienThoai = data.soDienThoai().isEmpty() ? null : data.soDienThoai();
-            String anh = data.anhDaiDien().isEmpty() ? null : data.anhDaiDien();
-            if (this.dangSua) {
-                NhanVien nv = this.nhanVienService.getById(this.maNhanVienDangSua);
-
-                this.capNhatThongTin(nv, data);
-
-                this.nhanVienService.update(nv);
-
-                ThongBao.thongTin(this, "app.nhanVien.capNhatThanhCong");
-
-            } else {
-
-                NhanVien nv = new NhanVien(data.maNhanVien(), data.tenDangNhap(), data.matKhau(), data.hoTen(),
-                        dienThoai, anh, data.vaiTro(), data.trangThai(), LocalDateTime.now());
-
-                this.nhanVienService.create(nv);
-
-                ThongBao.thongTin(this, "app.nhanVien.themThanhCong");
-            }
-
-            this.lamMoiForm();
-
-            this.trangHienTai = 1;
-            this.taiLaiDanhSach();
-
-        } catch (SQLException | IllegalArgumentException ex) {
-            ThongBao.loi(this, ex);
-        }
-    }
-
-    // ==================== XÓA ====================
-
-    private void capNhatThongTin(NhanVien nv, NhanVienFormData data) {
-        this.validateFormData(data);
-        nv.setHoTen(data.hoTen());
-        nv.setSoDienThoai(data.soDienThoai().isEmpty() ? null : data.soDienThoai());
-        nv.setAnhDaiDien(data.anhDaiDien().isEmpty() ? null : data.anhDaiDien());
-        nv.setVaiTro(data.vaiTro());
-        nv.setTrangThai(data.trangThai());
-        nv.setMatKhau(data.matKhau().isBlank() ? null : data.matKhau());
-    }
-
-    private void xoa(int row) {
-        if (row < 0 || row >= this.managementPanel.getModel().getRowCount()) {
-            ThongBao.loi(this, "app.nhanVien.chonNhanVienCanXoa");
-            return;
-        }
-
-        String ma = String.valueOf(
-                this.managementPanel.getModel().getValueAt(row, 1));
-
-        if (ma.isBlank()) {
-            ThongBao.loi(this, "app.nhanVien.chonNhanVienCanXoa");
-            return;
-        }
-
-        if (!ThongBao.xacNhan(this, "app.nhanVien.xacNhanXoa", "app.common.confirm")) {
-            return;
-        }
-
-        try {
-            this.nhanVienService.delete(ma);
-
-            ThongBao.thongTin(this, "app.nhanVien.xoaThanhCong");
-
-            this.lamMoiForm();
-
-            this.trangHienTai = 1;
-            this.taiLaiDanhSach();
-
-        } catch (SQLException | IllegalArgumentException ex) {
-            ThongBao.loi(this, ex);
-        }
-    }
-
-    // ==================== LÀM MỚI ====================
-
-    private void lamMoiForm() {
-        this.dangSua = false;
-        this.maNhanVienDangSua = null;
-
-        this.formPanel.lamMoi();
-
-        if (this.managementPanel != null) {
-            this.managementPanel.getTable().clearSelection();
-        }
-    }
+    this.taiLaiDanhSach();
+  }
 }
