@@ -1,28 +1,24 @@
 package iuh.fit.gui.page;
 
+import iuh.fit.dto.BaseFormDialogConfig;
 import iuh.fit.dto.DanhSachPhieuTiepNhanCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhieuTiepNhanView;
-import iuh.fit.entity.VanDeKyThuat;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
-import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.ChanDoanTaoFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.service.VanDeKyThuatService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,20 +36,15 @@ public class LapChanDoanPage extends AbstractPage {
 
     private static final int SO_DONG_MOI_TRANG = 20;
 
+    /** Dialog lập chẩn đoán: 6 khối nhập liệu. */
+    private static final int CHIEU_CAO_TAO = 710;
+
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
     private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
 
     private ManagementPanel managementPanel;
-    private ManagementFormPanel form;
     private ManagementPanel.BoLocChon boLocTrangThai;
-    private JTextField txtMaPhieu;
-    private JTextField txtBienSo;
-    private JTextField txtTieuDe;
-    private JTextField txtMucDoUuTien;
-    private JTextArea txtMoTa;
-    private JTextArea txtGiaiPhap;
     private List<PhieuTiepNhanView> danhSachHienTai = new ArrayList<>();
-    private PhieuTiepNhanView phieuDangChon;
     private int trang = 1;
 
     public LapChanDoanPage() {
@@ -77,8 +68,10 @@ public class LapChanDoanPage extends AbstractPage {
         );
 
         this.managementPanel.addActionColumn("app.common.actions",
-                new ThaoTac("check", "app.chanDoan.chon", ThaoTac.KieuThaoTac.THUONG,
-                        row -> this.chonPhieu(row)));
+                new ThaoTac("clipboard-list", "app.chanDoan.lapChanDoan", ThaoTac.KieuThaoTac.THUONG,
+                        this::moDialogChanDoan));
+
+        this.managementPanel.setRowDoubleClickListener(this::moDialogChanDoan);
 
         this.boLocTrangThai = this.managementPanel.addComboBoxFilter(
                 "app.chanDoan.trangThai", TrangThaiPhieuTiepNhan.values());
@@ -91,57 +84,52 @@ public class LapChanDoanPage extends AbstractPage {
         this.managementPanel.getNextButton().addActionListener(
                 e -> this.taiLaiData(this.trang + 1));
 
-        this.managementPanel.getTable().getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                this.capNhatPhieuDangChon();
-            }
-        });
+        this.add(this.managementPanel, BorderLayout.CENTER);
 
-        this.txtMaPhieu = new JTextField();
-        Theme.applyReadOnly(this.txtMaPhieu);
-
-        this.txtBienSo = new JTextField();
-        Theme.applyReadOnly(this.txtBienSo);
-
-        this.txtTieuDe = new JTextField();
-        this.txtMucDoUuTien = new JTextField("50");
-
-        this.txtMoTa = new JTextArea();
-        this.txtMoTa.setLineWrap(true);
-        this.txtMoTa.setWrapStyleWord(true);
-        JScrollPane cuonMoTa = new JScrollPane(this.txtMoTa);
-        cuonMoTa.setPreferredSize(new Dimension(200, 100));
-
-        this.txtGiaiPhap = new JTextArea();
-        this.txtGiaiPhap.setLineWrap(true);
-        this.txtGiaiPhap.setWrapStyleWord(true);
-        JScrollPane cuonGiaiPhap = new JScrollPane(this.txtGiaiPhap);
-        cuonGiaiPhap.setPreferredSize(new Dimension(200, 100));
-
-        this.form = new ManagementFormPanel("app.chanDoan.lapChanDoanTitle");
-        this.form.addField("app.chanDoan.ma", this.txtMaPhieu);
-        this.form.addField("app.chanDoan.bienSo", this.txtBienSo);
-        this.form.addField("app.chanDoan.tieuDe", this.txtTieuDe);
-        this.form.addField("app.chanDoan.mucDoUuTien", this.txtMucDoUuTien);
-        this.form.addField("app.chanDoan.moTa", cuonMoTa);
-        this.form.addField("app.chanDoan.giaiPhap", cuonGiaiPhap);
-
-        JButton nutLuu = new JButton(I18nReaderUtil.get("app.chanDoan.luu"));
-        Theme.applyPrimary(nutLuu);
-        nutLuu.addActionListener(e -> this.luuChanDoan());
-        this.form.thayNut(nutLuu);
-
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.form, this.managementPanel);
-        split.setDividerLocation(480);
-        split.setOpaque(false);
-        split.setBorder(null);
-
-        this.add(split, BorderLayout.CENTER);
-
-        this.lamMoiForm();
         this.taiLaiData(1);
         this.revalidate();
         this.repaint();
+    }
+
+    private void moDialogChanDoan(int row) {
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
+            return;
+        }
+
+        PhieuTiepNhanView phieu = this.danhSachHienTai.get(row);
+
+        ChanDoanTaoFormPanel form = new ChanDoanTaoFormPanel();
+        form.napPhieu(phieu);
+
+        BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+                SwingUtilities.getWindowAncestor(this),
+                "app.chanDoan.lapChanDoanTitle",
+                form,
+                () -> this.luuChanDoan(form),
+                CHIEU_CAO_TAO));
+
+        if (dialog.showAndGet()) {
+            this.taiLaiData(this.trang);
+        }
+    }
+
+    private boolean luuChanDoan(ChanDoanTaoFormPanel form) {
+        if (!form.validateInput()) {
+            return false;
+        }
+
+        try {
+            this.vanDeKyThuatService.lapChanDoan(form.taoVanDe());
+            ThongBao.thongTin(this, "app.chanDoan.thanhCong");
+            return true;
+        } catch (IllegalArgumentException ex) {
+            ThongBao.loi(this, ex);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Khong the lap chan doan", ex);
+            ThongBao.loi(this, "app.login.errorSystem");
+        }
+
+        return false;
     }
 
     private void taiLaiData(int page) {
@@ -187,85 +175,9 @@ public class LapChanDoanPage extends AbstractPage {
                     Math.max(ketQua.totalPages(), 1));
 
             this.trang = ketQua.page();
-            this.phieuDangChon = null;
-            this.txtMaPhieu.setText("");
-            this.txtBienSo.setText("");
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Khong the tai danh sach phieu tiep nhan", ex);
             ThongBao.loi(this, "app.chanDoan.loiTaiDanhSach");
-        }
-    }
-
-    private void capNhatPhieuDangChon() {
-        int row = this.managementPanel.getSelectedRow();
-        if (row < 0 || row >= this.danhSachHienTai.size()) {
-            this.phieuDangChon = null;
-            this.txtMaPhieu.setText("");
-            this.txtBienSo.setText("");
-            return;
-        }
-
-        PhieuTiepNhanView view = this.danhSachHienTai.get(row);
-        this.phieuDangChon = view;
-        this.txtMaPhieu.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
-        this.txtBienSo.setText(view.bienSo() == null ? "" : view.bienSo());
-    }
-
-    private void chonPhieu(int row) {
-        if (row < 0 || row >= this.danhSachHienTai.size()) {
-            return;
-        }
-
-        PhieuTiepNhanView view = this.danhSachHienTai.get(row);
-        this.phieuDangChon = view;
-        this.txtMaPhieu.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
-        this.txtBienSo.setText(view.bienSo() == null ? "" : view.bienSo());
-        this.managementPanel.getTable().setRowSelectionInterval(row, row);
-    }
-
-    private void lamMoiForm() {
-        this.txtTieuDe.setText("");
-        this.txtMoTa.setText("");
-        this.txtGiaiPhap.setText("");
-        this.txtMucDoUuTien.setText("50");
-        this.txtMaPhieu.setText("");
-        this.txtBienSo.setText("");
-        this.phieuDangChon = null;
-        this.managementPanel.getTable().clearSelection();
-        this.txtTieuDe.requestFocus();
-    }
-
-    private void luuChanDoan() {
-        if (this.phieuDangChon == null) {
-            ThongBao.canhBao(this, "app.chanDoan.chuaChonPhieu");
-            return;
-        }
-
-        int mucDo;
-        try {
-            mucDo = Integer.parseInt(this.txtMucDoUuTien.getText().trim());
-        } catch (NumberFormatException ex) {
-            ThongBao.loi(this, "app.chanDoan.loiMucDoUuTien");
-            return;
-        }
-
-        VanDeKyThuat vanDe = new VanDeKyThuat();
-        vanDe.setMaPhieuTiepNhan(this.phieuDangChon.maPhieuTiepNhan());
-        vanDe.setTieuDe(this.txtTieuDe.getText().trim());
-        vanDe.setMoTa(this.txtMoTa.getText().trim());
-        vanDe.setGiaiPhap(this.txtGiaiPhap.getText().trim());
-        vanDe.setMucDoUuTien(mucDo);
-
-        try {
-            this.vanDeKyThuatService.lapChanDoan(vanDe);
-            ThongBao.thongTin(this, "app.chanDoan.thanhCong");
-            this.lamMoiForm();
-            this.taiLaiData(this.trang);
-        } catch (IllegalArgumentException ex) {
-            ThongBao.loi(this, ex);
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Khong the lap chan doan", ex);
-            ThongBao.loi(this, "app.login.errorSystem");
         }
     }
 

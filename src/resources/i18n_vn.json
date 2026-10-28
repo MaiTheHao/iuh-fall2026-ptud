@@ -51,6 +51,7 @@
 			"delete": "Xóa",
 			"actions": "Thao tác",
 			"edit": "Sửa",
+			"view": "Xem",
 			"editTitle": "Sửa thông tin",
 			"clearFilter": "Xóa lọc",
 			"all": "Tất cả",
@@ -73,8 +74,15 @@
 			"notLoggedIn": "Phiên đăng nhập không hợp lệ.",
 			"confirmClear": "Bạn có thay đổi chưa lưu. Xóa trắng form?",
 			"cancel": "Hủy",
+			"close": "Đóng",
 			"dangTaiAnh": "Đang tải ảnh…",
-			"khongCoDuLieu": "Không có dữ liệu"
+			"khongCoDuLieu": "Không có dữ liệu",
+			"add_new": "Thêm mới",
+			"batch_delete": "Xóa đã chọn",
+			"batch_delete_confirm": "Bạn có chắc chắn muốn xóa {0} mục đã chọn?",
+			"batch_delete_result": "Đã xóa thành công {0}/{1} mục. Các mục còn lại không thể xóa do đang có dữ liệu liên quan.",
+			"batch_toggle_confirm": "Bạn có chắc chắn muốn đổi trạng thái kích hoạt của {0} voucher đã chọn?",
+			"kiemTraLaiThongTin": "Vui lòng kiểm tra lại các trường được đánh dấu đỏ."
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -141,7 +149,10 @@
 			"tieuDeXoa": "Xác nhận xóa khách hàng",
 			"loiHoTenQuaDai": "Họ tên không được vượt quá 50 ký tự.",
 			"trungSdt": "Số điện thoại này đã được dùng cho khách hàng khác.",
-			"loiDangSuDung": "Khách hàng đang được phiếu tiếp nhận hoặc khiếu nại tham chiếu, không thể xóa."
+			"loiDangSuDung": "Khách hàng đang được phiếu tiếp nhận hoặc khiếu nại tham chiếu, không thể xóa.",
+			"themTitle": "Thêm khách hàng",
+			"suaTitle": "Cập nhật khách hàng",
+			"sdtGoiY": "Số điện thoại 10 chữ số"
 		},
 		"nhanVien": {
 			"thongTinTitle": "Thông Tin Nhân Viên",
@@ -179,7 +190,11 @@
 			"khongTaiDuocAnh": "Không thể tải ảnh.",
 			"loaiTepAnh": "Tệp hình ảnh (PNG, JPG, JPEG, GIF)",
 			"duLieuKhongPhaiAnh": "Tệp không phải dữ liệu hình ảnh hợp lệ.",
-			"loiDangSuDung": "Nhân viên đang được phiếu tiếp nhận, phiếu nhập hoặc phân công tham chiếu, không thể xóa."
+			"loiDangSuDung": "Nhân viên đang được phiếu tiếp nhận, phiếu nhập hoặc phân công tham chiếu, không thể xóa.",
+			"themTitle": "Thêm nhân viên",
+			"suaTitle": "Cập nhật nhân viên",
+			"matKhauGoiY": "Để trống nếu không đổi mật khẩu.",
+			"goiYNghiViec": "Nhân viên đã có giao dịch nên không thể xóa. Hãy chuyển trạng thái sang Đã nghỉ việc trong dialog cập nhật."
 		},
 		"xe": {
 			"thongTinTitle": "Thông Tin Xe",
@@ -205,7 +220,9 @@
 			"loiOdo": "Số km đã đi không hợp lệ.",
 			"loiXeDangSuDung": "Không thể xóa xe vì xe đang được sử dụng.",
 			"loiHangXeQuaDai": "Hãng xe không được vượt quá 50 ký tự.",
-			"loiDongXeQuaDai": "Dòng xe không được vượt quá 50 ký tự."
+			"loiDongXeQuaDai": "Dòng xe không được vượt quá 50 ký tự.",
+			"themTitle": "Thêm xe",
+			"suaTitle": "Cập nhật xe"
 		},
 		"phuTung": {
 			"thongTinTitle": "Thông Tin Phụ Tùng",
@@ -236,7 +253,10 @@
 			"khongTimThay": "Không tìm thấy phụ tùng.",
 			"duLieuKhongHopLe": "Dữ liệu phụ tùng không hợp lệ.",
 			"khongDuTon": "Số lượng tồn không đủ để xuất.",
-			"loiDangSuDung": "Phụ tùng đã được dùng trong hóa đơn hoặc phiếu nhập, không thể xóa."
+			"loiDangSuDung": "Phụ tùng đã được dùng trong hóa đơn hoặc phiếu nhập, không thể xóa.",
+			"themTitle": "Thêm phụ tùng",
+			"suaTitle": "Cập nhật phụ tùng",
+			"tonKhoQuaPhieu": "Tồn kho chỉ thay đổi qua phiếu nhập / nghiệp vụ kho."
 		},
 		"dichVu": {
 			"thongTinTitle": "Thông Tin Dịch Vụ",
@@ -266,7 +286,9 @@
 			"duLieuKhongPhaiAnh": "Tệp không phải dữ liệu hình ảnh hợp lệ.",
 			"khongTimThay": "Không tìm thấy dịch vụ.",
 			"loiDuLieu": "Dữ liệu dịch vụ không hợp lệ.",
-			"loiDangSuDung": "Dịch vụ đã được dùng trong hóa đơn, không thể xóa."
+			"loiDangSuDung": "Dịch vụ đã được dùng trong hóa đơn, không thể xóa.",
+			"themTitle": "Thêm dịch vụ",
+			"suaTitle": "Cập nhật dịch vụ"
 		},
 		"phieuTiepNhan": {
 			"ma": "Mã Tiếp Nhận",
@@ -398,7 +420,12 @@
 			"khoangMucGiamKhongHopLe": "Khoảng mức giảm không hợp lệ.",
 			"khoangThoiHanKhongHopLe": "Khoảng thời hạn không hợp lệ.",
 			"huongDanMucGiam": "Nhập mức giảm từ 0 đến 1. Ví dụ: 0.1 tương ứng giảm 10%.",
-			"loiDangSuDung": "Voucher đã được hóa đơn sử dụng, không thể xóa."
+			"loiDangSuDung": "Voucher đã được hóa đơn sử dụng, không thể xóa.",
+			"themTitle": "Thêm voucher",
+			"suaTitle": "Cập nhật voucher",
+			"batch_toggle_active": "Đổi trạng thái kích hoạt",
+			"batch_toggle_result": "Đã đổi trạng thái {0}/{1} voucher. Các mục còn lại không thể cập nhật.",
+			"batch_toggle_result_all": "Đã đổi trạng thái kích hoạt cho {0} voucher."
 		},
 		"phieuNhap": {
 			"thongTinTitle": "Thông Tin Phiếu Nhập",
@@ -448,6 +475,7 @@
 			"trangThai": "Trạng thái",
 			"chon": "Chọn",
 			"loiTaiDanhSach": "Không thể tải danh sách phiếu tiếp nhận.",
+			"lapChanDoan": "Lập chẩn đoán",
 			"lapChanDoanTitle": "Lập chẩn đoán kỹ thuật",
 			"xemChanDoanTitle": "Xem chẩn đoán kỹ thuật",
 			"tieuDe": "Tiêu đề (*)",
@@ -522,6 +550,7 @@
 		},
 		"schedule": {
 			"assignmentId": "Mã phân công",
+			"addAssignment": "Thêm phân công",
 			"employee": "Nhân viên",
 			"date": "Ngày làm",
 			"shift": "Ca làm",

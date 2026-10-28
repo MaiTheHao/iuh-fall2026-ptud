@@ -4,98 +4,152 @@ import com.github.lgooddatepicker.components.DateTimePicker;
 import iuh.fit.dto.VoucherFormData;
 import iuh.fit.gui.component.BoChonNgayGio;
 import iuh.fit.gui.component.FormFieldPanel;
+import iuh.fit.gui.component.FormValidationHelper;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import java.awt.Dimension;
+
+import java.time.LocalDateTime;
 
 /**
- * Form nhập liệu voucher dùng chung cho màn quản lý và dialog sửa.
+ * Phần dùng chung của form voucher: trường nhập liệu, đọc/ghi dữ liệu và kiểm tra hợp lệ.
+ * Lớp con quyết định bố cục cho dialog tạo mới hoặc cập nhật.
  */
-public class VoucherFormPanel extends FormFieldPanel {
+public abstract class VoucherFormPanel extends FormFieldPanel {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private final JTextField maField = new JTextField(14);
-    private final JTextField tenChuongTrinhField = new JTextField(14);
-    private final JTextArea moTaArea = new JTextArea(4, 20);
-    private final JTextField mucGiamField = new JTextField(14);
-    private final DateTimePicker thoiHanPicker = BoChonNgayGio.taoBoChonNgayGio();
-    private final JCheckBox trangThaiField = new JCheckBox();
+  private static final int DO_DAI_TEN_TOI_DA = 100;
+  private static final int DO_DAI_MO_TA_TOI_DA = 500;
 
-    public VoucherFormPanel() {
-        this.mucGiamField.setHorizontalAlignment(SwingConstants.RIGHT);
-        Theme.applyReadOnly(this.maField);
+  protected final JTextField maField = new JTextField(14);
+  protected final JTextField tenChuongTrinhField = new JTextField(14);
+  protected final JTextArea moTaArea = new JTextArea(4, 20);
+  protected final JScrollPane moTaScroll = FormFieldPanel.taoKhungMoTa(this.moTaArea);
+  protected final JTextField mucGiamField = new JTextField(14);
+  protected final DateTimePicker thoiHanPicker = BoChonNgayGio.taoBoChonNgayGio();
+  protected final JCheckBox trangThaiField = new JCheckBox();
 
-        this.addField("app.voucher.ma", this.maField);
-        this.addField("app.voucher.tenChuongTrinh", this.tenChuongTrinhField);
+  protected VoucherFormPanel() {
+    this.mucGiamField.setHorizontalAlignment(SwingConstants.RIGHT);
+    Theme.applyReadOnly(this.maField);
 
-        this.moTaArea.setLineWrap(true);
-        this.moTaArea.setWrapStyleWord(true);
-        JScrollPane scrollMoTa = new JScrollPane(this.moTaArea);
-        scrollMoTa.setPreferredSize(new Dimension(200, 100));
-        this.addField("app.voucher.moTa", scrollMoTa);
+    BoChonNgayGio.apDungMau(this.thoiHanPicker);
 
-        this.addField("app.voucher.mucGiam", this.mucGiamField);
+    this.trangThaiField.setOpaque(false);
+    this.trangThaiField.setSelected(true);
 
-        JLabel huongDan = new JLabel(I18nReaderUtil.get("app.voucher.huongDanMucGiam"));
-        huongDan.setForeground(Theme.INK);
-        this.addBlock(huongDan);
+    FormValidationHelper.autoClearOnInput(this.tenChuongTrinhField);
+    FormValidationHelper.autoClearOnInput(this.mucGiamField);
+  }
 
-        this.addField("app.voucher.thoiHanApDung", this.thoiHanPicker);
-        BoChonNgayGio.apDungMau(this.thoiHanPicker);
+  /** Lớp con dựng bố cục trong constructor của chính nó. */
+  protected abstract void dungBoCuc();
 
-        this.addField("app.voucher.trangThaiKichHoat", this.trangThaiField);
-        this.trangThaiField.setOpaque(false);
-        this.trangThaiField.setSelected(true);
+  public void napDuLieu(VoucherFormData data) {
+    this.maField.setText(data.maVoucher() == null ? "" : data.maVoucher());
+    this.tenChuongTrinhField.setText(data.tenChuongTrinh() == null ? "" : data.tenChuongTrinh());
+    this.moTaArea.setText(data.moTa() == null ? "" : data.moTa());
+    this.mucGiamField.setText(data.mucGiam() == null ? "" : String.valueOf(data.mucGiam()));
+
+    if (data.thoiHanApDung() == null) {
+      this.thoiHanPicker.clear();
+    } else {
+      this.thoiHanPicker.setDateTimeStrict(data.thoiHanApDung());
     }
 
-    public void napDuLieu(VoucherFormData data) {
-        this.maField.setText(data.maVoucher() == null ? "" : data.maVoucher());
-        this.tenChuongTrinhField.setText(data.tenChuongTrinh() == null ? "" : data.tenChuongTrinh());
-        this.moTaArea.setText(data.moTa() == null ? "" : data.moTa());
-        this.mucGiamField.setText(data.mucGiam() == null ? "" : String.valueOf(data.mucGiam()));
+    this.trangThaiField.setSelected(Boolean.TRUE.equals(data.trangThaiKichHoat()));
+  }
 
-        if (data.thoiHanApDung() == null) {
-            this.thoiHanPicker.clear();
-        } else {
-            this.thoiHanPicker.setDateTimeStrict(data.thoiHanApDung());
-        }
+  public VoucherFormData layDuLieu() {
+    String ma = this.maField.getText().trim();
+    String moTa = this.moTaArea.getText().trim();
 
-        this.trangThaiField.setSelected(Boolean.TRUE.equals(data.trangThaiKichHoat()));
+    return new VoucherFormData(
+            ma.isBlank() ? null : ma,
+            this.tenChuongTrinhField.getText().trim(),
+            moTa.isEmpty() ? null : moTa,
+            NumberParseUtil.toDoubleOrNull(this.mucGiamField.getText()),
+            this.thoiHanPicker.getDateTimeStrict(),
+            this.trangThaiField.isSelected());
+  }
+
+  public final boolean validateInput() {
+    JComponent loiChung = this.kiemTraChung();
+    JComponent loiRieng = this.kiemTraRieng();
+    JComponent loiDauTien = loiChung != null ? loiChung : loiRieng;
+
+    if (loiDauTien != null) {
+      loiDauTien.requestFocusInWindow();
+      return false;
     }
 
-    public VoucherFormData layDuLieu() {
-        String ma = this.maField.getText().trim();
-        String moTa = this.moTaArea.getText().trim();
+    return true;
+  }
 
-        return new VoucherFormData(
-                ma.isBlank() ? null : ma,
-                this.tenChuongTrinhField.getText().trim(),
-                moTa.isEmpty() ? null : moTa,
-                NumberParseUtil.toDoubleOrNull(this.mucGiamField.getText()),
-                this.thoiHanPicker.getDateTimeStrict(),
-                this.trangThaiField.isSelected());
+  /** Chỗ mở rộng cho rule chỉ áp dụng ở một mode. */
+  protected JComponent kiemTraRieng() {
+    return null;
+  }
+
+  protected JComponent kiemTraChung() {
+    JComponent loiDauTien = null;
+
+    String ten = this.tenChuongTrinhField.getText().trim();
+
+    if (ten.isEmpty()) {
+      FormValidationHelper.markError(this.tenChuongTrinhField,
+              I18nReaderUtil.get("app.voucher.loiTen"));
+      loiDauTien = this.tenChuongTrinhField;
+    } else if (ten.length() > DO_DAI_TEN_TOI_DA) {
+      FormValidationHelper.markError(this.tenChuongTrinhField,
+              I18nReaderUtil.get("app.voucher.tenQuaDai"));
+      loiDauTien = this.tenChuongTrinhField;
+    } else {
+      FormValidationHelper.clearError(this.tenChuongTrinhField);
     }
 
-    public void lamMoi() {
-        this.maField.setText("");
-        this.tenChuongTrinhField.setText("");
-        this.moTaArea.setText("");
-        this.mucGiamField.setText("");
-        this.thoiHanPicker.clear();
-        this.trangThaiField.setSelected(true);
-        this.focus();
+    if (this.moTaArea.getText().trim().length() > DO_DAI_MO_TA_TOI_DA) {
+      FormValidationHelper.markError(this.moTaArea,
+              I18nReaderUtil.get("app.voucher.moTaQuaDai"));
+      if (loiDauTien == null) {
+        loiDauTien = this.moTaArea;
+      }
+    } else {
+      FormValidationHelper.clearError(this.moTaArea);
     }
 
-    public void focus() {
-        this.tenChuongTrinhField.requestFocusInWindow();
+    Double mucGiam = NumberParseUtil.toDoubleOrNull(this.mucGiamField.getText());
+
+    if (mucGiam == null || !Double.isFinite(mucGiam) || mucGiam < 0 || mucGiam > 1) {
+      FormValidationHelper.markError(this.mucGiamField,
+              I18nReaderUtil.get("app.voucher.loiMucGiam"));
+      if (loiDauTien == null) {
+        loiDauTien = this.mucGiamField;
+      }
+    } else {
+      FormValidationHelper.clearError(this.mucGiamField);
     }
+
+    LocalDateTime thoiHan = this.thoiHanPicker.getDateTimeStrict();
+
+    if (thoiHan == null) {
+      FormValidationHelper.markError(this.thoiHanPicker,
+              I18nReaderUtil.get("app.voucher.loiThoiHan"));
+      if (loiDauTien == null) {
+        loiDauTien = this.thoiHanPicker;
+      }
+    } else {
+      FormValidationHelper.clearError(this.thoiHanPicker);
+    }
+
+    return loiDauTien;
+  }
 }

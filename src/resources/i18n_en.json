@@ -51,6 +51,7 @@
 			"delete": "Delete",
 			"actions": "Action",
 			"edit": "Edit",
+			"view": "View",
 			"editTitle": "Edit information",
 			"clearFilter": "Clear filters",
 			"all": "All",
@@ -73,8 +74,15 @@
 			"notLoggedIn": "Invalid session.",
 			"confirmClear": "You have unsaved changes. Clear the form?",
 			"cancel": "Cancel",
+			"close": "Close",
 			"dangTaiAnh": "Loading image…",
-			"khongCoDuLieu": "No data"
+			"khongCoDuLieu": "No data",
+			"add_new": "Add New",
+			"batch_delete": "Delete Selected",
+			"batch_delete_confirm": "Are you sure you want to delete {0} selected items?",
+			"batch_delete_result": "Successfully deleted {0}/{1} items. Remaining items cannot be deleted due to existing references.",
+			"batch_toggle_confirm": "Are you sure you want to toggle activation for {0} selected vouchers?",
+			"kiemTraLaiThongTin": "Please review the fields highlighted in red."
 		},
 		"enum": {
 			"TrangThaiHoaDon": {
@@ -141,7 +149,10 @@
 			"tieuDeXoa": "Confirm Customer Deletion",
 			"loiHoTenQuaDai": "Full name cannot exceed 50 characters.",
 			"trungSdt": "This phone number is already used by another customer.",
-			"loiDangSuDung": "Customer is referenced by an intake slip or complaint and cannot be deleted."
+			"loiDangSuDung": "Customer is referenced by an intake slip or complaint and cannot be deleted.",
+			"themTitle": "Add Customer",
+			"suaTitle": "Edit Customer",
+			"sdtGoiY": "10-digit phone number"
 		},
 		"nhanVien": {
 			"thongTinTitle": "Employee Information",
@@ -179,7 +190,11 @@
 			"khongTaiDuocAnh": "Unable to load image.",
 			"loaiTepAnh": "Image Files (PNG, JPG, JPEG, GIF)",
 			"duLieuKhongPhaiAnh": "The file does not contain valid image data.",
-			"loiDangSuDung": "Employee is referenced by an intake slip, import receipt or shift assignment and cannot be deleted."
+			"loiDangSuDung": "Employee is referenced by an intake slip, import receipt or shift assignment and cannot be deleted.",
+			"themTitle": "Add Employee",
+			"suaTitle": "Edit Employee",
+			"matKhauGoiY": "Leave blank to keep the current password.",
+			"goiYNghiViec": "This employee has transactions and cannot be deleted. Set the status to Resigned in the edit dialog instead."
 		},
 		"xe": {
 			"thongTinTitle": "Vehicle Information",
@@ -205,7 +220,9 @@
 			"loiOdo": "Invalid odometer value.",
 			"loiXeDangSuDung": "Cannot delete a vehicle that is in use.",
 			"loiHangXeQuaDai": "Brand cannot exceed 50 characters.",
-			"loiDongXeQuaDai": "Model cannot exceed 50 characters."
+			"loiDongXeQuaDai": "Model cannot exceed 50 characters.",
+			"themTitle": "Add Vehicle",
+			"suaTitle": "Edit Vehicle"
 		},
 		"phuTung": {
 			"thongTinTitle": "Part Information",
@@ -236,7 +253,10 @@
 			"khongTimThay": "Part not found.",
 			"duLieuKhongHopLe": "Invalid part data.",
 			"khongDuTon": "Insufficient stock for this part.",
-			"loiDangSuDung": "Part is used in an invoice or import receipt and cannot be deleted."
+			"loiDangSuDung": "Part is used in an invoice or import receipt and cannot be deleted.",
+			"themTitle": "Add Spare Part",
+			"suaTitle": "Edit Spare Part",
+			"tonKhoQuaPhieu": "Stock changes only through import slips or warehouse operations."
 		},
 		"dichVu": {
 			"thongTinTitle": "Service Information",
@@ -266,7 +286,9 @@
 			"duLieuKhongPhaiAnh": "The file does not contain valid image data.",
 			"khongTimThay": "Service not found.",
 			"loiDuLieu": "Invalid service data.",
-			"loiDangSuDung": "Service is used in an invoice and cannot be deleted."
+			"loiDangSuDung": "Service is used in an invoice and cannot be deleted.",
+			"themTitle": "Add Service",
+			"suaTitle": "Edit Service"
 		},
 		"phieuTiepNhan": {
 			"ma": "Intake Code",
@@ -398,7 +420,12 @@
 			"chuaChonXoa": "Please select a voucher to delete.",
 			"xacNhanXoa": "Are you sure you want to delete this voucher?",
 			"tieuDeXoa": "Confirm Voucher Deletion",
-			"loiDangSuDung": "Voucher is used by an invoice and cannot be deleted."
+			"loiDangSuDung": "Voucher is used by an invoice and cannot be deleted.",
+			"themTitle": "Add Voucher",
+			"suaTitle": "Edit Voucher",
+			"batch_toggle_active": "Toggle Activation",
+			"batch_toggle_result": "Toggled {0}/{1} vouchers. Remaining items could not be updated.",
+			"batch_toggle_result_all": "Activation toggled for {0} vouchers."
 		},
 		"phieuNhap": {
 			"thongTinTitle": "Parts Receipt Information",
@@ -448,6 +475,7 @@
 			"trangThai": "Status",
 			"chon": "Select",
 			"loiTaiDanhSach": "Failed to load intake slips.",
+			"lapChanDoan": "Create Diagnosis",
 			"lapChanDoanTitle": "Create Technical Diagnosis",
 			"xemChanDoanTitle": "View Technical Diagnosis",
 			"tieuDe": "Title (*)",
@@ -522,6 +550,7 @@
 		},
 		"schedule": {
 			"assignmentId": "Assignment ID",
+			"addAssignment": "Add assignment",
 			"employee": "Employee",
 			"date": "Work date",
 			"shift": "Shift",
