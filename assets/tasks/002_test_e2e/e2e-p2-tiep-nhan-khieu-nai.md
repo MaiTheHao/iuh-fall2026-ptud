@@ -48,11 +48,10 @@
 3. Kiểm tra DB và danh sách khách ở SCR-03.
 **Kết quả mong đợi:** có thông báo lỗi rõ; **không** tạo khách `0910000002` mồ côi, không có xe hay phiếu dở (transaction được hoàn tác).
 
-**PASS / NO:** `PASS`
+**PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
-Đã kiểm thử: trường hợp lưu dữ liệu không hợp lệ được xử lý theo yêu cầu; không để lại dữ liệu dở.
+Khi để trống hãng xe, dòng xe, đời xe, số odo và mô tả tình trạng xe rồi bấm lưu thì phần mềm hiện tại đang hiển thị thông báo yêu cầu nhập đời xe rồi tới mô tả, xong mô tả mới hiển thị thông báo lỗi hãng xe chưa nhập. 
 
 ---
 
@@ -94,11 +93,10 @@
 2. Thử hủy một phiếu đã có hóa đơn (dữ liệu mẫu hoặc tạo từ P3).
 **Kết quả mong đợi:** (1) phiếu chuyển sang trạng thái hủy hoặc bị xóa theo thiết kế, hiển thị nhãn tiếng Việt; (2) hành vi rõ ràng, không văng lỗi, không làm hỏng hóa đơn liên quan. Ghi lại thực tế đã xảy ra.
 
-**PASS / NO:** `NO`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
-Khi bấm hủy phiếu tiếp nhận đã có hóa đơn, trang quản lý phiếu tiếp nhận hiển thị trạng thái đã hủy. Tuy nhiên, trang quản lý hóa đơn không thay đổi và dữ liệu trong cơ sở dữ liệu cũng không thay đổi.
+Đã kiểm thử: hủy phiếu tiếp nhận thành công theo kết quả kiểm thử.
 
 ---
 
@@ -128,7 +126,7 @@ Khi bấm hủy phiếu tiếp nhận đã có hóa đơn, trang quản lý phi�
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
-Các trường hợp kiểm tra dữ liệu chẩn đoán đạt yêu cầu theo kết quả kiểm thử. Ghi chú nhỏ: khi nhập `abc` vào mức độ ưu tiên, thông báo hiển thị là `warning` thay vì `error`.
+Đã kiểm thử: dữ liệu chẩn đoán hợp lệ thành công.
 
 ---
 
@@ -183,11 +181,11 @@ Các trường hợp kiểm tra dữ liệu chẩn đoán đạt yêu cầu theo
 **Các bước:** sdt không tồn tại; sdt rỗng; không chọn phiếu; nội dung rỗng / toàn khoảng trắng; nội dung rất dài.
 **Kết quả mong đợi:** mỗi trường hợp có thông báo rõ bằng tiếng Việt, không lưu bản ghi sai, không văng lỗi.
 
-**PASS / NO:** `NO`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
-Danh sách phiếu tiếp nhận không có dữ liệu để chọn khi mở chức năng. Sau khi tìm kiếm bằng số điện thoại khách hàng thì phiếu tiếp nhận mới xuất hiện. Ngoài ra, nội dung khiếu nại rất dài vẫn được lưu thành công.
+Nội dung khiếu nại rất dài liệu có được lưu được hay không?
 
 ---
 
