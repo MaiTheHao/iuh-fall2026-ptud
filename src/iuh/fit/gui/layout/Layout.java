@@ -133,6 +133,8 @@ public class Layout extends JPanel {
         this.header.refreshText();
         this.header.setActive(page.getClass());
         this.header.setMenuVisible(AppContext.getInstance().getCurrentUser() != null);
+        this.content.revalidate();
+        this.content.repaint();
         this.updateWindowState();
     }
 
@@ -141,7 +143,9 @@ public class Layout extends JPanel {
         if (window instanceof JFrame frame) {
             boolean loggedIn = AppContext.getInstance().getCurrentUser() != null;
             frame.setJMenuBar(loggedIn ? this.header : null);
-            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            if ((frame.getExtendedState() & JFrame.MAXIMIZED_BOTH) == 0) {
+                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            }
         }
     }
 

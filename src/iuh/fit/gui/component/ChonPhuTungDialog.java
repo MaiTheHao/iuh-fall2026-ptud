@@ -1,5 +1,6 @@
 package iuh.fit.gui.component;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
@@ -58,6 +59,7 @@ public final class ChonPhuTungDialog extends JDialog {
 		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		this.getContentPane().setBackground(Theme.BG);
 
+		this.spinner.setPreferredSize(new java.awt.Dimension(90, 32));
 		this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.table.setRowHeight(34);
 		Theme.styleTable(this.table);
@@ -87,9 +89,11 @@ public final class ChonPhuTungDialog extends JDialog {
 			}
 		});
 
-		this.add(this.taoPanelTimKiem(), BorderLayout.NORTH);
-		this.add(new JScrollPane(this.table), BorderLayout.CENTER);
-		this.add(this.taoPanelDuoi(), BorderLayout.SOUTH);
+		JPanel noiDung = Theme.contentPanel(12);
+		noiDung.add(this.taoPanelTimKiem(), BorderLayout.NORTH);
+		noiDung.add(new JScrollPane(this.table), BorderLayout.CENTER);
+		noiDung.add(this.taoPanelDuoi(), BorderLayout.SOUTH);
+		this.add(noiDung, BorderLayout.CENTER);
 
 		this.locDanhSach();
 	}
@@ -100,8 +104,18 @@ public final class ChonPhuTungDialog extends JDialog {
 	}
 
 	private JPanel taoPanelTimKiem() {
-		JPanel panel = new JPanel(new BorderLayout(4, 4));
-		panel.add(new JLabel(I18nReaderUtil.get("app.phieuNhap.timPhuTung")), BorderLayout.NORTH);
+		JLabel nhan = new JLabel(I18nReaderUtil.get("app.phieuNhap.timPhuTung"));
+		nhan.setFont(Theme.fieldLabelFont());
+		nhan.setForeground(Theme.INK);
+
+		this.searchField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
+				I18nReaderUtil.get("app.phieuNhap.timPhuTung"));
+		this.searchField.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON,
+				new LucideIcon("search", 16, Theme.palette().INK_MUTED()));
+
+		JPanel panel = new JPanel(new BorderLayout(4, 6));
+		panel.setOpaque(false);
+		panel.add(nhan, BorderLayout.NORTH);
 		panel.add(this.searchField, BorderLayout.CENTER);
 		return panel;
 	}
@@ -111,6 +125,10 @@ public final class ChonPhuTungDialog extends JDialog {
 		JButton btnChon = new JButton(I18nReaderUtil.get("app.common.confirm"));
 		JButton btnHuy = new JButton(I18nReaderUtil.get("app.common.cancel"));
 
+		btnChon.setIcon(new LucideIcon("check", 16, Theme.palette().ON_ACCENT()));
+		Theme.applyPrimary(btnChon);
+		Theme.applySecondary(btnHuy);
+
 		btnChon.addActionListener(e -> this.chon());
 		btnHuy.addActionListener(e -> this.dispose());
 
@@ -118,7 +136,10 @@ public final class ChonPhuTungDialog extends JDialog {
 		controls.add(btnChon);
 		controls.add(btnHuy);
 
+		this.statusLabel.setForeground(Theme.palette().INK_MUTED());
+
 		JPanel panel = new JPanel(new BorderLayout(8, 0));
+		panel.setOpaque(false);
 		panel.add(this.statusLabel, BorderLayout.WEST);
 		panel.add(controls, BorderLayout.EAST);
 		return panel;

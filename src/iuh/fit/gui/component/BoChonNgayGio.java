@@ -9,7 +9,6 @@ import iuh.fit.core.context.AppContext;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import java.util.Locale;
 
@@ -62,7 +61,7 @@ public final class BoChonNgayGio {
 
         settings.setColorBackgroundWeekdayLabels(p.PANEL_ALT(), true);
         settings.setColorBackgroundWeekNumberLabels(p.PANEL_ALT(), true);
-        settings.setBorderCalendarPopup(BorderFactory.createLineBorder(p.BORDER()));
+        settings.setBorderCalendarPopup(Theme.vienNhat());
     }
 
     private static void apDungMauNenLich(DatePickerSettings settings, Theme.Palette p) {
@@ -134,5 +133,7 @@ public final class BoChonNgayGio {
     private static void apDungMauNut(JButton nut, Theme.Palette p) {
         nut.setBackground(p.PANEL_ALT());
         nut.setForeground(p.INK());
+        nut.setContentAreaFilled(false);
+        nut.setBorderPainted(false);
     }
 }

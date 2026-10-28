@@ -10,7 +10,6 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -35,10 +34,10 @@ public class FormFieldPanel extends JPanel {
         GridBagConstraints gbc = taoRangBuoc();
 
         JLabel label = new JLabel(I18nReaderUtil.get(labelKey));
-        label.setFont(label.getFont().deriveFont(Font.BOLD, 14f));
-        label.setForeground(Theme.palette().INK_SECONDARY());
+        label.setFont(Theme.fieldLabelFont());
+        label.setForeground(Theme.INK);
 
-        gbc.insets = new Insets(4, 12, 2, 12);
+        gbc.insets = Theme.fieldRowInsets();
         gbc.gridy = this.dongTiepTheo++;
         this.add(label, gbc);
 

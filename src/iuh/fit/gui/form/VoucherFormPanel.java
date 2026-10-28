@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import java.awt.Dimension;
 
 /**
@@ -30,6 +31,7 @@ public class VoucherFormPanel extends FormFieldPanel {
     private final JCheckBox trangThaiField = new JCheckBox();
 
     public VoucherFormPanel() {
+        this.mucGiamField.setHorizontalAlignment(SwingConstants.RIGHT);
         Theme.applyReadOnly(this.maField);
 
         this.addField("app.voucher.ma", this.maField);

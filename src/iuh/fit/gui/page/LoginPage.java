@@ -1,15 +1,18 @@
 package iuh.fit.gui.page;
 
+import com.formdev.flatlaf.FlatClientProperties;
+
 import iuh.fit.dto.LoginDTO;
 import iuh.fit.exception.CredentialsInvalidException;
 import iuh.fit.service.AuthService;
 import iuh.fit.util.I18nReaderUtil;
 
+import iuh.fit.gui.component.LucideIcon;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -18,11 +21,10 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
-import javax.imageio.ImageIO;
+import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -40,14 +42,25 @@ import java.sql.SQLException;
 /** Màn hình đăng nhập hệ thống. */
 public class LoginPage extends AbstractPage {
 
-    private static final int RONG_COT_NOI_DUNG = 350;
+    private static final int RONG_THE = 420;
+    private static final int LE_THE = 28;
+    private static final int CHIEU_CAO_O_NHAP = 42;
+    private static final int CHIEU_CAO_NUT = 44;
+    private static final int CO_ICON = 18;
+    private static final int BO_GOC_THE = 14;
+    private static final String DUONG_DAN_ANH_NEN = "resources/background.jpg";
+
+    private static Image anhNen;
+    private static boolean daTaiAnh;
 
     private final AuthService authService = new AuthService();
-    private final JTextField tenDangNhapField = new JTextField(24);
-    private final JPasswordField matKhauField = new JPasswordField(24);
+    private final JTextField tenDangNhapField = new JTextField();
+    private final JPasswordField matKhauField = new JPasswordField();
 
     public LoginPage() {
         this.setLayout(new GridBagLayout());
+        this.setOpaque(true);
+        this.setBackground(Theme.BG);
     }
 
     @Override
@@ -55,17 +68,11 @@ public class LoginPage extends AbstractPage {
         this.removeAll();
 
         GridBagConstraints rangBuoc = new GridBagConstraints();
-        rangBuoc.gridy = 0;
-        rangBuoc.weighty = 1;
-        rangBuoc.fill = GridBagConstraints.BOTH;
-
         rangBuoc.gridx = 0;
-        rangBuoc.weightx = 0.70;
-        this.add(new BannerDangNhap(), rangBuoc);
-
-        rangBuoc.gridx = 1;
-        rangBuoc.weightx = 0.30;
-        this.add(this.taoKhuVucForm(), rangBuoc);
+        rangBuoc.gridy = 0;
+        rangBuoc.anchor = GridBagConstraints.CENTER;
+        rangBuoc.fill = GridBagConstraints.NONE;
+        this.add(this.taoTheDangNhap(), rangBuoc);
 
         this.bindEnter(this.tenDangNhapField);
         this.bindEnter(this.matKhauField);
@@ -74,86 +81,140 @@ public class LoginPage extends AbstractPage {
         this.repaint();
     }
 
-    private JPanel taoKhuVucForm() {
-        JPanel khuVuc = new JPanel(new GridBagLayout());
-        khuVuc.setOpaque(true);
-        khuVuc.setBackground(Theme.palette().PANEL());
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
 
-        JPanel cot = new JPanel(new GridBagLayout());
-        cot.setOpaque(false);
+        Graphics2D doHoa = (Graphics2D) g.create();
+        try {
+            doHoa.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            Image anh = layAnhNen();
+            if (anh == null) {
+                doHoa.setPaint(new GradientPaint(0, 0, Theme.palette().ACCENT(),
+                        this.getWidth(), this.getHeight(), Theme.palette().ACCENT_PRESSED()));
+                doHoa.fillRect(0, 0, this.getWidth(), this.getHeight());
+            } else {
+                this.vePhuKin(doHoa, anh);
+                doHoa.setColor(Theme.scrim());
+                doHoa.fillRect(0, 0, this.getWidth(), this.getHeight());
+            }
+        } finally {
+            doHoa.dispose();
+        }
+    }
+
+    private void vePhuKin(Graphics2D doHoa, Image anh) {
+        int rong = this.getWidth();
+        int cao = this.getHeight();
+        double tiLe = Math.max(rong / (double) anh.getWidth(null), cao / (double) anh.getHeight(null));
+        int rongAnh = (int) Math.ceil(anh.getWidth(null) * tiLe);
+        int caoAnh = (int) Math.ceil(anh.getHeight(null) * tiLe);
+        doHoa.drawImage(anh, (rong - rongAnh) / 2, (cao - caoAnh) / 2, rongAnh, caoAnh, this);
+    }
+
+    private static Image layAnhNen() {
+        if (!daTaiAnh) {
+            daTaiAnh = true;
+            InputStream luong = LoginPage.class.getClassLoader()
+                    .getResourceAsStream(DUONG_DAN_ANH_NEN);
+            if (luong != null) {
+                try (luong) {
+                    anhNen = ImageIO.read(luong);
+                } catch (IOException e) {
+                    anhNen = null;
+                }
+            }
+        }
+        return anhNen;
+    }
+
+    private JPanel taoTheDangNhap() {
+        JPanel the = new TheDangNhap();
+        the.setLayout(new GridBagLayout());
+        the.setOpaque(false);
+
+        JPanel noiDung = new JPanel(new GridBagLayout());
+        noiDung.setOpaque(false);
 
         GridBagConstraints rangBuoc = new GridBagConstraints();
         rangBuoc.gridx = 0;
+        rangBuoc.gridy = -1;
         rangBuoc.weightx = 1;
         rangBuoc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel tieuDe = new JLabel(I18nReaderUtil.get("app.login.title"));
-        tieuDe.setFont(new Font("SansSerif", Font.BOLD, 24));
-        tieuDe.setForeground(Theme.palette().INK());
-        rangBuoc.gridy = 0;
-        rangBuoc.insets = new Insets(0, 0, 28, 0);
-        cot.add(tieuDe, rangBuoc);
+        this.addDong(noiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.title"),
+                fontCo(26f, Font.BOLD), Theme.palette().ACCENT(), SwingConstants.CENTER), 0, 0);
+        this.addDong(noiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.login.tagline"),
+                fontCo(14f, Font.PLAIN), Theme.palette().INK_MUTED(), SwingConstants.CENTER), 6, 26);
 
-        JLabel nhanTenDangNhap = new JLabel(I18nReaderUtil.get("app.login.username"));
-        nhanTenDangNhap.setFont(new Font("SansSerif", Font.BOLD, 13));
-        nhanTenDangNhap.setForeground(Theme.palette().INK_SECONDARY());
-        rangBuoc.gridy = 1;
-        rangBuoc.insets = new Insets(0, 0, 8, 0);
-        cot.add(nhanTenDangNhap, rangBuoc);
+        this.addDong(noiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.login.title"),
+                fontCo(20f, Font.BOLD), Theme.palette().INK(), SwingConstants.LEFT), 0, 18);
 
-        this.tenDangNhapField.setPreferredSize(
-                new Dimension(this.tenDangNhapField.getPreferredSize().width, 42));
-        rangBuoc.gridy = 2;
-        rangBuoc.insets = new Insets(0, 0, 8, 0);
-        cot.add(this.tenDangNhapField, rangBuoc);
+        this.cauHinhONhap(this.tenDangNhapField, "user", "app.login.username");
+        this.addDong(noiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.login.username"),
+                Theme.fieldLabelFont(), Theme.INK, SwingConstants.LEFT), 0, 16);
+        this.addDong(noiDung, rangBuoc, this.tenDangNhapField, 6, 14);
 
-        JLabel nhanMatKhau = new JLabel(I18nReaderUtil.get("app.login.password"));
-        nhanMatKhau.setFont(new Font("SansSerif", Font.BOLD, 13));
-        nhanMatKhau.setForeground(Theme.palette().INK_SECONDARY());
-        rangBuoc.gridy = 3;
-        rangBuoc.insets = new Insets(0, 0, 8, 0);
-        cot.add(nhanMatKhau, rangBuoc);
-
-        this.matKhauField.setPreferredSize(
-                new Dimension(this.matKhauField.getPreferredSize().width, 42));
-        rangBuoc.gridy = 4;
-        rangBuoc.insets = new Insets(0, 0, 20, 0);
-        cot.add(this.matKhauField, rangBuoc);
+        this.cauHinhONhap(this.matKhauField, "lock", "app.login.password");
+        this.addDong(noiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.login.password"),
+                Theme.fieldLabelFont(), Theme.INK, SwingConstants.LEFT), 0, 8);
+        this.addDong(noiDung, rangBuoc, this.matKhauField, 6, 20);
 
         JButton dangNhapButton = new JButton(I18nReaderUtil.get("app.login.submit"));
-        dangNhapButton.setPreferredSize(
-                new Dimension(dangNhapButton.getPreferredSize().width, 44));
         Theme.applyPrimary(dangNhapButton);
+        dangNhapButton.setPreferredSize(new Dimension(RONG_THE - 2 * LE_THE, CHIEU_CAO_NUT));
+        dangNhapButton.setFocusPainted(false);
         dangNhapButton.addActionListener(e -> this.dangNhap());
-        rangBuoc.gridy = 5;
-        rangBuoc.insets = new Insets(0, 0, 8, 0);
-        cot.add(dangNhapButton, rangBuoc);
+        this.addDong(noiDung, rangBuoc, dangNhapButton, 0, 4);
 
         JButton thoatButton = new JButton(I18nReaderUtil.get("app.login.exit"));
-        thoatButton.setPreferredSize(
-                new Dimension(thoatButton.getPreferredSize().width, 40));
-        thoatButton.setOpaque(true);
-        thoatButton.setContentAreaFilled(true);
-        thoatButton.setBackground(Theme.palette().PANEL());
-        thoatButton.setForeground(Theme.palette().INK());
-        thoatButton.setBorder(BorderFactory.createLineBorder(Theme.palette().BORDER()));
+        thoatButton.setContentAreaFilled(false);
+        thoatButton.setBorderPainted(false);
+        thoatButton.setForeground(Theme.palette().INK_SECONDARY());
         thoatButton.setFocusPainted(false);
         thoatButton.addActionListener(e -> System.exit(0));
-        rangBuoc.gridy = 6;
-        rangBuoc.insets = new Insets(0, 0, 0, 0);
-        cot.add(thoatButton, rangBuoc);
+        this.addDong(noiDung, rangBuoc, thoatButton, 0, 0);
 
-        cot.setPreferredSize(new Dimension(RONG_COT_NOI_DUNG, cot.getPreferredSize().height));
+        GridBagConstraints rangBuocThe = new GridBagConstraints();
+        rangBuocThe.gridx = 0;
+        rangBuocThe.gridy = 0;
+        rangBuocThe.weightx = 1;
+        rangBuocThe.weighty = 1;
+        rangBuocThe.fill = GridBagConstraints.HORIZONTAL;
+        rangBuocThe.anchor = GridBagConstraints.CENTER;
+        rangBuocThe.insets = new Insets(LE_THE, LE_THE, LE_THE, LE_THE);
+        the.add(noiDung, rangBuocThe);
 
-        GridBagConstraints rangBuocKhuVuc = new GridBagConstraints();
-        rangBuocKhuVuc.gridx = 0;
-        rangBuocKhuVuc.gridy = 0;
-        rangBuocKhuVuc.weightx = 1;
-        rangBuocKhuVuc.weighty = 1;
-        rangBuocKhuVuc.anchor = GridBagConstraints.CENTER;
-        rangBuocKhuVuc.fill = GridBagConstraints.NONE;
-        khuVuc.add(cot, rangBuocKhuVuc);
-        return khuVuc;
+        return the;
+    }
+
+    private void cauHinhONhap(JTextField oNhap, String iconName, String placeholderKey) {
+        oNhap.setPreferredSize(new Dimension(RONG_THE - 2 * LE_THE, CHIEU_CAO_O_NHAP));
+        oNhap.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
+                I18nReaderUtil.get(placeholderKey));
+        oNhap.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON,
+                new LucideIcon(iconName, CO_ICON, Theme.palette().INK_MUTED()));
+    }
+
+    private void addDong(JPanel noiDung, GridBagConstraints rangBuoc, JComponent thanhPhan,
+            int leTren, int leDuoi) {
+        rangBuoc.gridy++;
+        rangBuoc.insets = new Insets(leTren, 0, leDuoi, 0);
+        noiDung.add(thanhPhan, rangBuoc);
+    }
+
+    private JLabel taoNhan(String text, Font font, Color mauChu, int canChinh) {
+        JLabel nhan = new JLabel(text, canChinh);
+        nhan.setFont(font);
+        nhan.setForeground(mauChu);
+        return nhan;
+    }
+
+    private static Font fontCo(float co, int kieu) {
+        Font goc = UIManager.getFont("Label.font");
+        Font coSo = goc == null ? new JLabel().getFont() : goc;
+        return coSo.deriveFont(kieu, co);
     }
 
     @Override
@@ -185,142 +246,29 @@ public class LoginPage extends AbstractPage {
         }
     }
 
-    private static final class BannerDangNhap extends JPanel {
+    /** Thẻ trắng bo góc đặt giữa nền ảnh gara. */
+    private static final class TheDangNhap extends JPanel {
 
         private static final long serialVersionUID = 1L;
-        private static final String DUONG_DAN_ANH_NEN = "resources/background.jpg";
 
-        private static Image anhNen;
-        private static boolean daTaiAnh;
-
-        private BannerDangNhap() {
-            this.setOpaque(true);
-            this.setLayout(new GridBagLayout());
-
-            JPanel noiDung = new JPanel(new GridBagLayout());
-            noiDung.setOpaque(false);
-            noiDung.setBorder(BorderFactory.createEmptyBorder(0, 48, 0, 48));
-
-            GridBagConstraints rangBuoc = new GridBagConstraints();
-            rangBuoc.gridx = 0;
-            rangBuoc.weightx = 1;
-            rangBuoc.fill = GridBagConstraints.HORIZONTAL;
-
-            Color mauChu = Theme.chuTrenAnh();
-            Color mauBong = new Color(0, 20, 70, 190);
-            Color mauQuangSang = voiDoMo(Theme.palette().FOCUS(), 110);
-
-            JLabel tenUngDung = new JLabel(I18nReaderUtil.get("app.title"), SwingConstants.CENTER) {
-
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                protected void paintComponent(Graphics g) {
-                    Graphics2D doHoa = (Graphics2D) g.create();
-                    try {
-                        doHoa.setRenderingHint(
-                                RenderingHints.KEY_TEXT_ANTIALIASING,
-                                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-                        doHoa.setFont(this.getFont());
-                        FontMetrics soDo = doHoa.getFontMetrics();
-                        String chu = this.getText();
-                        int x = (this.getWidth() - soDo.stringWidth(chu)) / 2;
-                        int y = (this.getHeight() - soDo.getHeight()) / 2 + soDo.getAscent();
-
-                        doHoa.setColor(mauBong);
-                        doHoa.drawString(chu, x + 4, y + 5);
-
-                        doHoa.setColor(mauQuangSang);
-                        for (int dx = -1; dx <= 1; dx++) {
-                            for (int dy = -1; dy <= 1; dy++) {
-                                if (dx != 0 || dy != 0) {
-                                    doHoa.drawString(chu, x + dx, y + dy);
-                                }
-                            }
-                        }
-
-                        doHoa.setColor(mauChu);
-                        doHoa.drawString(chu, x, y);
-                    } finally {
-                        doHoa.dispose();
-                    }
-                }
-            };
-            tenUngDung.setFont(new Font("SansSerif", Font.BOLD, 48));
-            tenUngDung.setForeground(mauChu);
-            tenUngDung.setPreferredSize(new Dimension(650, 80));
-            rangBuoc.gridy = 0;
-            rangBuoc.insets = new Insets(0, 0, 0, 0);
-            noiDung.add(tenUngDung, rangBuoc);
-
-            JPanel thanhNhan = new JPanel();
-            thanhNhan.setPreferredSize(new Dimension(72, 4));
-            thanhNhan.setOpaque(true);
-            thanhNhan.setBackground(Theme.palette().ACCENT());
-            rangBuoc.gridy = 1;
-            rangBuoc.weightx = 0;
-            rangBuoc.fill = GridBagConstraints.NONE;
-            rangBuoc.anchor = GridBagConstraints.CENTER;
-            rangBuoc.insets = new Insets(22, 0, 0, 0);
-            noiDung.add(thanhNhan, rangBuoc);
-
-            JLabel dongMoTa = new JLabel(I18nReaderUtil.get("app.login.tagline"), SwingConstants.CENTER);
-            dongMoTa.setFont(new Font("SansSerif", Font.PLAIN, 15));
-            dongMoTa.setForeground(voiDoMo(mauChu, 200));
-            rangBuoc.gridy = 2;
-            rangBuoc.insets = new Insets(14, 0, 0, 0);
-            noiDung.add(dongMoTa, rangBuoc);
-
-            this.add(noiDung);
-        }
-
-        private static Color voiDoMo(Color mau, int doMo) {
-            return new Color(mau.getRed(), mau.getGreen(), mau.getBlue(), doMo);
+        private TheDangNhap() {
+            this.setOpaque(false);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
             Graphics2D doHoa = (Graphics2D) g.create();
             try {
-                Image anh = layAnhNen();
-                if (anh == null) {
-                    doHoa.setPaint(new GradientPaint(0, 0, Theme.palette().ACCENT(),
-                            this.getWidth(), this.getHeight(), Theme.palette().ACCENT_PRESSED()));
-                    doHoa.fillRect(0, 0, this.getWidth(), this.getHeight());
-                } else {
-                    this.vePhuKin(doHoa, anh);
-                    doHoa.setColor(Theme.scrim());
-                    doHoa.fillRect(0, 0, this.getWidth(), this.getHeight());
-                }
+                doHoa.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                doHoa.setColor(Theme.palette().PANEL());
+                doHoa.fillRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
+                        BO_GOC_THE, BO_GOC_THE);
+                doHoa.setColor(Theme.palette().BORDER());
+                doHoa.drawRoundRect(0, 0, this.getWidth() - 1, this.getHeight() - 1,
+                        BO_GOC_THE, BO_GOC_THE);
             } finally {
                 doHoa.dispose();
             }
-        }
-
-        private void vePhuKin(Graphics2D doHoa, Image anh) {
-            int rong = this.getWidth();
-            int cao = this.getHeight();
-            double tiLe = Math.max(rong / (double) anh.getWidth(null), cao / (double) anh.getHeight(null));
-            int rongAnh = (int) Math.ceil(anh.getWidth(null) * tiLe);
-            int caoAnh = (int) Math.ceil(anh.getHeight(null) * tiLe);
-            doHoa.drawImage(anh, (rong - rongAnh) / 2, (cao - caoAnh) / 2, rongAnh, caoAnh, this);
-        }
-
-        private static Image layAnhNen() {
-            if (!daTaiAnh) {
-                daTaiAnh = true;
-                InputStream luong = BannerDangNhap.class.getClassLoader()
-                        .getResourceAsStream(DUONG_DAN_ANH_NEN);
-                if (luong != null) {
-                    try (luong) {
-                        anhNen = ImageIO.read(luong);
-                    } catch (IOException e) {
-                        anhNen = null;
-                    }
-                }
-            }
-            return anhNen;
         }
     }
 }
