@@ -14,6 +14,8 @@ public class GUI {
     private JFrame frame;
 
     public void start() {
+        System.setProperty("awt.useSystemAAFontSettings", "on");
+        System.setProperty("swing.aatext", "true");
         SwingUtilities.invokeLater(this::buildWindow);
     }
 

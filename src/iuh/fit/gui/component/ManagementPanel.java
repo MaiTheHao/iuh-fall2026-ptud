@@ -1,5 +1,6 @@
 package iuh.fit.gui.component;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import com.github.lgooddatepicker.components.DatePicker;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
@@ -17,12 +18,14 @@ import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.time.LocalDate;
@@ -33,6 +36,8 @@ public class ManagementPanel extends JPanel {
 
     private static final String THE_BANG = "bang";
     private static final String THE_TRONG = "trong";
+
+    private static final int CO_ICON_TIM = 16;
 
     /** Handle của một bộ lọc chọn một giá trị; đọc mã enum hoặc giá trị thô. */
     public record BoLocChon(JComboBox<Object> combo) {
@@ -83,11 +88,25 @@ public class ManagementPanel extends JPanel {
             return false;
         }
     };
-    private final JTable bang = new JTable(this.moHinhBang);
+    private final JTable bang = new JTable(this.moHinhBang) {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+            Component thanhPhan = super.prepareRenderer(renderer, row, column);
+            if (!this.isRowSelected(row) && !(renderer instanceof ThaoTacTableCellRenderer)) {
+                thanhPhan.setBackground(row % 2 == 0
+                        ? this.getBackground()
+                        : Theme.palette().TABLE_ROW_ALT());
+            }
+            return thanhPhan;
+        }
+    };
     private final CardLayout theDanhSach = new CardLayout();
     private final JPanel khungDanhSach = new JPanel(this.theDanhSach);
 
-    private final JPanel khungBoLoc = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 2));
+    private final JPanel khungBoLoc = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 6));
     private final List<JTextField> boLocText = new ArrayList<>();
     private final List<DatePicker[]> boLocNgay = new ArrayList<>();
     private final List<JLabel> nhanBoLoc = new ArrayList<>();
@@ -109,7 +128,11 @@ public class ManagementPanel extends JPanel {
         this.setOpaque(false);
 
         this.bang.setFillsViewportHeight(true);
-        this.bang.setRowHeight(36);
+        this.bang.setRowHeight(34);
+        this.oTimNhanh.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
+                I18nReaderUtil.get("app.common.search"));
+        this.oTimNhanh.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON,
+                new LucideIcon("search", CO_ICON_TIM, Theme.palette().INK_MUTED()));
 
         Theme.styleTable(this.bang);
         Theme.applySecondary(this.nutXoaLoc);
@@ -151,16 +174,15 @@ public class ManagementPanel extends JPanel {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
         actions.setOpaque(false);
 
-        JLabel searchLabel = new JLabel(I18nReaderUtil.get("app.common.search"));
-        searchLabel.setForeground(Theme.INK);
-        actions.add(searchLabel);
-
-        this.nhanDem.setForeground(Theme.INK);
+        this.oTimNhanh.setPreferredSize(new Dimension(240,
+                this.oTimNhanh.getPreferredSize().height));
         actions.add(this.oTimNhanh);
+
+        this.nhanDem.setForeground(Theme.palette().INK_SECONDARY());
         actions.add(this.nhanDem);
         actions.add(this.nutXoaLoc);
 
-        JPanel panel = new JPanel(new BorderLayout(4, 2));
+        JPanel panel = new JPanel(new BorderLayout(4, 4));
         panel.setOpaque(false);
         panel.add(this.khungBoLoc, BorderLayout.CENTER);
         panel.add(actions, BorderLayout.SOUTH);
@@ -168,8 +190,9 @@ public class ManagementPanel extends JPanel {
     }
 
     private JPanel buildPaginationPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 2));
-        panel.setOpaque(false);
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 6));
+        panel.setOpaque(true);
+        panel.setBackground(Theme.palette().PANEL_ALT());
         this.nhanTrang.setForeground(Theme.INK);
         panel.add(this.nutTruoc);
         panel.add(this.nhanTrang);

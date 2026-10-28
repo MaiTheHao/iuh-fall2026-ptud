@@ -8,6 +8,7 @@ import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 /**
  * Form nhập liệu xe dùng chung cho màn quản lý và dialog sửa.
@@ -23,6 +24,7 @@ public class XeFormPanel extends FormFieldPanel {
     private final JTextField odoField = new JTextField(14);
 
     public XeFormPanel() {
+        this.odoField.setHorizontalAlignment(SwingConstants.RIGHT);
         this.hangXeCombo.setEditable(true);
         this.dongXeCombo.setEditable(true);
         Theme.applyEditable(this.bienSoField);

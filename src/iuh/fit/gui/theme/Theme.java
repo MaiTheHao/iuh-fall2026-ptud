@@ -1,5 +1,7 @@
 package iuh.fit.gui.theme;
 
+import com.formdev.flatlaf.FlatLightLaf;
+
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
@@ -16,6 +18,7 @@ import javax.swing.plaf.FontUIResource;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 
@@ -35,11 +38,11 @@ public final class Theme {
 
     private static final Palette LIGHT = new Palette(
             // Surfaces: Clean White / Cool Gray
-            hex("#F5F7FB"), hex("#FFFFFF"), hex("#F8FAFC"),
+            hex("#F8FAFC"), hex("#FFFFFF"), hex("#F8FAFC"),
             hex("#E2E8F0"), hex("#CBD5E1"),
 
             // Accent: Electric Blue
-            hex("#2563EB"), hex("#1D4ED8"), hex("#1E40AF"), hex("#DBEAFE"),
+            hex("#2563EB"), hex("#1D4ED8"), hex("#1E40AF"), hex("#EFF6FF"),
 
             // Typography
             hex("#111827"), hex("#475569"), hex("#64748B"), hex("#FFFFFF"),
@@ -97,9 +100,39 @@ public final class Theme {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(LIGHT.PANEL());
         panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(LIGHT.BORDER()),
+                vienNhat(),
                 BorderFactory.createEmptyBorder(padding, padding, padding, padding)));
         return panel;
+    }
+
+    public static javax.swing.border.Border vienNhat() {
+        return BorderFactory.createLineBorder(LIGHT.BORDER());
+    }
+
+    public static javax.swing.border.Border leDeu(int padding) {
+        return BorderFactory.createEmptyBorder(padding, padding, padding, padding);
+    }
+
+    public static javax.swing.border.Border vienTren() {
+        return BorderFactory.createMatteBorder(1, 0, 0, 0, LIGHT.BORDER());
+    }
+
+    public static javax.swing.border.Border vienDuoi() {
+        return BorderFactory.createMatteBorder(0, 0, 1, 0, LIGHT.BORDER());
+    }
+
+    public static void applyCardStyle(JPanel panel) {
+        panel.setOpaque(true);
+        panel.setBackground(LIGHT.PANEL());
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                vienNhat(),
+                BorderFactory.createEmptyBorder(16, 16, 16, 16)));
+    }
+
+    public static void applyPillButton(JButton button, Color bg, Color fg) {
+        styleNut(button, bg, fg);
+        button.setMargin(new Insets(4, 12, 4, 12));
+        button.setBorderPainted(false);
     }
 
     public static void applyPrimary(JButton nut) {
@@ -164,6 +197,9 @@ public final class Theme {
     }
 
     public static void install() {
+        FlatLightLaf.setup();
+        caiDatFlatLaf();
+
         Palette p = LIGHT;
 
         datMau("control", p.BG());
@@ -241,6 +277,25 @@ public final class Theme {
 
     private static void datMau(String khoa, Color mau) {
         UIManager.put(khoa, new ColorUIResource(mau));
+    }
+
+    private static void caiDatFlatLaf() {
+        Palette p = LIGHT;
+
+        UIManager.put("Button.arc", 8);
+        UIManager.put("Component.arc", 8);
+        UIManager.put("TextComponent.arc", 8);
+        UIManager.put("ScrollBar.thumbArc", 999);
+        UIManager.put("ScrollBar.width", 12);
+        UIManager.put("Table.rowHeight", 34);
+        UIManager.put("Table.showHorizontalLines", true);
+        UIManager.put("Table.showVerticalLines", false);
+        UIManager.put("Table.intercellSpacing", new Dimension(0, 1));
+        UIManager.put("Component.focusColor", p.FOCUS());
+        UIManager.put("Component.borderColor", p.INPUT_BORDER());
+        UIManager.put("TextComponent.placeholderForeground", p.INK_MUTED());
+        UIManager.put("Component.focusWidth", 1);
+        UIManager.put("Component.innerFocusWidth", 1);
     }
 
     private static FontUIResource fontChu(int kieu, int co) {

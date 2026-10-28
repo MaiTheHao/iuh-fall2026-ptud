@@ -3,15 +3,13 @@ package iuh.fit.gui.component;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
 
 /**
@@ -22,6 +20,8 @@ public class ManagementFormPanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private static final int DO_RONG = 480;
+    private static final int CO_ICON = 18;
+    private static final Dimension KICH_THUOC_NUT = new Dimension(100, 36);
 
     private final FormFieldPanel noiDungForm = new FormFieldPanel();
     private final JPanel thanhNut = new JPanel(new GridLayout(2, 2, 10, 10));
@@ -32,19 +32,11 @@ public class ManagementFormPanel extends JPanel {
 
     public ManagementFormPanel(String titleKey) {
         this.setLayout(new BorderLayout(0, 10));
-        this.setOpaque(true);
-        this.setBackground(Theme.palette().PANEL());
-        this.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Theme.palette().BORDER()),
-                BorderFactory.createEmptyBorder(12, 12, 12, 12)));
+        Theme.applyCardStyle(this);
         this.setPreferredSize(new Dimension(DO_RONG, 400));
 
         this.noiDungForm.setOpaque(false);
-        TitledBorder tieuDe = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Theme.palette().BORDER()), I18nReaderUtil.get(titleKey));
-        tieuDe.setTitleFont(tieuDe.getTitleFont().deriveFont(Font.BOLD, 15f));
-        tieuDe.setTitleColor(Theme.palette().INK());
-        this.noiDungForm.setBorder(tieuDe);
+        this.noiDungForm.setBorder(Theme.titledBorder(titleKey));
         JPanel boc = new JPanel(new BorderLayout());
         boc.setOpaque(false);
         boc.add(this.noiDungForm, BorderLayout.NORTH);
@@ -55,21 +47,15 @@ public class ManagementFormPanel extends JPanel {
         scroll.getViewport().setOpaque(false);
         this.add(scroll, BorderLayout.CENTER);
 
-        this.nutThem = new JButton(I18nReaderUtil.get("app.common.add"));
-        this.nutLuu = new JButton(I18nReaderUtil.get("app.common.save"));
-        this.nutXoa = new JButton(I18nReaderUtil.get("app.common.delete"));
-        this.nutXoaTrang = new JButton(I18nReaderUtil.get("app.common.clear"));
+        this.nutThem = taoNut("app.common.add", "plus", Theme.palette().ON_ACCENT());
+        this.nutLuu = taoNut("app.common.save", "save", Theme.palette().ON_ACCENT());
+        this.nutXoa = taoNut("app.common.delete", "trash-2", Theme.palette().ON_ACCENT());
+        this.nutXoaTrang = taoNut("app.common.clear", "rotate-ccw", Theme.INK);
 
         Theme.applyPrimary(this.nutThem);
         Theme.applyPrimary(this.nutLuu);
         Theme.applyDanger(this.nutXoa);
-
-        this.nutXoaTrang.setOpaque(true);
-        this.nutXoaTrang.setContentAreaFilled(true);
-        this.nutXoaTrang.setBackground(Theme.palette().PANEL());
-        this.nutXoaTrang.setForeground(Theme.palette().INK());
-        this.nutXoaTrang.setBorder(BorderFactory.createLineBorder(Theme.palette().BORDER()));
-        this.nutXoaTrang.setFocusPainted(false);
+        Theme.applySecondary(this.nutXoaTrang);
 
         this.thanhNut.setOpaque(false);
         this.thanhNut.setPreferredSize(new Dimension(DO_RONG, chieuCaoThanhNut(2)));
@@ -78,6 +64,15 @@ public class ManagementFormPanel extends JPanel {
         this.thanhNut.add(this.nutXoa);
         this.thanhNut.add(this.nutXoaTrang);
         this.add(this.thanhNut, BorderLayout.SOUTH);
+    }
+
+    private static JButton taoNut(String labelKey, String iconName, Color mauIcon) {
+        JButton nut = new JButton(I18nReaderUtil.get(labelKey));
+        nut.setIcon(new LucideIcon(iconName, CO_ICON, mauIcon));
+        nut.setMinimumSize(KICH_THUOC_NUT);
+        nut.setIconTextGap(6);
+        nut.setFocusPainted(false);
+        return nut;
     }
 
     public void addField(String labelKey, JComponent field) {

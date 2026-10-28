@@ -3,7 +3,6 @@ package iuh.fit.gui.component;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -35,8 +34,9 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
 
     private static final String CHIA_KHOA = "thaoTacTableCellRenderer";
 
-    private static final int KHOANG_CACH = 6;
-    private static final int KICH_THUOC_ICON = 22;
+    private static final int KHOANG_CACH = 8;
+    private static final int KICH_THUOC_ICON = 20;
+    private static final Dimension KICH_THUOC_NUT = new Dimension(36, 32);
 
     private final List<ThaoTac> dsThaoTac = new ArrayList<>();
     private final List<JButton> dsNut = new ArrayList<>();
@@ -86,13 +86,13 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
         for (ThaoTac thaoTac : this.dsThaoTac) {
             JButton nut = new JButton();
             nut.setFocusable(false);
-            nut.setBorder(BorderFactory.createEmptyBorder());
             nut.setBorderPainted(false);
             nut.setContentAreaFilled(true);
             nut.setOpaque(true);
             nut.setMargin(new Insets(0, 0, 0, 0));
             nut.setRolloverEnabled(false);
-            nut.setPreferredSize(new Dimension(40, 36));
+            nut.setPreferredSize(KICH_THUOC_NUT);
+            nut.setMinimumSize(KICH_THUOC_NUT);
             nut.getAccessibleContext().setAccessibleName(
                     I18nReaderUtil.get(thaoTac.tooltipKey()));
             this.dsNut.add(nut);

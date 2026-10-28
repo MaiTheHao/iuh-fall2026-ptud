@@ -9,6 +9,7 @@ import iuh.fit.util.NumberParseUtil;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import java.awt.Dimension;
 
 /**
@@ -33,6 +34,7 @@ public class DichVuFormPanel extends FormFieldPanel {
             "app.dichVu.duLieuKhongPhaiAnh"));
 
     public DichVuFormPanel() {
+        this.donGiaField.setHorizontalAlignment(SwingConstants.RIGHT);
         Theme.applyReadOnly(this.maField);
 
         this.addField("app.dichVu.ma", this.maField);
