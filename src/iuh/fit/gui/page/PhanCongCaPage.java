@@ -10,6 +10,7 @@ import iuh.fit.gui.component.BoChonNgayGio;
 import iuh.fit.gui.component.BoHienThiI18n;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.PhanCongService;
 import iuh.fit.util.I18nReaderUtil;
 
@@ -32,11 +33,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PhanCongCaPage extends AbstractPage {
 
 	private static final long serialVersionUID = 1L;
 	private static final int PAGE_SIZE = 20;
+	private static final Logger LOGGER = Logger.getLogger(PhanCongCaPage.class.getName());
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -273,7 +277,7 @@ public class PhanCongCaPage extends AbstractPage {
 
 				duLieu.add(new Object[] { phanCong.getMaPhanCong(),
 						tenNhanVienTheoMa.getOrDefault(phanCong.getMaNhanVien(), phanCong.getMaNhanVien()), ngayLam,
-						phanCong.getCaLamViec(), phanCong.getGhiChu() == null ? "" : phanCong.getGhiChu() });
+						phanCong.getCaLamViec() == null ? "" : phanCong.getCaLamViec().getI18NBusinessName(), phanCong.getGhiChu() == null ? "" : phanCong.getGhiChu() });
 			}
 
 			this.managementPanel.setRows(duLieu);
@@ -318,6 +322,27 @@ public class PhanCongCaPage extends AbstractPage {
 			PhanCong phanCong = ketQua.get();
 
 			this.txtMaPhanCong.setText(phanCong.getMaPhanCong());
+
+			Optional<NhanVien> nhanVienHienTai = this.phanCongService.getNhanVienById(phanCong.getMaNhanVien());
+
+			if (nhanVienHienTai.isPresent()) {
+				NhanVien nhanVien = nhanVienHienTai.get();
+				boolean daCoTrongDanhSach = false;
+
+				for (int i = 0; i < this.cboNhanVien.getItemCount(); i++) {
+					NhanVien ungVien = this.cboNhanVien.getItemAt(i);
+
+					if (ungVien != null && ungVien.getMaNhanVien() != null
+							&& ungVien.getMaNhanVien().equals(nhanVien.getMaNhanVien())) {
+						daCoTrongDanhSach = true;
+						break;
+					}
+				}
+
+				if (!daCoTrongDanhSach) {
+					this.cboNhanVien.insertItemAt(nhanVien, 0);
+				}
+			}
 
 			this.cboNhanVien.setSelectedIndex(-1);
 
@@ -413,21 +438,23 @@ public class PhanCongCaPage extends AbstractPage {
 					JOptionPane.WARNING_MESSAGE);
 
 		} catch (SQLException ex) {
-			ex.printStackTrace();
-
-			JOptionPane.showMessageDialog(this, ex.getMessage(), I18nReaderUtil.get("app.title"),
-					JOptionPane.ERROR_MESSAGE);
+			LOGGER.log(Level.SEVERE, "Khong the xoa phan cong ca", ex);
+			ThongBao.loi(this, "app.login.errorSystem");
 		}
 	}
 
 	private void taiDanhSachNhanVien() {
 		try {
-			List<NhanVien> danhSach = this.phanCongService.getDanhSachNhanVien();
+			List<NhanVien> danhSach = this.phanCongService.getNhanVienCoThePhanCong();
 
 			this.cboNhanVien.removeAllItems();
 
 			for (NhanVien nhanVien : danhSach) {
 				this.cboNhanVien.addItem(nhanVien);
+			}
+
+			if (danhSach.isEmpty()) {
+				ThongBao.canhBao(this, "app.schedule.chuaCoNhanVienPhuHop");
 			}
 		} catch (SQLException ex) {
 			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.common.loiKhongXacDinh"),

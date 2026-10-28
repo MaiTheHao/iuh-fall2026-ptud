@@ -102,6 +102,20 @@ public final class VoucherDAO extends BaseDao<Voucher> {
         }
     }
 
+    public boolean existsHoaDon(String maVoucher) throws SQLException {
+        String sql = """
+                SELECT 1 FROM HoaDon
+                WHERE maVoucher = ?
+                """;
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maVoucher);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     @Override
     protected Voucher mapRow(ResultSet rs) throws SQLException {
         return new Voucher(

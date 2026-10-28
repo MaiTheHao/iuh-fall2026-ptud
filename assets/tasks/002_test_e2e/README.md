@@ -83,3 +83,33 @@ Không để trống ô `PASS / NO`. Kịch bản không chạy được vì ph�
 | P2 | 14 | | | |
 | P3 | 12 | | | |
 | P4 | 14 | | | |
+
+## 8. Phạm vi & điểm mở đã chốt
+
+- Phân quyền menu ngoài phạm vi test (P1-01) -> tính là PASS.
+- Biển số phải khớp `^[0-9]{2}[A-Z]{1,2}[0-9]{4,6}$`; dùng `52E10001` thay cho `E2E-P1-0001` (P1-04).
+- Mỗi màn danh sách hiển thị 20 dòng/trang (P1-05(e), P1-09).
+- Voucher đã hết hạn vẫn lưu được; việc chặn áp dụng nằm ở màn Lập hóa đơn (P1-07).
+- SCR-16 để trống danh sách phiếu cho tới khi tra số điện thoại là đúng thiết kế; nội dung khiếu nại không giới hạn độ dài (P2-12).
+- P3-03 không tái hiện được lỗi giữa chừng trên môi trường local: giữ `NO` kèm lý do, không phải bug.
+
+## 9. Hợp đồng xóa lan / lan trạng thái
+
+- Xóa Khách hàng / Xe / Nhân viên / Phụ tùng / Dịch vụ / Voucher bị **chặn** khi còn chứng từ tham chiếu (phiếu tiếp nhận, hóa đơn, phiếu nhập, phân công).
+- Hủy phiếu tiếp nhận lan sang hóa đơn `CHO_THANH_TOAN` (hủy hóa đơn + hoàn tồn + hủy phiếu trong cùng một transaction).
+- Hóa đơn đã thanh toán **không hủy được từ màn phiếu**; phải sang màn Hóa đơn hủy trước.
+- Hóa đơn không bị xóa cứng: thao tác "xóa" ở SCR-10B nay là **Hủy hóa đơn** và cho phép cả hóa đơn `DA_THANH_TOAN`.
+- Khóa nhân viên không xóa phân công hiện có; chỉ chặn phân ca mới.
+
+## 10. Cần tester bổ sung bằng chứng trước khi đóng
+
+- P1-12 (không chọn được nhân viên mới ở SCR-05 — cần ảnh/log).
+- P3-02 (thông báo khi số lượng = 0 — cần bản build + commit).
+- P4-13 (retest sau khi P3 xong, kèm bảng số liệu trước/sau).
+
+## 11. Quy trình retest
+
+- Mỗi mục `NO` điền đủ mẫu 7 dòng.
+- Ghi commit + ngày.
+- Kiểm tồn kho bằng SQL trước/sau.
+- Đổi `NO` -> `PASS` chỉ khi đã có bằng chứng.

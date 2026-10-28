@@ -22,7 +22,6 @@ public class PhuTungFormPanel extends FormFieldPanel {
     private final JTextField tenField = new JTextField(14);
     private final JTextArea moTaArea = new JTextArea(4, 20);
     private final JTextField donGiaField = new JTextField(14);
-    private final JTextField soLuongField = new JTextField(14);
 
     private final AnhField anhField = new AnhField(new AnhField.KhoaAnh(
             "app.phuTung.anhUrl",
@@ -34,8 +33,7 @@ public class PhuTungFormPanel extends FormFieldPanel {
             "app.phuTung.duLieuKhongPhaiAnh"));
 
     public PhuTungFormPanel() {
-        Theme.applyEditable(this.maField);
-        Theme.applyReadOnly(this.soLuongField);
+        Theme.applyReadOnly(this.maField);
 
         this.addField("app.phuTung.ma", this.maField);
         this.addField("app.phuTung.ten", this.tenField);
@@ -48,7 +46,6 @@ public class PhuTungFormPanel extends FormFieldPanel {
 
         this.addBlock(this.anhField);
         this.addField("app.phuTung.donGia", this.donGiaField);
-        this.addField("app.phuTung.soLuongTon", this.soLuongField);
     }
 
     public void napDuLieu(PhuTungFormData data) {
@@ -57,7 +54,6 @@ public class PhuTungFormPanel extends FormFieldPanel {
         this.moTaArea.setText(data.moTa() == null ? "" : data.moTa());
         this.anhField.setDuongDan(data.anhUrl());
         this.donGiaField.setText(data.donGiaNhap() == null ? "" : String.valueOf(data.donGiaNhap()));
-        this.soLuongField.setText(data.soLuongTon() == null ? "" : String.valueOf(data.soLuongTon()));
         Theme.applyReadOnly(this.maField);
     }
 
@@ -72,7 +68,7 @@ public class PhuTungFormPanel extends FormFieldPanel {
                 moTa.isBlank() ? null : moTa,
                 anhUrl.isBlank() ? null : anhUrl,
                 NumberParseUtil.toDoubleOrNull(this.donGiaField.getText()),
-                NumberParseUtil.toIntegerOrNull(this.soLuongField.getText()));
+                null);
     }
 
     public void lamMoi() {
@@ -80,9 +76,7 @@ public class PhuTungFormPanel extends FormFieldPanel {
         this.tenField.setText("");
         this.moTaArea.setText("");
         this.donGiaField.setText("");
-        this.soLuongField.setText("");
         this.anhField.clear();
-        Theme.applyEditable(this.maField);
         this.focus();
     }
 

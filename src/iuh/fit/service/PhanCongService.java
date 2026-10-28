@@ -37,6 +37,14 @@ public final class PhanCongService {
 		return this.nhanVienDAO.findAll();
 	}
 
+	public Optional<NhanVien> getNhanVienById(String maNhanVien) throws SQLException {
+		if (maNhanVien == null || maNhanVien.isBlank()) {
+			return Optional.empty();
+		}
+
+		return this.nhanVienDAO.findById(maNhanVien.trim());
+	}
+
 	public List<PhanCong> search(String maPhanCong, String tenNhanVien, LocalDate tuNgay, LocalDate denNgay,
 			CaLamViec caLamViec, String ghiChu, String timNhanh) throws SQLException {
 

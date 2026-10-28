@@ -83,6 +83,11 @@ public class PhuTungService {
             throw new IllegalArgumentException(ERROR_ID);
         }
 
+        if (this.phuTungDAO.existsChiTietHoaDon(maPhuTung)
+                || this.phuTungDAO.existsChiTietPhieuNhap(maPhuTung)) {
+            throw new IllegalArgumentException("app.phuTung.loiDangSuDung");
+        }
+
         this.phuTungDAO.delete(maPhuTung);
     }
 

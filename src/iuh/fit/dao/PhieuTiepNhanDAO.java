@@ -122,25 +122,27 @@ public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
         }
     }
 
-    public boolean update(PhieuTiepNhan phieu) throws SQLException {
+    public boolean update(PhieuTiepNhan phieu, TrangThaiPhieuTiepNhan trangThaiCu) throws SQLException {
         try (TransactionScope scope = TransactionScope.begin()) {
-            boolean updated = this.update(scope, phieu);
+            boolean updated = this.update(scope, phieu, trangThaiCu);
             scope.commit();
             return updated;
         }
     }
 
-    private boolean update(TransactionScope scope, PhieuTiepNhan phieu) throws SQLException {
+    public boolean update(TransactionScope scope, PhieuTiepNhan phieu, TrangThaiPhieuTiepNhan trangThaiCu)
+            throws SQLException {
         String sql = """
                 UPDATE PhieuTiepNhan
                 SET moTa = ?, trangThai = ?
-                WHERE maPhieuTiepNhan = ?
+                WHERE maPhieuTiepNhan = ? AND trangThai = ?
                 """;
 
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             ps.setString(1, phieu.getMoTa());
             ps.setString(2, phieu.getTrangThai().name());
             ps.setString(3, phieu.getMaPhieuTiepNhan());
+            ps.setString(4, trangThaiCu.name());
             return ps.executeUpdate() > 0;
         }
     }

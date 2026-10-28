@@ -38,6 +38,8 @@ public class NhanVienService {
             "app.nhanVien.loiTrangThai";
     private static final String ERROR_DATA =
             "app.nhanVien.loiDuLieu";
+    private static final String ERROR_IN_USE =
+            "app.nhanVien.loiDangSuDung";
 
     public PaginatedResult<NhanVien> search(
             DanhSachNhanVienCriteria criteria) throws SQLException {
@@ -216,6 +218,12 @@ public class NhanVienService {
         String ma = maNhanVien.trim();
 
         this.getById(ma);
+
+        if (this.nhanVienDAO.existsPhieuTiepNhan(ma)
+                || this.nhanVienDAO.existsPhieuNhap(ma)
+                || this.nhanVienDAO.existsPhanCong(ma)) {
+            throw new IllegalArgumentException(ERROR_IN_USE);
+        }
 
         if (!this.nhanVienDAO.delete(ma)) {
             throw new IllegalArgumentException(ERROR_ID);

@@ -245,7 +245,7 @@ public class LapChanDoanPage extends AbstractPage {
         try {
             mucDo = Integer.parseInt(this.txtMucDoUuTien.getText().trim());
         } catch (NumberFormatException ex) {
-            ThongBao.canhBao(this, "app.chanDoan.loiMucDoUuTien");
+            ThongBao.loi(this, "app.chanDoan.loiMucDoUuTien");
             return;
         }
 

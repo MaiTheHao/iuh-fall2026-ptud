@@ -117,6 +117,34 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
         }
     }
 
+    public boolean existsChiTietHoaDon(String maPhuTung) throws SQLException {
+        String sql = """
+                SELECT 1 FROM ChiTietHoaDon
+                WHERE loaiSanPham = 'PHU_TUNG' AND maSanPham = ?
+                """;
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maPhuTung);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public boolean existsChiTietPhieuNhap(String maPhuTung) throws SQLException {
+        String sql = """
+                SELECT 1 FROM ChiTietPhieuNhapPhuTung
+                WHERE maPhuTung = ?
+                """;
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maPhuTung);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
     @Override
     protected PhuTung mapRow(ResultSet rs) throws SQLException {
         return new PhuTung(

@@ -184,6 +184,10 @@ public class VoucherService {
             throw new IllegalArgumentException(ERROR_NOT_FOUND);
         }
 
+        if (this.voucherDAO.existsHoaDon(ma)) {
+            throw new IllegalArgumentException("app.voucher.loiDangSuDung");
+        }
+
         this.voucherDAO.delete(ma);
     }
 

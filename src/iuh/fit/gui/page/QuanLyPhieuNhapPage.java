@@ -125,6 +125,12 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
         JTable table = panel.getTable();
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(320);
+        table.getColumnModel().getColumn(3).setPreferredWidth(150);
+        table.getColumnModel().getColumn(4).setPreferredWidth(130);
+        table.getColumnModel().getColumn(5).setPreferredWidth(160);
         table.setRowHeight(42);
 
         this.taiLai(panel, 1);
@@ -157,6 +163,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
             Double maxCost = this.parseCost(this.boLocTongChiPhi.denText());
 
             if ((minCost != null && minCost.isNaN()) || (maxCost != null && maxCost.isNaN())) {
+                ThongBao.canhBao(this, "app.phieuNhap.loiKhoangChiPhi");
                 return;
             }
 

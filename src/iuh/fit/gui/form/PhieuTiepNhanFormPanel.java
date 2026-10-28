@@ -12,6 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Dimension;
+import java.util.Arrays;
 
 /**
  * Form nhập liệu phiếu tiếp nhận dùng chung cho màn quản lý và dialog sửa.
@@ -20,13 +21,18 @@ public class PhieuTiepNhanFormPanel extends FormFieldPanel {
 
     private static final long serialVersionUID = 1L;
 
+    private static final TrangThaiPhieuTiepNhan[] TRANG_THAI_CHON_DUOC = Arrays.stream(
+            TrangThaiPhieuTiepNhan.values())
+            .filter(trangThai -> trangThai != TrangThaiPhieuTiepNhan.DA_HUY)
+            .toArray(TrangThaiPhieuTiepNhan[]::new);
+
     private final JTextField maPhieuField = new JTextField();
     private final JTextField bienSoField = new JTextField();
     private final JTextField khachHangField = new JTextField();
     private final JTextField sdtField = new JTextField();
     private final JTextArea moTaArea = new JTextArea(4, 20);
     private final JComboBox<TrangThaiPhieuTiepNhan> trangThaiCombo =
-            new JComboBox<>(TrangThaiPhieuTiepNhan.values());
+            new JComboBox<>(TRANG_THAI_CHON_DUOC);
 
     public PhieuTiepNhanFormPanel() {
         Theme.applyReadOnly(this.maPhieuField);
@@ -55,7 +61,7 @@ public class PhieuTiepNhanFormPanel extends FormFieldPanel {
         this.khachHangField.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
         this.sdtField.setText(view.sdt() == null ? "" : view.sdt());
         this.moTaArea.setText(view.moTa() == null ? "" : view.moTa());
-        this.trangThaiCombo.setSelectedItem(view.trangThai());
+        this.setTrangThai(view.trangThai());
     }
 
     public PhieuTiepNhan layDuLieu() {
@@ -67,6 +73,9 @@ public class PhieuTiepNhanFormPanel extends FormFieldPanel {
     }
 
     public void setTrangThai(TrangThaiPhieuTiepNhan trangThai) {
+        if (trangThai == TrangThaiPhieuTiepNhan.DA_HUY) {
+            return;
+        }
         this.trangThaiCombo.setSelectedItem(trangThai);
     }
 

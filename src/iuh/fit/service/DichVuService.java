@@ -127,6 +127,10 @@ public class DichVuService {
             throw new IllegalArgumentException(ERROR_ID);
         }
 
+        if (this.dichVuDAO.existsChiTietHoaDon(maDichVu)) {
+            throw new IllegalArgumentException("app.dichVu.loiDangSuDung");
+        }
+
         this.dichVuDAO.delete(maDichVu);
     }
 
