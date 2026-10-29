@@ -53,23 +53,16 @@
 ### E2E-P1-04 · Xe: thêm, tìm, lọc hãng/dòng xe, sửa, xóa
 **Màn:** SCR-03B
 **Các bước:**
-1. Thêm xe biển số `E2E-P1-0001`, chọn hãng xe và dòng xe. Lưu.
-2. Thêm xe thứ hai trùng biển số `E2E-P1-0001`.
+1. Thêm xe biển số `52E10001`, chọn hãng xe và dòng xe và đời xe và km . Lưu.
+2. Thêm xe thứ hai trùng biển số `52E10001`.
 3. Tìm theo biển số; lọc theo hãng xe, rồi chọn dòng xe.
 4. Sửa xe (đổi dòng xe). Lưu.
 5. Xóa xe.
 **Kết quả mong đợi:** (1) lưu thành công; (2) bị từ chối với thông báo rõ; (3) danh sách hãng/dòng xe đúng, dòng xe thu hẹp theo hãng, kết quả lọc đúng; (4) thay đổi được lưu; (5) xe biến mất.
 
-**PASS / NO:** `NO`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-	NO
-	1.1 biển số phải "^[0-9]{2}[A-Z]{1,2}[0-9]{4,6}$" không như này E2E-P1-0001
-	1.2 lỗi đời xe rỗng và km rỗng
-	1.3 đổi mã xe thành 52E10001 và đời xe 2020 và km 5000
-	PASS 2 -> 5
-	
-
 ---
 
 ### E2E-P1-05 · Phụ tùng: CRUD và phân trang
@@ -85,17 +78,6 @@
 **PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-	1.1 mâu thuẫn có sinh mã lại cho phép người dùng nhập mã 
-	1.2 mâu thuẫn việc thêm số lượng mặc định sl > 0 mà ui không cho ng dùng nhập ( lỗi vì sl chỉ thay đổi khi thêm từ phiếu nhập )
-	1.3 không nhập mã cho nhập sl 
-	1.4 lỗi cho nhập tồn kho luôn set về không 0( vẫn báo khách hàng thêm tc)
-	
-	2.1 lỗi ghi lại tồn kho luôn set về không ( vẫn báo khách hàng lưu tc)0	
-	3.1 lỗi những lỗi đơn giá âm, số lượng tồn âm, tên rỗng không hiện lên trên ui mà hiện trong console	
-	
-	4.1 lỗi không biết 1 trang có sl item bao nhiêu để test
-	
-	5 pass
 ---
 
 ### E2E-P1-06 · Dịch vụ: CRUD và kiểm tra dữ liệu
@@ -107,12 +89,9 @@
 4. Xóa dịch vụ.
 **Kết quả mong đợi:** thêm/sửa/xóa đúng; dữ liệu sai bị chặn với thông báo i18n; DB khớp giao diện.
 
-**PASS / NO:** `NO`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-	3.1 âm / chữ / rỗng; tên rỗng không hiện lên trên ui mà hiện trong console	
-	
-	PASS 1 2 4
 ---
 
 ### E2E-P1-07 · Voucher: mức giảm, thời hạn, kích hoạt
@@ -125,10 +104,10 @@
 5. Xóa voucher.
 **Kết quả mong đợi:** (1) lưu đúng, mức giảm lưu dạng phân số 0–1 trong DB (10% → `0.1000`); (2) bị từ chối; (3) hành vi nhất quán với quy định (ghi rõ nếu cho lưu); (4) trạng thái đổi đúng; (5) xóa thành công.
 
-**PASS / NO:** `PASS`
+**PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-	3. Thêm voucher thời hạn đã qua vẫn thêm đc
+	có lỗi chọn thời gian trong quá khứ không đỏ
 ---
 
 ### E2E-P1-08 · Nhân viên: CRUD và số điện thoại
@@ -198,11 +177,9 @@
 4. Tạo nhân viên mới, mở SCR-05 và chọn nhân viên.
 **Kết quả mong đợi:** mọi dữ liệu vừa tạo xuất hiện ngay ở màn lane khác, không cần khởi động lại.
 
-**PASS / NO:** `NO`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-	Tạo nhân viên mới, mở SCR-05 và chọn nhân viên. không có chọn nhân viên
-	pass 123
 ---
 
 ## Tổng kết
