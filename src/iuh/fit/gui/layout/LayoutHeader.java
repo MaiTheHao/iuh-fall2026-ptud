@@ -34,7 +34,7 @@ public class LayoutHeader extends JMenuBar {
     private final MenuRegistry menuRegistry;
 
     private final JMenu settingsMenu = new JMenu();
-    private final JPanel accountBox = new JPanel(new GridLayout(2, 1, 0, 0));
+    private final JPanel accountBox = new AccountBox();
     private final JLabel accountNameLabel = new JLabel();
     private final JLabel accountRoleLabel = new JLabel();
     private final JButton languageButton = new JButton();
@@ -50,10 +50,10 @@ public class LayoutHeader extends JMenuBar {
 
         this.buildGroupMenus(onSelect);
         this.add(Box.createHorizontalGlue());
-        this.buildSettingsMenu(onSelect);
-        this.add(Box.createHorizontalStrut(8));
         this.buildAccountBox();
         this.add(this.accountBox);
+        this.add(Box.createHorizontalStrut(8));
+        this.buildSettingsMenu(onSelect);
         this.add(Box.createHorizontalStrut(8));
         this.buildLanguageButton(onToggleLocale);
         this.buildLogoutButton(onLogout);
@@ -202,6 +202,20 @@ public class LayoutHeader extends JMenuBar {
     private static Font nhoChu() {
         Font coSo = UIManager.getFont("Label.font");
         return coSo.deriveFont(Math.max(coSo.getSize2D() - 2f, 10f));
+    }
+
+    private static final class AccountBox extends JPanel {
+
+        private static final long serialVersionUID = 1L;
+
+        private AccountBox() {
+            super(new GridLayout(2, 1, 0, 0));
+        }
+
+        @Override
+        public Dimension getMaximumSize() {
+            return this.getPreferredSize();
+        }
     }
 
     private static final class TopLevelItem extends JMenuItem implements MenuActive {
