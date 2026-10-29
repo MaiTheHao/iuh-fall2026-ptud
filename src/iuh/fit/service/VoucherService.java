@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class VoucherService {
@@ -137,6 +138,10 @@ public class VoucherService {
         }
 
         return true;
+    }
+
+    public Optional<Voucher> getById(String maVoucher) throws SQLException {
+        return this.voucherDAO.findById(maVoucher);
     }
 
     public Voucher create(Voucher voucher) throws SQLException {

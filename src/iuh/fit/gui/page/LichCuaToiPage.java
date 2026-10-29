@@ -3,11 +3,11 @@ package iuh.fit.gui.page;
 import iuh.fit.core.context.AppContext;
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.component.ThanhDieuHuongTuan;
 import iuh.fit.service.PhanCongService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -17,14 +17,12 @@ import javax.swing.border.Border;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.WeekFields;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -41,11 +39,8 @@ public class LichCuaToiPage extends AbstractPage {
     private static final Color MAU_VIEN = new Color(195, 202, 210);
     private static final Color MAU_CHU = new Color(35, 85, 135);
     
-    private final JButton btnTuanTruoc = new JButton("‹");
-    private final JButton btnTuanSau = new JButton("›");
-    private final JButton btnTuanNay = new JButton();
+    private final ThanhDieuHuongTuan thanhDieuHuong = new ThanhDieuHuongTuan();
 
-    private final JLabel lblKhoangTuan = new JLabel();
     private final JLabel lblTongCa = new JLabel();
 
     private final JPanel pnlBangLich = new JPanel(new GridLayout(4, 8, 0, 0));
@@ -66,6 +61,7 @@ public class LichCuaToiPage extends AbstractPage {
 
         this.locale = Locale.getDefault();
         this.ngayDauTuan = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        this.thanhDieuHuong.datNgayDauTuan(this.ngayDauTuan);
 
         this.khoiTaoSuKien();
     }
@@ -73,6 +69,7 @@ public class LichCuaToiPage extends AbstractPage {
     @Override
     public void render() {
         this.removeAll();
+        this.thanhDieuHuong.capNhatNgonNgu();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
         JPanel pnlTieuDe = new JPanel(new BorderLayout());
@@ -81,24 +78,9 @@ public class LichCuaToiPage extends AbstractPage {
         lblTieuDe.setFont(lblTieuDe.getFont().deriveFont(Font.BOLD, 16));
         pnlTieuDe.add(lblTieuDe, BorderLayout.WEST);
 
-        JPanel pnlDieuHuong = new JPanel(
-                new FlowLayout(FlowLayout.LEFT, 8, 4));
-
-        this.btnTuanTruoc.setToolTipText(
-                I18nReaderUtil.get("app.schedule.previousWeek"));
-        this.btnTuanSau.setToolTipText(
-                I18nReaderUtil.get("app.schedule.nextWeek"));
-        this.btnTuanNay.setText(
-                I18nReaderUtil.get("app.schedule.thisWeek"));
-
-        pnlDieuHuong.add(this.btnTuanTruoc);
-        pnlDieuHuong.add(this.lblKhoangTuan);
-        pnlDieuHuong.add(this.btnTuanSau);
-        pnlDieuHuong.add(this.btnTuanNay);
-
         JPanel pnlTren = new JPanel(new BorderLayout());
         pnlTren.add(pnlTieuDe, BorderLayout.NORTH);
-        pnlTren.add(pnlDieuHuong, BorderLayout.CENTER);
+        pnlTren.add(this.thanhDieuHuong, BorderLayout.CENTER);
 
         this.pnlBangLich.setBorder(
                 BorderFactory.createLineBorder(MAU_VIEN));
@@ -124,34 +106,10 @@ public class LichCuaToiPage extends AbstractPage {
     }
 
     private void khoiTaoSuKien() {
-        this.btnTuanTruoc.addActionListener(e -> {
-            this.ngayDauTuan = this.ngayDauTuan.minusWeeks(1);
-            this.capNhatBangLich();
-        });
-
-        this.btnTuanSau.addActionListener(e -> {
-            this.ngayDauTuan = this.ngayDauTuan.plusWeeks(1);
-            this.capNhatBangLich();
-        });
-
-        this.btnTuanNay.addActionListener(e -> {
-            this.ngayDauTuan = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-            this.capNhatBangLich();
-        });
+        this.thanhDieuHuong.datXuLyDoiTuan(ngay -> { this.ngayDauTuan = ngay; this.capNhatBangLich(); });
     }
 
     private void capNhatBangLich() {
-        this.lblKhoangTuan.setText(
-                I18nReaderUtil.get("app.schedule.week")
-                + " " + this.ngayDauTuan.get(
-                        WeekFields.of(DayOfWeek.MONDAY, 4).weekOfWeekBasedYear())
-                + " · " + this.ngayDauTuan.format(
-                        DateTimeFormatter.ofPattern(
-                                I18nReaderUtil.get("app.date.format")))
-                + " – " + this.ngayDauTuan.plusDays(6).format(
-                        DateTimeFormatter.ofPattern(
-                                I18nReaderUtil.get("app.date.format"))));
-
         this.pnlBangLich.removeAll();
 
         String[][] congViec = new String[SO_CA][SO_NGAY];

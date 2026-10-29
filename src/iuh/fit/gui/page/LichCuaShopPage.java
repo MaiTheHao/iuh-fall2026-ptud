@@ -1,13 +1,13 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.component.ThanhDieuHuongTuan;
 import iuh.fit.service.PhanCongService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -25,18 +25,15 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
-import iuh.fit.service.PhanCongService;
 
 /**
  * Trang lịch làm việc của cửa hàng.
@@ -53,11 +50,8 @@ public class LichCuaShopPage extends AbstractPage {
 	private static final Color MAU_VIEN = new Color(195, 202, 210);
 	private static final Color MAU_CHU = new Color(35, 85, 135);
 
-	private final JButton btnTuanTruoc = new JButton("‹");
-	private final JButton btnTuanSau = new JButton("›");
-	private final JButton btnTuanNay = new JButton();
+	private final ThanhDieuHuongTuan thanhDieuHuong = new ThanhDieuHuongTuan();
 
-	private final JLabel lblKhoangTuan = new JLabel();
 	private final JLabel lblTongPhanCong = new JLabel();
 	private final JLabel lblTongNhanVien = new JLabel();
 
@@ -73,6 +67,7 @@ public class LichCuaShopPage extends AbstractPage {
 		this.setLayout(new BorderLayout(0, 8));
 
 		this.ngayDauTuan = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+		this.thanhDieuHuong.datNgayDauTuan(this.ngayDauTuan);
 
 		this.khoiTaoSuKien();
 	}
@@ -80,25 +75,15 @@ public class LichCuaShopPage extends AbstractPage {
 	@Override
 	public void render() {
 		this.removeAll();
+		this.thanhDieuHuong.capNhatNgonNgu();
 		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
 		JLabel lblTieuDe = new JLabel(I18nReaderUtil.get("app.schedule.shopSchedule"));
 		lblTieuDe.setFont(lblTieuDe.getFont().deriveFont(Font.BOLD, 16f));
 
-		JPanel pnlDieuHuong = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-
-		this.btnTuanTruoc.setToolTipText(I18nReaderUtil.get("app.schedule.previousWeek"));
-		this.btnTuanSau.setToolTipText(I18nReaderUtil.get("app.schedule.nextWeek"));
-		this.btnTuanNay.setText(I18nReaderUtil.get("app.schedule.thisWeek"));
-
-		pnlDieuHuong.add(this.btnTuanTruoc);
-		pnlDieuHuong.add(this.lblKhoangTuan);
-		pnlDieuHuong.add(this.btnTuanSau);
-		pnlDieuHuong.add(this.btnTuanNay);
-
 		JPanel pnlTren = new JPanel(new BorderLayout());
 		pnlTren.add(lblTieuDe, BorderLayout.NORTH);
-		pnlTren.add(pnlDieuHuong, BorderLayout.CENTER);
+		pnlTren.add(this.thanhDieuHuong, BorderLayout.CENTER);
 
 		this.pnlBangLich.setBorder(BorderFactory.createLineBorder(MAU_VIEN));
 
@@ -117,20 +102,7 @@ public class LichCuaShopPage extends AbstractPage {
 	}
 
 	private void khoiTaoSuKien() {
-		this.btnTuanTruoc.addActionListener(e -> {
-			this.ngayDauTuan = this.ngayDauTuan.minusWeeks(1);
-			this.capNhatBangLich();
-		});
-
-		this.btnTuanSau.addActionListener(e -> {
-			this.ngayDauTuan = this.ngayDauTuan.plusWeeks(1);
-			this.capNhatBangLich();
-		});
-
-		this.btnTuanNay.addActionListener(e -> {
-			this.ngayDauTuan = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-			this.capNhatBangLich();
-		});
+		this.thanhDieuHuong.datXuLyDoiTuan(ngay -> { this.ngayDauTuan = ngay; this.capNhatBangLich(); });
 	}
 
 	private void capNhatBangLich() {
@@ -145,11 +117,6 @@ public class LichCuaShopPage extends AbstractPage {
 			CaLamViec[] cacCa = { CaLamViec.CA_SANG, CaLamViec.CA_CHIEU, CaLamViec.CA_NGAY };
 
 			DateTimeFormatter dinhDangNgay = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-			LocalDate ngayCuoiTuan = this.ngayDauTuan.plusDays(SO_NGAY - 1);
-
-			this.lblKhoangTuan
-					.setText(this.ngayDauTuan.format(dinhDangNgay) + " - " + ngayCuoiTuan.format(dinhDangNgay));
 
 			this.themO("app.schedule.shift", true, false);
 

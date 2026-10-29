@@ -27,4 +27,9 @@ public record DanhSachVoucherCriteria(
                 PaginatedResult.DEFAULT_PAGE_SIZE
         );
     }
+
+    public static DanhSachVoucherCriteria dangKichHoat(int page, int pageSize) {
+        return new DanhSachVoucherCriteria(
+                null, null, null, null, null, null, true, page, pageSize);
+    }
 }

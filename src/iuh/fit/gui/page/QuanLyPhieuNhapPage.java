@@ -56,6 +56,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         ManagementPanel panel = new ManagementPanel();
         this.managementPanel = panel;
         panel.setListTitle("app.phieuNhap.danhSachTitle");
+        panel.enableMultiSelection(true);
 
         panel.setHeaders(
                 "#",
@@ -73,6 +74,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
                         row -> this.xoaTheoDong(panel, row)));
 
         panel.setAddAction("app.phieuNhap.taoPhieuMoi", () -> this.goTo(LapPhieuNhapPage.class));
+        panel.setBatchAction("app.common.batch_delete", "trash-2", ThaoTac.KieuThaoTac.NGUY_HIEM, this::xoaNhieu);
         panel.setRowDoubleClickListener(this::xemChiTiet);
 
         this.boLocMaPhieuNhap = panel.addTextFilter("app.phieuNhap.maPhieuNhap");
@@ -88,12 +90,12 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
         JTable table = panel.getTable();
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        table.getColumnModel().getColumn(0).setPreferredWidth(50);
-        table.getColumnModel().getColumn(1).setPreferredWidth(200);
-        table.getColumnModel().getColumn(2).setPreferredWidth(320);
-        table.getColumnModel().getColumn(3).setPreferredWidth(150);
-        table.getColumnModel().getColumn(4).setPreferredWidth(130);
-        table.getColumnModel().getColumn(5).setPreferredWidth(160);
+        table.getColumnModel().getColumn(1).setPreferredWidth(50);
+        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+        table.getColumnModel().getColumn(3).setPreferredWidth(320);
+        table.getColumnModel().getColumn(4).setPreferredWidth(150);
+        table.getColumnModel().getColumn(5).setPreferredWidth(130);
+        table.getColumnModel().getColumn(6).setPreferredWidth(160);
         table.setRowHeight(42);
 
         this.taiLai(panel, 1);
@@ -183,11 +185,11 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
         PhieuNhapChiTietFormPanel form = new PhieuNhapChiTietFormPanel();
         form.napDuLieu(
-                NumberParseUtil.textOf(panel.getModel().getValueAt(row, 1)),
                 NumberParseUtil.textOf(panel.getModel().getValueAt(row, 2)),
                 NumberParseUtil.textOf(panel.getModel().getValueAt(row, 3)),
                 NumberParseUtil.textOf(panel.getModel().getValueAt(row, 4)),
-                NumberParseUtil.textOf(panel.getModel().getValueAt(row, 5)));
+                NumberParseUtil.textOf(panel.getModel().getValueAt(row, 5)),
+                NumberParseUtil.textOf(panel.getModel().getValueAt(row, 6)));
 
         BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
                 SwingUtilities.getWindowAncestor(this),
@@ -203,7 +205,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         if (row < 0 || row >= panel.getModel().getRowCount()) {
             return;
         }
-        this.thucHienXoa(panel, NumberParseUtil.textOf(panel.getModel().getValueAt(row, 1)));
+        this.thucHienXoa(panel, NumberParseUtil.textOf(panel.getModel().getValueAt(row, 2)));
     }
 
     private void thucHienXoa(ManagementPanel panel, String maPhieu) {
@@ -219,6 +221,47 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
         } catch (SQLException e) {
             ThongBao.loi(this, "app.login.errorSystem");
         }
+    }
+
+    private void xoaNhieu(List<Integer> rows) {
+        if (rows.isEmpty()) {
+            return;
+        }
+
+        if (!ThongBao.xacNhanDinhDang(this, "app.common.batch_delete_confirm", "app.common.confirm", rows.size())) {
+            return;
+        }
+
+        int thanhCong = 0;
+        boolean loiHeThong = false;
+
+        for (int row : rows) {
+            if (row < 0 || row >= this.managementPanel.getModel().getRowCount()) {
+                continue;
+            }
+
+            String maPhieu = NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, 2));
+
+            try {
+                this.phieuNhapService.delete(maPhieu);
+                thanhCong++;
+            } catch (IllegalArgumentException | IllegalStateException ignored) {
+                // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
+            } catch (SQLException e) {
+                loiHeThong = true;
+                break;
+            }
+        }
+
+        if (loiHeThong) {
+            ThongBao.loi(this, "app.login.errorSystem");
+        } else if (thanhCong == rows.size()) {
+            ThongBao.thongTin(this, "app.common.delete_succeed");
+        } else {
+            ThongBao.canhBaoDinhDang(this, "app.common.batch_delete_result", thanhCong, rows.size());
+        }
+
+        this.taiLai(this.managementPanel, this.trang);
     }
 
     @Override
