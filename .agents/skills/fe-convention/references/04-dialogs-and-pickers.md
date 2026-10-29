@@ -3,15 +3,13 @@
 ## 1. Unbounded Record Selection (Pickers)
 
 - Never use a raw combo box or unpaged dropdown when selecting from an unbounded collection (e.g., thousands of customers, vehicles, or spare parts).
-- Use a modal picker dialog extending `JDialog` that returns `Optional<RecordDTO>`:
-  ```java
-  public Optional<PhuTungView> chon(Component parent) {
-      this.setLocationRelativeTo(parent);
-      this.setVisible(true);
-      return Optional.ofNullable(this.ketQua);
-  }
-  ```
-- Reference: `src/iuh/fit/gui/component/ChonPhuTungDialog.java`.
+- Use a modal picker dialog extending `ChonSanPhamDialog<T>`; its single public entry point `showDialog()` returns `Optional<KetQuaChon<T>>` (`sanPham()`, `soLuong()`). One instance per open — a second `showDialog()` throws `IllegalStateException`.
+- The picker takes the service plus the feature `DanhSach...Criteria` and loads through `search(criteria)` (returns `PaginatedResult`), then uses `.items()` for its result table. Never pass a preloaded `List` from the page.
+- Search must cover code, name and description, use `TextNormalizerUtil.normalize` (case/diacritics-insensitive) and debounce 250 ms. Parts also offer the "in stock only" filter.
+- Full-load pickers pass `PaginatedResult.PAGE_SIZE_TAI_TOAN_BO` (10_000) as `pageSize` with `page = 1`. The cap bounds how many rows are built on the UI; it is not an overflow guard.
+- Put every filter the query can express into the feature `DanhSach...Criteria` (`taoCriteria(tuKhoa)`): the keyword plus the base filters the page hands over. Exception: a filter that depends on the picker's display mapping (e.g. "in stock only", where available = DB stock + reserved − already selected) filters the mapped rows in `taiDuLieu`, because filtering on the DB value would hide parts still available on the current invoice. Report truncation from `PaginatedResult` only (`tongSoKetQuaCanBao`), never from a pre-filter total.
+- `ChonSanPhamDialog` is the base; `ChonPhuTungDialog` and `ChonDichVuDialog` are the reference subclasses.
+- Approved exception — `ComboTimKiem<T>`: allowed only for a quick lookup by a unique key (phone number, licence plate) inside a data-entry form. `NguonTim<T>` returns `List<T>` from `search(criteria)` with `page = 1` and `pageSize = 10`; `nhanHienThi` renders each popup row; `giaTriNhap` writes the editor text when a row is picked. It debounces 300 ms, shows at most 10 rows, and selection fills the related fields. Never use it for a catalogue that needs multi-step browsing or filtering — those still require a modal picker.
 
 ## 2. Create / Update Modal Dialogs
 

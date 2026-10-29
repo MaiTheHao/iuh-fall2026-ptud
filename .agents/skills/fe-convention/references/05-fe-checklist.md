@@ -25,7 +25,7 @@ grep -rn '#[0-9A-Fa-f]\{6\}' src/iuh/fit/gui | grep -v '/theme/'
 ## 3. Layout Guards
 
 ```bash
-# Expect: only ManagementPanel debounce timer
+# Expect: only ManagementPanel, ChonSanPhamDialog and ComboTimKiem (debounce) create new Timer instances
 grep -rn 'new Timer' src/iuh/fit/gui
 
 # Expect: empty for migrated management screens (full-width grid, no split pane)
