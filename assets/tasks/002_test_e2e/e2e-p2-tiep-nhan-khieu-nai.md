@@ -51,7 +51,7 @@
 **PASS / NO:** `NO`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-Khi để trống hãng xe, dòng xe, đời xe, số odo và mô tả tình trạng xe rồi bấm lưu thì phần mềm hiện tại đang hiển thị thông báo yêu cầu nhập đời xe rồi tới mô tả, xong mô tả mới hiển thị thông báo lỗi hãng xe chưa nhập. 
+Khi để trống hãng xe, dòng xe, đời xe, số odo và mô tả tình trạng xe rồi bấm lưu thì phần mềm hiện tại đang hiển thị thông báo yêu cầu nhập đời xe rồi tới mô tả, xong mô tả mới hiển thị thông báo lỗi hãng xe chưa nhập, rồi mới tới hãng xe và số odo. 
 
 ---
 
@@ -185,7 +185,7 @@ Khi để trống hãng xe, dòng xe, đời xe, số odo và mô tả tình tr�
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
-Nội dung khiếu nại rất dài liệu có được lưu được hay không?
+Nội dung khiếu nại rất dài liệu có lưu được hay không?
 
 ---
 
