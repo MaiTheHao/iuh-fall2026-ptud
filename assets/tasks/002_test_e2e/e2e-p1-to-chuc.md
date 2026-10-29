@@ -75,7 +75,7 @@
 5. Xóa phụ tùng vừa tạo.
 **Kết quả mong đợi:** (1)(2) lưu và tìm đúng; (3) bị từ chối với thông báo rõ; (4) phân trang hiển thị đúng số trang, không trùng/mất dòng; (5) xóa thành công.
 
-**PASS / NO:** `NO`
+**PASS / NO:** `PASS`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 ---
@@ -184,6 +184,6 @@
 
 ## Tổng kết
 
-- Số kịch bản: 12 · **PASS:** 7 · **NO:** 5
+- Số kịch bản: 12 · **PASS:** 10 · **NO:** 2
 - Ghi chú thêm của người test:
 >
