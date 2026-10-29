@@ -13,6 +13,12 @@ public record PaginatedResult<T>(
 
     public static final int DEFAULT_PAGE_SIZE = 20;
 
+    /**
+     * Page size cho màn hình cần tải toàn bộ kết quả (dialog chọn, combo đầy đủ).
+     * Luôn dùng kèm page = 1; trần 10_000 chỉ để giới hạn số dòng dựng trên UI.
+     */
+    public static final int PAGE_SIZE_TAI_TOAN_BO = 10_000;
+
     public static <T> PaginatedResult<T> of(List<T> items, int page, int pageSize) {
         int size = normalizePageSize(pageSize);
         int totalPages = totalPages(items.size(), size);

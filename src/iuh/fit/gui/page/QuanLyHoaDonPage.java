@@ -41,6 +41,7 @@ public class QuanLyHoaDonPage extends AbstractPage {
 
 	private int trang = 1;
 	private List<HoaDonView> danhSachHienTai = new ArrayList<>();
+	private ManagementPanel managementPanel;
 
 	private JTextField boLocMaHoaDon;
 	private JTextField boLocMaPhieu;
@@ -61,7 +62,9 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		this.setBackground(Theme.BG);
 
 		ManagementPanel panel = new ManagementPanel();
+		this.managementPanel = panel;
 		panel.setListTitle("app.hoaDon.danhSachTitle");
+		panel.enableMultiSelection(true);
 		panel.setHeaders(
 				"#",
 				I18nReaderUtil.get("app.hoaDon.maHoaDon"),
@@ -81,6 +84,8 @@ public class QuanLyHoaDonPage extends AbstractPage {
 						row -> this.huyHoaDon(panel, row)));
 
 		panel.setAddAction("app.hoaDon.taoMoi", () -> this.goTo(LapHoaDonPage.class));
+		panel.setBatchAction("app.hoaDon.batch_huy", "trash-2", ThaoTac.KieuThaoTac.NGUY_HIEM,
+				this::huyNhieu);
 		panel.setRowDoubleClickListener(this::xemChiTiet);
 
 		this.boLocMaHoaDon = panel.addTextFilter("app.hoaDon.maHoaDon");
@@ -97,14 +102,14 @@ public class QuanLyHoaDonPage extends AbstractPage {
 
 		JTable table = panel.getTable();
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		table.getColumnModel().getColumn(0).setPreferredWidth(50);
-		table.getColumnModel().getColumn(1).setPreferredWidth(170);
-		table.getColumnModel().getColumn(2).setPreferredWidth(190);
-		table.getColumnModel().getColumn(3).setPreferredWidth(180);
-		table.getColumnModel().getColumn(4).setPreferredWidth(110);
-		table.getColumnModel().getColumn(5).setPreferredWidth(120);
-		table.getColumnModel().getColumn(6).setPreferredWidth(140);
-		table.getColumnModel().getColumn(7).setPreferredWidth(150);
+		table.getColumnModel().getColumn(1).setPreferredWidth(50);
+		table.getColumnModel().getColumn(2).setPreferredWidth(170);
+		table.getColumnModel().getColumn(3).setPreferredWidth(190);
+		table.getColumnModel().getColumn(4).setPreferredWidth(180);
+		table.getColumnModel().getColumn(5).setPreferredWidth(110);
+		table.getColumnModel().getColumn(6).setPreferredWidth(120);
+		table.getColumnModel().getColumn(7).setPreferredWidth(140);
+		table.getColumnModel().getColumn(8).setPreferredWidth(150);
 		table.setRowHeight(42);
 
 		this.taiLai(panel, 1);
@@ -231,6 +236,66 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		} catch (SQLException e) {
 			ThongBao.loi(this, "app.login.errorSystem");
 		}
+	}
+
+	private void huyNhieu(List<Integer> rows) {
+		if (rows.isEmpty()) {
+			return;
+		}
+
+		List<Integer> dongHopLe = new ArrayList<>();
+		for (int row : rows) {
+			if (row < 0 || row >= this.danhSachHienTai.size()) {
+				continue;
+			}
+			if (this.danhSachHienTai.get(row).trangThai() == TrangThaiHoaDon.DA_HUY) {
+				continue;
+			}
+			dongHopLe.add(row);
+		}
+
+		int soLuong = dongHopLe.size();
+		if (soLuong == 0) {
+			ThongBao.canhBao(this, "app.hoaDon.loiDaHuy");
+			return;
+		}
+
+		if (!ThongBao.xacNhanDinhDang(this,
+				"app.hoaDon.batch_huy_confirm",
+				"app.common.confirm",
+				soLuong)) {
+			return;
+		}
+
+		String lyDo = JOptionPane.showInputDialog(this, I18nReaderUtil.get("app.hoaDon.lyDoHuy"));
+		if (lyDo == null || lyDo.isBlank()) {
+			return;
+		}
+
+		int thanhCong = 0;
+		boolean loiHeThong = false;
+
+		for (int row : dongHopLe) {
+			try {
+				this.hoaDonService.huy(this.danhSachHienTai.get(row).maHoaDon(), lyDo);
+				thanhCong++;
+			} catch (IllegalArgumentException | IllegalStateException ignored) {
+				// Hóa đơn bị từ chối do ràng buộc nghiệp vụ: ghi nhận vào báo cáo tổng hợp.
+			} catch (SQLException e) {
+				loiHeThong = true;
+				break;
+			}
+		}
+
+		if (loiHeThong) {
+			ThongBao.loi(this, "app.login.errorSystem");
+		} else if (thanhCong == soLuong) {
+			ThongBao.thongTin(this, "app.common.update_succeed");
+		} else {
+			ThongBao.canhBaoDinhDang(this, "app.hoaDon.batch_huy_result", thanhCong, soLuong);
+		}
+
+		this.taiLai(this.managementPanel, this.trang);
 	}
 
 	@Override

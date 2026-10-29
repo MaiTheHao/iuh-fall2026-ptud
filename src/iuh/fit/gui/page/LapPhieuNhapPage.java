@@ -1,12 +1,12 @@
 package iuh.fit.gui.page;
 
-import iuh.fit.core.context.AppContext;
+import iuh.fit.dto.DanhSachPhuTungCriteria;
 import iuh.fit.entity.ChiTietPhieuNhapPhuTung;
-import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhieuNhapPhuTung;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ChonPhuTungDialog;
+import iuh.fit.gui.component.ChonSanPhamDialog;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThaoTacTableCellRenderer;
 import iuh.fit.gui.component.ThongBao;
@@ -48,9 +48,6 @@ public class LapPhieuNhapPage extends AbstractPage {
 
 	private final DecimalFormat currencyFormat = new DecimalFormat("#,##0");
 
-	private final JTextField maPhieuField = new JTextField();
-	private final JTextField ngayTaoField = new JTextField();
-	private final JTextField maNhanVienField = new JTextField();
 	private final JTextField moTaField = new JTextField();
 
 	private DefaultTableModel modelDetails;
@@ -58,9 +55,7 @@ public class LapPhieuNhapPage extends AbstractPage {
 	private JLabel totalCostLabel;
 	private JButton btnSave;
 	private JButton btnAddRow;
-	private JButton btnRemoveRow;
-
-	private List<PhuTung> partsCache = new ArrayList<>();
+	private JButton nutXoaDaChon;
 
 	public LapPhieuNhapPage() {
 		this.setLayout(new BorderLayout(8, 8));
@@ -70,8 +65,6 @@ public class LapPhieuNhapPage extends AbstractPage {
 	public void render() {
 		this.removeAll();
 		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-		this.taiDanhSachPhuTung();
 
 		JPanel leftPanel = this.taoPanelThongTin();
 		leftPanel.setPreferredSize(new Dimension(440, 0));
@@ -85,15 +78,6 @@ public class LapPhieuNhapPage extends AbstractPage {
 		this.repaint();
 	}
 
-	private void taiDanhSachPhuTung() {
-		try {
-			this.partsCache = this.phuTungService.getAllForSelection();
-		} catch (SQLException e) {
-			this.partsCache = new ArrayList<>();
-			ThongBao.loi(this, "app.login.errorSystem");
-		}
-	}
-
 	private JPanel taoPanelThongTin() {
 		JPanel panel = new JPanel(new BorderLayout(0, 8));
 		panel.setOpaque(false);
@@ -104,13 +88,6 @@ public class LapPhieuNhapPage extends AbstractPage {
 		formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
 		formPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-		Theme.applyReadOnly(this.maPhieuField);
-		Theme.applyReadOnly(this.ngayTaoField);
-		Theme.applyReadOnly(this.maNhanVienField);
-
-		this.themDongBox(formPanel, "app.phieuNhap.maPhieuNhap", this.maPhieuField);
-		this.themDongBox(formPanel, "app.phieuNhap.ngayTao", this.ngayTaoField);
-		this.themDongBox(formPanel, "app.phieuNhap.thuKho", this.maNhanVienField);
 		this.themDongBox(formPanel, "app.phieuNhap.moTa", this.moTaField);
 		panel.add(formPanel, BorderLayout.NORTH);
 
@@ -164,37 +141,47 @@ public class LapPhieuNhapPage extends AbstractPage {
 		topBar.setOpaque(false);
 		this.btnAddRow = new JButton(I18nReaderUtil.get("app.phieuNhap.themDong"));
 		Theme.applyPrimary(this.btnAddRow);
-		this.btnRemoveRow = new JButton(I18nReaderUtil.get("app.phieuNhap.xoaDong"));
-		Theme.applyDanger(this.btnRemoveRow);
-
 		this.btnAddRow.addActionListener(e -> this.themDong());
-		this.btnRemoveRow.addActionListener(e -> this.xoaDongDaChon());
 		topBar.add(this.btnAddRow);
-		topBar.add(this.btnRemoveRow);
+		this.nutXoaDaChon = new JButton(I18nReaderUtil.get("app.common.batch_delete"));
+		Theme.applyDanger(this.nutXoaDaChon);
+		this.nutXoaDaChon.setEnabled(false);
+		this.nutXoaDaChon.addActionListener(e -> this.xoaDongDaChon());
+		topBar.add(this.nutXoaDaChon);
 		panel.add(topBar, BorderLayout.NORTH);
 
-		String[] headers = { "#", I18nReaderUtil.get("app.phuTung.ma"), I18nReaderUtil.get("app.phuTung.ten"),
+		String[] headers = { "", "#", I18nReaderUtil.get("app.phuTung.ma"), I18nReaderUtil.get("app.phuTung.ten"),
 				I18nReaderUtil.get("app.phieuNhap.soLuong"), I18nReaderUtil.get("app.phieuNhap.donGia"),
 				I18nReaderUtil.get("app.phieuNhap.thanhTien"), I18nReaderUtil.get("app.common.actions") };
 
 		this.modelDetails = new DefaultTableModel(headers, 0) {
 			@Override
 			public boolean isCellEditable(int row, int column) {
-				return LapPhieuNhapPage.this.btnAddRow.isEnabled() && (column == 3 || column == 4);
+				return column == 0
+						|| (LapPhieuNhapPage.this.btnAddRow.isEnabled() && (column == 4 || column == 5));
+			}
+
+			@Override
+			public Class<?> getColumnClass(int column) {
+				return column == 0 ? Boolean.class : Object.class;
 			}
 		};
 
 		this.tableDetails = new JTable(this.modelDetails);
 		this.tableDetails.setRowHeight(36);
 		Theme.styleTable(this.tableDetails);
-		this.tableDetails.getColumnModel().getColumn(3)
-				.setCellEditor(new SoNguyenCellEditor("app.phieuNhap.loiSoLuong", true));
+		this.tableDetails.getColumnModel().getColumn(0).setMinWidth(44);
+		this.tableDetails.getColumnModel().getColumn(0).setMaxWidth(44);
+		this.tableDetails.getColumnModel().getColumn(0).setPreferredWidth(44);
 		this.tableDetails.getColumnModel().getColumn(4)
+				.setCellEditor(new SoNguyenCellEditor("app.phieuNhap.loiSoLuong", true));
+		this.tableDetails.getColumnModel().getColumn(5)
 				.setCellEditor(new SoNguyenCellEditor("app.phieuNhap.loiDonGia", false));
-		ThaoTacTableCellRenderer.ganVao(this.tableDetails, 6, List.of(
+		ThaoTacTableCellRenderer.ganVao(this.tableDetails, 7, List.of(
 				new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
 						row -> this.xoaDong(row))));
 		this.modelDetails.addTableModelListener(e -> this.tinhThanhTienDong(e.getFirstRow(), e.getColumn()));
+		this.modelDetails.addTableModelListener(e -> this.capNhatNutXoaDaChon());
 
 		panel.add(new JScrollPane(this.tableDetails), BorderLayout.CENTER);
 
@@ -215,41 +202,29 @@ public class LapPhieuNhapPage extends AbstractPage {
 	}
 
 	private void themDong() {
-		if (this.partsCache.isEmpty()) {
-			ThongBao.canhBao(this, "app.phieuNhap.loiPhuTungTrong");
-			return;
-		}
-
-		ChonPhuTungDialog.KetQua kq = new ChonPhuTungDialog(
-				SwingUtilities.getWindowAncestor(this), this.partsCache).showDialog().orElse(null);
+		ChonSanPhamDialog.KetQuaChon<PhuTung> kq = new ChonPhuTungDialog(
+				SwingUtilities.getWindowAncestor(this),
+				this.phuTungService,
+				DanhSachPhuTungCriteria.macDinh()).showDialog().orElse(null);
 		if (kq == null) {
 			return;
 		}
 		for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
-			if (this.getMaFromRow(i).equalsIgnoreCase(kq.phuTung().getMaPhuTung())) {
+			if (this.getMaFromRow(i).equalsIgnoreCase(kq.sanPham().getMaPhuTung())) {
 				int soLuongMoi = this.getSoLuongRow(i) + kq.soLuong();
-				this.modelDetails.setValueAt(soLuongMoi, i, 3);
-				this.modelDetails.setValueAt(kq.phuTung().getDonGiaNhap(), i, 4);
+				this.modelDetails.setValueAt(soLuongMoi, i, 4);
+				this.modelDetails.setValueAt(kq.sanPham().getDonGiaNhap(), i, 5);
 				this.tinhTongChiPhi();
 				return;
 			}
 		}
 
-		double giaNhap = kq.phuTung().getDonGiaNhap() != null ? kq.phuTung().getDonGiaNhap() : 0.0;
-		this.modelDetails.addRow(new Object[] { this.modelDetails.getRowCount() + 1, kq.phuTung().getMaPhuTung(),
-				kq.phuTung().getTenPhuTung(), kq.soLuong(), giaNhap,
+		double giaNhap = kq.sanPham().getDonGiaNhap() != null ? kq.sanPham().getDonGiaNhap() : 0.0;
+		this.modelDetails.addRow(new Object[] { Boolean.FALSE, this.modelDetails.getRowCount() + 1,
+				kq.sanPham().getMaPhuTung(),
+				kq.sanPham().getTenPhuTung(), kq.soLuong(), giaNhap,
 				this.currencyFormat.format(kq.soLuong() * giaNhap) });
 		this.tinhTongChiPhi();
-	}
-
-	private void xoaDongDaChon() {
-		int selectedRow = this.tableDetails.getSelectedRow();
-		if (selectedRow < 0) {
-			ThongBao.canhBao(this, "app.phieuNhap.chuaChonDongXoa");
-			return;
-		}
-
-		this.xoaDong(selectedRow);
 	}
 
 	private void xoaDong(int row) {
@@ -262,9 +237,51 @@ public class LapPhieuNhapPage extends AbstractPage {
 
 		this.modelDetails.removeRow(row);
 		for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
-			this.modelDetails.setValueAt(i + 1, i, 0);
+			this.modelDetails.setValueAt(i + 1, i, 1);
 		}
 		this.tinhTongChiPhi();
+	}
+
+	private void xoaDongDaChon() {
+		List<Integer> dongDaChon = new ArrayList<>();
+		for (int i = this.modelDetails.getRowCount() - 1; i >= 0; i--) {
+			if (Boolean.TRUE.equals(this.modelDetails.getValueAt(i, 0))) {
+				dongDaChon.add(i);
+			}
+		}
+		if (dongDaChon.isEmpty()) {
+			ThongBao.canhBao(this, "app.phieuNhap.loiTrongChiTiet");
+			return;
+		}
+		if (!ThongBao.xacNhanDinhDang(this, "app.common.batch_delete_confirm", "app.common.confirm",
+				dongDaChon.size())) {
+			return;
+		}
+
+		for (int i : dongDaChon) {
+			if (i >= 0 && i < this.modelDetails.getRowCount()) {
+				this.modelDetails.removeRow(i);
+			}
+		}
+		for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
+			this.modelDetails.setValueAt(i + 1, i, 1);
+		}
+		this.tinhTongChiPhi();
+	}
+
+	private void capNhatNutXoaDaChon() {
+		if (this.nutXoaDaChon == null) {
+			return;
+		}
+
+		int soDong = 0;
+		for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
+			if (Boolean.TRUE.equals(this.modelDetails.getValueAt(i, 0))) {
+				soDong++;
+			}
+		}
+		this.nutXoaDaChon.setText(I18nReaderUtil.get("app.common.batch_delete") + " (" + soDong + ")");
+		this.nutXoaDaChon.setEnabled(soDong > 0);
 	}
 
 	private void tinhThanhTienDong(int row, int col) {
@@ -272,9 +289,9 @@ public class LapPhieuNhapPage extends AbstractPage {
 			return;
 		}
 
-		if (col == 3 || col == 4) {
+		if (col == 4 || col == 5) {
 			double thanhTien = this.getSoLuongRow(row) * this.getDonGiaRow(row);
-			this.modelDetails.setValueAt(this.currencyFormat.format(thanhTien), row, 5);
+			this.modelDetails.setValueAt(this.currencyFormat.format(thanhTien), row, 6);
 			this.tinhTongChiPhi();
 		}
 	}
@@ -288,12 +305,6 @@ public class LapPhieuNhapPage extends AbstractPage {
 	}
 
 	private void lamMoi() {
-		this.maPhieuField.setText("");
-		this.ngayTaoField.setText("");
-
-		NhanVien user = AppContext.getInstance().getCurrentUser();
-		this.maNhanVienField.setText(user != null ? user.getMaNhanVien() : "");
-
 		this.moTaField.setText("");
 		this.moTaField.setEditable(true);
 
@@ -362,13 +373,13 @@ public class LapPhieuNhapPage extends AbstractPage {
 	}
 
 	private String getMaFromRow(int row) {
-		String val = NumberParseUtil.textOf(this.modelDetails.getValueAt(row, 1));
+		String val = NumberParseUtil.textOf(this.modelDetails.getValueAt(row, 2));
 		return val.contains(" - ") ? val.split(" - ")[0].trim() : val.trim();
 	}
 
 	private int getSoLuongRow(int row) {
 		try {
-			Integer val = NumberParseUtil.toIntegerOrNull(NumberParseUtil.textOf(this.modelDetails.getValueAt(row, 3)));
+			Integer val = NumberParseUtil.toIntegerOrNull(NumberParseUtil.textOf(this.modelDetails.getValueAt(row, 4)));
 			return val != null ? val : 0;
 		} catch (NumberFormatException e) {
 			return 0;
@@ -377,7 +388,7 @@ public class LapPhieuNhapPage extends AbstractPage {
 
 	private double getDonGiaRow(int row) {
 		try {
-			Double val = NumberParseUtil.toDoubleOrNull(NumberParseUtil.textOf(this.modelDetails.getValueAt(row, 4)));
+			Double val = NumberParseUtil.toDoubleOrNull(NumberParseUtil.textOf(this.modelDetails.getValueAt(row, 5)));
 			return val != null ? val : 0.0;
 		} catch (NumberFormatException e) {
 			return 0.0;

@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class DichVuService {
 
@@ -52,8 +51,6 @@ public class DichVuService {
             throw new IllegalArgumentException(ERROR_RANGE);
         }
 
-        List<DichVu> danhSach = this.dichVuDAO.findAll();
-
         final String ma = this.normalize(filter.maDichVu());
         final String ten = this.normalize(filter.tenDichVu());
         final String timNhanh = this.normalize(filter.timNhanh());
@@ -61,25 +58,16 @@ public class DichVuService {
         final Double giaTu = filter.donGiaTu();
         final Double giaDen = filter.donGiaDen();
 
-        List<DichVu> ketQua = danhSach.stream()
+        List<DichVu> ketQua = this.dichVuDAO.findAll().stream()
                 .filter(dv -> this.normalize(dv.getMaDichVu()).contains(ma))
                 .filter(dv -> this.normalize(dv.getTenDichVu()).contains(ten))
                 .filter(dv -> timNhanh.isEmpty()
                         || this.normalize(dv.getMaDichVu() + " "
-                                + dv.getTenDichVu()).contains(timNhanh))
+                                + dv.getTenDichVu() + " "
+                                + (dv.getMoTa() == null ? "" : dv.getMoTa())).contains(timNhanh))
                 .filter(dv -> giaTu == null || dv.getDonGia() >= giaTu)
                 .filter(dv -> giaDen == null || dv.getDonGia() <= giaDen)
-                .collect(Collectors.toList());
-
-        int pageSize = filter.pageSize() > 0
-                ? filter.pageSize()
-                : PaginatedResult.DEFAULT_PAGE_SIZE;
-
-        int totalPages = PaginatedResult.totalPages(
-                ketQua.size(), pageSize);
-
-        int page = PaginatedResult.clampPage(
-                filter.page(), totalPages);
+                .toList();
 
         return PaginatedResult.of(ketQua, filter);
     }

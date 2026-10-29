@@ -1,10 +1,14 @@
 package iuh.fit.gui.page;
 
+import iuh.fit.dto.DanhSachKhachHangCriteria;
+import iuh.fit.dto.DanhSachXeCriteria;
 import iuh.fit.dto.TiepNhanFormData;
+import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.gui.component.ComboGoiY;
+import iuh.fit.gui.component.ComboTimKiem;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.KhachHangService;
 import iuh.fit.service.TiepNhanService;
@@ -21,8 +25,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -31,7 +33,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,21 +42,29 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
     private static final Logger LOGGER = Logger.getLogger(TiepNhanKhachHangPage.class.getName());
 
+    private static final int SO_GOI_Y = 10;
+
     private final KhachHangService khachHangService = new KhachHangService();
     private final XeService xeService = new XeService();
     private final TiepNhanService tiepNhanService = new TiepNhanService();
 
-    private final JTextField sdtField = new JTextField();
+    private final ComboTimKiem<KhachHang> sdtField = new ComboTimKiem<>(
+            tuKhoa -> this.khachHangService.search(new DanhSachKhachHangCriteria(
+                    null, tuKhoa, null, null, null, null, 1, SO_GOI_Y)).items(),
+            kh -> kh.getHoTen() + " - " + kh.getSdt(),
+            KhachHang::getSdt);
     private final JTextField hoTenField = new JTextField();
-    private final JTextField bienSoField = new JTextField();
+    private final ComboTimKiem<Xe> bienSoField = new ComboTimKiem<>(
+            tuKhoa -> this.xeService.search(new DanhSachXeCriteria(
+                    tuKhoa, null, null, null, null, null, null, null, 1, SO_GOI_Y)).items(),
+            xe -> xe.getBienSo() + " - " + xe.getHangXe() + " - " + xe.getDongXe() + " - " + xe.getDoiXe(),
+            Xe::getBienSo);
     private final JComboBox<String> hangXeCombo = new JComboBox<>();
     private final JComboBox<String> dongXeCombo = new JComboBox<>();
     private final JTextField doiXeField = new JTextField();
     private final JTextField odoField = new JTextField();
     private final JTextArea moTaArea = new JTextArea(6, 60);
 
-    private final JButton timKhachButton = new JButton();
-    private final JButton timXeButton = new JButton();
     private final JButton lamMoiButton = new JButton();
     private final JButton luuButton = new JButton();
 
@@ -76,8 +85,6 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setLayout(new BorderLayout(16, 16));
 
-        this.timKhachButton.setText(I18nReaderUtil.get("app.tiepNhan.timKhach"));
-        this.timXeButton.setText(I18nReaderUtil.get("app.tiepNhan.timXe"));
         this.lamMoiButton.setText(I18nReaderUtil.get("app.tiepNhan.lamMoi"));
         this.luuButton.setText(I18nReaderUtil.get("app.tiepNhan.luu"));
 
@@ -93,8 +100,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         pnlKhachHang.setLayout(new GridBagLayout());
         GridBagConstraints gbcKH = this.createGbc();
 
-        this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.sdt"), this.sdtField, this.timKhachButton, gbcKH, 0);
-        this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.hoTen"), this.hoTenField, null, gbcKH, 1);
+        this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.sdt"), this.sdtField, gbcKH, 0);
+        this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.hoTen"), this.hoTenField, gbcKH, 1);
         pnlTop.add(pnlKhachHang);
 
         // 2. Thông tin Phương Tiện (Xe)
@@ -102,7 +109,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         pnlPhuongTien.setLayout(new GridBagLayout());
         GridBagConstraints gbcXe = this.createGbc();
 
-        this.addFormField(pnlPhuongTien, I18nReaderUtil.get("app.tiepNhan.bienSo"), this.bienSoField, this.timXeButton, gbcXe, 0);
+        this.addFormField(pnlPhuongTien, I18nReaderUtil.get("app.tiepNhan.bienSo"), this.bienSoField, gbcXe, 0);
 
         JPanel pnlChiTietXe = new JPanel(new GridLayout(1, 4, 16, 0));
         pnlChiTietXe.setOpaque(false);
@@ -137,11 +144,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         pnlButtons.setOpaque(false);
 
         Theme.applyPrimary(this.luuButton);
-        Theme.applyPrimary(this.timKhachButton);
-        Theme.applyPrimary(this.timXeButton);
 
-        this.timKhachButton.setPreferredSize(new Dimension(140, 40));
-        this.timXeButton.setPreferredSize(new Dimension(140, 40));
         this.lamMoiButton.setPreferredSize(new Dimension(160, 40));
         this.luuButton.setPreferredSize(new Dimension(160, 40));
 
@@ -159,13 +162,11 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         this.taiGoiYDongXe();
 
         // Xóa hết Listener cũ tránh lặp sự kiện
-        this.clearActionListeners(this.lamMoiButton, this.timKhachButton, this.timXeButton, this.luuButton);
+        this.clearActionListeners(this.lamMoiButton, this.luuButton);
         this.clearActionListeners(this.hangXeCombo);
 
         // Đăng ký đúng Action Listeners
         this.lamMoiButton.addActionListener(e -> this.lamMoiForm());
-        this.timKhachButton.addActionListener(e -> this.timKhachHang());
-        this.timXeButton.addActionListener(e -> this.timXe());
         this.luuButton.addActionListener(e -> this.luuPhieuTiepNhan());
         this.hangXeCombo.addActionListener(e -> this.hangXeThayDoi());
 
@@ -174,46 +175,39 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     }
 
     private void dangKyDocumentListener() {
-        this.sdtField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                TiepNhanKhachHangPage.this.xoaHoTenKhiSdtThayDoi();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                TiepNhanKhachHangPage.this.xoaHoTenKhiSdtThayDoi();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                TiepNhanKhachHangPage.this.xoaHoTenKhiSdtThayDoi();
+        this.sdtField.datXuLyGo(() -> {
+            if (!this.dangCapNhat) {
+                this.hoTenField.setText("");
             }
         });
+        this.sdtField.datXuLyChon(this::dienKhachHang);
 
-        this.bienSoField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                TiepNhanKhachHangPage.this.xoaThongTinXeKhiBienSoThayDoi();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                TiepNhanKhachHangPage.this.xoaThongTinXeKhiBienSoThayDoi();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                TiepNhanKhachHangPage.this.xoaThongTinXeKhiBienSoThayDoi();
-            }
-        });
+        this.bienSoField.datXuLyGo(this::xoaThongTinXeKhiBienSoThayDoi);
+        this.bienSoField.datXuLyChon(this::dienThongTinXe);
     }
 
-    private void xoaHoTenKhiSdtThayDoi() {
-        if (this.dangCapNhat) {
-            return;
+    private void dienKhachHang(KhachHang kh) {
+        this.dangCapNhat = true;
+        try {
+            this.hoTenField.setText(kh.getHoTen());
+        } finally {
+            this.dangCapNhat = false;
         }
-        this.hoTenField.setText("");
+        this.bienSoField.requestFocusInWindow();
+    }
+
+    private void dienThongTinXe(Xe xe) {
+        this.dangCapNhat = true;
+        try {
+            this.hangXeCombo.setSelectedItem(xe.getHangXe() == null ? "" : xe.getHangXe());
+            this.dongXeCombo.setSelectedItem(xe.getDongXe() == null ? "" : xe.getDongXe());
+            this.hangXeDaNap = ComboGoiY.giaTri(this.hangXeCombo);
+            this.doiXeField.setText(String.valueOf(xe.getDoiXe()));
+            this.odoField.setText(String.valueOf(xe.getOdo()));
+        } finally {
+            this.dangCapNhat = false;
+        }
+        this.odoField.requestFocusInWindow();
     }
 
     private void xoaThongTinXeKhiBienSoThayDoi() {
@@ -266,83 +260,6 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         }
     }
 
-    private void timKhachHang() {
-        String sdt = this.sdtField.getText().trim();
-        if (sdt.isEmpty()) {
-            ThongBao.canhBao(this, "app.tiepNhan.loiSdtTrong");
-            this.sdtField.requestFocusInWindow();
-            return;
-        }
-
-        try {
-            var found = this.khachHangService.getBySdt(sdt);
-            this.dangCapNhat = true;
-            try {
-                if (found.isEmpty()) {
-                    ThongBao.thongTin(this, "app.tiepNhan.khongTimThayKhach");
-                    this.hoTenField.setText("");
-                    this.hoTenField.requestFocusInWindow();
-                } else {
-                    this.hoTenField.setText(found.get().getHoTen());
-                    this.bienSoField.requestFocusInWindow();
-                }
-            } finally {
-                this.dangCapNhat = false;
-            }
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Lỗi tìm khách hàng theo số điện thoại", ex);
-            ThongBao.loi(this, "app.tiepNhan.loiKetNoiKhach");
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Lỗi hệ thống khi tìm khách hàng", ex);
-            ThongBao.loi(this, "app.tiepNhan.loiHeThong");
-        }
-    }
-
-    private void timXe() {
-        String rawBienSo = this.bienSoField.getText().trim();
-        if (rawBienSo.isEmpty()) {
-            ThongBao.canhBao(this, "app.tiepNhan.loiBienSoTrong");
-            this.bienSoField.requestFocusInWindow();
-            return;
-        }
-
-        // Chuẩn hóa biển số: Viết hoa, xóa khoảng trắng thừa
-        String bienSoChuanHoa = rawBienSo.toUpperCase().replaceAll("\\s+", "");
-
-        try {
-            var found = this.xeService.getByBienSo(rawBienSo);
-            this.dangCapNhat = true;
-            try {
-                if (found.isEmpty()) {
-                    ThongBao.thongTinDinhDang(this, "app.tiepNhan.khongTimThayXe", bienSoChuanHoa);
-                    this.bienSoField.setText(bienSoChuanHoa);
-                    ComboGoiY.xoa(this.hangXeCombo);
-                    ComboGoiY.xoa(this.dongXeCombo);
-                    this.doiXeField.setText("");
-                    this.odoField.setText("");
-                    this.hangXeCombo.requestFocusInWindow();
-                } else {
-                    Xe xe = found.get();
-                    this.bienSoField.setText(xe.getBienSo() != null ? xe.getBienSo() : bienSoChuanHoa);
-                    this.hangXeCombo.setSelectedItem(xe.getHangXe() != null ? xe.getHangXe() : "");
-                    this.dongXeCombo.setSelectedItem(xe.getDongXe() != null ? xe.getDongXe() : "");
-                    this.hangXeDaNap = ComboGoiY.giaTri(this.hangXeCombo);
-                    this.doiXeField.setText(String.valueOf(xe.getDoiXe()));
-                    this.odoField.setText(String.valueOf(xe.getOdo()));
-                    this.odoField.requestFocusInWindow();
-                }
-            } finally {
-                this.dangCapNhat = false;
-            }
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Lỗi tìm xe theo biển số", ex);
-            ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Lỗi hệ thống khi tìm xe", ex);
-            ThongBao.loi(this, "app.tiepNhan.loiHeThong");
-        }
-    }
-
     private void luuPhieuTiepNhan() {
         try {
             if (!this.kiemTraForm()) {
@@ -373,7 +290,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         return gbc;
     }
 
-    private void addFormField(JPanel parent, String label, JTextField field, JButton btn, GridBagConstraints gbc, int y) {
+    private void addFormField(JPanel parent, String label, JComponent field, GridBagConstraints gbc, int y) {
         gbc.gridx = 0;
         gbc.gridy = y;
         gbc.weightx = 0;
@@ -387,12 +304,6 @@ public class TiepNhanKhachHangPage extends AbstractPage {
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         parent.add(field, gbc);
-
-        if (btn != null) {
-            gbc.gridx = 2;
-            gbc.weightx = 0;
-            parent.add(btn, gbc);
-        }
     }
 
     private JPanel createFieldWithLabel(String labelText, JComponent field) {
@@ -409,9 +320,9 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     private void lamMoiForm() {
         this.dangCapNhat = true;
         try {
-            this.sdtField.setText("");
+            this.sdtField.xoa();
             this.hoTenField.setText("");
-            this.bienSoField.setText("");
+            this.bienSoField.xoa();
             ComboGoiY.xoa(this.hangXeCombo);
             ComboGoiY.xoa(this.dongXeCombo);
             this.doiXeField.setText("");
@@ -425,9 +336,9 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
     private TiepNhanFormData getFormData() {
         return new TiepNhanFormData(
-                this.sdtField.getText().trim(),
+                this.sdtField.getTuKhoa().trim(),
                 this.hoTenField.getText().trim(),
-                this.bienSoField.getText().trim(),
+                this.bienSoField.getTuKhoa().trim(),
                 ComboGoiY.giaTri(this.hangXeCombo),
                 ComboGoiY.giaTri(this.dongXeCombo),
                 NumberParseUtil.toIntegerOrNull(this.doiXeField.getText()),
@@ -436,7 +347,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     }
 
     private boolean kiemTraForm() {
-        if (this.sdtField.getText().trim().isEmpty()) {
+        if (this.sdtField.getTuKhoa().trim().isEmpty()) {
             ThongBao.thongTin(this, "app.tiepNhan.loiSdtTrong");
             this.sdtField.requestFocusInWindow();
             return false;
@@ -446,7 +357,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
             this.hoTenField.requestFocusInWindow();
             return false;
         }
-        if (this.bienSoField.getText().trim().isEmpty()) {
+        if (this.bienSoField.getTuKhoa().trim().isEmpty()) {
             ThongBao.thongTin(this, "app.tiepNhan.loiBienSoTrong");
             this.bienSoField.requestFocusInWindow();
             return false;

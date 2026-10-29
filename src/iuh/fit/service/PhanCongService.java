@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class PhanCongService {
 
@@ -361,6 +363,61 @@ public final class PhanCongService {
 				.filter(nhanVien -> nhanVien.getTrangThai() == TrangThaiNhanVien.HOAT_DONG)
 				.filter(nhanVien -> nhanVien.getVaiTro() != VaiTro.NHAN_VIEN_QUAN_LY)
 				.sorted(Comparator.comparing(NhanVien::getHoTen, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+				.toList();
+	}
+
+	public Map<String, String> getTenNhanVienTheoMa() throws SQLException {
+		Map<String, String> tenTheoMa = new LinkedHashMap<>();
+
+		for (NhanVien nhanVien : this.nhanVienDAO.findAll()) {
+			String maNhanVien = nhanVien.getMaNhanVien();
+
+			if (maNhanVien == null || maNhanVien.isBlank()) {
+				continue;
+			}
+
+			String hoTen = nhanVien.getHoTen();
+			tenTheoMa.put(maNhanVien, hoTen == null || hoTen.isBlank() ? maNhanVien : hoTen.trim());
+		}
+
+		return tenTheoMa;
+	}
+
+	public List<NhanVien> timNhanVienCoThePhanCong(String tuKhoa) throws SQLException {
+		List<NhanVien> danhSach = this.getNhanVienCoThePhanCong();
+		String tuKhoaDaChuanHoa = this.chuanHoa(tuKhoa);
+
+		if (tuKhoaDaChuanHoa == null) {
+			return danhSach;
+		}
+
+		return danhSach.stream()
+				.filter(nhanVien -> this.chuaChuoi(nhanVien.getHoTen(), tuKhoaDaChuanHoa)
+						|| this.chuaChuoi(nhanVien.getMaNhanVien(), tuKhoaDaChuanHoa)
+						|| this.chuaChuoi(nhanVien.getSoDienThoai(), tuKhoaDaChuanHoa))
+				.toList();
+	}
+
+	/**
+	 * Lọc thêm các nhân viên đã có phân công trùng ngày và ca.
+	 */
+	public List<NhanVien> timNhanVienCoThePhanCong(String tuKhoa, LocalDate ngay, CaLamViec ca) throws SQLException {
+		List<NhanVien> danhSach = this.timNhanVienCoThePhanCong(tuKhoa);
+
+		if (ngay == null || ca == null) {
+			return danhSach;
+		}
+
+		Set<String> maNhanVienDaPhanCong = this.phanCongDAO.findAll().stream()
+				.filter(phanCong -> phanCong.getNgay() == ngay.getDayOfMonth()
+						&& phanCong.getThang() == ngay.getMonthValue()
+						&& phanCong.getNam() == ngay.getYear()
+						&& phanCong.getCaLamViec() == ca)
+				.map(PhanCong::getMaNhanVien)
+				.collect(Collectors.toSet());
+
+		return danhSach.stream()
+				.filter(nhanVien -> !maNhanVienDaPhanCong.contains(nhanVien.getMaNhanVien()))
 				.toList();
 	}
 }

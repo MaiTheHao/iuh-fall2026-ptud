@@ -6,26 +6,23 @@ import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.BaseFormDialog;
-import iuh.fit.gui.component.ManagementPanel;
-import iuh.fit.gui.component.ThaoTac;
+import iuh.fit.gui.component.ChonNhanVienDialog;
+import iuh.fit.gui.component.ChonSanPhamDialog;
+import iuh.fit.gui.component.LuoiLichTuan;
+import iuh.fit.gui.component.ThanhDieuHuongTuan;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.PhanCongCaFormPanel;
 import iuh.fit.gui.form.PhanCongCaSuaFormPanel;
-import iuh.fit.gui.form.PhanCongCaTaoFormPanel;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhanCongService;
-import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,148 +34,123 @@ import java.util.logging.Logger;
 public class PhanCongCaPage extends AbstractPage {
 
 	private static final long serialVersionUID = 1L;
-	private static final int PAGE_SIZE = 20;
+
 	private static final Logger LOGGER = Logger.getLogger(PhanCongCaPage.class.getName());
-
-	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-	/** Dialog tạo mới: 4 trường nhập. */
-	private static final int CHIEU_CAO_TAO = 420;
 
 	/** Dialog cập nhật: 5 trường nhập. */
 	private static final int CHIEU_CAO_SUA = 500;
 
-	private ManagementPanel managementPanel;
+	private final ThanhDieuHuongTuan thanhDieuHuong = new ThanhDieuHuongTuan();
+
+	private final LuoiLichTuan luoiLich = new LuoiLichTuan();
 
 	private final PhanCongService phanCongService = new PhanCongService();
 
-	private JTextField boLocMa;
-	private JTextField boLocNhanVien;
-	private ManagementPanel.BoLocNgay boLocNgay;
-	private ManagementPanel.BoLocChon boLocCa;
-	private JTextField boLocGhiChu;
-
-	private int trangHienTai = 1;
+	private LocalDate ngayDauTuan;
 
 	public PhanCongCaPage() {
-		this.setLayout(new BorderLayout());
+		this.setLayout(new BorderLayout(0, 8));
+		this.ngayDauTuan = this.layNgayDauTuanHienTai();
+		this.thanhDieuHuong.datNgayDauTuan(this.ngayDauTuan);
+
+		this.ganSuKien();
 	}
 
 	@Override
 	public void render() {
 		this.removeAll();
-		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		this.thanhDieuHuong.capNhatNgonNgu();
+		this.setBorder(Theme.leDeu(8));
 
-		this.managementPanel = new ManagementPanel();
-		this.trangHienTai = 1;
+		this.add(this.thanhDieuHuong, BorderLayout.NORTH);
+		this.add(this.luoiLich, BorderLayout.CENTER);
 
-		this.khoiTaoDanhSach();
-		this.ganSuKien();
-		this.taiLaiDanhSach();
-
-		this.add(this.managementPanel, BorderLayout.CENTER);
+		this.taiLai();
 
 		this.revalidate();
 		this.repaint();
 	}
 
-	private void khoiTaoDanhSach() {
-		this.managementPanel.setListTitle("app.schedule.assignmentList");
+	private void ganSuKien() {
+		this.thanhDieuHuong.datXuLyDoiTuan(ngay -> { this.ngayDauTuan = ngay; this.taiLai(); });
 
-		this.managementPanel.setHeaders(I18nReaderUtil.get("app.schedule.assignmentId"),
-				I18nReaderUtil.get("app.schedule.employee"), I18nReaderUtil.get("app.schedule.date"),
-				I18nReaderUtil.get("app.schedule.shift"), I18nReaderUtil.get("app.schedule.note"));
+		this.luoiLich.datXuLyThem(this::moChonNhanVien);
+		this.luoiLich.datXuLySua(this::moDialogSua);
+		this.luoiLich.datXuLyXoa(this::xoaPhanCong);
+	}
 
-		this.managementPanel.addActionColumn("app.common.actions",
-				new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
-						this::moDialogSua),
-				new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
-						this::xoaPhanCong));
+	private LocalDate layNgayDauTuanHienTai() {
+		return LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+	}
 
-		this.managementPanel.setAddAction("app.schedule.addAssignment", this::moDialogTao);
-		this.managementPanel.setRowDoubleClickListener(this::moDialogSua);
+	private void taiLai() {
+		try {
+			LocalDate ngayCuoiTuan = this.ngayDauTuan.plusDays(6);
 
-		this.boLocMa = this.managementPanel.addTextFilter("app.schedule.assignmentId");
-		this.boLocNhanVien = this.managementPanel.addTextFilter("app.schedule.employee");
-		this.boLocNgay = this.managementPanel.addDateRangeFilter("app.schedule.date");
-		this.boLocCa = this.managementPanel.addComboBoxFilter("app.schedule.shift", CaLamViec.values());
-		this.boLocGhiChu = this.managementPanel.addTextFilter("app.schedule.note");
+			List<PhanCong> danhSach = this.phanCongService.search(null, null, this.ngayDauTuan, ngayCuoiTuan, null,
+					null, null);
+			Map<String, String> tenNhanVienTheoMa = this.phanCongService.getTenNhanVienTheoMa();
 
-		this.managementPanel.setFilterChangeListener(() -> {
-			this.trangHienTai = 1;
-			this.taiLaiDanhSach();
-		});
+			Map<LocalDate, Map<CaLamViec, List<LuoiLichTuan.MucPhanCong>>> duLieu = new HashMap<>();
 
-		JTable bang = this.managementPanel.getTable();
+			for (PhanCong phanCong : danhSach) {
+				LocalDate ngayLam = LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay());
 
-		DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
-
-				Object giaTriHienThi = value;
-
-				if (value instanceof LocalDate ngay) {
-					giaTriHienThi = ngay.format(DATE_FORMATTER);
+				if (ngayLam.isBefore(this.ngayDauTuan) || ngayLam.isAfter(ngayCuoiTuan)
+						|| phanCong.getCaLamViec() == null) {
+					continue;
 				}
 
-				return super.getTableCellRendererComponent(table, giaTriHienThi, isSelected, hasFocus, row, column);
-			}
-		};
+				String maNhanVien = phanCong.getMaNhanVien();
+				LuoiLichTuan.MucPhanCong muc = new LuoiLichTuan.MucPhanCong(phanCong.getMaPhanCong(), maNhanVien,
+						tenNhanVienTheoMa.getOrDefault(maNhanVien, maNhanVien));
 
-		bang.getColumnModel().getColumn(2).setCellRenderer(renderer);
+				duLieu.computeIfAbsent(ngayLam, ngay -> new HashMap<>())
+						.computeIfAbsent(phanCong.getCaLamViec(), ca -> new ArrayList<>())
+						.add(muc);
+			}
+
+			this.luoiLich.datTuan(this.ngayDauTuan);
+			this.luoiLich.datDuLieu(duLieu);
+
+		} catch (SQLException ex) {
+			LOGGER.log(Level.SEVERE, "Khong the tai lich phan cong ca", ex);
+			ThongBao.loi(this, "app.login.errorSystem");
+		}
 	}
 
-	private void ganSuKien() {
-		this.managementPanel.getClearFilterButton().addActionListener(e -> this.managementPanel.clearFilters());
+	private void moChonNhanVien(LocalDate ngay, CaLamViec ca) {
+		ChonNhanVienDialog dialog = new ChonNhanVienDialog(SwingUtilities.getWindowAncestor(this),
+				this.phanCongService, ngay, ca);
 
-		this.managementPanel.getPrevButton().addActionListener(e -> {
-			if (this.trangHienTai > 1) {
-				this.trangHienTai--;
-				this.taiLaiDanhSach();
-			}
-		});
+		Optional<ChonSanPhamDialog.KetQuaChon<NhanVien>> ketQua = dialog.showDialog();
 
-		this.managementPanel.getNextButton().addActionListener(e -> {
-			this.trangHienTai++;
-			this.taiLaiDanhSach();
-		});
-	}
-
-	private void moDialogTao() {
-		List<NhanVien> danhSachNhanVien = this.layDanhSachNhanVien();
-
-		if (danhSachNhanVien.isEmpty()) {
-			ThongBao.canhBao(this, "app.schedule.chuaCoNhanVienPhuHop");
+		if (ketQua.isEmpty() || ketQua.get().sanPham() == null) {
 			return;
 		}
 
-		PhanCongCaTaoFormPanel form = new PhanCongCaTaoFormPanel(danhSachNhanVien);
-
-		BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
-				SwingUtilities.getWindowAncestor(this),
-				"app.schedule.addAssignment",
-				form,
-				() -> this.taoPhanCong(form),
-				CHIEU_CAO_TAO));
-
-		if (dialog.showAndGet()) {
-			this.trangHienTai = 1;
-			this.taiLaiDanhSach();
-		}
+		this.taoPhanCong(ketQua.get().sanPham().getMaNhanVien(), ngay, ca);
 	}
 
-	private void moDialogSua(int row) {
-		String maPhanCong = this.layMaDong(row);
-
-		if (maPhanCong.isBlank()) {
-			return;
-		}
-
+	private boolean taoPhanCong(String maNhanVien, LocalDate ngay, CaLamViec ca) {
 		try {
-			Optional<PhanCong> ketQua = this.phanCongService.getById(maPhanCong);
+			this.phanCongService.create(maNhanVien, ngay, ca, null);
+			ThongBao.thongTin(this, "app.schedule.assignmentCreated");
+			this.taiLai();
+			return true;
+		} catch (IllegalArgumentException | IllegalStateException ex) {
+			ThongBao.loi(this, ex);
+		} catch (SQLException ex) {
+			LOGGER.log(Level.SEVERE, "Khong the tao phan cong ca", ex);
+			ThongBao.loi(this, "app.login.errorSystem");
+		}
+
+		return false;
+	}
+
+	private void moDialogSua(LuoiLichTuan.MucPhanCong muc) {
+		try {
+			Optional<PhanCong> ketQua = this.phanCongService.getById(muc.maPhanCong());
 
 			if (ketQua.isEmpty()) {
 				ThongBao.canhBao(this, "app.schedule.assignmentNotFound");
@@ -200,34 +172,12 @@ public class PhanCongCaPage extends AbstractPage {
 					CHIEU_CAO_SUA));
 
 			if (dialog.showAndGet()) {
-				this.taiLaiDanhSach();
+				this.taiLai();
 			}
 		} catch (SQLException ex) {
 			LOGGER.log(Level.SEVERE, "Khong the tai phan cong ca", ex);
 			ThongBao.loi(this, "app.login.errorSystem");
 		}
-	}
-
-	private boolean taoPhanCong(PhanCongCaFormPanel form) {
-		if (!form.validateInput()) {
-			return false;
-		}
-
-		PhanCongCaFormPanel.DuLieu duLieu = form.layDuLieu();
-
-		try {
-			this.phanCongService.create(duLieu.maNhanVien(), duLieu.ngayLam(),
-					duLieu.caLamViec(), duLieu.ghiChu());
-			ThongBao.thongTin(this, "app.schedule.assignmentCreated");
-			return true;
-		} catch (IllegalArgumentException | IllegalStateException ex) {
-			ThongBao.loi(this, ex);
-		} catch (SQLException ex) {
-			LOGGER.log(Level.SEVERE, "Khong the tao phan cong ca", ex);
-			ThongBao.loi(this, "app.login.errorSystem");
-		}
-
-		return false;
 	}
 
 	private boolean capNhatPhanCong(PhanCongCaFormPanel form) {
@@ -252,10 +202,8 @@ public class PhanCongCaPage extends AbstractPage {
 		return false;
 	}
 
-	private void xoaPhanCong(int row) {
-		String maPhanCong = this.layMaDong(row);
-
-		if (maPhanCong.isBlank()) {
+	private void xoaPhanCong(LuoiLichTuan.MucPhanCong muc) {
+		if (muc.maPhanCong().isBlank()) {
 			ThongBao.canhBao(this, "app.schedule.assignmentRequired");
 			return;
 		}
@@ -265,23 +213,15 @@ public class PhanCongCaPage extends AbstractPage {
 		}
 
 		try {
-			this.phanCongService.delete(maPhanCong);
+			this.phanCongService.delete(muc.maPhanCong());
 			ThongBao.thongTin(this, "app.schedule.assignmentDeleted");
-			this.taiLaiDanhSach();
+			this.taiLai();
 		} catch (IllegalArgumentException | IllegalStateException ex) {
 			ThongBao.loi(this, ex);
 		} catch (SQLException ex) {
 			LOGGER.log(Level.SEVERE, "Khong the xoa phan cong ca", ex);
 			ThongBao.loi(this, "app.login.errorSystem");
 		}
-	}
-
-	private String layMaDong(int row) {
-		if (row < 0 || row >= this.managementPanel.getModel().getRowCount()) {
-			return "";
-		}
-
-		return String.valueOf(this.managementPanel.getModel().getValueAt(row, 0));
 	}
 
 	private List<NhanVien> layDanhSachNhanVien() {
@@ -305,63 +245,6 @@ public class PhanCongCaPage extends AbstractPage {
 
 		Optional<NhanVien> nhanVien = this.phanCongService.getNhanVienById(phanCong.getMaNhanVien());
 		nhanVien.ifPresent(danhSach::add);
-	}
-
-	private void taiLaiDanhSach() {
-		try {
-			Object giaTriCa = this.boLocCa.giaTri();
-			CaLamViec caLamViec = giaTriCa instanceof CaLamViec ca ? ca : null;
-
-			List<PhanCong> danhSach = this.phanCongService.search(this.boLocMa.getText(), this.boLocNhanVien.getText(),
-					this.boLocNgay.tuNgay(), this.boLocNgay.denNgay(), caLamViec, this.boLocGhiChu.getText(),
-					this.managementPanel.getQuickFilter());
-
-			int tongSoDong = danhSach.size();
-			int tongSoTrang = Math.max(1, (int) Math.ceil((double) tongSoDong / PAGE_SIZE));
-
-			if (this.trangHienTai > tongSoTrang) {
-				this.trangHienTai = tongSoTrang;
-			}
-
-			if (this.trangHienTai < 1) {
-				this.trangHienTai = 1;
-			}
-
-			int viTriBatDau = (this.trangHienTai - 1) * PAGE_SIZE;
-			int viTriKetThuc = Math.min(viTriBatDau + PAGE_SIZE, tongSoDong);
-
-			List<PhanCong> trangDuLieu = tongSoDong == 0 ? List.of() : danhSach.subList(viTriBatDau, viTriKetThuc);
-
-			Map<String, String> tenNhanVienTheoMa = new HashMap<>();
-
-			for (NhanVien nhanVien : this.layDanhSachNhanVien()) {
-				tenNhanVienTheoMa.put(nhanVien.getMaNhanVien(), nhanVien.getHoTen() == null ? "" : nhanVien.getHoTen());
-			}
-
-			List<Object[]> duLieu = new ArrayList<>();
-
-			for (PhanCong phanCong : trangDuLieu) {
-				LocalDate ngayLam = LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay());
-
-				duLieu.add(new Object[] { phanCong.getMaPhanCong(),
-						tenNhanVienTheoMa.getOrDefault(phanCong.getMaNhanVien(), phanCong.getMaNhanVien()), ngayLam,
-						phanCong.getCaLamViec() == null ? "" : phanCong.getCaLamViec().getI18NBusinessName(),
-						phanCong.getGhiChu() == null ? "" : phanCong.getGhiChu() });
-			}
-
-			this.managementPanel.setRows(duLieu);
-
-			long tuDong = tongSoDong == 0 ? 0 : viTriBatDau + 1L;
-			long denDong = viTriKetThuc;
-
-			this.managementPanel.setCount(tuDong, denDong, tongSoDong);
-
-			this.managementPanel.setPage(this.trangHienTai, tongSoTrang);
-
-		} catch (SQLException ex) {
-			LOGGER.log(Level.SEVERE, "Khong the tai danh sach phan cong ca", ex);
-			ThongBao.loi(this, "app.login.errorSystem");
-		}
 	}
 
 	@Override

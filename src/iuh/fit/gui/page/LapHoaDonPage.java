@@ -2,7 +2,9 @@ package iuh.fit.gui.page;
 
 import iuh.fit.dto.DanhSachDichVuCriteria;
 import iuh.fit.dto.DanhSachPhieuTiepNhanCriteria;
+import iuh.fit.dto.DanhSachPhuTungCriteria;
 import iuh.fit.dto.DanhSachVoucherCriteria;
+import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.ChiTietHoaDon;
 import iuh.fit.entity.DichVu;
 import iuh.fit.entity.HoaDon;
@@ -11,6 +13,7 @@ import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiHoaDon;
+import iuh.fit.gui.component.ChonDichVuDialog;
 import iuh.fit.gui.component.ChonPhuTungDialog;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -40,11 +43,11 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class LapHoaDonPage extends AbstractPage {
 
@@ -55,20 +58,20 @@ public class LapHoaDonPage extends AbstractPage {
 	private final PhuTungService phuTungService = new PhuTungService();
 
 	private final DecimalFormat currencyFormat = new DecimalFormat("#,##0");
-	private final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
 	private final JComboBox<String> cbPhieu = new JComboBox<>();
 	private final JComboBox<String> cbVoucher = new JComboBox<>();
 	private final JTextField ghiChuField = new JTextField();
-	private final JTextField trangThaiField = new JTextField();
-	private final JTextField tongThanhToanField = new JTextField();
-	private final JTextField thoiGianTTField = new JTextField();
-	private final JTextField lyDoHuyField = new JTextField();
 
 	private final DefaultTableModel lineModel = new DefaultTableModel(0, 0) {
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			return false;
+			return column == 0;
+		}
+
+		@Override
+		public Class<?> getColumnClass(int column) {
+			return column == 0 ? Boolean.class : Object.class;
 		}
 	};
 	private final JTable lineTable = new JTable(this.lineModel);
@@ -87,6 +90,7 @@ public class LapHoaDonPage extends AbstractPage {
 	private JButton nutThanhToan;
 	private JButton nutThemDV;
 	private JButton nutThemPT;
+	private JButton nutXoaDaChon;
 	private String maHoaDonHienTai;
 	private String maHoaDonCanMo;
 	private TrangThaiHoaDon trangThaiHienTai;
@@ -94,6 +98,7 @@ public class LapHoaDonPage extends AbstractPage {
 
 	public LapHoaDonPage() {
 		this.setLayout(new BorderLayout());
+		this.lineModel.addTableModelListener(e -> this.capNhatNutXoaDaChon());
 	}
 
 	@Override
@@ -107,21 +112,11 @@ public class LapHoaDonPage extends AbstractPage {
 		this.loadPhieuCombo();
 		this.loadVoucherCombo();
 
-		Theme.applyReadOnly(this.trangThaiField);
-		Theme.applyReadOnly(this.tongThanhToanField);
-		Theme.applyReadOnly(this.thoiGianTTField);
-		Theme.applyReadOnly(this.lyDoHuyField);
-
 		form.addField("app.hoaDon.maPhieuTiepNhan", this.cbPhieu);
 		form.addField("app.hoaDon.voucher", this.cbVoucher);
 		form.addField("app.hoaDon.ghiChu", this.ghiChuField);
-		form.addField("app.hoaDon.trangThai", this.trangThaiField);
-		form.addField("app.hoaDon.thoiGianThanhToan", this.thoiGianTTField);
-		form.addField("app.hoaDon.lyDoHuy", this.lyDoHuyField);
-		form.addField("app.hoaDon.tongThanhToan", this.tongThanhToanField);
 
 		this.trangThaiHienTai = this.trangThaiHienTai == null ? TrangThaiHoaDon.CHO_THANH_TOAN : this.trangThaiHienTai;
-		this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
 
 		this.nutXoaTrang = form.getNutXoaTrang();
 		this.nutHuy = form.getNutXoa();
@@ -157,13 +152,22 @@ public class LapHoaDonPage extends AbstractPage {
 		this.nutThemPT.addActionListener(e -> this.themPhuTung());
 		btnRow.add(this.nutThemDV);
 		btnRow.add(this.nutThemPT);
+		this.nutXoaDaChon = new JButton(I18nReaderUtil.get("app.common.batch_delete"));
+		Theme.applyDanger(this.nutXoaDaChon);
+		this.nutXoaDaChon.setEnabled(false);
+		this.nutXoaDaChon.addActionListener(e -> this.xoaDongDaChon());
+		btnRow.add(this.nutXoaDaChon);
 
-		this.lineModel.setColumnIdentifiers(new Object[] { I18nReaderUtil.get("app.hoaDon.loai"),
+		this.lineModel.setColumnIdentifiers(new Object[] { "",
+				I18nReaderUtil.get("app.hoaDon.loai"),
 				I18nReaderUtil.get("app.phuTung.ma"), I18nReaderUtil.get("app.phuTung.ten"),
 				I18nReaderUtil.get("app.phieuNhap.soLuong"), I18nReaderUtil.get("app.phieuNhap.donGia"),
 				I18nReaderUtil.get("app.phieuNhap.thanhTien"), I18nReaderUtil.get("app.common.actions") });
 		Theme.styleTable(this.lineTable);
-		ThaoTacTableCellRenderer.ganVao(this.lineTable, 6, List.of(
+		this.lineTable.getColumnModel().getColumn(0).setMinWidth(44);
+		this.lineTable.getColumnModel().getColumn(0).setMaxWidth(44);
+		this.lineTable.getColumnModel().getColumn(0).setPreferredWidth(44);
+		ThaoTacTableCellRenderer.ganVao(this.lineTable, 7, List.of(
 				new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM, row -> this.xoaDong(row))));
 
 		right.add(btnRow, BorderLayout.NORTH);
@@ -228,7 +232,15 @@ public class LapHoaDonPage extends AbstractPage {
 			this.cbVoucher.removeAllItems();
 			this.cbVoucher.addItem("");
 			this.voucherTheoMa.clear();
-			for (Voucher v : this.voucherService.search(DanhSachVoucherCriteria.macDinh()).items()) {
+
+			List<Voucher> danhSach = this.voucherService.search(DanhSachVoucherCriteria
+					.dangKichHoat(1, PaginatedResult.PAGE_SIZE_TAI_TOAN_BO)).items();
+
+			for (Voucher v : danhSach) {
+				// Bỏ voucher đã hết hạn hoặc đang tắt kích hoạt khỏi danh sách chọn.
+				if (!this.hoaDonService.voucherConHieuLuc(v)) {
+					continue;
+				}
 				this.cbVoucher.addItem(v.getMaVoucher());
 				this.voucherTheoMa.put(v.getMaVoucher(), v);
 			}
@@ -301,15 +313,18 @@ public class LapHoaDonPage extends AbstractPage {
 	private void taiHoaDon(HoaDon hoaDon) throws SQLException {
 		this.maHoaDonHienTai = hoaDon.getMaHoaDon();
 		this.trangThaiHienTai = hoaDon.getTrangThaiHoaDon();
-		this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
 		this.ghiChuField.setText(hoaDon.getGhiChu() == null ? "" : hoaDon.getGhiChu());
-		this.thoiGianTTField.setText(
-				hoaDon.getThoiGianThanhToan() == null ? "" : hoaDon.getThoiGianThanhToan().format(this.dateTimeFormat));
-		this.lyDoHuyField.setText(hoaDon.getLyDoHuy() == null ? "" : hoaDon.getLyDoHuy());
-		this.chonVoucher(hoaDon.getMaVoucher());
+
+		boolean dangNapTruoc = this.dangNap;
+		this.dangNap = true;
+		try {
+			this.chonVoucher(hoaDon.getMaVoucher());
+		} finally {
+			this.dangNap = dangNapTruoc;
+		}
+
 		this.napChiTiet(hoaDon.getDanhSachChiTietHoaDon());
 		this.refreshLineTable();
-		this.tongThanhToanField.setText(this.dinhDangTien(this.hoaDonService.tinhTongTien(hoaDon)));
 		this.capNhatQuyen();
 	}
 
@@ -319,10 +334,7 @@ public class LapHoaDonPage extends AbstractPage {
 		this.soLuongGoc.clear();
 		this.maHoaDonHienTai = null;
 		this.trangThaiHienTai = TrangThaiHoaDon.CHO_THANH_TOAN;
-		this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
 		this.ghiChuField.setText("");
-		this.thoiGianTTField.setText("");
-		this.lyDoHuyField.setText("");
 		this.refreshLineTable();
 		this.capNhatQuyen();
 	}
@@ -355,13 +367,24 @@ public class LapHoaDonPage extends AbstractPage {
 		}
 	}
 
-	private void chonVoucher(String maVoucher) {
+	private void chonVoucher(String maVoucher) throws SQLException {
 		if (maVoucher == null || maVoucher.isBlank()) {
 			this.cbVoucher.setSelectedItem("");
 			return;
 		}
 		if (!this.voucherTheoMa.containsKey(maVoucher)) {
+			Voucher voucher = this.voucherService.getById(maVoucher).orElse(null);
+
+			// Hóa đơn cũ có thể trỏ tới voucher đã hết hạn hoặc bị tắt: không đưa lại vào combo,
+			// vì HoaDonService từ chối khi lưu; bỏ chọn để hóa đơn vẫn lưu được.
+			if (voucher == null || !this.hoaDonService.voucherConHieuLuc(voucher)) {
+				this.cbVoucher.setSelectedItem("");
+				ThongBao.canhBao(this, "app.hoaDon.loiVoucher");
+				return;
+			}
+
 			this.cbVoucher.addItem(maVoucher);
+			this.voucherTheoMa.put(maVoucher, voucher);
 		}
 		this.cbVoucher.setSelectedItem(maVoucher);
 	}
@@ -410,46 +433,15 @@ public class LapHoaDonPage extends AbstractPage {
 		if (!this.choPhepSua()) {
 			return;
 		}
-		try {
-			List<DichVu> ds = this.dichVuService.search(DanhSachDichVuCriteria.macDinh()).items();
-			if (ds.isEmpty()) {
-				ThongBao.canhBao(this, "app.dichVu.khongTimThay");
-				return;
-			}
-			String[] options = ds.stream().map(d -> d.getMaDichVu() + " - " + d.getTenDichVu()).toArray(String[]::new);
-			Object sel = JOptionPane.showInputDialog(this, I18nReaderUtil.get("app.hoaDon.themDichVu"),
-					I18nReaderUtil.get("app.hoaDon.themDichVu"), JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
-			if (sel == null) {
-				return;
-			}
-			String ma = sel.toString().split(" - ")[0];
-			DichVu dv = ds.stream().filter(d -> d.getMaDichVu().equals(ma)).findFirst().orElse(null);
-			if (dv == null) {
-				return;
-			}
 
-			JTextField soLuongField = new JTextField("1", 8);
-			JPanel khungSoLuong = new JPanel(new BorderLayout(6, 4));
-			khungSoLuong.setOpaque(false);
-			String tenHienThi = dv.getTenDichVu() == null || dv.getTenDichVu().isBlank() ? dv.getMaDichVu()
-					: dv.getTenDichVu();
-			khungSoLuong.add(new JLabel(tenHienThi), BorderLayout.NORTH);
-			khungSoLuong.add(soLuongField, BorderLayout.CENTER);
-			int luaChon = JOptionPane.showConfirmDialog(this, khungSoLuong,
-					I18nReaderUtil.get("app.hoaDon.nhapSoLuong"), JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.PLAIN_MESSAGE);
-			if (luaChon != JOptionPane.OK_OPTION) {
-				return;
-			}
+		ChonDichVuDialog dlg = new ChonDichVuDialog(
+				SwingUtilities.getWindowAncestor(this),
+				this.dichVuService,
+				DanhSachDichVuCriteria.macDinh());
 
-			int sl = 1;
-			try {
-				sl = Integer.parseInt(soLuongField.getText().trim());
-			} catch (Exception ignored) {
-			}
-			if (sl <= 0) {
-				sl = 1;
-			}
+		dlg.showDialog().ifPresent(kq -> {
+			DichVu dv = kq.sanPham();
+			int sl = kq.soLuong();
 
 			int idx = this.indexOfChiTiet(LoaiSanPham.DICH_VU, dv.getMaDichVu());
 			if (idx >= 0) {
@@ -465,62 +457,66 @@ public class LapHoaDonPage extends AbstractPage {
 				this.tenSanPham.add(dv.getTenDichVu());
 			}
 			this.refreshLineTable();
-		} catch (SQLException e) {
-			ThongBao.loi(this, "app.login.errorSystem");
-		}
+		});
+	}
+
+	// tồn khả dụng = tồn DB + SL gốc - SL đã chọn
+	private PhuTung voiTonKhaDung(PhuTung p, Map<String, Integer> daChon, Map<String, Integer> soLuongGoc) {
+		return new PhuTung(p.getMaPhuTung(), p.getTenPhuTung(),
+				p.getMoTa(), p.getAnhUrl(), p.getDonGiaNhap(),
+				Math.max(0, p.getSoLuongTon() + soLuongGoc.getOrDefault(p.getMaPhuTung(), 0)
+						- daChon.getOrDefault(p.getMaPhuTung(), 0)));
 	}
 
 	private void themPhuTung() {
 		if (!this.choPhepSua()) {
 			return;
 		}
-		try {
-			List<PhuTung> ds = this.phuTungService.getAllForSelection();
-			Map<String, Integer> daChon = new HashMap<>();
-			for (ChiTietHoaDon ct : this.chiTiets) {
-				if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
-					daChon.merge(ct.getMaSanPham(), ct.getSoLuong(), Integer::sum);
-				}
+
+		Map<String, Integer> daChon = new HashMap<>();
+		for (ChiTietHoaDon ct : this.chiTiets) {
+			if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
+				daChon.merge(ct.getMaSanPham(), ct.getSoLuong(), Integer::sum);
+			}
+		}
+
+		Map<String, Integer> soLuongGocSnapshot = new HashMap<>(this.soLuongGoc);
+
+		Function<PhuTung, PhuTung> hienThi = p -> this.voiTonKhaDung(p, daChon, soLuongGocSnapshot);
+
+		ChonPhuTungDialog dlg = new ChonPhuTungDialog(
+				SwingUtilities.getWindowAncestor(this),
+				this.phuTungService,
+				DanhSachPhuTungCriteria.macDinh(),
+				hienThi,
+				true);
+
+		dlg.showDialog().ifPresent(kq -> {
+			if (kq.soLuong() <= 0) {
+				ThongBao.canhBao(this, "app.hoaDon.loiSoLuong");
+				return;
+			}
+			int conLai = kq.sanPham().getSoLuongTon();
+			if (kq.soLuong() > conLai) {
+				ThongBao.canhBao(this, "app.hoaDon.loiTonKho");
+				return;
 			}
 
-			List<PhuTung> hienThi = ds.stream()
-					.map(p -> new PhuTung(p.getMaPhuTung(), p.getTenPhuTung(), p.getMoTa(), p.getAnhUrl(),
-							p.getDonGiaNhap(),
-							Math.max(0, p.getSoLuongTon() + this.soLuongGoc.getOrDefault(p.getMaPhuTung(), 0)
-									- daChon.getOrDefault(p.getMaPhuTung(), 0))))
-					.toList();
-
-			ChonPhuTungDialog dlg = new ChonPhuTungDialog(SwingUtilities.getWindowAncestor(this), hienThi);
-
-			dlg.showDialog().ifPresent(kq -> {
-				if (kq.soLuong() <= 0) {
-					ThongBao.canhBao(this, "app.hoaDon.loiSoLuong");
-					return;
-				}
-				int conLai = kq.phuTung().getSoLuongTon();
-				if (kq.soLuong() > conLai) {
-					ThongBao.canhBao(this, "app.hoaDon.loiTonKho");
-					return;
-				}
-
-				int idx = this.indexOfChiTiet(LoaiSanPham.PHU_TUNG, kq.phuTung().getMaPhuTung());
-				if (idx >= 0) {
-					ChiTietHoaDon tonTai = this.chiTiets.get(idx);
-					tonTai.setSoLuong(tonTai.getSoLuong() + kq.soLuong());
-				} else {
-					ChiTietHoaDon ct = new ChiTietHoaDon();
-					ct.setLoaiSanPham(LoaiSanPham.PHU_TUNG);
-					ct.setMaSanPham(kq.phuTung().getMaPhuTung());
-					ct.setSoLuong(kq.soLuong());
-					ct.setDonGia(kq.phuTung().getDonGiaNhap());
-					this.chiTiets.add(ct);
-					this.tenSanPham.add(kq.phuTung().getTenPhuTung());
-				}
-				this.refreshLineTable();
-			});
-		} catch (SQLException e) {
-			ThongBao.loi(this, "app.login.errorSystem");
-		}
+			int idx = this.indexOfChiTiet(LoaiSanPham.PHU_TUNG, kq.sanPham().getMaPhuTung());
+			if (idx >= 0) {
+				ChiTietHoaDon tonTai = this.chiTiets.get(idx);
+				tonTai.setSoLuong(tonTai.getSoLuong() + kq.soLuong());
+			} else {
+				ChiTietHoaDon ct = new ChiTietHoaDon();
+				ct.setLoaiSanPham(LoaiSanPham.PHU_TUNG);
+				ct.setMaSanPham(kq.sanPham().getMaPhuTung());
+				ct.setSoLuong(kq.soLuong());
+				ct.setDonGia(kq.sanPham().getDonGiaNhap());
+				this.chiTiets.add(ct);
+				this.tenSanPham.add(kq.sanPham().getTenPhuTung());
+			}
+			this.refreshLineTable();
+		});
 	}
 
 	private int indexOfChiTiet(LoaiSanPham loai, String maSanPham) {
@@ -568,6 +564,55 @@ public class LapHoaDonPage extends AbstractPage {
 		this.refreshLineTable();
 	}
 
+	private void xoaDongDaChon() {
+		if (!this.choPhepSua()) {
+			if (this.trangThaiHienTai == TrangThaiHoaDon.DA_HUY) {
+				ThongBao.canhBao(this, "app.hoaDon.loiDaHuy");
+			} else {
+				ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
+			}
+			return;
+		}
+
+		List<Integer> dongDaChon = new ArrayList<>();
+		for (int i = this.lineModel.getRowCount() - 1; i >= 0; i--) {
+			if (Boolean.TRUE.equals(this.lineModel.getValueAt(i, 0))) {
+				dongDaChon.add(i);
+			}
+		}
+		if (dongDaChon.isEmpty()) {
+			ThongBao.canhBao(this, "app.hoaDon.loiChiTietTrong");
+			return;
+		}
+		if (!ThongBao.xacNhanDinhDang(this, "app.common.batch_delete_confirm", "app.common.confirm",
+				dongDaChon.size())) {
+			return;
+		}
+
+		for (int row : dongDaChon) {
+			if (row >= 0 && row < this.chiTiets.size()) {
+				this.chiTiets.remove(row);
+				this.tenSanPham.remove(row);
+			}
+		}
+		this.refreshLineTable();
+	}
+
+	private void capNhatNutXoaDaChon() {
+		if (this.nutXoaDaChon == null) {
+			return;
+		}
+
+		int soDong = 0;
+		for (int i = 0; i < this.lineModel.getRowCount(); i++) {
+			if (Boolean.TRUE.equals(this.lineModel.getValueAt(i, 0))) {
+				soDong++;
+			}
+		}
+		this.nutXoaDaChon.setText(I18nReaderUtil.get("app.common.batch_delete") + " (" + soDong + ")");
+		this.nutXoaDaChon.setEnabled(soDong > 0);
+	}
+
 	private void chonVoucherThayDoi() {
 		this.refreshLineTable();
 		if (this.dangNap) {
@@ -588,15 +633,15 @@ public class LapHoaDonPage extends AbstractPage {
 			ChiTietHoaDon ct = this.chiTiets.get(i);
 			double donGia = ct.getDonGia() == null ? 0.0 : ct.getDonGia();
 			double thanhTien = ct.getSoLuong() * donGia;
-			this.lineModel.addRow(new Object[] { ct.getLoaiSanPham().getI18NBusinessName(), ct.getMaSanPham(),
-					this.tenSanPham.get(i), ct.getSoLuong(), this.dinhDangTien(donGia), this.dinhDangTien(thanhTien) });
+			this.lineModel.addRow(new Object[] { Boolean.FALSE, ct.getLoaiSanPham().getI18NBusinessName(),
+					ct.getMaSanPham(), this.tenSanPham.get(i), ct.getSoLuong(), this.dinhDangTien(donGia),
+					this.dinhDangTien(thanhTien) });
 		}
 
 		Voucher voucher = this.voucherTheoMa.get((String) this.cbVoucher.getSelectedItem());
 		double tongGoc = this.hoaDonService.tinhTongTienGoc(this.chiTiets);
 		double mucGiam = this.hoaDonService.tinhMucGiam(voucher);
 		double tong = this.hoaDonService.tinhTongTien(this.chiTiets, voucher);
-		this.tongThanhToanField.setText(this.dinhDangTien(tong));
 		if (this.lblTong != null) {
 			this.lblTong.setText(this.dinhDangTien(tongGoc));
 			this.lblGiamGia.setText("-" + this.dinhDangTien(tongGoc - tong)
@@ -647,6 +692,7 @@ public class LapHoaDonPage extends AbstractPage {
 					new ArrayList<>(this.chiTiets));
 			this.taiHoaDon(hoaDon);
 			ThongBao.thongTin(this, "app.common.create_succeed");
+			this.goTo(QuanLyHoaDonPage.class);
 			return true;
 		} catch (IllegalArgumentException | IllegalStateException e) {
 			ThongBao.loi(this, e);
@@ -706,8 +752,6 @@ public class LapHoaDonPage extends AbstractPage {
 		try {
 			HoaDon hoaDon = this.hoaDonService.huy(this.maHoaDonHienTai, lyDo);
 			this.trangThaiHienTai = hoaDon.getTrangThaiHoaDon();
-			this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
-			this.lyDoHuyField.setText(hoaDon.getLyDoHuy() == null ? "" : hoaDon.getLyDoHuy());
 			this.capNhatQuyen();
 			ThongBao.thongTin(this, "app.common.update_succeed");
 		} catch (IllegalArgumentException | IllegalStateException e) {
@@ -732,10 +776,6 @@ public class LapHoaDonPage extends AbstractPage {
 		try {
 			HoaDon hoaDon = this.hoaDonService.xacNhanThanhToan(this.maHoaDonHienTai);
 			this.trangThaiHienTai = hoaDon.getTrangThaiHoaDon();
-			this.trangThaiField.setText(this.trangThaiHienTai.getI18NBusinessName());
-			this.thoiGianTTField.setText(hoaDon.getThoiGianThanhToan() == null ? ""
-					: hoaDon.getThoiGianThanhToan().format(this.dateTimeFormat));
-			this.tongThanhToanField.setText(this.dinhDangTien(this.hoaDonService.tinhTongTien(hoaDon)));
 			this.capNhatQuyen();
 			ThongBao.thongTin(this, "app.common.update_succeed");
 		} catch (IllegalArgumentException | IllegalStateException e) {

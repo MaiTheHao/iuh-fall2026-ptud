@@ -87,9 +87,13 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		this.add(this.taoNoiDung(), BorderLayout.CENTER);
 		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);
 
+		this.clearActionListeners(this.cboThang);
+		this.cboThang.addActionListener(e -> this.taiBaoCao());
+
 		this.revalidate();
 		this.repaint();
 
+		this.taiBaoCao();
 	}
 
 	private void khoiTaoThang() {
@@ -154,16 +158,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		pnlThang.add(lblThang);
 		pnlThang.add(this.cboThang);
 
-		JPanel pnlNut = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-
-		JButton btnXemBaoCao = new JButton(I18nReaderUtil.get("app.report.parts.view"));
-
-		btnXemBaoCao.addActionListener(e -> this.taiBaoCao());
-
-		pnlNut.add(btnXemBaoCao);
-
 		pnl.add(pnlThang, BorderLayout.WEST);
-		pnl.add(pnlNut, BorderLayout.EAST);
 
 		return pnl;
 	}

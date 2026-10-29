@@ -25,6 +25,9 @@ public class PhuTungService {
     private static final String ERROR_STOCK = "app.phuTung.khongDuTon";
     private static final String ERROR_RANGE = "app.phuTung.loiKhoangLoc";
 
+    private static final Comparator<PhuTung> THEO_MA_PHU_TUNG = Comparator.comparing(
+            PhuTung::getMaPhuTung, Comparator.nullsLast(String::compareTo));
+
     private final PhuTungDAO phuTungDAO = new PhuTungDAO();
 
     public PaginatedResult<PhuTung> getAll(int page, int pageSize) throws SQLException {
@@ -40,7 +43,11 @@ public class PhuTungService {
 
         this.validateFilterRange(filter);
 
-        List<PhuTung> matched = this.phuTungDAO.findAll().stream().filter(item -> this.matches(item, filter)).toList();
+        List<PhuTung> matched = this.phuTungDAO.findAll().stream()
+                .filter(item -> this.matches(item, filter))
+                // Mã null xếp cuối thay vì ném NullPointerException; dùng chung với getAllForSelection.
+                .sorted(THEO_MA_PHU_TUNG)
+                .toList();
 
         return PaginatedResult.of(matched, filter);
     }
@@ -93,7 +100,7 @@ public class PhuTungService {
 
     public List<PhuTung> getAllForSelection() throws SQLException {
         List<PhuTung> list = new ArrayList<>(this.phuTungDAO.findAll());
-        list.sort(Comparator.comparing(PhuTung::getMaPhuTung));
+        list.sort(THEO_MA_PHU_TUNG);
         return list;
     }
 
@@ -175,7 +182,8 @@ public class PhuTungService {
 
         if (filter.timNhanh() != null && !filter.timNhanh().isBlank()) {
 
-            String combined = item.getMaPhuTung() + " " + item.getTenPhuTung();
+            String combined = item.getMaPhuTung() + " " + item.getTenPhuTung()
+                    + " " + (item.getMoTa() == null ? "" : item.getMoTa());
 
             if (!TextNormalizerUtil.normalize(combined).contains(TextNormalizerUtil.normalize(filter.timNhanh()))) {
                 return false;

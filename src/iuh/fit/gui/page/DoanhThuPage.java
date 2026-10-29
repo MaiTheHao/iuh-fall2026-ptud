@@ -82,22 +82,52 @@ public class DoanhThuPage extends AbstractPage {
 
 	private ChartPanel pnlBieuDo;
 
+	private boolean dangDungGiaoDien;
+
 	public DoanhThuPage() {
 		this.setLayout(new BorderLayout(8, 8));
 		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
+		this.datMacDinhNgay();
+
+		this.cboKieuThongKe.addActionListener(e -> this.taiBaoCaoKhiDoiLoc());
+		this.dpTuNgay.addDateChangeListener(event -> this.taiBaoCaoKhiDoiLoc());
+		this.dpDenNgay.addDateChangeListener(event -> this.taiBaoCaoKhiDoiLoc());
 	}
 
 	@Override
 	public void render() {
+		this.dangDungGiaoDien = true;
+
 		this.removeAll();
 
 		this.add(this.taoBoLoc(), BorderLayout.NORTH);
 		this.add(this.taoNoiDung(), BorderLayout.CENTER);
 		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);
 
+		this.dangDungGiaoDien = false;
+
 		this.revalidate();
 		this.repaint();
+
+		this.taiBaoCao();
+	}
+
+	private void datMacDinhNgay() {
+		this.dpTuNgay.setDate(LocalDate.now().withDayOfMonth(1));
+		this.dpDenNgay.setDate(LocalDate.now());
+	}
+
+	private void taiBaoCaoKhiDoiLoc() {
+		if (this.dangDungGiaoDien) {
+			return;
+		}
+
+		if (this.dpTuNgay.getDate() == null || this.dpDenNgay.getDate() == null) {
+			return;
+		}
+
+		this.taiBaoCao();
 	}
 
 	private DatePicker taoDatePicker() {
@@ -117,10 +147,6 @@ public class DoanhThuPage extends AbstractPage {
 		this.cboKieuThongKe.addItem(I18nReaderUtil.get("app.report.revenue.byMonth"));
 		this.cboKieuThongKe.addItem(I18nReaderUtil.get("app.report.revenue.byYear"));
 
-		JButton btnXemBaoCao = new JButton(I18nReaderUtil.get("app.report.revenue.viewReport"));
-
-		btnXemBaoCao.addActionListener(e -> this.taiBaoCao());
-
 		pnl.add(new JLabel(I18nReaderUtil.get("app.report.revenue.statisticsType")));
 		pnl.add(this.cboKieuThongKe);
 
@@ -129,8 +155,6 @@ public class DoanhThuPage extends AbstractPage {
 
 		pnl.add(new JLabel(I18nReaderUtil.get("app.report.revenue.toDate")));
 		pnl.add(this.dpDenNgay);
-
-		pnl.add(btnXemBaoCao);
 
 		return pnl;
 	}
