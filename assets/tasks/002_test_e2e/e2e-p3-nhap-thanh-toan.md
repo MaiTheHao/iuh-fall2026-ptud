@@ -44,33 +44,32 @@ Voucher không hợp lệ	VC010 / 25%, hết hạn 31/01/2026 (kích hoạt = 0)
 **PASS / NO:** `____NO______`
 **Mô tả thực tế / lỗi chi tiết:**
 >
-### Test Case 1: Không có dòng chi tiết
+### Test Case 1: Không có dòng chi tiết (Ổn)
 * **Cách thực hiện:** Nhập Mô tả, bấm Lưu
 * **Kết quả mong đợi:** Hiển thị thông báo `"Danh sách chi tiết nhập không được rỗng."`
 ---
 
-### Test Case 2: Không có mô tả
+### Test Case 2: Không có mô tả (Ổn)
 * **Cách thực hiện:** Có dòng chi tiết, để trống ô Mô tả, bấm Lưu
 * **Kết quả mong đợi:** Hiển thị thông báo `"Mô tả không được để trống."`
 ---
 
-### Test Case 3: Số lượng nhập bằng 0 (Sửa thành 'Số lượng nhập phải lớn hơn 0.')
+### Test Case 3: Số lượng nhập bằng 0 (Ổn)
 * **Cách thực hiện:** Thêm dòng, sửa ô SL thành `0`, nhấn Enter
-* Hiển thị thông báo `"Chưa chọn phụ tùng hợp lệ"` (ô không nhận giá trị, vẫn ở chế độ chỉnh sửa)
+* Tự set về 1 
 ---
 
-### Test Case 4: Số lượng nhập là số âm hoặc chữ (Khi bấm lưu mới chặn và đã tự động xóa trắng, không cần chặn lúc nhập cũng được)
+### Test Case 4: Số lượng nhập là số âm hoặc chữ (Ổn)
 * **Cách thực hiện:** Gõ `-1` hoặc `abc` vào ô SL
-* **Kết quả mong đợi:** Ô chỉ nhận ký tự số $\rightarrow$ bị chặn ngay lập tức, hiển thị thông báo lỗi tương tự
+* Tự set số lượng là 1
 ---
 
-### Test Case 5: Đơn giá không hợp lệ
+### Test Case 5: Đơn giá không hợp lệ (Đã chặn nhập số âm và chữ) (Nhưng click vào mà không nhập thì mất luôn giá nên set về giá ban đầu)
 * **Cách thực hiện:** Gõ `-1`, `abc`, hoặc để rỗng tại ô Đơn giá
-* **Kết quả mong đợi:** Hiển thị thông báo `"Đơn giá nhập phải lớn hơn hoặc bằng 0."`
-	-- Phần chữ chưa có bắt lỗi riêng đang dùng chung với đơn giá
-	-- Nhập sai chưa tự động reset về giá cũ ---
+* **
+	
 
-### Test Case 6: Trùng phụ tùng
+### Test Case 6: Trùng phụ tùng (Ổn)
 * **Cách thực hiện:** Thêm phụ tùng `PT002` với SL 1 hai lần, bấm Lưu
 * **Kết quả mong đợi:** 
   * Giao diện (UI) hiển thị 2 dòng (1 dòng đã cộng dồn vô luôn)
@@ -78,10 +77,12 @@ Voucher không hợp lệ	VC010 / 25%, hết hạn 31/01/2026 (kích hoạt = 0)
  
 ---
 
-### Test Case 7: Xóa dòng chi tiết (Có nên xuất hiện hộp thoại xác nhận ?)
+### Test Case 7: Xóa dòng chi tiết (Ổn)
  * **Cách thực hiện:** Chọn một dòng trong bảng $\rightarrow$ bấm nút Xóa dòng
 * **Kết quả mong đợi:** Dòng được xóa khỏi bảng và Tổng chi phí cập nhật lại ngay lập tức
 ---
+
+### Test Case 8: Tính năng chỉ hiện còn tồn (OK)
 
 ### E2E-P3-03 · Phiếu nhập: lỗi giữa chừng không tăng tồn dở
 **Màn:** SCR-07
@@ -103,12 +104,10 @@ Không thực hiện được. Thao tác lưu phiếu trên môi trường local
 4. Xóa phiếu `E2E-P3` rồi kiểm tra tồn kho.
 **Kết quả mong đợi:** phiếu hiển thị đúng ngày, tổng chi phí, người lập; lọc khoảng ngày đúng (kể cả ngày đầu/cuối); mở được SCR-07; xóa phiếu cho kết quả rõ ràng (ghi lại tồn kho có hoàn lại hay không và có đúng thiết kế không).
 
-**PASS / NO:** `____NO______`
+**PASS / NO:** `____PASS______`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ngày lập, người lập, tổng tiền). Bộ lọc theo khoảng ngày bao gồm cả biên ngày hoạt động chuẩn xác, phân trang và nút mở SCR-07 hoạt động tốt. Khi xóa phiếu: hệ thống hiển thị dialog xác nhận, sau khi xóa thành công, số lượng tồn kho của các phụ tùng trong phiếu được trừ hoàn lại chính xác theo đúng thiết kế. Phân trang ok
-
---Chưa chặn nhập chữ vào ô tổng chi phí và giao diện chỉ hiển thị được vài chữ Tổng chi...
 
 ---
 
@@ -116,7 +115,7 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
 **Màn:** SCR-10
 **Các bước:**
 1. Chọn phiếu tiếp nhận 1 (chưa có hóa đơn).
-2. Thêm dịch vụ X (số lượng 1), phụ tùng A (số lượng 2).
+2. Thêm dịch vụ DV001 (số lượng 1), phụ tùng A (số lượng 2).
 3. Thêm lại phụ tùng A (số lượng 1).
 4. Không áp voucher. Lưu.
 5. Kiểm tra DB (`HoaDon`, `ChiTietHoaDon`).
@@ -138,27 +137,26 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
 ### E2E-P3-06 · Trừ tồn kho khi lập hóa đơn
 **Màn:** SCR-10
 **Các bước:**
-1. Ghi tồn phụ tùng A trước khi lập (sau P3-05).(14)
-2. Lập hóa đơn cho phiếu 2 có phụ tùng A số lượng 2. Lưu. Kiểm tra tồn. (12)
-3. Lập hóa đơn cho phiếu 3 với số lượng phụ tùng **lớn hơn tồn hiện có**. (Không thêm được nhưng lỗi là Sl > 0)(<0 thì chọn PT chưa hợp lệ )
-**Kết quả mong đợi:** (2) tồn giảm đúng 2, hóa đơn và trừ tồn cùng thành công; (3) bị từ chối với thông báo rõ, **không** tạo hóa đơn, tồn không âm và không đổi.
+1. Ghi tồn phụ tùng A trước khi lập (sau P3-05).(34)
+2. Lập hóa đơn cho phiếu 2 có phụ tùng A số lượng 2. Lưu. Kiểm tra tồn. (32)
+3. Lập hóa đơn cho phiếu 3 với số lượng phụ tùng **lớn hơn tồn hiện có**.
+**Kết quả mong đợi:** (2) tồn giảm đúng 2, hóa đơn và trừ tồn cùng thành công; (3) bị từ chối với thông báo rõ, **không** tạo hóa đơn, tồn không âm và không đổi.(Tự set về 1)
 
-**PASS / NO:** `_____NO_____`
+**PASS / NO:** `_____PASS_____`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
-* Bước 2 hoạt động đúng: Lập hóa đơn thành công, tồn kho phụ tùng A giảm chính xác từ 14 xuống 12 trong database.
+* Bước 2 hoạt động đúng: Lập hóa đơn thành công, tồn kho phụ tùng A giảm chính xác từ 34 xuống 32 trong database.
 * Bước 3 phát hiện lỗi validation tại giao diện:
   - Hệ thống chặn không cho thêm dòng phụ tùng khi số lượng vượt tồn hiện có (không bị âm kho).
-  - Tuy nhiên, thông báo lỗi hiển thị không đúng ngữ cảnh nghiệp vụ: Khi nhập số lượng lớn hơn tồn kho thực tế, app lại hiển thị thông báo "Số lượng phải lớn hơn 0" thay vì cảnh báo "Số lượng tồn kho không đủ (chỉ còn 12)".
-  - Ngoài ra, khi thử nhập số lượng âm (< 0), hệ thống báo lỗi sai lệch là "Phụ tùng chưa hợp lệ".
-* Kết luận: Logic bảo toàn tồn kho trong DB đạt, nhưng thông báo validation tại màn hình SCR-10 hiển thị sai lệch thông điệp đến người dùng.
+  - Khi nhập số lượng âm hoặc chữ thì tự set về 1 
+* Kết luận: Logic bảo toàn tồn kho trong DB đạt
 ---
 
 ### E2E-P3-07 · Áp voucher
 **Màn:** SCR-10
 **Các bước:**
-1. Lập hóa đơn cho phiếu 3 (số lượng hợp lệ) có áp voucher hợp lệ. Ghi tổng trước và sau giảm.(HD1 trước 445.000 sau add voucher giảm 10% còn 400.500, HD2 130 add voucher 5% còn 123.500, HD3 add voucher hết hạn thì báo voucher không hợp lệ, giá vẫn giữ nguyên)
+1. Lập hóa đơn cho phiếu 3 (số lượng hợp lệ) có áp voucher hợp lệ. Ghi tổng trước và sau giảm.(HD1 trước 700.000 sau add voucher giảm 10% còn 630.000, voucher hết hạn thì báo voucher không hợp lệ, giá vẫn giữ nguyên)
 2. Thử chọn voucher hết hạn / voucher tắt kích hoạt cho hóa đơn khác.
 3. Kiểm tra DB: `maVoucher`, `mucGiamApDung`.
 **Kết quả mong đợi:** tổng sau giảm = tổng các dòng × (1 − mức giảm), làm tròn hợp lý; `mucGiamApDung` được chốt vào hóa đơn; voucher không hợp lệ không được áp (ẩn khỏi danh sách hoặc báo lỗi rõ).
@@ -171,7 +169,7 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
   - HD1: Tổng tiền ban đầu 445.000 VNĐ, áp voucher 10% → Tổng thanh toán còn 400.500 VNĐ.
   - HD2: Tổng tiền ban đầu 130.000 VNĐ, áp voucher 5% → Tổng thanh toán còn 123.500 VNĐ.
 * Xử lý trường hợp không hợp lệ:
-  - Khi áp dụng voucher đã hết hạn / bị tắt kích hoạt cho hóa đơn (HD3), hệ thống hiển thị thông báo lỗi rõ ràng "Voucher không hợp lệ", chặn áp dụng và giữ nguyên tổng tiền ban đầu.
+  - Khi áp dụng voucher đã hết hạn / bị tắt kích hoạt cho hóa đơn (HD3), Tự ẩn không cho chọn.
 * Kiểm tra dữ liệu trong DB (bảng `HoaDon`):
   - Cột `maVoucher` lưu đúng mã voucher đã sử dụng.
   - Cột `mucGiamApDung` chốt giá trị phần trăm giảm chính xác tại thời điểm lập hóa đơn, đảm bảo không bị ảnh hưởng nếu chính sách voucher thay đổi sau này.
@@ -205,7 +203,7 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
 3. Mở lại hóa đơn đã thanh toán, thử sửa/thanh toán lần nữa.
 **Kết quả mong đợi:** chuyển `DA_THANH_TOAN`, ghi `thoiGianThanhToan` ngay thời điểm xác nhận; SCR-10B hiện nhãn tiếng Việt; hóa đơn đã thanh toán không thanh toán lại được và không sửa được tùy tiện (ghi lại hành vi thực tế).
 
-**PASS / NO:** `_____PASS_____`
+**PASS / NO:** `_____NO_____`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -216,6 +214,7 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
 * Hành vi thực tế trên giao diện (SCR-10 / SCR-10B):
   - Danh sách quản lý hóa đơn (SCR-10B) hiển thị nhãn trạng thái tiếng Việt chuẩn xác ("Đã thanh toán").
   - Khi mở lại hóa đơn đã thanh toán: Hệ thống khóa hoàn toàn chế độ chỉnh sửa/thanh toán lại. Người dùng chỉ có quyền xem thông tin chi tiết (chế độ chỉ xem - Read-only), các nút Lưu, Sửa hoặc Xác nhận thanh toán đều bị vô hiệu hóa (disabled) đúng như thiết kế nghiệp vụ.
+  - Nút thùng rác nên khóa luôn hoặc khi cố tình bấm vào thì phải thông báo "Hóa đơn đã thanh toán không được sửa"
 ---
 
 ### E2E-P3-10 · Hủy hóa đơn chờ thanh toán
@@ -227,7 +226,7 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
 4. Kiểm tra tồn, DB, trạng thái form.
 **Kết quả mong đợi:** (2) bị chặn, yêu cầu lý do; (3) chuyển `DA_HUY`, lưu `lyDoHuy`, **hoàn tồn phụ tùng đúng số lượng**; form giữ nguyên dữ liệu và khóa lại, không sửa tiếp được.
 
-**PASS / NO:** `_____NO_____`
+**PASS / NO:** `_____PASS_____`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -239,7 +238,7 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
   - Lỗi giao diện (UI Lock): Form đã khóa các nút chính, tuy nhiên biểu tượng thùng rác (nút Xóa dòng chi tiết trong bảng) vẫn cho phép click. Khi bấm vào icon này, hệ thống lại quăng ra thông báo lỗi không đúng ngữ cảnh: "Trạng thái hiện tại không cho thanh toán" (thay vì phải vô hiệu hóa hoàn toàn nút/icon xóa hoặc thông báo hóa đơn đã hủy không được chỉnh sửa).
 ---
 
-### E2E-P3-11 · Quản lý hóa đơn: lọc, mở, xóa
+### E2E-P3-11 · Quản lý hóa đơn: lọc, mở, xóa (Hiện tại đang chưa có xóa chỉ cho phép hủy hóa đơn)
 **Màn:** SCR-10B
 **Các bước:**
 1. Lọc theo trạng thái / khoảng ngày / mã; xóa lọc; phân trang.
@@ -248,7 +247,7 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
 4. Xóa hóa đơn đã thanh toán (phiếu 1).
 **Kết quả mong đợi:** lọc/phân trang đúng, nhãn tiếng Việt; mở đúng hóa đơn; (3) hóa đơn bị xóa khỏi danh sách và DB, tồn được hoàn; (4) có **cảnh báo riêng** trước khi xóa, và hành vi sau xác nhận đúng thiết kế; không văng lỗi.
 
-**PASS / NO:** `_____NO_____`
+**PASS / NO:** `_____PASS_____`
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -259,8 +258,6 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
 * Thao tác xóa hóa đơn và kiểm soát tồn kho:
   - Bước 3 (Hóa đơn chưa hủy/chờ thanh toán - phiếu 3 có phụ tùng): Thao tác xóa thành công, bản ghi được dọn sạch khỏi danh sách và DB; số lượng tồn kho của phụ tùng trong hóa đơn được hoàn lại chính xác vào bảng `PhuTung`.
   - Bước 4 (Hóa đơn đã thanh toán - phiếu 1): Hệ thống bật hộp thoại cảnh báo riêng biệt (yêu cầu xác nhận nghiêm ngặt trước khi xóa chứng từ tài chính đã hoàn tất thanh toán). Sau khi xác nhận, luồng xử lý diễn ra đúng thiết kế kiến trúc, không phát sinh lỗi SQL hay crash giao diện.
-  
-  --Chưa chặn nhập chữ vào ô tổng tiền
   
 ---
 
@@ -292,25 +289,33 @@ Màn hình SCR-07B hiển thị đầy đủ, chính xác thông tin phiếu (ng
 
 ## Tổng kết
 
-- Số kịch bản: 12 · PASS: 6 · NO: 6 (E2E-P3-02, E2E-P3-03, E2E-P3-04, E2E-P3-06, E2E-P3-10, E2E-P3-11)
-- Ghi chú thêm của người test:
+Số kịch bản: 12 · PASS: 9 · NO: 3 (E2E-P3-02, E2E-P3-03, E2E-P3-09)
+
+***Ghi chú thêm của người test:
+
 Tính toàn vẹn dữ liệu & Transaction DB:
 
-Hoạt động ổn định và chính xác ở tầng CSDL.
+Hoạt động ổn định và chính xác 100% ở tầng CSDL.
 
-Các nghiệp vụ cốt lõi đều đạt chuẩn: Tăng/hoàn tồn kho khi tạo/xóa phiếu nhập (SCR-07, SCR-07B), trừ/hoàn tồn kho khi lập/hủy/xóa hóa đơn (SCR-10, SCR-10B), lưu đúng phần trăm voucher vào hóa đơn và khóa cứng ràng buộc chống trùng hóa đơn theo phiếu tiếp nhận (UQ_HoaDon_maPhieuTiepNhan).
+Toàn bộ nghiệp vụ kiểm soát tồn kho (tăng/trừ/hoàn tồn khi lập/xóa phiếu nhập ở SCR-07/07B và lập/hủy/xóa hóa đơn ở SCR-10/10B) được bảo toàn nguyên vẹn.
+
+Dữ liệu voucher được chốt cứng tỷ lệ giảm vào hóa đơn, ràng buộc Unique UQ_HoaDon_maPhieuTiepNhan chống tạo trùng hóa đơn hoạt động chuẩn xác, không làm phát sinh lỗi cơ sở dữ liệu ra ngoài giao diện.
 
 Danh sách các lỗi tồn đọng cần khắc phục trên UI/UX:
 
-SCR-07 (Lập phiếu nhập): Cần chặn nhập chữ/số âm ngay tại ô Số lượng và Đơn giá; sửa thông báo lỗi nhập 0 thành "Số lượng nhập phải lớn hơn 0"; tự động hoàn lại giá trị cũ nếu nhập sai; xem xét thêm popup xác nhận khi xóa dòng chi tiết.
+SCR-07 (Lập phiếu nhập): Ô đơn giá đã chặn nhập chữ/số âm, tuy nhiên khi người dùng click vào ô mà không nhập giá trị thì bị mất luôn giá; cần bổ sung cơ chế tự động khôi phục lại giá ban đầu nếu để trống.
 
-SCR-07B (Quản lý phiếu nhập): Ô lọc tổng chi phí chưa chặn ký tự chữ; nhãn tiêu đề/cột bị co hẹp hiển thị mất chữ (Tổng chi...).
+SCR-10 (Lập & Hủy hóa đơn):
 
-SCR-10 (Lập hóa đơn): Thông báo lỗi kiểm tra vượt tồn kho bị hiển thị nhầm thành "Số lượng phải lớn hơn 0"; nhập số âm báo nhầm thành "Phụ tùng chưa hợp lệ".
+Khi số lượng vượt tồn hoặc nhập âm/chữ, UI đã tự động reset về 1 giúp kho không bị âm, nhưng cần xem xét hiển thị thông báo rõ ràng hơn thay vì chỉ reset âm thầm.
 
-SCR-10 (Hủy hóa đơn): Sau khi hủy thành công, icon thùng rác (xóa dòng chi tiết) trên bảng chưa bị vô hiệu hóa hoàn toàn; khi click vào bị quăng sai thông báo "Trạng thái hiện tại không cho thanh toán".
+Sau khi hủy hóa đơn, biểu tượng thùng rác (xóa dòng chi tiết) vẫn click được và thông báo sai ngữ cảnh "Trạng thái hiện tại không cho thanh toán"; cần vô hiệu hóa hoàn toàn icon này.
 
-SCR-10B (Quản lý hóa đơn): Ô lọc tổng tiền chưa chặn nhập chữ.
+SCR-10 / SCR-10B (Xác nhận & Khóa hóa đơn):
 
-Cập nhật lại hóa đơn có nhất thiết phải cập nhật lại thời gian 
+Trên hóa đơn đã thanh toán, icon thùng rác (xóa dòng) vẫn chưa bị vô hiệu hóa hoàn toàn; cần khóa cứng nút này hoặc bật thông báo "Hóa đơn đã thanh toán không được chỉnh sửa".
+
+SCR-10B hiện chỉ có tính năng Hủy hóa đơn, chưa có nút Xóa trực tiếp trên giao diện.
+
+### Test Case 5: Đơn giá không hợp lệ (Đã chặn nhập số âm và chữ) (Nhưng click vào mà không nhập thì mất luôn giá nên set về giá ban đầu)
 >
