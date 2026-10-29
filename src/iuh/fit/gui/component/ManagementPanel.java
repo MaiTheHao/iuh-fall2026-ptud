@@ -30,8 +30,11 @@ import javax.swing.text.DocumentFilter;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
@@ -126,7 +129,7 @@ public class ManagementPanel extends JPanel {
   private final CardLayout theDanhSach = new CardLayout();
   private final JPanel khungDanhSach = new JPanel(this.theDanhSach);
 
-  private final JPanel khungBoLoc = new JPanel(new WrapLayout(FlowLayout.LEFT, 8, 6));
+  private final JPanel khungBoLoc = new KhungBoLoc();
   private final List<JTextField> boLocText = new ArrayList<>();
   private final List<DatePicker[]> boLocNgay = new ArrayList<>();
   private final List<JLabel> nhanBoLoc = new ArrayList<>();
@@ -510,6 +513,7 @@ public class ManagementPanel extends JPanel {
     this.boLocText.add(field);
     this.attachTextListener(field);
     this.khungBoLoc.add(this.buildFilterItem(labelKey, field));
+    this.khungBoLoc.revalidate();
     return field;
   }
 
@@ -523,6 +527,7 @@ public class ManagementPanel extends JPanel {
     this.boLocCombo.add(combo);
     combo.addActionListener(e -> this.fireFilterChange());
     this.khungBoLoc.add(this.buildFilterItem(labelKey, combo));
+    this.khungBoLoc.revalidate();
     return new BoLocChon(combo);
   }
 
@@ -534,6 +539,7 @@ public class ManagementPanel extends JPanel {
     this.attachDateListener(to);
 
     this.khungBoLoc.add(this.buildRangeItem(labelKey, from, to));
+    this.khungBoLoc.revalidate();
     return new BoLocNgay(from, to);
   }
 
@@ -552,6 +558,7 @@ public class ManagementPanel extends JPanel {
     this.attachTextListener(toField);
 
     this.khungBoLoc.add(this.buildRangeItem(labelKey, fromField, toField));
+    this.khungBoLoc.revalidate();
     return new BoLocKhoang(fromField, toField);
   }
 
@@ -712,6 +719,42 @@ public class ManagementPanel extends JPanel {
 
   public int getSelectedRow() {
     return this.bang.getSelectedRow();
+  }
+
+  /**
+   * Khung bộ lọc dùng WrapLayout: số hàng phụ thuộc bề rộng thật, nên khi bề rộng đổi
+   * phải báo parent tính lại chiều cao (BorderLayout chỉ lấy preferred size một lần).
+   */
+  private static final class KhungBoLoc extends JPanel {
+
+    private static final long serialVersionUID = 1L;
+
+    private int rongDaDo = -1;
+
+    private KhungBoLoc() {
+      super(new WrapLayout(FlowLayout.LEFT, 8, 6));
+      this.addComponentListener(new ComponentAdapter() {
+        @Override
+        public void componentResized(ComponentEvent e) {
+          KhungBoLoc.this.doRongThayDoi();
+        }
+      });
+    }
+
+    private void doRongThayDoi() {
+      int rong = this.getWidth();
+
+      if (rong == this.rongDaDo) {
+        return;
+      }
+
+      this.rongDaDo = rong;
+      Container cha = this.getParent();
+
+      if (cha != null) {
+        SwingUtilities.invokeLater(cha::revalidate);
+      }
+    }
   }
 
   private static final class LocSoDocumentFilter extends DocumentFilter {

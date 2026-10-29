@@ -53,15 +53,17 @@ public class WrapLayout extends FlowLayout {
 
     @Override
     public Dimension preferredLayoutSize(Container target) {
+        return this.preferredLayoutSize(target, -1);
+    }
+
+    /**
+     * Đo chiều cao theo đúng bề rộng sẽ dùng khi vẽ, để số hàng không phụ thuộc vào
+     * thời điểm container còn width 0. width <= 0 nghĩa là tự dò bề rộng.
+     */
+    public Dimension preferredLayoutSize(Container target, int width) {
         synchronized (target.getTreeLock()) {
-            int width = target.getWidth();
-
-            if (width <= 0) {
-                width = 800;
-            }
-
             Insets insets = target.getInsets();
-            int maxWidth = width - insets.left - insets.right
+            int maxWidth = this.doRongDo(target, width) - insets.left - insets.right
                     - getHgap() * 2;
 
             List<Dong> dsDong = chiaDong(target, maxWidth);
@@ -86,6 +88,26 @@ public class WrapLayout extends FlowLayout {
                     totalHeight
             );
         }
+    }
+
+    private int doRongDo(Container target, int width) {
+        if (width > 0) {
+            return width;
+        }
+
+        int rong = target.getWidth();
+
+        if (rong > 0) {
+            return rong;
+        }
+
+        Container cha = target.getParent();
+
+        if (cha != null && cha.getWidth() > 0) {
+            return cha.getWidth();
+        }
+
+        return 800;
     }
 
     private List<Dong> chiaDong(Container target, int maxWidth) {
