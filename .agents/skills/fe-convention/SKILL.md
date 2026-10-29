@@ -16,7 +16,7 @@ This skill governs all user interface development in `src/iuh/fit/gui`. The UI i
 3. **Fixed Desktop Target**: The desktop window is sized for `1280×800` (minimized/restored) and maximized upon login. Management screens use a full-width data grid (no side form column). Modal form dialogs open at `760×800` (minimum `520×320`). Table row height is `34px` (`44px` when an action column is present, `72px` when a thumbnail column is present). No dynamic percentage scaling or custom responsive reflow.
 4. **Standard Management Pattern**: Management screens consist of a single full-width `ManagementPanel` containing the filter bar, an on-table action toolbar (`setAddAction` / `setBatchAction`), a `JTable` with an optional selection checkbox column, an action column (`addActionColumn`), and pagination. Create/update uses `BaseFormDialog` (modal) hosting a feature form panel; the legacy `ManagementFormPanel` + `JSplitPane` layout is only allowed on screens not yet migrated.
 5. **Standard Form Fields**: Always use `FormFieldPanel.addField(labelKey, component)`. Never lay out label/field pairs manually. Currency and numeric inputs must be right-aligned (`setHorizontalAlignment(JTextField.RIGHT)`). Inline validation uses `FormValidationHelper` (`FlatClientProperties.OUTLINE = "error"`) and must focus the first invalid field.
-6. **Modal Pickers**: Selecting a record from an unbounded dataset (customers, spare parts, vehicles) must use a modal dialog returning `Optional<T>`, never an unpaged combo box.
+6. **Modal Pickers**: Selecting a record from an unbounded dataset (customers, spare parts, vehicles) must use a modal dialog returning `Optional<T>`, never an unpaged combo box. The only approved exception is `ComboTimKiem<T>` for a quick lookup by a unique key (phone number, licence plate): 300 ms debounce, at most 10 rows, and selecting a row fills the related fields.
 7. **Strict i18n Synchronization**: All visible labels, tooltips, placeholders, and dialog messages must be i18n keys present in both `src/resources/i18n_vn.json` and `src/resources/i18n_en.json`.
 8. **Event Handler Simplicity**: Listeners must only do 3 things: (1) read and wrap UI inputs into DTOs, (2) call SERVICE, and (3) display the outcome via `ThongBao`. No validation logic or calculations inside listeners.
 
@@ -43,7 +43,10 @@ src/iuh/fit/gui/
 │   ├── BoHienThiI18n.java      # Localized combo box renderers for domain enums
 │   ├── LucideIcon.java         # Vector-quality Lucide icons loaded from PNG and tinted via Theme
 │   ├── ThaoTacTableCellRenderer.java # Table row action buttons rendered as pill badges with hover states
+│   ├── ChonSanPhamDialog.java  # Abstract modal picker base (search, 250 ms debounce, quantity)
+│   ├── ComboTimKiem.java       # Editable combo: 300 ms debounced lookup by unique key, max 10 rows
 │   ├── ChonPhuTungDialog.java  # Modal picker for spare parts
+│   ├── ChonDichVuDialog.java   # Modal picker for services
 │   └── ThongBao.java           # Standard alert dialogs (info, success, warning, error, confirm)
 ├── form/                       # Feature form panels: XxxFormPanel (shared base) + XxxTao/XxxSuaFormPanel per dialog
 └── page/                       # Screen implementations extending AbstractPage (LoginPage, DashboardPage, etc.)
