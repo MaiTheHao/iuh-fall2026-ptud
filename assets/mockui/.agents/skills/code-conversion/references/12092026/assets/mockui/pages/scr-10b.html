@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Quản Lý Hóa Đơn</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-10B" class="flex-1 flex flex-col space-y-2">
+
+          <div class="swing-panel bg-white !mt-0 flex flex-col flex-1 min-h-0">
+            <div class="flex justify-between items-center mb-1">
+              <span class="swing-panel-legend">Danh Sách Hóa Đơn</span>
+            </div>
+
+            <div class="swing-filter-panel">
+              <div class="swing-filter-grid">
+                <div class="swing-filter-field">
+                  <label>Mã Hóa Đơn</label>
+                  <input type="text" data-col="0" placeholder="Nhập...">
+                </div>
+                <div class="swing-filter-field">
+                  <label>Phiếu Tiếp Nhận</label>
+                  <input type="text" data-col="1" placeholder="Nhập...">
+                </div>
+                <div class="swing-filter-field">
+                  <label>Khách Hàng</label>
+                  <input type="text" data-col="2" placeholder="Nhập...">
+                </div>
+                <div class="swing-filter-field">
+                  <label>Ngày Tạo (từ - đến)</label>
+                  <div class="swing-filter-range">
+                    <input type="date" data-col="3" data-type="date" data-range="min" placeholder="Từ">
+                    <span>-</span>
+                    <input type="date" data-col="3" data-type="date" data-range="max" placeholder="Đến">
+                  </div>
+                </div>
+                <div class="swing-filter-field">
+                  <label>Trạng Thái</label>
+                  <select data-col="4"><option value="">Tất cả</option><option value="Chưa thanh toán">Chưa thanh toán</option><option value="Đã thanh toán">Đã thanh toán</option><option value="Đã hủy">Đã hủy</option></select>
+                </div>
+                <div class="swing-filter-field">
+                  <label>Tổng Tiền (từ - đến)</label>
+                  <div class="swing-filter-range">
+                    <input type="number" data-col="5" data-type="number" data-range="min" placeholder="Từ">
+                    <span>-</span>
+                    <input type="number" data-col="5" data-type="number" data-range="max" placeholder="Đến">
+                  </div>
+                </div>
+              </div>
+              <div class="swing-filter-actions">
+                <input type="text" class="swing-quick-filter" data-filter-quick placeholder="Tìm nhanh...">
+                <span class="text-[10px] text-zinc-500 font-mono" data-filter-count>Hiển thị 3/3</span>
+                <button type="button" class="swing-filter-clear" data-filter-clear title="Xóa lọc">Xóa lọc</button>
+              </div>
+            </div>
+
+            <div class="overflow-auto mt-2 border border-zinc-400 flex-1 min-h-0">
+              <table class="swing-table" id="tableHoaDon" data-filterable>
+                <thead>
+                  <tr>
+                    <th style="width: 120px;">Mã Hóa Đơn</th>
+                    <th style="width: 120px;">Phiếu Tiếp Nhận</th>
+                    <th>Khách Hàng</th>
+                    <th style="width: 115px;">Ngày Tạo</th>
+                    <th style="width: 140px;">Trạng Thái</th>
+                    <th style="width: 110px; text-align: right;">Tổng Tiền</th>
+                    <th style="width: 84px; text-align: center;">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="selected" data-trangthai="CHUA_THANH_TOAN">
+                    <td class="font-mono font-bold">HD202609290008</td>
+                    <td class="font-mono text-[10px]">TN202609290002</td>
+                    <td class="font-bold">Trần Thị Bích Ngọc</td>
+                    <td class="font-mono text-[10px]">29/09/2026 15:00</td>
+                    <td><span class="swing-badge swing-badge-warning">Chưa thanh toán</span></td>
+                    <td class="font-mono text-right font-bold">1,287,000</td>
+                    <td class="text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <a class="swing-btn !text-[9.5px] !py-0.5 !px-1.5 font-bold" href="scr-10.html" title="Sửa" aria-label="Sửa"><i data-lucide="pencil"></i></a>
+                        <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr data-trangthai="DA_THANH_TOAN">
+                    <td class="font-mono font-bold">HD202609290007</td>
+                    <td class="font-mono text-[10px]">TN202609290001</td>
+                    <td class="font-bold">Nguyễn Hoàng Nam</td>
+                    <td class="font-mono text-[10px]">29/09/2026 14:20</td>
+                    <td><span class="swing-badge swing-badge-success">Đã thanh toán</span></td>
+                    <td class="font-mono text-right font-bold">2,150,000</td>
+                    <td class="text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <a class="swing-btn !text-[9.5px] !py-0.5 !px-1.5 font-bold" href="scr-10.html" title="Sửa" aria-label="Sửa"><i data-lucide="pencil"></i></a>
+                        <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr data-trangthai="DA_HUY">
+                    <td class="font-mono font-bold">HD202609280015</td>
+                    <td class="font-mono text-[10px]">TN202609280014</td>
+                    <td class="font-bold">Lê Minh Trí</td>
+                    <td class="font-mono text-[10px]">28/09/2026 16:55</td>
+                    <td><span class="swing-badge swing-badge-danger">Đã hủy</span></td>
+                    <td class="font-mono text-right font-bold">3,600,000</td>
+                    <td class="text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <a class="swing-btn !text-[9.5px] !py-0.5 !px-1.5 font-bold" href="scr-10.html" title="Sửa" aria-label="Sửa"><i data-lucide="pencil"></i></a>
+                        <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+  <script src="../partials/table-filter.js"></script>
+
+</body>
+</html>

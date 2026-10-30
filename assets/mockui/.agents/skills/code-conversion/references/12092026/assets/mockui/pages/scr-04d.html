@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Lập Chẩn Đoán Kỹ Thuật</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-04D" class="flex-1 flex flex-col space-y-2">
+
+          <!-- VIEW 1: chọn phiếu tiếp nhận -->
+          <div class="swing-panel bg-white !mt-0 flex flex-col flex-1 min-h-0" data-view="master">
+            <span class="swing-panel-legend">Chọn Phiếu Tiếp Nhận</span>
+
+            <div class="swing-filter-panel">
+              <div class="swing-filter-grid" style="grid-template-columns: 1fr;">
+                <div class="swing-filter-field">
+                  <label>Trạng Thái</label>
+                  <select data-col="3">
+                    <option value="">Tất cả</option>
+                    <option value="MOI">Mới</option>
+                    <option value="KIEM_TRA">Đang kiểm tra</option>
+                    <option value="DANG_TRIEN_KHAI">Đang triển khai</option>
+                    <option value="CHO_BAN_GIAO">Chờ bàn giao</option>
+                    <option value="HOAN_THANH">Hoàn thành</option>
+                  </select>
+                </div>
+              </div>
+              <div class="swing-filter-actions">
+                <input type="text" class="swing-quick-filter" data-filter-quick placeholder="Tìm theo mã / biển số / khách hàng...">
+                <span class="text-[10px] text-zinc-500 font-mono" data-filter-count>Hiển thị 3/3</span>
+                <button type="button" class="swing-filter-clear" data-filter-clear title="Xóa lọc">Xóa lọc</button>
+              </div>
+            </div>
+
+            <div class="overflow-auto mt-2 border border-zinc-400 flex-1 min-h-0">
+              <table class="swing-table" data-filterable>
+                <thead>
+                  <tr>
+                    <th style="width: 130px;">Mã Tiếp Nhận</th>
+                    <th style="width: 100px;">Biển Số</th>
+                    <th>Khách Hàng</th>
+                    <th style="width: 140px;">Trạng Thái</th>
+                    <th style="width: 100px; text-align: center;">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="selected">
+                    <td class="font-mono font-bold">TN202609290002</td>
+                    <td class="font-mono font-bold">51F12345</td>
+                    <td class="font-bold text-zinc-900">Trần Thị Bích Ngọc</td>
+                    <td data-value="DANG_TRIEN_KHAI"><span class="swing-badge swing-badge-warning">Đang triển khai</span></td>
+                    <td class="text-center">
+                      <button type="button" class="swing-btn-primary font-bold text-[10.5px] px-2 py-0.5" data-view-to="detail">Chọn</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">TN202609290001</td>
+                    <td class="font-mono font-bold">51G88912</td>
+                    <td class="font-bold text-zinc-900">Nguyễn Hoàng Nam</td>
+                    <td data-value="KIEM_TRA"><span class="swing-badge swing-badge-info">Đang kiểm tra</span></td>
+                    <td class="text-center">
+                      <button type="button" class="swing-btn-primary font-bold text-[10.5px] px-2 py-0.5" data-view-to="detail">Chọn</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">TN202609280014</td>
+                    <td class="font-mono font-bold">60A33211</td>
+                    <td class="font-bold text-zinc-900">Lê Minh Trí</td>
+                    <td data-value="CHO_BAN_GIAO"><span class="swing-badge swing-badge-warning">Chờ bàn giao</span></td>
+                    <td class="text-center">
+                      <button type="button" class="swing-btn-primary font-bold text-[10.5px] px-2 py-0.5" data-view-to="detail">Chọn</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- VIEW 2: chi tiết — list chẩn đoán + form tạo row -->
+          <div class="hidden flex-1 min-h-0 flex flex-col gap-2" data-view="detail">
+
+            <div class="swing-panel bg-white !mt-0 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+              <div class="flex flex-wrap items-center gap-3">
+                <div>
+                  <div class="text-[10px] uppercase font-bold text-zinc-500">Phiếu tiếp nhận</div>
+                  <div class="font-mono font-bold text-zinc-900">TN202609290002</div>
+                </div>
+                <div>
+                  <div class="text-[10px] uppercase font-bold text-zinc-500">Biển số</div>
+                  <div class="font-mono font-bold">51F12345</div>
+                </div>
+                <div>
+                  <div class="text-[10px] uppercase font-bold text-zinc-500">Khách hàng</div>
+                  <div class="font-bold">Trần Thị Bích Ngọc</div>
+                </div>
+              </div>
+              <button type="button" class="swing-btn font-bold text-xs py-1 px-3" data-view-to="master">Đổi phiếu</button>
+            </div>
+
+            <div class="grid grid-cols-12 gap-2 flex-1 min-h-0">
+
+              <!-- Form tạo chẩn đoán -->
+              <div class="col-span-4 swing-panel bg-white !mt-0 flex flex-col justify-between min-h-0">
+                <div class="flex-1 min-h-0">
+                  <span class="swing-panel-legend">Lập Chẩn Đoán</span>
+                  <form class="space-y-2 mt-1">
+                    <div>
+                      <label class="block text-[10px] font-bold">Tiêu Đề (*):</label>
+                      <input type="text" class="w-full font-bold" placeholder="VD: Dàn lạnh yếu, nghi thiếu ga">
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-bold">Mô Tả (*):</label>
+                      <textarea rows="3" class="w-full text-xs" placeholder="Mô tả hiện tượng, kết quả kiểm tra..."></textarea>
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-bold">Mức Độ Ưu Tiên (1 - 100):</label>
+                      <input type="number" min="1" max="100" value="80" class="w-full font-mono text-right font-bold">
+                      <div class="text-[10px] text-zinc-500 mt-0.5">100 = ưu tiên cao nhất</div>
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-bold">Khách Hàng Đồng Ý:</label>
+                      <input type="text" value="Chưa xác nhận" readonly class="w-full bg-zinc-100 font-bold">
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-bold">Giải Pháp:</label>
+                      <textarea rows="2" class="w-full text-xs" placeholder="Hướng xử lý đề xuất..."></textarea>
+                    </div>
+                  </form>
+                </div>
+                <div class="pt-2 border-t border-zinc-300 mt-2 flex flex-wrap gap-1.5">
+                  <button type="button" class="flex-1 text-xs py-1">Làm Mới</button>
+                  <button type="button" class="flex-1 swing-btn-primary font-bold text-xs py-1">Lưu Bản Ghi</button>
+                </div>
+              </div>
+
+              <!-- Danh sách chẩn đoán của phiếu -->
+              <div class="col-span-8 swing-panel bg-white !mt-0 flex flex-col min-h-0">
+                <span class="swing-panel-legend">Danh Sách Chẩn Đoán Của Phiếu</span>
+                <div class="overflow-auto flex-1 min-h-0 mt-2 border border-zinc-400">
+                  <table class="swing-table" style="table-layout: fixed;">
+                    <thead>
+                      <tr>
+                        <th style="width: 120px;">Mã Vấn Đề</th>
+                        <th>Tiêu Đề</th>
+                        <th style="width: 84px; text-align: center;">Ưu Tiên</th>
+                        <th style="width: 150px;">Khách Hàng Đồng Ý</th>
+                        <th style="width: 90px; text-align: center;">Thao Tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="selected">
+                        <td class="font-mono font-bold">VD202609270001</td>
+                        <td class="font-bold text-zinc-900">Dàn lạnh yếu, nghi thiếu ga</td>
+                        <td class="text-center"><span class="swing-badge swing-badge-danger">80</span></td>
+                        <td class="font-bold">Có</td>
+                        <td class="text-center">
+                          <div class="flex items-center justify-center gap-1">
+                            <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                            <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="font-mono font-bold">VD202609270002</td>
+                        <td class="font-bold text-zinc-900">Cao su chân máy nứt</td>
+                        <td class="text-center"><span class="swing-badge swing-badge-warning">60</span></td>
+                        <td class="font-bold">Không</td>
+                        <td class="text-center">
+                          <div class="flex items-center justify-center gap-1">
+                            <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                            <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="font-mono font-bold">VD202609270003</td>
+                        <td class="font-bold text-zinc-900">Cảm biến ABS báo lỗi</td>
+                        <td class="text-center"><span class="swing-badge swing-badge-danger">90</span></td>
+                        <td class="text-zinc-500">Chưa xác nhận</td>
+                        <td class="text-center">
+                          <div class="flex items-center justify-center gap-1">
+                            <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                            <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+  <script src="../partials/table-filter.js"></script>
+  <script src="../partials/view-switch.js"></script>
+
+</body>
+</html>

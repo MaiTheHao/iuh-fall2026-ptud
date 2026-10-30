@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Bảng Giá Dịch Vụ</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-08" class="flex-1 flex flex-col space-y-2">
+
+          <div class="grid grid-cols-12 gap-2 flex-1 min-h-0">
+            <!-- Left: service declaration form -->
+            <div class="col-span-5 swing-panel bg-white !mt-0 flex flex-col justify-between min-h-0">
+              <div class="flex-1 min-h-0">
+                <span class="swing-panel-legend">Thông Tin Dịch Vụ Kỹ Thuật</span>
+                <form id="formDichVu" class="space-y-2.5 mt-1">
+
+                  <!-- Key: service code -->
+                  <div>
+                    <label class="block text-[10px] font-bold">Mã Dịch Vụ (*):</label>
+                    <input type="text" id="dvMa" value="DV000015" placeholder="Nhập mã DV (VD: DV000015)..." class="w-full font-mono font-bold text-xs uppercase">
+                  </div>
+
+                  <!-- Service name -->
+                  <div>
+                    <label class="block text-[10px] font-bold">Tên Dịch Vụ (*):</label>
+                    <input type="text" id="dvTen" value="Công bảo dưỡng định kỳ cấp 40,000 Km" class="w-full font-bold">
+                  </div>
+
+                  <!-- Listed price -->
+                  <div>
+                    <label class="block text-[10px] font-bold">Đơn giá niêm yết (VNĐ) (*):</label>
+                    <input type="number" id="dvDonGia" value="450000" class="w-full font-mono text-right font-bold text-xs">
+                  </div>
+
+                  <!-- Swing-style 1:1 image picker -->
+                  <div>
+                    <div class="flex justify-between items-center mb-0.5">
+                      <label class="text-[10px] font-bold">Hình ảnh quy trình:</label>
+                    </div>
+
+                    <div class="swing-image-picker-box">
+                      <div class="swing-image-ratio-1-1">
+                        <img id="dvImagePreview" src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&amp;fit=crop&amp;w=200&amp;q=80" alt="Ảnh dịch vụ" class="swing-image-canvas">
+                        <div id="dvNoImageOverlay" class="hidden swing-image-overlay">
+                          <span class="text-xs"><i data-lucide="image"></i></span>
+                        </div>
+                      </div>
+
+                      <div class="swing-image-info">
+                        <div class="flex items-center gap-1.5">
+                          <input type="file" id="dvFileInput" class="hidden" accept="image/png, image/jpeg, image/jpg, image/webp">
+                          <button type="button" class="!py-1 !px-2 text-[10.5px]"><span>Chọn Ảnh...</span></button>
+                          <button type="button" class="!py-1 !px-2 text-[10.5px]">
+                             Gỡ
+                          </button>
+                        </div>
+                        <input type="hidden" id="dvImagePathHidden" name="hinhAnh" value="bao_duong_40k.jpg">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-[10px] font-bold">Mô tả quy trình kỹ thuật:</label>
+                    <textarea id="dvMoTa" rows="2" class="w-full text-xs" placeholder="Các bước kỹ thuật thực hiện...">Bao gồm: Kiểm tra gầm, siết ốc, vệ sinh bugi, vệ sinh phanh 4 bánh, kiểm tra nước làm mát động cơ.</textarea>
+                  </div>
+                </form>
+              </div>
+
+              <div class="pt-2 border-t border-zinc-300 mt-2 flex flex-wrap gap-1.5">
+                <button type="button" class="flex-1 text-xs py-1 font-bold">Thêm</button>
+                <button type="button" class="flex-1 swing-btn-primary font-bold text-xs py-1">Lưu</button>
+                <button type="button" class="flex-1 text-xs py-1">Xóa Trắng</button>
+              </div>
+            </div>
+
+            <!-- Right: service list -->
+            <div class="col-span-7 swing-panel bg-white !mt-0 flex flex-col min-h-0">
+              <div class="flex justify-between items-center mb-1">
+                <span class="swing-panel-legend">Bảng Niêm Yết Đơn Giá Tiền Công Dịch Vụ Gara</span>
+              </div>
+
+              <div class="swing-filter-panel">
+                <div class="swing-filter-grid">
+                  <div class="swing-filter-field">
+                    <label>Mã DV</label>
+                    <input type="text" data-col="1" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Tên Dịch Vụ</label>
+                    <input type="text" data-col="2" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Đơn Giá (từ - đến)</label>
+                    <div class="swing-filter-range">
+                      <input type="number" data-col="3" data-type="number" data-range="min" placeholder="Từ">
+                      <span>-</span>
+                      <input type="number" data-col="3" data-type="number" data-range="max" placeholder="Đến">
+                    </div>
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Mô Tả</label>
+                    <input type="text" data-col="4" placeholder="Nhập...">
+                  </div>
+                </div>
+                <div class="swing-filter-actions">
+                  <input type="text" class="swing-quick-filter" data-filter-quick placeholder="Tìm nhanh...">
+                  <span class="text-[10px] text-zinc-500 font-mono" data-filter-count>Hiển thị 3/3</span>
+                  <button type="button" class="swing-filter-clear" data-filter-clear title="Xóa lọc">Xóa lọc</button>
+                </div>
+              </div>
+              <div class="overflow-auto mt-2 border border-zinc-400 flex-1 min-h-0">
+                <table class="swing-table" id="tableDichVu" data-filterable>
+                  <thead>
+                    <tr>
+                      <th class="w-12 text-center">Hình Ảnh</th>
+                      <th style="width: 85px;">Mã DV</th>
+                      <th>Tên Dịch Vụ Kỹ Thuật</th>
+                      <th style="width: 120px; text-align: right;">Đơn Giá (VNĐ)</th>
+                      <th>Mô Tả Quy Trình Kỹ Thuật</th>
+                      <th style="width: 84px; text-align: center;">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="selected">
+                      <td class="text-center p-1">
+                        <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="Bảo dưỡng" class="swing-table-thumbnail-1-1">
+                      </td>
+                      <td class="font-mono font-bold">DV000015</td>
+                      <td class="font-bold text-zinc-900">Công bảo dưỡng định kỳ cấp 40,000 Km</td>
+                      <td class="font-mono text-right font-bold">450,000</td>
+                      <td>Vệ sinh phanh 4 bánh, kiểm tra gầm, siết ốc</td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="text-center p-1">
+                        <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="Thay dầu" class="swing-table-thumbnail-1-1">
+                      </td>
+                      <td class="font-mono font-bold">DV000001</td>
+                      <td>Công thay dầu nhớt động cơ &amp; lọc nhớt</td>
+                      <td class="font-mono text-right font-bold">80,000</td>
+                      <td>Xả nhớt cacte, thay long đền, xiết lực</td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="text-center p-1">
+                        <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="Ga lạnh" class="swing-table-thumbnail-1-1">
+                      </td>
+                      <td class="font-mono font-bold">DV000008</td>
+                      <td>Công nạp ga lạnh &amp; hút chân không điều hòa</td>
+                      <td class="font-mono text-right font-bold">350,000</td>
+                      <td>Hút chân không, nạp ga R134a chuẩn</td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+  <script src="../partials/table-filter.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Quản Lý Phụ Tùng &amp; Tồn Kho</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-06" class="flex-1 flex flex-col space-y-2">
+
+          <div class="grid grid-cols-12 gap-2 flex-1 min-h-0">
+            <!-- Left: part declaration form -->
+            <div class="col-span-5 swing-panel bg-white !mt-0 flex flex-col justify-between min-h-0">
+              <div class="flex-1 min-h-0">
+                <span class="swing-panel-legend">Thông Tin Phụ Tùng</span>
+                <form id="formPhuTung" class="space-y-2.5 mt-1">
+
+                  <!-- Key: part code -->
+                  <div>
+                    <label class="block text-[10px] font-bold">Mã Phụ Tùng (*):</label>
+                    <input type="text" id="ptMa" value="PT000102" placeholder="Nhập mã PT (VD: PT000102)..." class="w-full font-mono font-bold text-xs uppercase">
+                  </div>
+
+                  <!-- Part name -->
+                  <div>
+                    <label class="block text-[10px] font-bold">Tên Phụ Tùng (*):</label>
+                    <input type="text" id="ptTen" value="Lọc dầu nhớt động cơ Toyota" class="w-full font-bold">
+                  </div>
+
+                  <!-- Unit price &amp; stock -->
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[10px] font-bold">Đơn giá nhập (VNĐ):</label>
+                      <input type="number" id="ptDonGia" value="120000" class="w-full font-mono text-right font-bold">
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-bold">Số lượng tồn kho:</label>
+                      <input type="number" id="ptTonKho" value="3" class="w-full font-mono text-right font-bold text-red-600">
+                    </div>
+                  </div>
+
+                  <!-- Swing-style 1:1 image picker -->
+                  <div>
+                    <div class="flex justify-between items-center mb-0.5">
+                      <label class="text-[10px] font-bold">Hình ảnh phụ tùng:</label>
+                    </div>
+
+                    <div class="swing-image-picker-box">
+                      <div class="swing-image-ratio-1-1">
+                        <img id="ptImagePreview" src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&amp;fit=crop&amp;w=200&amp;q=80" alt="Ảnh phụ tùng" class="swing-image-canvas">
+                        <div id="ptNoImageOverlay" class="hidden swing-image-overlay">
+                          <span class="text-xs"><i data-lucide="image"></i></span>
+                        </div>
+                      </div>
+
+                      <div class="swing-image-info">
+                        <div class="flex items-center gap-1.5">
+                          <input type="file" id="ptFileInput" class="hidden" accept="image/png, image/jpeg, image/jpg, image/webp">
+                          <button type="button" class="!py-1 !px-2 text-[10.5px]"><span>Chọn Ảnh...</span></button>
+                          <button type="button" class="!py-1 !px-2 text-[10.5px]">
+                             Gỡ
+                          </button>
+                        </div>
+                        <input type="hidden" id="ptImagePathHidden" name="hinhAnh" value="loc_dau_toyota.jpg">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-[10px] font-bold">Mô tả quy cách / tương thích:</label>
+                    <textarea id="ptMoTa" rows="2" class="w-full text-xs" placeholder="Quy cách, dòng xe tương thích...">Dùng chung động cơ Vios, Yaris, Corolla 2018-2023. Tiêu chuẩn lọc cặn nano 10 micron.</textarea>
+                  </div>
+                </form>
+              </div>
+
+              <div class="pt-2 border-t border-zinc-300 mt-2 flex flex-wrap gap-1.5">
+                <button type="button" class="flex-1 text-xs py-1 font-bold">Thêm</button>
+                <button type="button" class="flex-1 swing-btn-primary font-bold text-xs py-1">Lưu</button>
+                <button type="button" class="flex-1 text-xs py-1">Xóa Trắng</button>
+              </div>
+            </div>
+
+            <!-- Right: parts list -->
+            <div class="col-span-7 swing-panel bg-white !mt-0 flex flex-col min-h-0">
+              <div class="flex justify-between items-center mb-1">
+                <span class="swing-panel-legend">Bảng Danh Mục Vật Tư &amp; Tồn Kho</span>
+              </div>
+
+              <div class="swing-filter-panel">
+                <div class="swing-filter-grid">
+                  <div class="swing-filter-field">
+                    <label>Mã PT</label>
+                    <input type="text" data-col="1" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Tên Phụ Tùng</label>
+                    <input type="text" data-col="2" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Đơn Giá (từ - đến)</label>
+                    <div class="swing-filter-range">
+                      <input type="number" data-col="3" data-type="number" data-range="min" placeholder="Từ">
+                      <span>-</span>
+                      <input type="number" data-col="3" data-type="number" data-range="max" placeholder="Đến">
+                    </div>
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Tồn Kho (từ - đến)</label>
+                    <div class="swing-filter-range">
+                      <input type="number" data-col="4" data-type="number" data-range="min" placeholder="Từ">
+                      <span>-</span>
+                      <input type="number" data-col="4" data-type="number" data-range="max" placeholder="Đến">
+                    </div>
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Trạng Thái</label>
+                    <select data-col="5"><option value="">Tất cả</option><option value="CẦN NHẬP">CẦN NHẬP</option><option value="CÒN HÀNG">CÒN HÀNG</option></select>
+                  </div>
+                </div>
+                <div class="swing-filter-actions">
+                  <input type="text" class="swing-quick-filter" data-filter-quick placeholder="Tìm nhanh...">
+                  <span class="text-[10px] text-zinc-500 font-mono" data-filter-count>Hiển thị 3/3</span>
+                  <button type="button" class="swing-filter-clear" data-filter-clear title="Xóa lọc">Xóa lọc</button>
+                </div>
+              </div>
+              <div class="overflow-auto mt-2 border border-zinc-400 flex-1 min-h-0">
+                <table class="swing-table" id="tablePhuTung" data-filterable>
+                  <thead>
+                    <tr>
+                      <th class="w-12 text-center">Hình Ảnh</th>
+                      <th style="width: 85px;">Mã PT</th>
+                      <th>Tên Phụ Tùng</th>
+                      <th style="width: 105px; text-align: right;">Đơn Giá (VNĐ)</th>
+                      <th style="width: 75px; text-align: right;">Tồn Kho</th>
+                      <th style="width: 110px;">Trạng Thái</th>
+                      <th style="width: 84px; text-align: center;">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="selected">
+                      <td class="text-center p-1">
+                        <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="Lọc dầu" class="swing-table-thumbnail-1-1">
+                      </td>
+                      <td class="font-mono font-bold">PT000102</td>
+                      <td class="font-bold text-zinc-900">Lọc dầu nhớt động cơ Toyota</td>
+                      <td class="font-mono text-right font-bold">120,000</td>
+                      <td class="font-mono text-right font-bold text-red-600">3</td>
+                      <td><span class="swing-badge swing-badge-warning">CẦN NHẬP</span></td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="text-center p-1">
+                        <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="Nhớt" class="swing-table-thumbnail-1-1">
+                      </td>
+                      <td class="font-mono font-bold">PT000045</td>
+                      <td>Dầu nhớt tổng hợp Castrol Edge 5W-30 (Can 4L)</td>
+                      <td class="font-mono text-right font-bold">650,000</td>
+                      <td class="font-mono text-right font-bold">24</td>
+                      <td><span class="swing-badge swing-badge-success">CÒN HÀNG</span></td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="bg-zinc-200">
+                      <td class="text-center p-1">
+                        <img src="https://images.unsplash.com/photo-1600790142055-619df03207e6?auto=format&amp;fit=crop&amp;w=80&amp;q=80" alt="Má phanh" class="swing-table-thumbnail-1-1">
+                      </td>
+                      <td class="font-mono font-bold">PT000089</td>
+                      <td class="font-bold">Má phanh đĩa trước Mazda CX-5</td>
+                      <td class="font-mono text-right font-bold">850,000</td>
+                      <td class="font-mono text-right font-bold text-red-600">2</td>
+                      <td><span class="swing-badge swing-badge-warning">CẦN NHẬP</span></td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+  <script src="../partials/table-filter.js"></script>
+
+</body>
+</html>

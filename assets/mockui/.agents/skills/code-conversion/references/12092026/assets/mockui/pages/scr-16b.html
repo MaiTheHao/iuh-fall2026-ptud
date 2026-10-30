@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Quản Lý Khiếu Nại</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-16B" class="flex-1 flex flex-col space-y-2">
+
+          <div class="grid grid-cols-12 gap-2 flex-1 min-h-0">
+            <!-- Left: Form khiếu nại đang chọn -->
+            <div class="col-span-5 swing-panel bg-white !mt-0 flex flex-col justify-between min-h-0">
+              <div class="flex-1 min-h-0">
+                <span class="swing-panel-legend">Thông Tin Khiếu Nại</span>
+                <form id="formKhieuNaiQL" class="space-y-2.5 mt-1">
+
+                  <div>
+                    <label class="block text-[10px] font-bold">Mã Khiếu Nại:</label>
+                    <input type="text" id="knMa" value="KN202609290001" readonly class="w-full bg-zinc-100 font-mono font-bold text-xs">
+                  </div>
+
+                  <div>
+                    <label class="block text-[10px] font-bold">Khách Hàng:</label>
+                    <input type="text" id="knKhachHang" value="Trần Thị Bích Ngọc" class="w-full font-bold">
+                  </div>
+
+                  <div>
+                    <label class="block text-[10px] font-bold">Phiếu Tiếp Nhận:</label>
+                    <select id="knPhieu" class="w-full font-mono font-bold text-xs">
+                      <option value="TN202609290002" selected>TN202609290002 - 51F12345 (Trần Thị Bích Ngọc)</option>
+                      <option value="TN202609290001">TN202609290001 - 51G88912 (Nguyễn Hoàng Nam)</option>
+                      <option value="TN202609280014">TN202609280014 - 60A33211 (Lê Minh Trí)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-[10px] font-bold">Nội Dung Khiếu Nại:</label>
+                    <textarea id="knNoiDungForm" rows="3" class="w-full text-xs">Sau khi nhận xe về, tôi vẫn nghe tiếng kêu lạ ở khu vực gầm trước mỗi khi qua gờ giảm tốc.</textarea>
+                  </div>
+
+                  <div>
+                    <label class="block text-[10px] font-bold">Trạng Thái:</label>
+                    <select id="knTrangThai" class="w-full font-bold">
+                      <option value="CHUA_XU_LY" selected>CHUA_XU_LY</option>
+                      <option value="DANG_XU_LY">DANG_XU_LY</option>
+                      <option value="DA_XU_LY">DA_XU_LY</option>
+                    </select>
+                  </div>
+
+                </form>
+              </div>
+
+              <!-- Cụm 3 nút thao tác -->
+              <div class="pt-2 border-t border-zinc-300 mt-2 flex flex-wrap gap-1.5">
+                <button type="button" class="flex-1 text-xs py-1">Thêm</button>
+                <button type="button" class="flex-1 swing-btn-primary font-bold text-xs py-1">Lưu</button>
+                <button type="button" class="flex-1 text-xs py-1">Xóa Trắng</button>
+              </div>
+            </div>
+
+            <!-- Right: Danh sách khiếu nại -->
+            <div class="col-span-7 swing-panel bg-white !mt-0 flex flex-col min-h-0">
+              <div class="flex justify-between items-center mb-1 gap-2">
+                <span class="swing-panel-legend">Danh Sách Khiếu Nại</span>
+              </div>
+
+              <div class="swing-filter-panel">
+                <div class="swing-filter-grid">
+                  <div class="swing-filter-field">
+                    <label>Mã Khiếu Nại</label>
+                    <input type="text" data-col="0" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Khách Hàng</label>
+                    <input type="text" data-col="1" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Phiếu Tiếp Nhận</label>
+                    <input type="text" data-col="2" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Nội Dung</label>
+                    <input type="text" data-col="3" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Trạng Thái</label>
+                    <select data-col="4"><option value="">Tất cả</option><option value="Chưa xử lý">Chưa xử lý</option><option value="Đang xử lý">Đang xử lý</option><option value="Đã xử lý">Đã xử lý</option></select>
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Ngày Tạo (từ - đến)</label>
+                    <div class="swing-filter-range">
+                      <input type="date" data-col="5" data-type="date" data-range="min" placeholder="Từ">
+                      <span>-</span>
+                      <input type="date" data-col="5" data-type="date" data-range="max" placeholder="Đến">
+                    </div>
+                  </div>
+                </div>
+                <div class="swing-filter-actions">
+                  <input type="text" class="swing-quick-filter" data-filter-quick placeholder="Tìm nhanh...">
+                  <span class="text-[10px] text-zinc-500 font-mono" data-filter-count>Hiển thị 3/3</span>
+                  <button type="button" class="swing-filter-clear" data-filter-clear title="Xóa lọc">Xóa lọc</button>
+                </div>
+              </div>
+              <div class="overflow-auto mt-2 border border-zinc-400 flex-1 min-h-0">
+                <table class="swing-table" id="tableKhieuNai" data-filterable>
+                  <thead>
+                    <tr>
+                      <th style="width: 120px;">Mã Khiếu Nại</th>
+                      <th>Khách Hàng</th>
+                      <th style="width: 120px;">Phiếu Tiếp Nhận</th>
+                      <th>Nội Dung</th>
+                      <th style="width: 130px;">Trạng Thái</th>
+                      <th style="width: 110px;">Ngày Tạo</th>
+                      <th style="width: 84px; text-align: center;">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="selected">
+                      <td class="font-mono font-bold">KN202609290001</td>
+                      <td class="font-bold">Trần Thị Bích Ngọc</td>
+                      <td class="font-mono">TN202609290002</td>
+                      <td>Sau khi nhận xe về, tôi vẫn nghe tiếng kêu lạ ở khu vực gầm trước...</td>
+                      <td><span class="swing-badge swing-badge-warning">Chưa xử lý</span></td>
+                      <td class="font-mono text-[10px]">29/09/2026 16:10</td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono font-bold">KN202609280002</td>
+                      <td class="font-bold">Nguyễn Hoàng Nam</td>
+                      <td class="font-mono">TN202609290001</td>
+                      <td>Điều hòa sau khi nạp ga không mát, đề nghị kiểm tra block lạnh...</td>
+                      <td><span class="swing-badge swing-badge-info">Đang xử lý</span></td>
+                      <td class="font-mono text-[10px]">28/09/2026 09:25</td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono font-bold">KN202609270003</td>
+                      <td class="font-bold">Lê Minh Trí</td>
+                      <td class="font-mono">TN202609280014</td>
+                      <td>Thời gian trả xe chậm hơn hẹn, đề nghị phản hồi...</td>
+                      <td><span class="swing-badge swing-badge-success">Đã xử lý</span></td>
+                      <td class="font-mono text-[10px]">27/09/2026 15:40</td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+  <script src="../partials/table-filter.js"></script>
+
+</body>
+</html>

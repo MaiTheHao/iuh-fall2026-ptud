@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Quản Lý Tài Khoản &amp; Phân Quyền</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+      <div id="SCR-11" class="flex-1 flex flex-col space-y-2">
+        <div class="grid grid-cols-12 gap-2 flex-1 min-h-0">
+          <!-- Account form -->
+          <div class="col-span-5 swing-panel bg-white !mt-0 flex flex-col justify-between min-h-0">
+            <div class="flex-1 min-h-0">
+              <span class="swing-panel-legend">Khai Báo Tài Khoản Nhân Viên</span>
+              <form class="space-y-2.5 mt-1">
+                <div>
+                  <label class="block text-[10px] font-bold">Mã Nhân Viên (*):</label>
+                  <input type="text" id="nvMa" value="NV000001" readonly class="w-full bg-zinc-100 font-mono font-bold">
+                </div>
+
+                <!-- Avatar picker component -->
+                <div>
+                  <div class="flex justify-between items-center mb-1">
+                    <label class="text-[10px] font-bold">Ảnh đại diện nhân viên:</label>
+                  </div>
+                  <div class="swing-image-picker-box">
+                    <div class="swing-image-ratio-3-4">
+                      <img id="nvAvatarPreview" src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/6dcdac5d-652a-47f8-8f21-e467687c949f/dll5vuf-44a2d86a-16e7-400a-8433-73389ff63099.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi82ZGNkYWM1ZC02NTJhLTQ3ZjgtOGYyMS1lNDY3Njg3Yzk0OWYvZGxsNXZ1Zi00NGEyZDg2YS0xNmU3LTQwMGEtODQzMy03MzM4OWZmNjMwOTkucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.A5rrKhntFsF3xwV_CxKtP2WlVxtWQyli2YIgJjTNIyU" alt="Ảnh chân dung" class="swing-image-canvas">
+                      <div id="nvNoAvatarOverlay" class="hidden swing-image-overlay">
+                        <span class="text-sm"><i data-lucide="user"></i></span>
+                      </div>
+                    </div>
+
+                    <div class="swing-image-info">
+                      <div class="flex items-center gap-1.5">
+                        <input type="file" id="nvAvatarInput" class="hidden" accept="image/png, image/jpeg, image/jpg">
+                        <button type="button" class="!py-1 !px-2"><span>Chọn Ảnh...</span></button>
+                        <button type="button" class="!py-1 !px-2">
+                           Gỡ
+                        </button>
+                      </div>
+                      <input type="hidden" id="nvAvatarHidden" name="anhDaiDien" value="avatar_quanly.jpg">
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold">Tên đăng nhập:</label>
+                  <input type="text" id="nvDangNhap" value="quanly_lua" class="w-full font-mono">
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold">Mật khẩu:</label>
+                  <input type="password" id="nvMatKhau" value="matkhau123" class="w-full">
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold">Họ và tên nhân viên:</label>
+                  <input type="text" id="nvHoTen" value="Mai Thế Hào" class="w-full font-bold">
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold">Phân quyền Vai trò:</label>
+                  <select id="nvVaiTro" class="w-full font-bold">
+                    <option value="NHAN_VIEN_TIEP_NHAN">NHAN_VIEN_TIEP_NHAN</option>
+                    <option value="KY_THUAT_VIEN">KY_THUAT_VIEN</option>
+                    <option value="THU_KHO">THU_KHO</option>
+                    <option value="THU_NGAN">THU_NGAN</option>
+                    <option value="QUAN_LY" selected>QUAN_LY</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold">Trạng thái tài khoản:</label>
+                  <select id="nvTrangThai" class="w-full font-bold">
+                    <option value="DANG_LAM_VIEC" selected>DANG_LAM_VIEC</option>
+                    <option value="TAM_KHOA">TAM_KHOA</option>
+                    <option value="DA_NGHI_VIEC">DA_NGHI_VIEC</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+            <div class="pt-2 border-t border-zinc-300 mt-2 flex flex-wrap gap-1.5">
+              <button type="button" class="flex-1 text-xs py-1 font-bold">Thêm</button>
+              <button type="button" class="flex-1 swing-btn-primary font-bold text-xs py-1">Lưu</button>
+              <button type="button" class="flex-1 text-xs py-1">Xóa Trắng</button>
+            </div>
+          </div>
+
+          <!-- Account table -->
+          <div class="col-span-7 swing-panel bg-white !mt-0 flex flex-col min-h-0">
+            <div class="flex justify-between items-center mb-1">
+              <span class="swing-panel-legend">Danh Sách Tài Khoản &amp; Quyền Hạn Trong Hệ Thống</span>
+            </div>
+            <div class="swing-filter-panel">
+              <div class="swing-filter-grid">
+                <div class="swing-filter-field">
+                  <label>Mã NV</label>
+                  <input type="text" data-col="1" placeholder="Nhập...">
+                </div>
+                <div class="swing-filter-field">
+                  <label>Tên Đăng Nhập</label>
+                  <input type="text" data-col="2" placeholder="Nhập...">
+                </div>
+                <div class="swing-filter-field">
+                  <label>Họ và Tên</label>
+                  <input type="text" data-col="3" placeholder="Nhập...">
+                </div>
+                <div class="swing-filter-field">
+                  <label>Vai Trò</label>
+                  <select data-col="4"><option value="">Tất cả</option><option value="Quản lý">Quản lý</option><option value="Kỹ thuật viên">Kỹ thuật viên</option><option value="Thủ kho">Thủ kho</option><option value="Nhân viên tiếp nhận">Nhân viên tiếp nhận</option></select>
+                </div>
+                <div class="swing-filter-field">
+                  <label>Trạng Thái</label>
+                  <select data-col="5"><option value="">Tất cả</option><option value="Đang làm việc">Đang làm việc</option><option value="Tạm khóa">Tạm khóa</option><option value="Đã nghỉ việc">Đã nghỉ việc</option></select>
+                </div>
+              </div>
+              <div class="swing-filter-actions">
+                <input type="text" class="swing-quick-filter" data-filter-quick placeholder="Tìm nhanh...">
+                <span class="text-[10px] text-zinc-500 font-mono" data-filter-count>Hiển thị 4/4</span>
+                <button type="button" class="swing-filter-clear" data-filter-clear title="Xóa lọc">Xóa lọc</button>
+              </div>
+            </div>
+            <div class="overflow-auto mt-2 border border-zinc-400 flex-1 min-h-0">
+              <table class="swing-table" id="tableTaiKhoan" data-filterable>
+                <thead>
+                  <tr>
+                    <th class="w-12 text-center">Ảnh Thẻ</th>
+                    <th>Mã NV</th>
+                    <th>Tên Đăng Nhập</th>
+                    <th>Họ và Tên</th>
+                    <th>Vai Trò</th>
+                    <th>Trạng Thái</th>
+                    <th style="width: 84px; text-align: center;">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="selected" data-ma="NV000001" data-dangnhap="quanly_lua" data-hoten="Mai Thế Hào" data-vaitro="QUAN_LY" data-trangthai="DANG_LAM_VIEC" data-anh="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/6dcdac5d-652a-47f8-8f21-e467687c949f/dll5vuf-44a2d86a-16e7-400a-8433-73389ff63099.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi82ZGNkYWM1ZC02NTJhLTQ3ZjgtOGYyMS1lNDY3Njg3Yzk0OWYvZGxsNXZ1Zi00NGEyZDg2YS0xNmU3LTQwMGEtODQzMy03MzM4OWZmNjMwOTkucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.A5rrKhntFsF3xwV_CxKtP2WlVxtWQyli2YIgJjTNIyU" data-tenfile="avatar_quanly.jpg">
+                    <td class="text-center p-1">
+                      <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/6dcdac5d-652a-47f8-8f21-e467687c949f/dll5vuf-44a2d86a-16e7-400a-8433-73389ff63099.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi82ZGNkYWM1ZC02NTJhLTQ3ZjgtOGYyMS1lNDY3Njg3Yzk0OWYvZGxsNXZ1Zi00NGEyZDg2YS0xNmU3LTQwMGEtODQzMy03MzM4OWZmNjMwOTkucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.A5rrKhntFsF3xwV_CxKtP2WlVxtWQyli2YIgJjTNIyU" alt="Avatar" class="swing-table-thumbnail-3-4">
+                    </td>
+                    <td class="font-mono font-bold">NV000001</td>
+                    <td class="font-mono">quanly_lua</td>
+                    <td class="font-bold">Mai Thế Hào</td>
+                    <td><span class="swing-badge swing-badge-info">Quản lý</span></td>
+                    <td><span class="swing-badge swing-badge-success">Đang làm việc</span></td>
+                    <td class="text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                        <button type="button" title="Đặt lại mật khẩu" aria-label="Đặt lại mật khẩu" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="key-round"></i></button>
+                        <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr data-ma="NV000002" data-dangnhap="ktv_son" data-hoten="Nguyễn Trần Trọng Khang" data-vaitro="KY_THUAT_VIEN" data-trangthai="DANG_LAM_VIEC" data-anh="https://easydrawingguides.com/wp-content/uploads/2017/05/how-to-draw-naruto-20.png" data-tenfile="avatar_ktv_son.jpg">
+                    <td class="text-center p-1">
+                      <img src="https://easydrawingguides.com/wp-content/uploads/2017/05/how-to-draw-naruto-20.png" alt="Avatar" class="swing-table-thumbnail-3-4">
+                    </td>
+                    <td class="font-mono font-bold">NV000002</td>
+                    <td class="font-mono">ktv_son</td>
+                    <td class="font-bold">Nguyễn Trần Trọng Khang</td>
+                    <td><span class="swing-badge swing-badge-info">Kỹ thuật viên</span></td>
+                    <td><span class="swing-badge swing-badge-success">Đang làm việc</span></td>
+                    <td class="text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                        <button type="button" title="Đặt lại mật khẩu" aria-label="Đặt lại mật khẩu" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="key-round"></i></button>
+                        <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr data-ma="NV000004" data-dangnhap="kho_thukho" data-hoten="Đặng Thanh Quý Bửu" data-vaitro="THU_KHO" data-trangthai="DANG_LAM_VIEC" data-anh="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0Dna7LWGry2YVwkL0zuJG5te5mFmIxdiP8bsApBiq8ko4OSR8sq_LRv4&amp;s=10" data-tenfile="avatar_thukho.jpg">
+                    <td class="text-center p-1">
+                      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0Dna7LWGry2YVwkL0zuJG5te5mFmIxdiP8bsApBiq8ko4OSR8sq_LRv4&amp;s=10" alt="Avatar" class="swing-table-thumbnail-3-4">
+                    </td>
+                    <td class="font-mono font-bold">NV000004</td>
+                    <td class="font-mono">kho_thukho</td>
+                    <td class="font-bold">Đặng Thanh Quý Bửu</td>
+                    <td><span class="swing-badge swing-badge-info">Thủ kho</span></td>
+                    <td><span class="swing-badge swing-badge-success">Đang làm việc</span></td>
+                    <td class="text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                        <button type="button" title="Đặt lại mật khẩu" aria-label="Đặt lại mật khẩu" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="key-round"></i></button>
+                        <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="bg-zinc-200" data-ma="NV000009" data-dangnhap="nv_tamnghi" data-hoten="Trần Quốc Toản" data-vaitro="NHAN_VIEN_TIEP_NHAN" data-trangthai="TAM_KHOA" data-anh="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJnt3zTjKoYDE3N3ycJd1jtX8Lix9DbnD3l6AQF1ll7g&amp;s=10" data-tenfile="avatar_tamnghi.jpg">
+                    <td class="text-center p-1">
+                      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJnt3zTjKoYDE3N3ycJd1jtX8Lix9DbnD3l6AQF1ll7g&amp;s=10" alt="Avatar" class="swing-table-thumbnail-3-4">
+                    </td>
+                    <td class="font-mono font-bold">NV000009</td>
+                    <td class="font-mono">nv_tamnghi</td>
+                    <td>Trần Quốc Toản</td>
+                    <td><span class="swing-badge swing-badge-info">Nhân viên tiếp nhận</span></td>
+                    <td><span class="swing-badge swing-badge-warning">Tạm khóa</span></td>
+                    <td class="text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                        <button type="button" title="Đặt lại mật khẩu" aria-label="Đặt lại mật khẩu" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="key-round"></i></button>
+                        <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+  <script src="../partials/table-filter.js"></script>
+
+</body>
+</html>

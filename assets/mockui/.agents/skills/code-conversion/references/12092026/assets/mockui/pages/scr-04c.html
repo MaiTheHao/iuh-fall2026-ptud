@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Chẩn Đoán Kỹ Thuật</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-04C" class="flex-1 flex flex-col space-y-2">
+
+          <!-- Thông tin phiếu tiếp nhận -->
+          <div class="swing-panel bg-white !mt-0 flex flex-wrap items-center justify-between gap-3 flex-shrink-0">
+            <div class="flex flex-wrap items-center gap-3">
+              <div>
+                <div class="text-[10px] uppercase font-bold text-zinc-500">Phiếu tiếp nhận</div>
+                <div class="font-mono font-bold text-zinc-900">TN202609290002</div>
+              </div>
+              <div>
+                <div class="text-[10px] uppercase font-bold text-zinc-500">Biển số</div>
+                <div class="font-mono font-bold">51F12345</div>
+              </div>
+              <div>
+                <div class="text-[10px] uppercase font-bold text-zinc-500">Khách hàng</div>
+                <div class="font-bold">Trần Thị Bích Ngọc</div>
+              </div>
+              <div>
+                <div class="text-[10px] uppercase font-bold text-zinc-500">Trạng thái</div>
+                <div><span class="swing-badge swing-badge-warning">Đang triển khai</span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="swing-btn-primary font-bold text-xs py-1 px-4">Lưu</button>
+            </div>
+          </div>
+
+          <!-- Datatable vấn đề kỹ thuật -->
+          <div class="swing-panel bg-white !mt-0 flex flex-col min-h-0 flex-1">
+            <span class="swing-panel-legend">Danh Sách Vấn Đề Kỹ Thuật</span>
+
+            <div class="overflow-auto flex-1 min-h-0 mt-2 border border-zinc-400">
+              <table class="swing-table" style="table-layout: fixed;">
+                <thead>
+                  <tr>
+                    <th style="width: 120px;">Mã Vấn Đề</th>
+                    <th style="width: 190px;">Tiêu Đề</th>
+                    <th>Mô Tả</th>
+                    <th style="width: 84px; text-align: center;">Ưu Tiên</th>
+                    <th style="width: 220px;">Khách Hàng Đồng Ý</th>
+                    <th style="width: 220px;">Giải Pháp</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="font-mono font-bold">VD202609270001</td>
+                    <td class="font-bold text-zinc-900">Dàn lạnh yếu, nghi thiếu ga</td>
+                    <td>Sau khi nạp ga, điều hòa vẫn mát yếu khi dừng đèn đỏ; nghi rò rỉ ga hoặc block lạnh.</td>
+                    <td class="text-center"><span class="swing-badge swing-badge-danger">80</span></td>
+                    <td>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <label class="swing-radio"><input type="radio" name="dy1" value="CO" checked> Có</label>
+                        <label class="swing-radio"><input type="radio" name="dy1" value="KHONG"> Không</label>
+                        <label class="swing-radio"><input type="radio" name="dy1" value="CHUA_XAC_NHAN"> Chưa xác nhận</label>
+                      </div>
+                    </td>
+                    <td>Nạp ga R134a, kiểm tra block lạnh &amp; xử lý rò rỉ.</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">VD202609270002</td>
+                    <td class="font-bold text-zinc-900">Cao su chân máy nứt</td>
+                    <td>Rung lắc lớn khi khởi động máy; cao su chân máy nứt, cần thay sớm.</td>
+                    <td class="text-center"><span class="swing-badge swing-badge-warning">60</span></td>
+                    <td>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <label class="swing-radio"><input type="radio" name="dy2" value="CO"> Có</label>
+                        <label class="swing-radio"><input type="radio" name="dy2" value="KHONG" checked> Không</label>
+                        <label class="swing-radio"><input type="radio" name="dy2" value="CHUA_XAC_NHAN"> Chưa xác nhận</label>
+                      </div>
+                    </td>
+                    <td>Thay cao su chân máy; khách chưa đồng ý, chờ xác nhận.</td>
+                  </tr>
+                  <tr>
+                    <td class="font-mono font-bold">VD202609270003</td>
+                    <td class="font-bold text-zinc-900">Cảm biến ABS báo lỗi</td>
+                    <td>Đèn ABS sáng trên bảng taplo; nghi lỗi cảm biến bánh trước.</td>
+                    <td class="text-center"><span class="swing-badge swing-badge-danger">90</span></td>
+                    <td>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <label class="swing-radio"><input type="radio" name="dy3" value="CO"> Có</label>
+                        <label class="swing-radio"><input type="radio" name="dy3" value="KHONG"> Không</label>
+                        <label class="swing-radio"><input type="radio" name="dy3" value="CHUA_XAC_NHAN" checked> Chưa xác nhận</label>
+                      </div>
+                    </td>
+                    <td class="text-zinc-500">(chưa có)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+</body>
+</html>
