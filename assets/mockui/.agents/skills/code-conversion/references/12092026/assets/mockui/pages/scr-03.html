@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Quản Lý Khách Hàng</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-03" class="flex-1 flex flex-col space-y-2">
+
+          <div class="grid grid-cols-12 gap-2 flex-1 min-h-0">
+            <!-- Left: Form thông tin khách hàng -->
+            <div class="col-span-5 swing-panel bg-white !mt-0 flex flex-col justify-between min-h-0">
+              <div class="flex-1 min-h-0">
+                <span class="swing-panel-legend">Thông Tin Khách Hàng</span>
+                <form id="formKhachHang" class="space-y-2.5 mt-1">
+
+                  <div>
+                    <label class="block text-[10px] font-bold">Số Điện Thoại (*):</label>
+                    <input type="text" id="khSdt" value="0918234567" placeholder="Nhập SĐT khách (VD: 0918234567)..." class="w-full font-mono font-bold text-xs">
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[10px] font-bold">Mã Khách Hàng:</label>
+                      <input type="text" id="khMa" value="KH00000108" readonly class="w-full bg-zinc-100 font-mono font-bold">
+                    </div>
+                    <div>
+                      <label class="block text-[10px] font-bold">Ngày tạo hồ sơ:</label>
+                      <input type="text" value="15/01/2026 10:20:00" readonly class="w-full bg-zinc-100 font-mono text-[10.5px]">
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-[10px] font-bold">Họ và tên khách hàng (*):</label>
+                    <input type="text" id="khHoTen" value="Trần Thị Bích Ngọc" placeholder="Nhập họ và tên khách hàng..." class="w-full font-bold">
+                  </div>
+                </form>
+              </div>
+
+              <!-- Cụm 3 nút thao tác -->
+              <div class="pt-2 border-t border-zinc-300 mt-2 flex flex-wrap gap-1.5">
+                <button type="button" class="flex-1 text-xs py-1 font-bold">Thêm</button>
+                <button type="button" class="flex-1 swing-btn-primary font-bold text-xs py-1">Lưu</button>
+                <button type="button" class="flex-1 text-xs py-1">Xóa Trắng</button>
+              </div>
+            </div>
+
+            <!-- Right: Danh sách khách hàng &amp; danh sách xe liên hệ -->
+            <div class="col-span-7 swing-panel bg-white !mt-0 flex flex-col min-h-0">
+              <div class="flex justify-between items-center mb-1">
+                <span class="swing-panel-legend">Danh Sách Khách Hàng Trong Hệ Thống</span>
+              </div>
+
+              <div class="swing-filter-panel">
+                <div class="swing-filter-grid">
+                  <div class="swing-filter-field">
+                    <label>Mã Khách</label>
+                    <input type="text" data-col="0" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Số Điện Thoại</label>
+                    <input type="text" data-col="1" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Họ và Tên</label>
+                    <input type="text" data-col="2" placeholder="Nhập...">
+                  </div>
+                  <div class="swing-filter-field">
+                    <label>Ngày Tạo (từ - đến)</label>
+                    <div class="swing-filter-range">
+                      <input type="date" data-col="3" data-type="date" data-range="min" placeholder="Từ">
+                      <span>-</span>
+                      <input type="date" data-col="3" data-type="date" data-range="max" placeholder="Đến">
+                    </div>
+                  </div>
+                </div>
+                <div class="swing-filter-actions">
+                  <input type="text" class="swing-quick-filter" data-filter-quick placeholder="Tìm nhanh...">
+                  <span class="text-[10px] text-zinc-500 font-mono" data-filter-count>Hiển thị 3/3</span>
+                  <button type="button" class="swing-filter-clear" data-filter-clear title="Xóa lọc">Xóa lọc</button>
+                </div>
+              </div>
+              <div class="overflow-auto mt-2 border border-zinc-400 flex-1 min-h-0">
+                <table class="swing-table" id="tableKhachHang" data-filterable>
+                  <thead>
+                    <tr>
+                      <th style="width: 100px;">Mã Khách</th>
+                      <th style="width: 110px;">Số Điện Thoại</th>
+                      <th>Họ và Tên</th>
+                      <th style="width: 140px;">Ngày Tạo</th>
+                      <th style="width: 84px; text-align: center;">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="selected">
+                      <td class="font-mono font-bold">KH00000108</td>
+                      <td class="font-mono font-bold">0918234567</td>
+                      <td class="font-bold text-zinc-900">Trần Thị Bích Ngọc</td>
+                      <td class="font-mono text-[10px]">15/01/2026 10:20</td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono font-bold">KH00000042</td>
+                      <td class="font-mono font-bold">0908112233</td>
+                      <td class="font-bold text-zinc-900">Nguyễn Hoàng Nam</td>
+                      <td class="font-mono text-[10px]">02/03/2026 08:45</td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono font-bold">KH00000015</td>
+                      <td class="font-mono font-bold">0937665544</td>
+                      <td class="font-bold text-zinc-900">Lê Minh Trí</td>
+                      <td class="font-mono text-[10px]">20/04/2026 16:10</td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1">
+                          <button type="button" title="Sửa" aria-label="Sửa" class="!text-[9.5px] !py-0.5 !px-1.5 font-bold"><i data-lucide="pencil"></i></button>
+                          <button type="button" title="Xóa" aria-label="Xóa" class="!text-[9.5px] !py-0.5 !px-1.5 text-red-700 font-bold"><i data-lucide="trash-2"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Danh sách xe liên hệ (quan hệ N-N) chỉ hiển thị read-only ở trang Xe; màn hình gán liên kết đã gỡ bỏ -->
+            </div>
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+  <script src="../partials/table-filter.js"></script>
+
+</body>
+</html>

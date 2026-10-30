@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Báo Cáo &amp; Thống Kê Doanh Thu</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-12" class="flex-1 flex flex-col space-y-2">
+
+          <!-- Bộ lọc -->
+          <div class="swing-panel bg-white !mt-0">
+            <span class="swing-panel-legend">Báo Cáo &amp; Thống Kê Doanh Thu</span>
+            <div class="flex flex-wrap items-end justify-between gap-2 mt-1">
+              <div class="flex flex-wrap items-end gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold">Kiểu thống kê:</label>
+                  <select class="font-bold text-xs">
+                    <option selected>Theo ngày</option>
+                    <option>Theo tháng</option>
+                    <option>Theo năm</option>
+                    <option>Khoảng ngày tùy chọn</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold">Từ ngày:</label>
+                  <input type="text" value="01/09/2026" readonly class="bg-zinc-100 font-mono text-xs">
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold">Đến ngày:</label>
+                  <input type="text" value="30/09/2026" readonly class="bg-zinc-100 font-mono text-xs">
+                </div>
+              </div>
+              <button type="button" class="swing-btn-primary px-3 py-1 text-xs font-bold">
+                 Xem Báo Cáo
+              </button>
+            </div>
+          </div>
+
+          <!-- Thẻ tổng hợp -->
+          <div class="grid grid-cols-4 gap-2">
+            <div class="swing-panel bg-white !mt-0">
+              <div class="text-[10px] uppercase font-bold text-zinc-500">Tổng doanh thu</div>
+              <div class="font-mono text-lg font-bold text-black mt-1">128,450,000 <span class="text-xs">VNĐ</span></div>
+            </div>
+            <div class="swing-panel bg-white !mt-0">
+              <div class="text-[10px] uppercase font-bold text-zinc-500">Doanh thu dịch vụ</div>
+              <div class="font-mono text-lg font-bold text-black mt-1">74,300,000 <span class="text-xs">VNĐ</span></div>
+            </div>
+            <div class="swing-panel bg-white !mt-0">
+              <div class="text-[10px] uppercase font-bold text-zinc-500">Doanh thu phụ tùng</div>
+              <div class="font-mono text-lg font-bold text-black mt-1">54,150,000 <span class="text-xs">VNĐ</span></div>
+            </div>
+            <div class="swing-panel bg-white !mt-0">
+              <div class="text-[10px] uppercase font-bold text-zinc-500">Số hóa đơn</div>
+              <div class="font-mono text-lg font-bold text-black mt-1">86</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-12 gap-2 flex-1 min-h-0">
+
+            <!-- Cơ cấu doanh thu -->
+            <div class="col-span-4 swing-panel bg-white !mt-0 flex flex-col min-h-0">
+              <span class="swing-panel-legend">Cơ Cấu Doanh Thu</span>
+
+              <div class="flex items-center justify-center gap-4 mt-3 flex-1 min-h-0">
+                <div class="relative flex-shrink-0" style="width: 220px; height: 220px;">
+                  <canvas id="chartCoCau"></canvas>
+                </div>
+
+                <div class="space-y-3 text-[11px]">
+                  <div>
+                    <div class="flex items-center gap-1.5 font-bold">
+                      <span class="inline-block w-2 h-2 flex-shrink-0" style="background: #4682b4;"></span>
+                      <span>Dịch vụ</span>
+                    </div>
+                    <div class="font-mono text-zinc-600 mt-0.5">74.300.000 · 57,8%</div>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5 font-bold">
+                      <span class="inline-block w-2 h-2 flex-shrink-0" style="background: #71717a;"></span>
+                      <span>Phụ tùng</span>
+                    </div>
+                    <div class="font-mono text-zinc-600 mt-0.5">54.150.000 · 42,2%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bảng kê hóa đơn -->
+            <div class="col-span-8 swing-panel bg-white !mt-0 flex flex-col min-h-0">
+              <div class="flex items-center justify-between mb-1">
+                <span class="swing-panel-legend">Bảng Kê Hóa Đơn Trong Kỳ</span>
+                <div class="flex gap-1.5 -mt-1">
+                  <button type="button" class="text-[10.5px] px-2 py-0.5 font-semibold">
+                     In Báo Cáo
+                  </button>
+                  <button type="button" class="text-[10.5px] px-2 py-0.5 font-semibold">
+                     Xuất Excel
+                  </button>
+                </div>
+              </div>
+
+              <div class="overflow-auto mt-2 border border-zinc-400 flex-1 min-h-0">
+                <table class="swing-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 120px;">Mã Hóa Đơn</th>
+                      <th style="width: 105px;">Ngày Tạo</th>
+                      <th>Khách Hàng</th>
+                      <th style="width: 100px;">Biển Số</th>
+                      <th style="width: 140px;">Trạng Thái</th>
+                      <th style="width: 110px; text-align: right;">Số Tiền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="font-mono font-bold">HD202609290008</td>
+                      <td class="font-mono text-[10px]">29/09/2026</td>
+                      <td class="font-bold">Trần Thị Bích Ngọc</td>
+                      <td class="font-mono">51F12345</td>
+                      <td><span class="swing-badge swing-badge-success">Đã thanh toán</span></td>
+                      <td class="font-mono text-right font-bold">1,287,000</td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono font-bold">HD202609290007</td>
+                      <td class="font-mono text-[10px]">29/09/2026</td>
+                      <td class="font-bold">Nguyễn Hoàng Nam</td>
+                      <td class="font-mono">51G88912</td>
+                      <td><span class="swing-badge swing-badge-success">Đã thanh toán</span></td>
+                      <td class="font-mono text-right font-bold">2,150,000</td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono font-bold">HD202609280015</td>
+                      <td class="font-mono text-[10px]">28/09/2026</td>
+                      <td class="font-bold">Lê Minh Trí</td>
+                      <td class="font-mono">60A33211</td>
+                      <td><span class="swing-badge swing-badge-danger">Đã hủy</span></td>
+                      <td class="font-mono text-right font-bold">3,600,000</td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono font-bold">HD202609280014</td>
+                      <td class="font-mono text-[10px]">28/09/2026</td>
+                      <td class="font-bold">Trần Thị Bích Ngọc</td>
+                      <td class="font-mono">51A99821</td>
+                      <td><span class="swing-badge swing-badge-success">Đã thanh toán</span></td>
+                      <td class="font-mono text-right font-bold">980,000</td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono font-bold">HD202609270011</td>
+                      <td class="font-mono text-[10px]">27/09/2026</td>
+                      <td class="font-bold">Nguyễn Hoàng Nam</td>
+                      <td class="font-mono">51G88912</td>
+                      <td><span class="swing-badge swing-badge-warning">Chưa thanh toán</span></td>
+                      <td class="font-mono text-right font-bold">4,250,000</td>
+                    </tr>
+                    <tr>
+                      <td class="font-mono font-bold">HD202609270010</td>
+                      <td class="font-mono text-[10px]">27/09/2026</td>
+                      <td class="font-bold">Lê Minh Trí</td>
+                      <td class="font-mono">60A33211</td>
+                      <td><span class="swing-badge swing-badge-success">Đã thanh toán</span></td>
+                      <td class="font-mono text-right font-bold">1,760,000</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script>
+    // Biểu đồ tròn tĩnh cho "Cơ Cấu Doanh Thu" (dữ liệu render sẵn, không tính toán nghiệp vụ).
+    (function () {
+      var canvas = document.getElementById('chartCoCau');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      var doanhThuDichVu = 74300000;
+      var doanhThuPhuTung = 54150000;
+
+      new Chart(canvas, {
+        type: 'pie',
+        data: {
+          labels: ['Dịch vụ', 'Phụ tùng'],
+          datasets: [{
+            data: [doanhThuDichVu, doanhThuPhuTung],
+            backgroundColor: ['#4682b4', '#71717a'],
+            borderColor: '#ffffff',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function (ctx) {
+                  var total = ctx.dataset.data.reduce(function (a, b) { return a + b; }, 0);
+                  var pct = (ctx.parsed / total * 100).toFixed(1);
+                  return ctx.label + ': ' + ctx.parsed.toLocaleString('vi-VN') + ' (' + pct + '%)';
+                }
+              }
+            }
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

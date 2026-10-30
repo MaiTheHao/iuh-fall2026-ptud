@@ -1,0 +1,127 @@
+/* base.css — reset, design tokens (monochrome Swing theme), body shell,
+   and global element defaults (buttons, inputs). */
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ---------- Design tokens (CLASSIC JAVA SWING DESKTOP LOOK & FEEL) ---------- */
+:root {
+  --swing-bg: #e9ecef;
+  --swing-panel: #ffffff;
+  --swing-border: #adb5bd;
+  --swing-btn-bg: #e9ecef;
+  --swing-accent: #4682b4;
+  --swing-accent-strong: #38678f;
+  --swing-accent-soft: #eaf2f8;
+
+  /* Semantic colors: info / success / warning / danger */
+  --swing-info: #2563eb;
+  --swing-info-bg: #eff6ff;
+  --swing-info-border: #93c5fd;
+  --swing-info-text: #1d4ed8;
+  --swing-success: #059669;
+  --swing-success-bg: #ecfdf5;
+  --swing-success-border: #6ee7b7;
+  --swing-success-text: #047857;
+  --swing-warning: #d97706;
+  --swing-warning-bg: #fffbeb;
+  --swing-warning-border: #fcd34d;
+  --swing-warning-text: #b45309;
+  --swing-danger: #dc2626;
+  --swing-danger-bg: #fef2f2;
+  --swing-danger-border: #fca5a5;
+  --swing-danger-text: #b91c1c;
+  --swing-ink: #111827;
+}
+
+/* ---------- Universal Font & Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* ---------- Body shell (host for the simulated app window) ---------- */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  color: #000;
+  background-color: #18181b;
+  margin: 0;
+  padding: 12px;
+  user-select: none;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- Swing Buttons (flat & clean) ---------- */
+button,
+.swing-btn {
+  background-color: #ffffff;
+  border: 1px solid var(--swing-border);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #18181b;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+button:hover,
+.swing-btn:hover {
+  background-color: #f4f4f5;
+  border-color: #868e96;
+}
+
+button:active,
+.swing-btn:active {
+  background-color: #e9ecef;
+}
+
+/* ---------- Swing Inputs (JTextField, JTextArea, JComboBox) ---------- */
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  border-top: 1px solid var(--swing-border);
+  border-left: 1px solid var(--swing-border);
+  border-right: 1px solid #dcdcdc;
+  border-bottom: 1px solid #dcdcdc;
+  background-color: #ffffff;
+  padding: 2px 4px;
+  font-size: 11px;
+  color: #000;
+  outline: none;
+  font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 1px dotted #000;
+  background-color: #ffffff;
+}
