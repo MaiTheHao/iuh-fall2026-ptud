@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Lập Phiếu Tiếp Nhận</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-04" class="flex-1 flex flex-col space-y-2">
+
+          <!-- Form Lập Phiếu Tiếp Nhận Xe Mới -->
+          <div class="swing-panel bg-white !mt-0 flex-1 flex flex-col justify-between">
+            <div>
+              <span class="swing-panel-legend">Lập Phiếu Tiếp Nhận Xe Mới</span>
+
+              <form id="formTiepNhan" class="space-y-3 mt-2">
+
+                <!-- 2 Cột tra cứu: Khách Hàng &amp; Thông Tin Xe -->
+                <div class="grid grid-cols-2 gap-3">
+
+                  <!-- KHỐI 1: THÔNG TIN KHÁCH HÀNG -->
+                  <div class="border border-zinc-400 p-3 bg-white relative">
+                    <div class="font-bold text-[11px] text-zinc-900 border-b border-zinc-200 pb-1 mb-2">
+                      <span class="uppercase">1. Thông Tin Khách Hàng</span>
+                    </div>
+
+                    <div class="space-y-2">
+                      <div>
+                        <label class="block text-[10px] font-bold">Số điện thoại khách hàng (*):</label>
+                        <div class="flex gap-1.5">
+                          <input type="text" id="khSdtInput" value="0918234567" placeholder="Nhập SĐT 10 số (VD: 0918234567)..." class="flex-1 font-mono font-bold text-xs">
+                          <button type="button" class="swing-btn-primary font-bold px-3 py-1 text-xs">
+                             Tìm Khách
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label class="block text-[10px] font-bold">Họ và tên khách hàng (*):</label>
+                        <input type="text" id="khHoTenInput" value="Trần Thị Bích Ngọc" placeholder="Họ và tên khách hàng..." class="w-full font-bold">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- KHỐI 2: THÔNG TIN PHƯƠNG TIỆN -->
+                  <div class="border border-zinc-400 p-3 bg-white relative">
+                    <div class="font-bold text-[11px] text-zinc-900 border-b border-zinc-200 pb-1 mb-2">
+                      <span class="uppercase">2. Thông Tin Phương Tiện (Xe)</span>
+                    </div>
+
+                    <div class="space-y-2">
+                      <div>
+                        <label class="block text-[10px] font-bold">Biển số xe (*):</label>
+                        <div class="flex gap-1.5">
+                          <input type="text" id="xeBienSoInput" value="51F12345" placeholder="VD: 51F12345..." class="flex-1 font-mono font-bold text-xs uppercase">
+                          <button type="button" class="swing-btn-primary font-bold px-3 py-1 text-xs">
+                             Tìm Xe
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="grid grid-cols-3 gap-2">
+                        <div>
+                          <label class="block text-[10px] font-bold">Hãng xe:</label>
+                          <input type="text" id="xeHangInput" value="Mazda" placeholder="VD: Mazda..." class="w-full font-bold">
+                        </div>
+                        <div>
+                          <label class="block text-[10px] font-bold">Dòng xe:</label>
+                          <input type="text" id="xeDongInput" value="CX-5 2.0 Premium" placeholder="VD: CX-5..." class="w-full font-bold">
+                        </div>
+                        <div>
+                          <label class="block text-[10px] font-bold">Số ODO hiện tại (Km) (*):</label>
+                          <input type="number" id="xeOdoInput" value="43100" placeholder="VD: 43100" class="w-full font-mono font-bold">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Hàng 3: Tình trạng xe &amp; Yêu cầu của khách -->
+                <div class="border border-zinc-400 p-3 bg-white">
+                  <label class="block text-[10.5px] font-bold text-zinc-900 mb-1">
+                    Mô Tả Tình Trạng Xe &amp; Yêu Cầu Của Khách Hàng (*):
+                  </label>
+                  <textarea id="moTaTiepNhan" rows="3" class="w-full text-xs font-medium" placeholder="Ghi nhận tiếng kêu lạ, trầy xước thân vỏ, yêu cầu kiểm tra hoặc bảo dưỡng định kỳ...">Bảo dưỡng cấp 40,000 Km theo gói định kỳ. Khách báo điều hòa mát yếu khi dừng đèn đỏ, yêu cầu kiểm tra dàn lạnh.</textarea>
+                </div>
+
+              </form>
+            </div>
+
+            <!-- Cụm nút thao tác (đặt ở cuối form) -->
+            <div class="pt-2 border-t border-zinc-300 mt-2 flex flex-wrap justify-end gap-1.5">
+              <button type="button" class="text-xs py-1 px-3 hover:bg-zinc-200">
+                 Làm Mới
+              </button>
+              <button type="button" class="swing-btn-primary px-4 py-1 text-xs font-bold">
+                 Lưu Phiếu Tiếp Nhận
+              </button>
+            </div>
+
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+</body>
+</html>
