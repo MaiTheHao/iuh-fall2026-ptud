@@ -12,10 +12,9 @@ import iuh.fit.entity.HoaDon;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhieuTiepNhan;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
-import iuh.fit.util.MaGeneratorUtil;
-import iuh.fit.util.MaRetryUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
@@ -45,6 +44,7 @@ public class PhieuTiepNhanService {
     private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
     private final XeDAO xeDAO = new XeDAO();
+    private final MaService maService = new MaService();
     private final HoaDonService hoaDonService = new HoaDonService();
 
     public PhieuTiepNhan create(PhieuTiepNhan phieu) throws SQLException {
@@ -79,17 +79,10 @@ public class PhieuTiepNhanService {
             phieu.setTrangThai(TrangThaiPhieuTiepNhan.TIEP_NHAN);
         }
 
-        MaRetryUtil.thucHien(
-                lanThu -> MaGeneratorUtil.sinhMaPhieuTiepNhan(
-                        phieu.getMaNhanVien(),
-                        phieu.getBienSo(),
-                        now.plusSeconds(lanThu)),
-                ma -> {
-                    phieu.setMaPhieuTiepNhan(ma);
-                    if (!this.phieuTiepNhanDAO.insert(scope, phieu)) {
-                        throw new SQLException(ERROR_GHI_DU_LIEU);
-                    }
-                });
+        phieu.setMaPhieuTiepNhan(this.maService.genMa(scope, LoaiMa.PTN));
+        if (!this.phieuTiepNhanDAO.insert(scope, phieu)) {
+            throw new SQLException(ERROR_GHI_DU_LIEU);
+        }
 
         return phieu;
     }

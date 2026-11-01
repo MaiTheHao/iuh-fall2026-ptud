@@ -1,12 +1,5 @@
 -- ============================================================
--- Gara Ô tô Lúa — schema snapshot để dựng DB thủ công
--- Nội dung là kết quả cuối cùng của chuỗi infra/migrations/V0..V11
--- (V0 bảng gốc, V1/V5 cột+độ rộng, V2 khoá ngoại CASCADE, V3 KhieuNai,
---  V7/V8/V9/V10/V11 độ rộng + unique + cột chốt giảm giá).
--- Dữ liệu mẫu tương ứng: mock.sql (đã ở trạng thái sau V5/V6).
---
--- Quy ước: mỗi migration mới phải được phản chiếu ngay vào tệp này,
--- sau đó đối chiếu lại DDL để init.sql luôn bằng V0..V(n).
+-- Gara Ô tô Lúa
 -- ============================================================
 
 -- ============================================================
@@ -220,4 +213,17 @@ CREATE TABLE KhieuNai (
     CONSTRAINT PK_KhieuNai PRIMARY KEY (maKhieuNai),
     CONSTRAINT FK_KhieuNai_KhachHang      FOREIGN KEY (maKhachHang)     REFERENCES KhachHang(maKhachHang) ON DELETE CASCADE,
     CONSTRAINT FK_KhieuNai_PhieuTiepNhan  FOREIGN KEY (maPhieuTiepNhan) REFERENCES PhieuTiepNhan(maPhieuTiepNhan)
+);
+
+-- ============================================================
+-- TABLE: DayMetric
+-- Bo dem chi tieu theo ngay; amount la so thu tu da cap trong
+-- ngay cua tung LoaiMa, dung de sinh ma PREFIX-YYYYMMDD-NNNNNN.
+-- Chi cong, khong tru: huy chung tu khong giam amount.
+-- ============================================================
+CREATE TABLE DayMetric (
+    ngay    date        NOT NULL,
+    target  varchar(20) NOT NULL,
+    amount  bigint      NOT NULL CONSTRAINT DF_DayMetric_amount DEFAULT (0),
+    CONSTRAINT PK_DayMetric PRIMARY KEY (ngay, target)
 );

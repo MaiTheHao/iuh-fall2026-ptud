@@ -5,13 +5,13 @@ import iuh.fit.dao.NhanVienDAO;
 import iuh.fit.dto.LoginDTO;
 import iuh.fit.dto.RegisterDTO;
 import iuh.fit.entity.NhanVien;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.TrangThaiNhanVien;
 import iuh.fit.exception.CredentialsInvalidException;
 import iuh.fit.exception.PasswordInvalidException;
 import iuh.fit.exception.PhoneInvalidException;
 import iuh.fit.exception.UserNameExistsException;
 import iuh.fit.exception.UserNotFoundException;
-import iuh.fit.util.MaGeneratorUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -21,6 +21,7 @@ public class AuthService {
     private static final int MIN_PASSWORD_LENGTH = 8;
 
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
+    private final MaService maService = new MaService();
 
     public NhanVien login(LoginDTO loginDTO) throws SQLException {
         if (loginDTO == null
@@ -51,7 +52,7 @@ public class AuthService {
             throw new PhoneInvalidException();
         }
         LocalDateTime now = LocalDateTime.now();
-        nhanVien.setMaNhanVien(MaGeneratorUtil.sinhMaNhanVien(soDienThoai, now));
+        nhanVien.setMaNhanVien(this.maService.genMa(LoaiMa.NV));
         nhanVien.setTenDangNhap(registerDTO.tenDangNhap());
         nhanVien.setMatKhau(registerDTO.matKhau());
         nhanVien.setHoTen(registerDTO.hoTen());

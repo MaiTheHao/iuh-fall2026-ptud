@@ -14,10 +14,9 @@ import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.entity.Voucher;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.TrangThaiHoaDon;
-import iuh.fit.util.MaGeneratorUtil;
-import iuh.fit.util.MaRetryUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
@@ -52,6 +51,7 @@ public class HoaDonService {
     private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
     private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
+    private final MaService maService = new MaService();
     private final PhuTungService phuTungService = new PhuTungService();
     private final VoucherDAO voucherDAO = new VoucherDAO();
 
@@ -81,24 +81,18 @@ public class HoaDonService {
         hoaDon.setMucGiamApDung(voucher == null ? null : this.tinhMucGiam(voucher));
 
         LocalDateTime now = LocalDateTime.now();
-        try {
-            MaRetryUtil.thucHien(
-                    lan -> MaGeneratorUtil.sinhMa("HD", now.plusSeconds(lan)),
-                    ma -> {
-                        hoaDon.setMaHoaDon(ma);
-                        hoaDon.setNgayTao(now);
-                        for (ChiTietHoaDon ct : danhSachGop) {
-                            ct.setMaHoaDon(ma);
-                        }
+        try (TransactionScope scope = TransactionScope.begin()) {
+            String ma = this.maService.genMa(scope, LoaiMa.HD);
+            hoaDon.setMaHoaDon(ma);
+            hoaDon.setNgayTao(now);
+            for (ChiTietHoaDon ct : danhSachGop) {
+                ct.setMaHoaDon(ma);
+            }
 
-                        try (TransactionScope scope = TransactionScope.begin()) {
-                            this.hoaDonDAO.insert(scope, hoaDon, danhSachGop);
-                            this.capNhatTonKho(scope, danhSachGop, List.of());
-                            scope.commit();
-                        }
-                    });
+            this.hoaDonDAO.insert(scope, hoaDon, danhSachGop);
+            this.capNhatTonKho(scope, danhSachGop, List.of());
+            scope.commit();
         } catch (SQLException ex) {
-            // Hai may cung lap hoa don cho mot phieu: rang buoc UNIQUE thang truoc, tra ve hoa don da co.
             HoaDon daCo = this.laLoiTrungKhoa(ex)
                     ? this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(null)
                     : null;

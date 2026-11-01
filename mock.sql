@@ -1,4 +1,4 @@
-﻿SET XACT_ABORT ON;
+SET XACT_ABORT ON;
 BEGIN TRANSACTION;
 
 -- ============================================================

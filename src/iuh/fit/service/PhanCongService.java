@@ -5,13 +5,12 @@ import iuh.fit.dao.PhanCongDAO;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.TrangThaiNhanVien;
 import iuh.fit.enumeration.VaiTro;
-import iuh.fit.util.MaGeneratorUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,6 +29,7 @@ public final class PhanCongService {
 
 	private final PhanCongDAO phanCongDAO = new PhanCongDAO();
 	private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
+	private final MaService maService = new MaService();
 
 	public List<PhanCong> getAll() throws SQLException {
 		return this.phanCongDAO.findAll();
@@ -189,9 +189,7 @@ public final class PhanCongService {
 		String maNhanVienDaChuanHoa = maNhanVien.trim();
 		String ghiChuDaChuanHoa = ghiChu == null ? "" : ghiChu.trim();
 
-		LocalDateTime thoiDiemTao = LocalDateTime.now();
-
-		PhanCong phanCong = new PhanCong(MaGeneratorUtil.sinhMa("PC", thoiDiemTao), maNhanVienDaChuanHoa,
+		PhanCong phanCong = new PhanCong(this.maService.genMa(LoaiMa.PC), maNhanVienDaChuanHoa,
 				ngayLam.getDayOfMonth(), ngayLam.getMonthValue(), ngayLam.getYear(), caLamViec,
 				ghiChuDaChuanHoa.isEmpty() ? null : ghiChuDaChuanHoa);
 
