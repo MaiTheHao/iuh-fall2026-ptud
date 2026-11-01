@@ -5,11 +5,10 @@ import iuh.fit.dao.TransactionScope;
 import iuh.fit.dto.DanhSachPhuTungCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.PhuTung;
-import iuh.fit.util.MaGeneratorUtil;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -29,6 +28,7 @@ public class PhuTungService {
             PhuTung::getMaPhuTung, Comparator.nullsLast(String::compareTo));
 
     private final PhuTungDAO phuTungDAO = new PhuTungDAO();
+    private final MaService maService = new MaService();
 
     public PaginatedResult<PhuTung> getAll(int page, int pageSize) throws SQLException {
 
@@ -61,7 +61,7 @@ public class PhuTungService {
         this.validate(phuTung);
         phuTung.setSoLuongTon(0);
 
-        phuTung.setMaPhuTung(MaGeneratorUtil.sinhMa("PT", LocalDateTime.now()));
+        phuTung.setMaPhuTung(this.maService.genMa(LoaiMa.PT));
 
         this.phuTungDAO.insert(phuTung);
     }

@@ -13,10 +13,9 @@ import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.KhieuNai;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhieuTiepNhan;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.TrangThaiKhieuNai;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
-import iuh.fit.util.MaGeneratorUtil;
-import iuh.fit.util.MaRetryUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
@@ -52,6 +51,7 @@ public class KhieuNaiService {
     private final KhieuNaiDAO khieuNaiDAO = new KhieuNaiDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
     private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
+    private final MaService maService = new MaService();
 
     public KhieuNai create(KhieuNaiFormData data) throws SQLException {
         this.validate(data);
@@ -69,19 +69,12 @@ public class KhieuNaiService {
         khieuNai.setMaPhieuTiepNhan(data.maPhieuTiepNhan().trim());
         khieuNai.setNoiDung(data.noiDung().trim());
         khieuNai.setTrangThai(TrangThaiKhieuNai.CHUA_XU_LY);
+        khieuNai.setNgayTao(now);
+        khieuNai.setMaKhieuNai(this.maService.genMa(LoaiMa.KN));
 
-        MaRetryUtil.thucHien(
-                lanThu -> {
-                    LocalDateTime thoiDiem = now.plusSeconds(lanThu);
-                    khieuNai.setNgayTao(thoiDiem);
-                    return MaGeneratorUtil.sinhMaKhieuNai(maNhanVien, thoiDiem);
-                },
-                ma -> {
-                    khieuNai.setMaKhieuNai(ma);
-                    if (!this.khieuNaiDAO.insert(khieuNai)) {
-                        throw new SQLException(ERROR_GHI_DU_LIEU);
-                    }
-                });
+        if (!this.khieuNaiDAO.insert(khieuNai)) {
+            throw new SQLException(ERROR_GHI_DU_LIEU);
+        }
 
         return khieuNai;
     }

@@ -5,7 +5,7 @@ import iuh.fit.dao.TransactionScope;
 import iuh.fit.dto.DanhSachKhachHangCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.KhachHang;
-import iuh.fit.util.MaGeneratorUtil;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
@@ -23,6 +23,7 @@ public class KhachHangService {
     private static final String ERROR_IN_USE = "app.khachHang.loiDangSuDung";
 
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
+    private final MaService maService = new MaService();
 
     public PaginatedResult<KhachHang> search(DanhSachKhachHangCriteria criteria) throws SQLException {
         DanhSachKhachHangCriteria filter = criteria == null
@@ -94,7 +95,7 @@ public class KhachHangService {
             throw new IllegalArgumentException(ERROR_DUPLICATE_PHONE);
         }
         LocalDateTime now = LocalDateTime.now();
-        customer.setMaKhachHang(MaGeneratorUtil.sinhMa("KH", now));
+        customer.setMaKhachHang(this.maService.genMa(LoaiMa.KH));
         customer.setNgayTao(now);
     }
 

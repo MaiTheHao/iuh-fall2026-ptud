@@ -4,12 +4,11 @@ import iuh.fit.dao.VoucherDAO;
 import iuh.fit.dto.DanhSachVoucherCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.Voucher;
-import iuh.fit.util.MaGeneratorUtil;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +28,7 @@ public class VoucherService {
     private static final String ERROR_VALIDITY = "app.voucher.loiThoiHan";
 
     private final VoucherDAO voucherDAO = new VoucherDAO();
+    private final MaService maService = new MaService();
 
     public PaginatedResult<Voucher> search(
             DanhSachVoucherCriteria criteria) throws SQLException {
@@ -147,8 +147,7 @@ public class VoucherService {
     public Voucher create(Voucher voucher) throws SQLException {
         this.validate(voucher);
 
-        String maVoucher = MaGeneratorUtil.sinhMa(
-                "VC", LocalDateTime.now());
+        String maVoucher = this.maService.genMa(LoaiMa.VC);
 
         voucher.setMaVoucher(maVoucher);
 

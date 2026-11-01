@@ -11,10 +11,9 @@ import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.entity.VanDeKyThuat;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
 import iuh.fit.enumeration.TrangThaiVanDeKyThuat;
-import iuh.fit.util.MaGeneratorUtil;
-import iuh.fit.util.MaRetryUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
@@ -52,6 +51,7 @@ public class VanDeKyThuatService {
     private final VanDeKyThuatDAO vanDeKyThuatDAO = new VanDeKyThuatDAO();
     private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
+    private final MaService maService = new MaService();
 
     public void lapChanDoan(VanDeKyThuat vanDe) throws SQLException {
         if (vanDe == null) {
@@ -65,27 +65,20 @@ public class VanDeKyThuatService {
         vanDe.setKhachHangDongY(TrangThaiVanDeKyThuat.CHUA_XAC_NHAN);
 
         LocalDateTime now = LocalDateTime.now();
+        vanDe.setNgayTao(now);
 
-        MaRetryUtil.thucHien(
-                lanThu -> {
-                    LocalDateTime thoiDiem = now.plusSeconds(lanThu);
-                    vanDe.setNgayTao(thoiDiem);
-                    return MaGeneratorUtil.sinhMa("VD", thoiDiem);
-                },
-                ma -> {
-                    vanDe.setMaVanDe(ma);
-                    try (TransactionScope scope = TransactionScope.begin()) {
-                        PhieuTiepNhan phieu = this.phieuTiepNhanDAO.findById(scope, maPhieu)
-                                .orElseThrow(() -> new IllegalArgumentException(ERROR_PHIEU_KHONG_TON_TAI));
-                        if (phieu.getTrangThai() == TrangThaiPhieuTiepNhan.DA_HUY) {
-                            throw new IllegalArgumentException(ERROR_PHIEU_DA_HUY);
-                        }
-                        if (!this.vanDeKyThuatDAO.insert(scope, vanDe)) {
-                            throw new SQLException(ERROR_GHI_DU_LIEU);
-                        }
-                        scope.commit();
-                    }
-                });
+        try (TransactionScope scope = TransactionScope.begin()) {
+            vanDe.setMaVanDe(this.maService.genMa(scope, LoaiMa.VD));
+            PhieuTiepNhan phieu = this.phieuTiepNhanDAO.findById(scope, maPhieu)
+                    .orElseThrow(() -> new IllegalArgumentException(ERROR_PHIEU_KHONG_TON_TAI));
+            if (phieu.getTrangThai() == TrangThaiPhieuTiepNhan.DA_HUY) {
+                throw new IllegalArgumentException(ERROR_PHIEU_DA_HUY);
+            }
+            if (!this.vanDeKyThuatDAO.insert(scope, vanDe)) {
+                throw new SQLException(ERROR_GHI_DU_LIEU);
+            }
+            scope.commit();
+        }
     }
 
     private void chuanHoaDuLieu(VanDeKyThuat vanDe) {

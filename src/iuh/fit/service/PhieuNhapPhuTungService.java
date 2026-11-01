@@ -8,8 +8,7 @@ import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.ChiTietPhieuNhapPhuTung;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhieuNhapPhuTung;
-import iuh.fit.util.MaGeneratorUtil;
-import iuh.fit.util.MaRetryUtil;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
@@ -25,6 +24,7 @@ public class PhieuNhapPhuTungService {
 
 	private final PhieuNhapPhuTungDAO phieuNhapDAO = new PhieuNhapPhuTungDAO();
 	private final PhuTungService phuTungService = new PhuTungService();
+	private final MaService maService = new MaService();
 
 	private static final String ERROR_DATA = "app.phieuNhap.loiDongNhapLieu";
 	private static final String ERROR_DESCRIPTION = "app.phieuNhap.loiMoTa";
@@ -116,21 +116,16 @@ public class PhieuNhapPhuTungService {
 		}
 
 		LocalDateTime now = LocalDateTime.now();
-		MaRetryUtil.thucHien(lan -> {
-			LocalDateTime thoiDiem = now.plusSeconds(lan);
-			phieu.setNgayTao(thoiDiem);
-			return MaGeneratorUtil.sinhMa("PN", thoiDiem);
-		}, ma -> {
-			phieu.setMaPhieuNhap(ma);
+		try (TransactionScope scope = TransactionScope.begin()) {
+			phieu.setMaPhieuNhap(this.maService.genMa(scope, LoaiMa.PN));
+			phieu.setNgayTao(now);
 			phieu.setMaNhanVien(user.getMaNhanVien());
-			try (TransactionScope scope = TransactionScope.begin()) {
-				this.phieuNhapDAO.insert(scope, phieu, danhSachGop);
-				for (ChiTietPhieuNhapPhuTung ct : danhSachGop) {
-					this.phuTungService.increaseStock(scope, ct.getMaPhuTung(), ct.getSoLuong());
-				}
-				scope.commit();
+			this.phieuNhapDAO.insert(scope, phieu, danhSachGop);
+			for (ChiTietPhieuNhapPhuTung ct : danhSachGop) {
+				this.phuTungService.increaseStock(scope, ct.getMaPhuTung(), ct.getSoLuong());
 			}
-		});
+			scope.commit();
+		}
 		return true;
 	}
 

@@ -4,11 +4,10 @@ import iuh.fit.dao.DichVuDAO;
 import iuh.fit.dto.DanhSachDichVuCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.DichVu;
-import iuh.fit.util.MaGeneratorUtil;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,6 +23,7 @@ public class DichVuService {
     private static final String ERROR_RANGE = "app.dichVu.loiKhoangLoc";
 
     private final DichVuDAO dichVuDAO;
+    private final MaService maService = new MaService();
 
     public DichVuService() {
         this.dichVuDAO = new DichVuDAO();
@@ -75,8 +75,7 @@ public class DichVuService {
     public DichVu create(DichVu dichVu) throws SQLException {
         this.validate(dichVu);
 
-        String maDichVu = MaGeneratorUtil.sinhMa(
-                "DV", LocalDateTime.now());
+        String maDichVu = this.maService.genMa(LoaiMa.DV);
 
         DichVu dichVuMoi = new DichVu(
                 maDichVu,

@@ -4,7 +4,7 @@ import iuh.fit.dao.NhanVienDAO;
 import iuh.fit.dto.DanhSachNhanVienCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.NhanVien;
-import iuh.fit.util.MaGeneratorUtil;
+import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
@@ -17,6 +17,7 @@ import java.util.Optional;
 public class NhanVienService {
 
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
+    private final MaService maService = new MaService();
 
     private static final String ERROR_ID =
             "app.nhanVien.khongTimThay";
@@ -155,8 +156,7 @@ public class NhanVienService {
 
         LocalDateTime now = LocalDateTime.now();
 
-        String ma = MaGeneratorUtil.sinhMaNhanVien(
-                nhanVien.getSoDienThoai(), now);
+        String ma = this.maService.genMa(LoaiMa.NV);
 
         nhanVien.setMaNhanVien(ma);
         nhanVien.setNgayTao(now);
@@ -164,10 +164,6 @@ public class NhanVienService {
         this.validateCreate(nhanVien);
 
         String username = nhanVien.getTenDangNhap().trim();
-
-        if (this.nhanVienDAO.findById(ma).isPresent()) {
-            throw new IllegalArgumentException(ERROR_DATA);
-        }
 
         if (this.nhanVienDAO.existsByTenDangNhap(username)) {
             throw new IllegalArgumentException(ERROR_USERNAME_EXISTS);
