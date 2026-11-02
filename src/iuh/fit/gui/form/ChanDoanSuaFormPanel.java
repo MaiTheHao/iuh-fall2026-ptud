@@ -3,11 +3,13 @@ package iuh.fit.gui.form;
 import iuh.fit.dto.ChanDoanUpdateFormData;
 import iuh.fit.dto.ChanDoanView;
 import iuh.fit.enumeration.TrangThaiVanDeKyThuat;
+import iuh.fit.gui.component.BoHienThiI18n;
 import iuh.fit.gui.component.FormFieldPanel;
 import iuh.fit.gui.component.FormValidationHelper;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -33,20 +35,18 @@ public final class ChanDoanSuaFormPanel extends FormFieldPanel {
   private final JTextField mucDoField = new JTextField(14);
   private final JTextArea moTaArea = new JTextArea(4, 20);
   private final JTextArea giaiPhapArea = new JTextArea(4, 20);
-  private final JTextField khachHangDongYField = new JTextField(14);
-
-  private TrangThaiVanDeKyThuat khachHangDongY;
+  private final JComboBox<TrangThaiVanDeKyThuat> khachHangDongYCombo =
+          new JComboBox<>(TrangThaiVanDeKyThuat.values());
 
   public ChanDoanSuaFormPanel() {
     Theme.applyReadOnly(this.maVanDeField);
     Theme.applyReadOnly(this.maPhieuField);
     Theme.applyReadOnly(this.bienSoField);
-    Theme.applyReadOnly(this.khachHangDongYField);
     this.maVanDeField.setFocusable(false);
     this.maPhieuField.setFocusable(false);
     this.bienSoField.setFocusable(false);
-    this.khachHangDongYField.setFocusable(false);
     this.mucDoField.setHorizontalAlignment(SwingConstants.RIGHT);
+    this.khachHangDongYCombo.setRenderer(BoHienThiI18n.tao());
 
     JScrollPane moTaScroll = FormFieldPanel.taoKhungMoTa(this.moTaArea);
     JScrollPane giaiPhapScroll = FormFieldPanel.taoKhungMoTa(this.giaiPhapArea);
@@ -58,8 +58,7 @@ public final class ChanDoanSuaFormPanel extends FormFieldPanel {
     this.addField("app.chanDoan.mucDoUuTien", this.mucDoField);
     this.addField("app.chanDoan.moTa", moTaScroll);
     this.addField("app.chanDoan.giaiPhap", giaiPhapScroll);
-    this.addField("app.chanDoan.khachHangDongY", this.khachHangDongYField);
-    this.addBlock(taoGoiY("app.chanDoan.khachHangDongYChiDoc"));
+    this.addField("app.chanDoan.khachHangDongY", this.khachHangDongYCombo);
 
     FormValidationHelper.autoClearOnInput(this.tieuDeField);
     FormValidationHelper.autoClearOnInput(this.mucDoField);
@@ -76,9 +75,7 @@ public final class ChanDoanSuaFormPanel extends FormFieldPanel {
     this.mucDoField.setText(String.valueOf(view.mucDoUuTien()));
     this.moTaArea.setText(view.moTa() == null ? "" : view.moTa());
     this.giaiPhapArea.setText(view.giaiPhap() == null ? "" : view.giaiPhap());
-    this.khachHangDongY = view.khachHangDongY();
-    this.khachHangDongYField.setText(
-            this.khachHangDongY == null ? "" : this.khachHangDongY.getI18NBusinessName());
+    this.khachHangDongYCombo.setSelectedItem(view.khachHangDongY());
   }
 
   public boolean validateInput() {
@@ -146,7 +143,7 @@ public final class ChanDoanSuaFormPanel extends FormFieldPanel {
             this.moTaArea.getText().trim(),
             mucDo == null ? 0 : mucDo,
             this.giaiPhapArea.getText().trim(),
-            this.khachHangDongY);
+            (TrangThaiVanDeKyThuat) this.khachHangDongYCombo.getSelectedItem());
   }
 
   private Integer docMucDo() {

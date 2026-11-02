@@ -4,7 +4,9 @@ import iuh.fit.core.context.AppContext;
 import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.entity.VanDeKyThuat;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.enumeration.TrangThaiVanDeKyThuat;
 import iuh.fit.gui.component.ManagementPanel;
+import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.VanDeKyThuatService;
@@ -24,7 +26,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Màn hình chỉ đọc hiển thị chẩn đoán kỹ thuật của phiếu tiếp nhận đang chọn.
+ * Màn hình xem chẩn đoán kỹ thuật của phiếu tiếp nhận đang chọn.
+ * Cho phép nhân viên đổi nhanh trạng thái "Khách hàng đồng ý" ngay trên từng dòng.
  */
 public class XemChanDoanPage extends AbstractPage {
 
@@ -36,6 +39,7 @@ public class XemChanDoanPage extends AbstractPage {
     private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
 
     private ManagementPanel managementPanel;
+    private List<VanDeKyThuat> danhSachHienTai = List.of();
     private JLabel lblMaPhieu;
     private JLabel lblBienSo;
 
@@ -61,6 +65,14 @@ public class XemChanDoanPage extends AbstractPage {
                 I18nReaderUtil.get("app.chanDoan.khachHangDongY"),
                 I18nReaderUtil.get("app.chanDoan.ngayTao")
         );
+
+        this.managementPanel.addActionColumn("app.common.actions",
+                new ThaoTac("check", "app.chanDoan.datCo", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.capNhatTrangThai(row, TrangThaiVanDeKyThuat.CO)),
+                new ThaoTac("ban", "app.chanDoan.datKhong", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.capNhatTrangThai(row, TrangThaiVanDeKyThuat.KHONG)),
+                new ThaoTac("rotate-ccw", "app.chanDoan.datChuaXacNhan", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.capNhatTrangThai(row, TrangThaiVanDeKyThuat.CHUA_XAC_NHAN)));
 
         this.managementPanel.setFilterChangeListener(() -> this.taiLai());
         this.managementPanel.getClearFilterButton().addActionListener(
@@ -113,6 +125,7 @@ public class XemChanDoanPage extends AbstractPage {
             if (phieu == null) {
                 this.lblMaPhieu.setText("");
                 this.lblBienSo.setText("");
+                this.danhSachHienTai = List.of();
                 this.managementPanel.setRows(List.of());
                 this.managementPanel.setCount(0, 0, 0);
                 this.managementPanel.setPage(1, 1);
@@ -124,6 +137,7 @@ public class XemChanDoanPage extends AbstractPage {
 
             List<VanDeKyThuat> ds = this.vanDeKyThuatService.layDanhSachTheoPhieu(
                     phieu.maPhieuTiepNhan(), this.managementPanel.getQuickFilter());
+            this.danhSachHienTai = ds;
 
             List<Object[]> rows = new ArrayList<>();
             for (VanDeKyThuat vd : ds) {
@@ -144,6 +158,23 @@ public class XemChanDoanPage extends AbstractPage {
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Khong the tai danh sach chan doan", ex);
             ThongBao.loi(this, "app.chanDoan.loiTaiDanhSach");
+        }
+    }
+
+    private void capNhatTrangThai(int row, TrangThaiVanDeKyThuat trangThai) {
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
+            return;
+        }
+
+        VanDeKyThuat vanDe = this.danhSachHienTai.get(row);
+        try {
+            this.vanDeKyThuatService.capNhatTrangThaiDongY(vanDe.getMaVanDe(), trangThai);
+            this.taiLai();
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            ThongBao.loi(this, ex);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Khong the cap nhat trang thai chan doan", ex);
+            ThongBao.loi(this, "app.login.errorSystem");
         }
     }
 

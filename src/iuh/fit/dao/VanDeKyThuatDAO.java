@@ -78,6 +78,23 @@ public final class VanDeKyThuatDAO extends BaseDao<VanDeKyThuat> {
         }
     }
 
+    public boolean updateTrangThaiDongY(TransactionScope scope,
+            String maVanDe,
+            TrangThaiVanDeKyThuat trangThai) throws SQLException {
+        String sql = """
+                UPDATE VanDeKyThuat
+                SET khachHangDongY = ?
+                WHERE maVanDe = ?
+                """;
+
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
+            ps.setString(1, trangThai.name());
+            ps.setString(2, maVanDe);
+
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     public boolean delete(TransactionScope scope, String maVanDe) throws SQLException {
         String sql = """
                 DELETE FROM VanDeKyThuat
