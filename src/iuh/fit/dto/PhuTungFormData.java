@@ -6,5 +6,5 @@ public record PhuTungFormData(
         String moTa,
         String anhUrl,
         Double donGiaNhap,
-        Integer soLuongTon) {
-}
+        Integer soLuongTon,
+        String maNhaCungCap) {}

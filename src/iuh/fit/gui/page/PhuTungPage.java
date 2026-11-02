@@ -4,8 +4,13 @@ import iuh.fit.dto.BaseFormDialogConfig;
 import iuh.fit.dto.DanhSachPhuTungCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhuTungFormData;
+import iuh.fit.dto.DanhSachNhaCungCapCriteria;
+import iuh.fit.entity.NhaCungCap;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.enumeration.TrangThaiNhaCungCap;
+import iuh.fit.gui.component.ChonNhaCungCapDialog;
+import iuh.fit.service.NhaCungCapService;
 import iuh.fit.gui.component.AnhTableCellRenderer;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
@@ -20,8 +25,11 @@ import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import java.awt.BorderLayout;
 import java.sql.SQLException;
@@ -45,8 +53,10 @@ public class PhuTungPage extends AbstractPage {
   private static final int COT_MO_TA = 4;
   private static final int COT_DON_GIA = 5;
   private static final int COT_SO_LUONG = 6;
+  private static final int COT_NCC = 7;
 
   private final PhuTungService phuTungService = new PhuTungService();
+  private final NhaCungCapService nhaCungCapService = new NhaCungCapService();
 
   private ManagementPanel panel;
 
@@ -54,8 +64,12 @@ public class PhuTungPage extends AbstractPage {
   private JTextField boLocTen;
   private ManagementPanel.BoLocKhoang boLocDonGia;
   private ManagementPanel.BoLocKhoang boLocSoLuong;
+  private ManagementPanel.BoLocChon boLocNhaCungCap;
 
   private int trang = 1;
+
+  /** Chan taiLai de quy khi rebuild combo bo loc. */
+  private boolean dangLamMoiBoLoc = false;
 
   public PhuTungPage() {
     this.setLayout(new BorderLayout());
@@ -77,7 +91,8 @@ public class PhuTungPage extends AbstractPage {
             I18nReaderUtil.get("app.phuTung.ten"),
             I18nReaderUtil.get("app.phuTung.moTa"),
             I18nReaderUtil.get("app.phuTung.donGia"),
-            I18nReaderUtil.get("app.phuTung.soLuongTon"));
+            I18nReaderUtil.get("app.phuTung.soLuongTon"),
+            I18nReaderUtil.get("app.phuTung.nhaCungCap"));
 
     this.panel.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
@@ -114,7 +129,87 @@ public class PhuTungPage extends AbstractPage {
     this.boLocTen = this.panel.addTextFilter("app.phuTung.ten");
     this.boLocDonGia = this.panel.addRangeFilter("app.phuTung.donGiaTuDen");
     this.boLocSoLuong = this.panel.addRangeFilter("app.phuTung.soLuongTuDen");
-    this.panel.setFilterChangeListener(() -> this.taiLai(1));
+    this.boLocNhaCungCap = this.panel.addComboBoxFilter("app.phuTung.nhaCungCap", this.mangMaNhaCungCap());
+    this.boLocNhaCungCap.combo().addPopupMenuListener(new PopupMenuListener() {
+      @Override
+      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+        lamMoiBoLocNhaCungCap();
+      }
+
+      @Override
+      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+      }
+
+      @Override
+      public void popupMenuCanceled(PopupMenuEvent e) {
+      }
+    });
+    this.panel.setFilterChangeListener(() -> {
+      if (!this.dangLamMoiBoLoc) {
+        this.taiLai(1);
+      }
+    });
+  }
+
+  private String[] mangMaNhaCungCap() {
+    try {
+      return this.nhaCungCapService.getAllForSelection().stream()
+          .filter(ncc -> ncc.getTrangThai() == TrangThaiNhaCungCap.HOAT_DONG)
+          .map(NhaCungCap::getMaNhaCungCap)
+          .toArray(String[]::new);
+    } catch (SQLException e) {
+      return new String[0];
+    }
+  }
+
+  /** Tieu chi chon NCC cho phu tung: chi hien NCC dang hop tac. */
+  private DanhSachNhaCungCapCriteria tieuChiChonNhaCungCap() {
+    return new DanhSachNhaCungCapCriteria(
+        null, null, null, null,
+        TrangThaiNhaCungCap.HOAT_DONG.name(),
+        null, null, 1, PaginatedResult.PAGE_SIZE_TAI_TOAN_BO);
+  }
+
+  /**
+   * Giai phap stale combo: tai lai danh sach NCC moi khi mo dropdown,
+   * giu lua chon hien tai neu van hop le. Co chan de quy filter-change.
+   */
+  private void lamMoiBoLocNhaCungCap() {
+    String dangChon = this.boLocNhaCungCap.ma();
+    String[] moi = this.mangMaNhaCungCap();
+
+    JComboBox<Object> combo = this.boLocNhaCungCap.combo();
+    if (combo.getItemCount() == moi.length + 1) {
+      boolean giong = true;
+      for (int i = 0; i < moi.length; i++) {
+        if (!moi[i].equals(String.valueOf(combo.getItemAt(i + 1)))) {
+          giong = false;
+          break;
+        }
+      }
+      if (giong) {
+        return;
+      }
+    }
+
+    this.dangLamMoiBoLoc = true;
+    try {
+      combo.removeAllItems();
+      combo.addItem(null);
+      for (String ma : moi) {
+        combo.addItem(ma);
+      }
+      if (dangChon != null) {
+        for (int i = 1; i < combo.getItemCount(); i++) {
+          if (dangChon.equals(String.valueOf(combo.getItemAt(i)))) {
+            combo.setSelectedIndex(i);
+            break;
+          }
+        }
+      }
+    } finally {
+      this.dangLamMoiBoLoc = false;
+    }
   }
 
   private void taiLai(int page) {
@@ -127,6 +222,7 @@ public class PhuTungPage extends AbstractPage {
               NumberParseUtil.toDoubleOrNull(this.boLocDonGia.denText()),
               NumberParseUtil.toIntegerOrNull(this.boLocSoLuong.tuText()),
               NumberParseUtil.toIntegerOrNull(this.boLocSoLuong.denText()),
+              this.boLocNhaCungCap.ma(),
               Math.max(page, 1),
               SO_DONG_MOI_TRANG);
 
@@ -140,7 +236,8 @@ public class PhuTungPage extends AbstractPage {
             phuTung.getTenPhuTung(),
             phuTung.getMoTa(),
             phuTung.getDonGiaNhap(),
-            phuTung.getSoLuongTon()
+            phuTung.getSoLuongTon(),
+            phuTung.getMaNhaCungCap()
         });
       }
 
@@ -175,7 +272,8 @@ public class PhuTungPage extends AbstractPage {
             NumberParseUtil.toDoubleOrNull(
                     NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_DON_GIA))),
             NumberParseUtil.toIntegerOrNull(
-                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_SO_LUONG))));
+                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_SO_LUONG))),
+            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_NCC)));
   }
 
   private String layMaDong(int row) {
@@ -186,6 +284,10 @@ public class PhuTungPage extends AbstractPage {
 
   private void moDialogThem() {
     PhuTungTaoFormPanel form = new PhuTungTaoFormPanel();
+    form.getChonNhaCungCapButton().addActionListener(e -> {
+      new ChonNhaCungCapDialog(SwingUtilities.getWindowAncestor(this), this.nhaCungCapService, this.tieuChiChonNhaCungCap()).showDialog()
+          .ifPresent(kq -> form.setNhaCungCap(kq.sanPham().getMaNhaCungCap()));
+    });
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
             SwingUtilities.getWindowAncestor(this),
             "app.phuTung.themTitle",
@@ -201,6 +303,10 @@ public class PhuTungPage extends AbstractPage {
   private void moDialogSua(int row) {
     PhuTungFormData duLieu = this.docDuLieuDong(row);
     PhuTungSuaFormPanel form = new PhuTungSuaFormPanel();
+    form.getChonNhaCungCapButton().addActionListener(e -> {
+      new ChonNhaCungCapDialog(SwingUtilities.getWindowAncestor(this), this.nhaCungCapService, this.tieuChiChonNhaCungCap()).showDialog()
+          .ifPresent(kq -> form.setNhaCungCap(kq.sanPham().getMaNhaCungCap()));
+    });
 
     try {
       PhuTung phuTung = this.phuTungService.getById(duLieu.maPhuTung())
@@ -232,7 +338,8 @@ public class PhuTungPage extends AbstractPage {
             phuTung.getMoTa(),
             phuTung.getAnhUrl(),
             phuTung.getDonGiaNhap(),
-            phuTung.getSoLuongTon());
+            phuTung.getSoLuongTon(),
+            phuTung.getMaNhaCungCap());
   }
 
   private boolean taoPhuTung(PhuTungFormPanel form) {
@@ -249,7 +356,8 @@ public class PhuTungPage extends AbstractPage {
               data.moTa(),
               data.anhUrl(),
               data.donGiaNhap(),
-              0));
+              0,
+              data.maNhaCungCap()));
       ThongBao.thongTin(this, "app.common.create_succeed");
       return true;
     } catch (IllegalArgumentException e) {
@@ -275,7 +383,8 @@ public class PhuTungPage extends AbstractPage {
               data.moTa(),
               data.anhUrl(),
               data.donGiaNhap(),
-              phuTung.getSoLuongTon()));
+              phuTung.getSoLuongTon(),
+              data.maNhaCungCap()));
       ThongBao.thongTin(this, "app.common.update_succeed");
       return true;
     } catch (IllegalArgumentException e) {
@@ -288,12 +397,12 @@ public class PhuTungPage extends AbstractPage {
   }
 
   private boolean kiemTraForm(PhuTungFormPanel form) {
-    if (form.validateInput()) {
-      return true;
+    if (!form.validateInput()) {
+      ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
+      return false;
     }
 
-    ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
-    return false;
+    return true;
   }
 
   // ==================== XÓA ====================

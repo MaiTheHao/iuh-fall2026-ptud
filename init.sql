@@ -43,6 +43,23 @@ CREATE TABLE NhanVien (
 );
 
 -- ============================================================
+-- TABLE: NhaCungCap
+-- ============================================================
+CREATE TABLE NhaCungCap (
+    maNhaCungCap varchar(20)   NOT NULL,
+    tenNhaCungCap nvarchar(100) NOT NULL,
+    sdt          varchar(11)   NOT NULL,
+    email        varchar(100)  NULL,
+    diaChi       nvarchar(255) NULL,
+    trangThai    varchar(20)   NOT NULL,
+    ghiChu       nvarchar(500) NULL,
+    ngayTao      datetime2(3)  NOT NULL CONSTRAINT DF_NhaCungCap_ngayTao DEFAULT sysdatetime(),
+    CONSTRAINT PK_NhaCungCap PRIMARY KEY (maNhaCungCap),
+    CONSTRAINT UQ_NhaCungCap_sdt UNIQUE (sdt),
+    CONSTRAINT CK_NhaCungCap_trangThai CHECK (trangThai IN ('HOAT_DONG', 'NGUNG_HOP_TAC'))
+);
+
+-- ============================================================
 -- TABLE: PhuTung
 -- ============================================================
 CREATE TABLE PhuTung (
@@ -52,8 +69,12 @@ CREATE TABLE PhuTung (
     anhUrl       varchar(500)  NULL,
     donGiaNhap   decimal(18,2) NOT NULL,
     soLuongTon   int DEFAULT 0 NOT NULL,
-    CONSTRAINT PK_PhuTung PRIMARY KEY (maPhuTung)
+    maNhaCungCap varchar(20)   NOT NULL,
+    CONSTRAINT PK_PhuTung PRIMARY KEY (maPhuTung),
+    CONSTRAINT FK_PhuTung_NhaCungCap FOREIGN KEY (maNhaCungCap) REFERENCES NhaCungCap(maNhaCungCap)
 );
+
+CREATE INDEX IX_PhuTung_maNhaCungCap ON PhuTung(maNhaCungCap);
 
 -- ============================================================
 -- TABLE: Voucher

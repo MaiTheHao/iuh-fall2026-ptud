@@ -7,6 +7,7 @@
 			"vehicles": "Xe",
 			"employees": "Nhân viên",
 			"inventory": "Phụ tùng",
+			"suppliers": "Nhà cung cấp",
 			"servicePriceList": "Dịch vụ",
 			"vouchers": "Voucher",
 			"shiftAssignment": "Phân công ca",
@@ -103,6 +104,10 @@
 			"TrangThaiNhanVien": {
 				"HOAT_DONG": "Đang làm việc",
 				"DA_KHOA": "Tạm khóa"
+			},
+			"TrangThaiNhaCungCap": {
+				"HOAT_DONG": "Đang hợp tác",
+				"NGUNG_HOP_TAC": "Ngừng hợp tác"
 			},
 			"TrangThaiVanDeKyThuat": {
 				"CO": "Đồng ý",
@@ -260,7 +265,40 @@
 			"loiDangSuDung": "Phụ tùng đã được dùng trong hóa đơn hoặc phiếu nhập, không thể xóa.",
 			"themTitle": "Thêm phụ tùng",
 			"suaTitle": "Cập nhật phụ tùng",
-			"tonKhoQuaPhieu": "Tồn kho chỉ thay đổi qua phiếu nhập / nghiệp vụ kho."
+			"tonKhoQuaPhieu": "Tồn kho chỉ thay đổi qua phiếu nhập / nghiệp vụ kho.",
+			"nhaCungCap": "Nhà cung cấp của phụ tùng",
+			"loiNhaCungCap": "Vui lòng chọn nhà cung cấp cho phụ tùng."
+		},
+		"nhaCungCap": {
+			"danhSachTitle": "Danh Sách Nhà Cung Cấp",
+			"ma": "Mã nhà cung cấp",
+			"ten": "Tên nhà cung cấp",
+			"soDienThoai": "Số điện thoại liên hệ",
+			"email": "Thư điện tử",
+			"diaChi": "Địa chỉ trụ sở",
+			"trangThai": "Trạng thái hợp tác",
+			"ghiChu": "Ghi chú bổ sung",
+			"ngayTao": "Ngày tạo hồ sơ",
+			"themTitle": "Thêm nhà cung cấp",
+			"suaTitle": "Cập nhật nhà cung cấp",
+			"loiTen": "Tên nhà cung cấp không được để trống.",
+			"loiTenDai": "Tên nhà cung cấp không được vượt quá 100 ký tự.",
+			"loiSoDienThoai": "Số điện thoại nhà cung cấp phải bắt đầu bằng 0 và gồm 9 đến 11 chữ số.",
+			"loiSoDienThoaiTrung": "Số điện thoại này đã được dùng cho nhà cung cấp khác.",
+			"loiEmail": "Địa chỉ thư điện tử của nhà cung cấp không hợp lệ.",
+			"loiEmailDai": "Địa chỉ thư điện tử của nhà cung cấp không được vượt quá 100 ký tự.",
+			"loiDiaChiDai": "Địa chỉ nhà cung cấp không được vượt quá 255 ký tự.",
+			"loiGhiChuDai": "Ghi chú của nhà cung cấp không được vượt quá 500 ký tự.",
+			"loiTrangThai": "Vui lòng chọn trạng thái hợp tác của nhà cung cấp.",
+			"loiDuLieuKhongHopLe": "Dữ liệu nhà cung cấp không hợp lệ.",
+			"khongTimThay": "Không tìm thấy nhà cung cấp.",
+			"loiDangSuDung": "Nhà cung cấp đang được phụ tùng tham chiếu, không thể xóa.",
+			"chuaChonXoa": "Vui lòng chọn nhà cung cấp cần xóa.",
+			"xacNhanXoa": "Bạn có chắc chắn muốn xóa nhà cung cấp này không?",
+			"tieuDeXoa": "Xác nhận xóa nhà cung cấp",
+			"chonNhaCungCap": "Chọn nhà cung cấp",
+			"timNhaCungCap": "Tìm theo mã, tên hoặc số điện thoại…",
+			"khongCoNhaCungCapPhuHop": "Không tìm thấy nhà cung cấp phù hợp."
 		},
 		"dichVu": {
 			"thongTinTitle": "Thông Tin Dịch Vụ",
@@ -633,10 +671,6 @@
 		},
 		"report": {
 			"revenue": {
-				"statisticsType": "Kiểu thống kê:",
-				"byDay": "Theo ngày",
-				"byMonth": "Theo tháng",
-				"byYear": "Theo năm",
 				"fromDate": "Từ ngày:",
 				"toDate": "Đến ngày:",
 				"viewReport": "Xem báo cáo",

@@ -1,11 +1,14 @@
 package iuh.fit.service;
 
+import iuh.fit.dao.NhaCungCapDAO;
 import iuh.fit.dao.PhuTungDAO;
 import iuh.fit.dao.TransactionScope;
 import iuh.fit.dto.DanhSachPhuTungCriteria;
 import iuh.fit.dto.PaginatedResult;
+import iuh.fit.entity.NhaCungCap;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.LoaiMa;
+import iuh.fit.enumeration.TrangThaiNhaCungCap;
 import iuh.fit.util.TextNormalizerUtil;
 
 import java.sql.SQLException;
@@ -23,11 +26,13 @@ public class PhuTungService {
     private static final String ERROR_ID = "app.phuTung.khongTimThay";
     private static final String ERROR_STOCK = "app.phuTung.khongDuTon";
     private static final String ERROR_RANGE = "app.phuTung.loiKhoangLoc";
+    private static final String ERROR_SUPPLIER = "app.phuTung.loiNhaCungCap";
 
     private static final Comparator<PhuTung> THEO_MA_PHU_TUNG = Comparator.comparing(
             PhuTung::getMaPhuTung, Comparator.nullsLast(String::compareTo));
 
     private final PhuTungDAO phuTungDAO = new PhuTungDAO();
+    private final NhaCungCapDAO nhaCungCapDAO = new NhaCungCapDAO();
     private final MaService maService = new MaService();
 
     public PaginatedResult<PhuTung> getAll(int page, int pageSize) throws SQLException {
@@ -151,7 +156,7 @@ public class PhuTungService {
         }
     }
 
-    private void validate(PhuTung phuTung) {
+    private void validate(PhuTung phuTung) throws SQLException {
         if (phuTung == null) {
             throw new IllegalArgumentException(ERROR_DATA);
         }
@@ -167,6 +172,15 @@ public class PhuTungService {
 
         if (phuTung.getSoLuongTon() < 0) {
             throw new IllegalArgumentException(ERROR_QUANTITY);
+        }
+
+        if (phuTung.getMaNhaCungCap() == null || phuTung.getMaNhaCungCap().isBlank()) {
+            throw new IllegalArgumentException(ERROR_SUPPLIER);
+        }
+
+        Optional<NhaCungCap> nhaCungCap = this.nhaCungCapDAO.findById(phuTung.getMaNhaCungCap());
+        if (nhaCungCap.isEmpty() || nhaCungCap.get().getTrangThai() != TrangThaiNhaCungCap.HOAT_DONG) {
+            throw new IllegalArgumentException(ERROR_SUPPLIER);
         }
     }
 
@@ -206,6 +220,11 @@ public class PhuTungService {
         }
 
         if (filter.soLuongDen() != null && soLuong > filter.soLuongDen()) {
+            return false;
+        }
+
+        if (filter.maNhaCungCap() != null && !filter.maNhaCungCap().isBlank()
+                && !filter.maNhaCungCap().equals(item.getMaNhaCungCap())) {
             return false;
         }
 

@@ -82,6 +82,7 @@ public final class ChonPhuTungDialog extends ChonSanPhamDialog<PhuTung> {
             this.boLocGoc.donGiaDen(),
             this.boLocGoc.soLuongTu(),
             this.boLocGoc.soLuongDen(),
+            this.boLocGoc.maNhaCungCap(),
             1,
             PAGE_SIZE_TAI_TOAN_BO);
   }

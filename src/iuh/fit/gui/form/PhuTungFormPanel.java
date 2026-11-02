@@ -8,11 +8,16 @@ import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import java.awt.BorderLayout;
+
+import javax.swing.JPanel;
 
 /**
  * Phần dùng chung của form phụ tùng: trường nhập liệu, đọc/ghi dữ liệu và kiểm tra hợp lệ.
@@ -28,6 +33,9 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
   protected final JScrollPane moTaScroll = FormFieldPanel.taoKhungMoTa(this.moTaArea);
   protected final JTextField donGiaField = new JTextField(14);
   protected final JTextField soLuongTonField = new JTextField(14);
+  private final JTextField nhaCungCapField = new JTextField(14);
+  private final JButton chonNhaCungCapButton = new JButton("...");
+  private final JPanel hangNhaCungCap = new JPanel(new BorderLayout(4, 0));
 
   protected final AnhField anhField = new AnhField(new AnhField.KhoaAnh(
           "app.phuTung.anhUrl",
@@ -46,9 +54,29 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
     // Tồn kho chỉ thay đổi qua phiếu nhập / nghiệp vụ kho nên luôn chỉ đọc.
     Theme.applyReadOnly(this.soLuongTonField);
     this.soLuongTonField.setText("0");
+    Theme.applyReadOnly(this.nhaCungCapField);
+    this.hangNhaCungCap.add(this.nhaCungCapField, BorderLayout.CENTER);
+    this.hangNhaCungCap.add(this.chonNhaCungCapButton, BorderLayout.EAST);
 
     FormValidationHelper.autoClearOnInput(this.tenField);
     FormValidationHelper.autoClearOnInput(this.donGiaField);
+  }
+
+  public JButton getChonNhaCungCapButton() {
+    return this.chonNhaCungCapButton;
+  }
+
+  public void setNhaCungCap(String ma) {
+    this.nhaCungCapField.setText(ma == null ? "" : ma);
+    FormValidationHelper.clearError(this.nhaCungCapField);
+  }
+
+  public String getMaNhaCungCap() {
+    return this.nhaCungCapField.getText().trim();
+  }
+
+  public JComponent thanhNhaCungCap() {
+    return this.hangNhaCungCap;
   }
 
   /** Lớp con dựng bố cục trong constructor của chính nó. */
@@ -61,6 +89,7 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
     this.anhField.setDuongDan(data.anhUrl());
     this.donGiaField.setText(data.donGiaNhap() == null ? "" : String.valueOf(data.donGiaNhap()));
     this.soLuongTonField.setText(data.soLuongTon() == null ? "0" : String.valueOf(data.soLuongTon()));
+    this.setNhaCungCap(data.maNhaCungCap());
   }
 
   public PhuTungFormData layDuLieu() {
@@ -75,7 +104,8 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
             moTa.isBlank() ? null : moTa,
             anhUrl.isBlank() ? null : anhUrl,
             NumberParseUtil.toDoubleOrNull(this.donGiaField.getText()),
-            soLuongTon == null ? 0 : soLuongTon);
+            soLuongTon == null ? 0 : soLuongTon,
+            this.getMaNhaCungCap());
   }
 
   public final boolean validateInput() {
@@ -117,6 +147,16 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
       }
     } else {
       FormValidationHelper.clearError(this.donGiaField);
+    }
+
+    if (this.getMaNhaCungCap().isEmpty()) {
+      FormValidationHelper.markError(this.nhaCungCapField,
+              I18nReaderUtil.get("app.phuTung.loiNhaCungCap"));
+      if (loiDauTien == null) {
+        loiDauTien = this.nhaCungCapField;
+      }
+    } else {
+      FormValidationHelper.clearError(this.nhaCungCapField);
     }
 
     return loiDauTien;

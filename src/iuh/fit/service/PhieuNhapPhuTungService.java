@@ -151,6 +151,7 @@ public class PhieuNhapPhuTungService {
 
 	private List<ChiTietPhieuNhapPhuTung> gopChiTietTrung(List<ChiTietPhieuNhapPhuTung> chiTiets) {
 		Map<String, ChiTietPhieuNhapPhuTung> map = new LinkedHashMap<>();
+		// Gộp theo mã phụ tùng: cộng số lượng, lấy đơn giá của dòng mới nhất.
 		for (ChiTietPhieuNhapPhuTung ct : chiTiets) {
 			String ma = ct.getMaPhuTung().trim();
 			if (map.containsKey(ma)) {

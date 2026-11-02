@@ -8,10 +8,11 @@ public record DanhSachPhuTungCriteria(
         Double donGiaDen,
         Integer soLuongTu,
         Integer soLuongDen,
+        String maNhaCungCap,
         int page,
         int pageSize) implements DanhSachCriteria {
 
-    public static DanhSachPhuTungCriteria macDinh() {
-        return new DanhSachPhuTungCriteria(null, null, null, null, null, null, null, 1, PaginatedResult.DEFAULT_PAGE_SIZE);
-    }
+  public static DanhSachPhuTungCriteria macDinh() {
+    return new DanhSachPhuTungCriteria(null, null, null, null, null, null, null, null, 1, PaginatedResult.DEFAULT_PAGE_SIZE);
+  }
 }

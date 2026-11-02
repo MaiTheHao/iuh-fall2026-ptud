@@ -7,17 +7,19 @@ public class PhuTung {
     private String anhUrl;
     private Double donGiaNhap;
     private int soLuongTon;
+    private String maNhaCungCap;
 
     public PhuTung() {
     }
 
-    public PhuTung(String maPhuTung, String tenPhuTung, String moTa, String anhUrl, Double donGiaNhap, int soLuongTon) {
+    public PhuTung(String maPhuTung, String tenPhuTung, String moTa, String anhUrl, Double donGiaNhap, int soLuongTon, String maNhaCungCap) {
         this.maPhuTung = maPhuTung;
         this.tenPhuTung = tenPhuTung;
         this.moTa = moTa;
         this.anhUrl = anhUrl;
         this.donGiaNhap = donGiaNhap;
         this.soLuongTon = soLuongTon;
+        this.maNhaCungCap = maNhaCungCap;
     }
 
     public String getMaPhuTung() {
@@ -66,5 +68,13 @@ public class PhuTung {
 
     public void setSoLuongTon(int soLuongTon) {
         this.soLuongTon = soLuongTon;
+    }
+
+    public String getMaNhaCungCap() {
+        return maNhaCungCap;
+    }
+
+    public void setMaNhaCungCap(String maNhaCungCap) {
+        this.maNhaCungCap = maNhaCungCap;
     }
 }
