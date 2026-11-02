@@ -7,6 +7,7 @@
 			"vehicles": "Vehicles",
 			"employees": "Employees",
 			"inventory": "Parts",
+			"suppliers": "Suppliers",
 			"servicePriceList": "Services",
 			"vouchers": "Vouchers",
 			"shiftAssignment": "Shift Assignment",
@@ -103,6 +104,10 @@
 			"TrangThaiNhanVien": {
 				"HOAT_DONG": "Working",
 				"DA_KHOA": "Suspended"
+			},
+			"TrangThaiNhaCungCap": {
+				"HOAT_DONG": "Active partner",
+				"NGUNG_HOP_TAC": "Suspended partner"
 			},
 			"TrangThaiVanDeKyThuat": {
 				"CO": "Agreed",
@@ -260,7 +265,40 @@
 			"loiDangSuDung": "Part is used in an invoice or import receipt and cannot be deleted.",
 			"themTitle": "Add Spare Part",
 			"suaTitle": "Edit Spare Part",
-			"tonKhoQuaPhieu": "Stock changes only through import slips or warehouse operations."
+			"tonKhoQuaPhieu": "Stock changes only through import slips or warehouse operations.",
+			"nhaCungCap": "Part supplier",
+			"loiNhaCungCap": "Please select a supplier for the part."
+		},
+		"nhaCungCap": {
+			"danhSachTitle": "Supplier List",
+			"ma": "Supplier ID",
+			"ten": "Supplier Name",
+			"soDienThoai": "Contact Phone",
+			"email": "Email Address",
+			"diaChi": "Head Office Address",
+			"trangThai": "Partnership Status",
+			"ghiChu": "Additional Notes",
+			"ngayTao": "Profile Created Date",
+			"themTitle": "Add Supplier",
+			"suaTitle": "Edit Supplier",
+			"loiTen": "Supplier name is required.",
+			"loiTenDai": "Supplier name cannot exceed 100 characters.",
+			"loiSoDienThoai": "Supplier phone must start with 0 and contain 9 to 11 digits.",
+			"loiSoDienThoaiTrung": "This phone number is already used by another supplier.",
+			"loiEmail": "Supplier email address is invalid.",
+			"loiEmailDai": "Supplier email address cannot exceed 100 characters.",
+			"loiDiaChiDai": "Supplier address cannot exceed 255 characters.",
+			"loiGhiChuDai": "Supplier notes cannot exceed 500 characters.",
+			"loiTrangThai": "Please select the supplier partnership status.",
+			"loiDuLieuKhongHopLe": "Invalid supplier data.",
+			"khongTimThay": "Supplier not found.",
+			"loiDangSuDung": "Supplier is referenced by parts and cannot be deleted.",
+			"chuaChonXoa": "Please select a supplier to delete.",
+			"xacNhanXoa": "Are you sure you want to delete this supplier?",
+			"tieuDeXoa": "Confirm Supplier Deletion",
+			"chonNhaCungCap": "Select Supplier",
+			"timNhaCungCap": "Search by code, name or phone…",
+			"khongCoNhaCungCapPhuHop": "No matching supplier found."
 		},
 		"dichVu": {
 			"thongTinTitle": "Service Information",
@@ -633,10 +671,6 @@
 		},
 		"report": {
 			"revenue": {
-				"statisticsType": "Statistics type:",
-				"byDay": "By day",
-				"byMonth": "By month",
-				"byYear": "By year",
 				"fromDate": "From date:",
 				"toDate": "To date:",
 				"viewReport": "View Report",

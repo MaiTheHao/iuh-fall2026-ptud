@@ -19,7 +19,6 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -51,8 +50,6 @@ import java.util.Locale;
 public class DoanhThuPage extends AbstractPage {
 
 	private static final long serialVersionUID = 1L;
-
-	private final JComboBox<String> cboKieuThongKe = new JComboBox<>();
 
 	private final DatePicker dpTuNgay = this.taoDatePicker();
 	private final DatePicker dpDenNgay = this.taoDatePicker();
@@ -90,7 +87,6 @@ public class DoanhThuPage extends AbstractPage {
 
 		this.datMacDinhNgay();
 
-		this.cboKieuThongKe.addActionListener(e -> this.taiBaoCaoKhiDoiLoc());
 		this.dpTuNgay.addDateChangeListener(event -> this.taiBaoCaoKhiDoiLoc());
 		this.dpDenNgay.addDateChangeListener(event -> this.taiBaoCaoKhiDoiLoc());
 	}
@@ -114,7 +110,7 @@ public class DoanhThuPage extends AbstractPage {
 	}
 
 	private void datMacDinhNgay() {
-		this.dpTuNgay.setDate(LocalDate.now().withDayOfMonth(1));
+		this.dpTuNgay.setDate(LocalDate.now().minusDays(29));
 		this.dpDenNgay.setDate(LocalDate.now());
 	}
 
@@ -140,15 +136,6 @@ public class DoanhThuPage extends AbstractPage {
 
 	private JPanel taoBoLoc() {
 		JPanel pnl = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
-
-		this.cboKieuThongKe.removeAllItems();
-
-		this.cboKieuThongKe.addItem(I18nReaderUtil.get("app.report.revenue.byDay"));
-		this.cboKieuThongKe.addItem(I18nReaderUtil.get("app.report.revenue.byMonth"));
-		this.cboKieuThongKe.addItem(I18nReaderUtil.get("app.report.revenue.byYear"));
-
-		pnl.add(new JLabel(I18nReaderUtil.get("app.report.revenue.statisticsType")));
-		pnl.add(this.cboKieuThongKe);
 
 		pnl.add(new JLabel(I18nReaderUtil.get("app.report.revenue.fromDate")));
 		pnl.add(this.dpTuNgay);

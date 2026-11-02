@@ -465,7 +465,8 @@ public class LapHoaDonPage extends AbstractPage {
 		return new PhuTung(p.getMaPhuTung(), p.getTenPhuTung(),
 				p.getMoTa(), p.getAnhUrl(), p.getDonGiaNhap(),
 				Math.max(0, p.getSoLuongTon() + soLuongGoc.getOrDefault(p.getMaPhuTung(), 0)
-						- daChon.getOrDefault(p.getMaPhuTung(), 0)));
+						- daChon.getOrDefault(p.getMaPhuTung(), 0)),
+				p.getMaNhaCungCap());
 	}
 
 	private void themPhuTung() {

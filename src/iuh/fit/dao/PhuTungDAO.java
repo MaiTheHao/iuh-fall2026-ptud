@@ -14,7 +14,7 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
 
     private static final String SQL_SELECT = """
             SELECT maPhuTung, tenPhuTung, moTa, anhUrl,
-                   donGiaNhap, soLuongTon
+                   donGiaNhap, soLuongTon, maNhaCungCap
             FROM PhuTung
             """;
 
@@ -31,8 +31,8 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
 
     public void insert(PhuTung phuTung) throws SQLException {
         String sql = """
-                INSERT INTO PhuTung (maPhuTung, tenPhuTung, moTa, anhUrl, donGiaNhap, soLuongTon)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO PhuTung (maPhuTung, tenPhuTung, moTa, anhUrl, donGiaNhap, soLuongTon, maNhaCungCap)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (Connection conn = DatabaseConfig.getConnection();
@@ -44,6 +44,7 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
             ps.setString(4, phuTung.getAnhUrl());
             ps.setDouble(5, phuTung.getDonGiaNhap());
             ps.setInt(6, phuTung.getSoLuongTon());
+            ps.setString(7, phuTung.getMaNhaCungCap());
 
             ps.executeUpdate();
         }
@@ -55,7 +56,8 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
                 SET tenPhuTung = ?,
                     moTa = ?,
                     anhUrl = ?,
-                    donGiaNhap = ?
+                    donGiaNhap = ?,
+                    maNhaCungCap = ?
                 WHERE maPhuTung = ?
                 """;
 
@@ -66,7 +68,8 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
             ps.setString(2, phuTung.getMoTa());
             ps.setString(3, phuTung.getAnhUrl());
             ps.setDouble(4, phuTung.getDonGiaNhap());
-            ps.setString(5, phuTung.getMaPhuTung());
+            ps.setString(5, phuTung.getMaNhaCungCap());
+            ps.setString(6, phuTung.getMaPhuTung());
 
             ps.executeUpdate();
         }
@@ -153,6 +156,7 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
                 rs.getString("moTa"),
                 rs.getString("anhUrl"),
                 rs.getDouble("donGiaNhap"),
-                rs.getInt("soLuongTon"));
+                rs.getInt("soLuongTon"),
+                rs.getString("maNhaCungCap"));
     }
 }

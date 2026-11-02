@@ -16,7 +16,8 @@ public final class PhuTungSuaFormPanel extends PhuTungFormPanel {
     this.addField("app.phuTung.ma", this.maField);
     this.addField("app.phuTung.ten", this.tenField);
     this.addField("app.phuTung.moTa", this.moTaScroll);
-    this.addBlock(this.anhField);
     this.addField("app.phuTung.donGia", this.donGiaField);
+    this.addField("app.phuTung.nhaCungCap", this.thanhNhaCungCap());
+    this.addBlock(this.anhField);
   }
 }

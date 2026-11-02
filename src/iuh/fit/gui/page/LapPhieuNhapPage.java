@@ -7,6 +7,7 @@ import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ChonPhuTungDialog;
 import iuh.fit.gui.component.ChonSanPhamDialog;
+import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThaoTacTableCellRenderer;
 import iuh.fit.gui.component.ThongBao;
@@ -17,13 +18,12 @@ import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -33,8 +33,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -65,77 +63,22 @@ public class LapPhieuNhapPage extends AbstractPage {
 	public void render() {
 		this.removeAll();
 		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		this.setBackground(Theme.BG);
 
-		JPanel leftPanel = this.taoPanelThongTin();
-		leftPanel.setPreferredSize(new Dimension(440, 0));
+		ManagementFormPanel form = new ManagementFormPanel("app.phieuNhap.thongTinPhieuNhap");
+		form.addField("app.phieuNhap.moTa", this.moTaField);
 
-		this.add(leftPanel, BorderLayout.WEST);
-		this.add(this.taoPanelChiTiet(), BorderLayout.CENTER);
-
-		this.lamMoi();
-
-		this.revalidate();
-		this.repaint();
-	}
-
-	private JPanel taoPanelThongTin() {
-		JPanel panel = new JPanel(new BorderLayout(0, 8));
-		panel.setOpaque(false);
-		panel.setBorder(Theme.titledBorder("app.phieuNhap.thongTinPhieuNhap"));
-
-		JPanel formPanel = new JPanel();
-		formPanel.setOpaque(false);
-		formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
-		formPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-		this.themDongBox(formPanel, "app.phieuNhap.moTa", this.moTaField);
-		panel.add(formPanel, BorderLayout.NORTH);
-
-		JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
-		actionPanel.setOpaque(false);
-		JButton btnReset = new JButton(I18nReaderUtil.get("app.common.clear"));
-		this.btnSave = new JButton(I18nReaderUtil.get("app.phieuNhap.luuPhieuNhap"));
-		Theme.applyPrimary(this.btnSave);
-
-		btnReset.setPreferredSize(new Dimension(190, 40));
-		this.btnSave.setPreferredSize(new Dimension(190, 40));
+		JButton btnReset = form.getNutXoaTrang();
+		this.btnSave = form.getNutLuu();
+		btnReset.setText(I18nReaderUtil.get("app.common.clear"));
+		this.btnSave.setText(I18nReaderUtil.get("app.phieuNhap.luuPhieuNhap"));
+		this.clearActionListeners(btnReset, this.btnSave);
 		btnReset.addActionListener(e -> this.xoaTrang());
 		this.btnSave.addActionListener(e -> this.luu());
+		form.thayNut(btnReset, this.btnSave);
 
-		actionPanel.add(btnReset);
-		actionPanel.add(this.btnSave);
-		panel.add(actionPanel, BorderLayout.SOUTH);
-		return panel;
-	}
-
-	private void xoaTrang() {
-		if (this.isDirty() && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
-			return;
-		}
-		this.lamMoi();
-	}
-
-	private boolean isDirty() {
-		return !this.moTaField.getText().isBlank() || this.modelDetails.getRowCount() > 0;
-	}
-
-	private void themDongBox(JPanel container, String i18nKey, JTextField field) {
-		JLabel label = new JLabel(I18nReaderUtil.get(i18nKey));
-		label.setForeground(Theme.INK);
-		label.setAlignmentX(Component.LEFT_ALIGNMENT);
-		field.setAlignmentX(Component.LEFT_ALIGNMENT);
-		field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-		container.add(label);
-		container.add(Box.createVerticalStrut(4));
-		container.add(field);
-		container.add(Box.createVerticalStrut(10));
-	}
-
-	private JPanel taoPanelChiTiet() {
-		JPanel panel = new JPanel(new BorderLayout(0, 8));
-		panel.setOpaque(false);
-		panel.setBorder(Theme.titledBorder("app.phieuNhap.danhSachChiTiet"));
+		JPanel right = new JPanel(new BorderLayout(4, 4));
+		right.setOpaque(false);
 
 		JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
 		topBar.setOpaque(false);
@@ -148,7 +91,7 @@ public class LapPhieuNhapPage extends AbstractPage {
 		this.nutXoaDaChon.setEnabled(false);
 		this.nutXoaDaChon.addActionListener(e -> this.xoaDongDaChon());
 		topBar.add(this.nutXoaDaChon);
-		panel.add(topBar, BorderLayout.NORTH);
+		right.add(topBar, BorderLayout.NORTH);
 
 		String[] headers = { "", "#", I18nReaderUtil.get("app.phuTung.ma"), I18nReaderUtil.get("app.phuTung.ten"),
 				I18nReaderUtil.get("app.phieuNhap.soLuong"), I18nReaderUtil.get("app.phieuNhap.donGia"),
@@ -168,7 +111,6 @@ public class LapPhieuNhapPage extends AbstractPage {
 		};
 
 		this.tableDetails = new JTable(this.modelDetails);
-		this.tableDetails.setRowHeight(36);
 		Theme.styleTable(this.tableDetails);
 		this.tableDetails.getColumnModel().getColumn(0).setMinWidth(44);
 		this.tableDetails.getColumnModel().getColumn(0).setMaxWidth(44);
@@ -183,22 +125,39 @@ public class LapPhieuNhapPage extends AbstractPage {
 		this.modelDetails.addTableModelListener(e -> this.tinhThanhTienDong(e.getFirstRow(), e.getColumn()));
 		this.modelDetails.addTableModelListener(e -> this.capNhatNutXoaDaChon());
 
-		panel.add(new JScrollPane(this.tableDetails), BorderLayout.CENTER);
+		right.add(new JScrollPane(this.tableDetails), BorderLayout.CENTER);
 
-		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
+		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6));
 		bottomPanel.setOpaque(false);
 		JLabel lblTitle = new JLabel(I18nReaderUtil.get("app.phieuNhap.tongChiPhi") + ":");
 		lblTitle.setForeground(Theme.palette().INK_SECONDARY());
-
 		this.totalCostLabel = new JLabel(this.currencyFormat.format(0));
 		this.totalCostLabel.setForeground(Theme.INK);
-		this.totalCostLabel.setPreferredSize(new Dimension(900, 40));
-
 		bottomPanel.add(lblTitle);
 		bottomPanel.add(this.totalCostLabel);
-		panel.add(bottomPanel, BorderLayout.SOUTH);
+		right.add(bottomPanel, BorderLayout.SOUTH);
 
-		return panel;
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, right);
+		split.setDividerLocation(420);
+		split.setOpaque(false);
+		split.setBorder(null);
+		this.add(split, BorderLayout.CENTER);
+
+		this.lamMoi();
+
+		this.revalidate();
+		this.repaint();
+	}
+
+	private void xoaTrang() {
+		if (this.isDirty() && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
+			return;
+		}
+		this.lamMoi();
+	}
+
+	private boolean isDirty() {
+		return !this.moTaField.getText().isBlank() || this.modelDetails.getRowCount() > 0;
 	}
 
 	private void themDong() {
@@ -213,7 +172,8 @@ public class LapPhieuNhapPage extends AbstractPage {
 			if (this.getMaFromRow(i).equalsIgnoreCase(kq.sanPham().getMaPhuTung())) {
 				int soLuongMoi = this.getSoLuongRow(i) + kq.soLuong();
 				this.modelDetails.setValueAt(soLuongMoi, i, 4);
-				this.modelDetails.setValueAt(kq.sanPham().getDonGiaNhap(), i, 5);
+				double giaMoi = kq.sanPham().getDonGiaNhap() != null ? kq.sanPham().getDonGiaNhap() : 0.0;
+				this.modelDetails.setValueAt(giaMoi, i, 5);
 				this.tinhTongChiPhi();
 				return;
 			}

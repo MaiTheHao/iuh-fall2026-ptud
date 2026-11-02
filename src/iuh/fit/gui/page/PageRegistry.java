@@ -18,6 +18,7 @@ public final class PageRegistry {
         this.register(new XePage());
         this.register(new NhanVienPage());
         this.register(new PhuTungPage());
+        this.register(new NhaCungCapPage());
         this.register(new DichVuPage());
         this.register(new VoucherPage());
         this.register(new PhanCongCaPage());

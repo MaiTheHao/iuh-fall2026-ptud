@@ -11,7 +11,9 @@ public enum LoaiMa {
   PC("PC"),
   HD("HD"),
   VD("VD"),
-  KN("KN");
+  KN("KN"),
+  // U3: tiền tố NCC cho MaService (NCC-yyyyMMdd-NNNNNN).
+  NCC("NCC");
 
   private final String tienTo;
 
