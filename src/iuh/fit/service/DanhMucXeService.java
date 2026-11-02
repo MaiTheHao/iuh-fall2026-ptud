@@ -24,6 +24,12 @@ public final class DanhMucXeService {
     private static final String ERROR_DU_LIEU = "app.danhMucXe.loiDuLieu";
     private static final String ERROR_TRUNG_TEN = "app.danhMucXe.loiTrungTen";
 
+    public static final int NAM_SX_NHO_NHAT = 1886;
+
+    public static int namSxLonNhat() {
+        return Year.now(ZoneId.of("Asia/Ho_Chi_Minh")).getValue() + 1;
+    }
+
     private final HangXeDAO hangXeDAO;
     private final DongXeDAO dongXeDAO;
     private final DoiXeDAO doiXeDAO;
@@ -55,6 +61,30 @@ public final class DanhMucXeService {
             return doiXeDAO.findAll();
         }
         return doiXeDAO.findByDong(maDongXe);
+    }
+
+    public HangXe getHangXe(String maHangXe) throws SQLException {
+        if (maHangXe == null || maHangXe.isBlank()) {
+            throw new IllegalArgumentException(ERROR_KHONG_TIM_THAY);
+        }
+        return hangXeDAO.findById(maHangXe)
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_KHONG_TIM_THAY));
+    }
+
+    public DongXe getDongXe(String maDongXe) throws SQLException {
+        if (maDongXe == null || maDongXe.isBlank()) {
+            throw new IllegalArgumentException(ERROR_KHONG_TIM_THAY);
+        }
+        return dongXeDAO.findById(maDongXe)
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_KHONG_TIM_THAY));
+    }
+
+    public DoiXe getDoiXe(String maDoiXe) throws SQLException {
+        if (maDoiXe == null || maDoiXe.isBlank()) {
+            throw new IllegalArgumentException(ERROR_KHONG_TIM_THAY);
+        }
+        return doiXeDAO.findById(maDoiXe)
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_KHONG_TIM_THAY));
     }
 
     public HangXe taoHangXe(String ten) throws SQLException {
@@ -172,8 +202,8 @@ public final class DanhMucXeService {
         if (maDongXe == null || maDongXe.isBlank() || dongXeDAO.findById(maDongXe).isEmpty()) {
             throw new IllegalArgumentException(ERROR_KHONG_TIM_THAY);
         }
-        int maxNam = Year.now(ZoneId.of("Asia/Ho_Chi_Minh")).getValue() + 1;
-        if (namSX < 1886 || namSX > maxNam) {
+        int maxNam = namSxLonNhat();
+        if (namSX < NAM_SX_NHO_NHAT || namSX > maxNam) {
             throw new IllegalArgumentException(ERROR_NAM_SX);
         }
         if (doiXeDAO.existsByDongAndNam(maDongXe, namSX)) {
@@ -193,8 +223,8 @@ public final class DanhMucXeService {
                 || dongXeDAO.findById(doiXe.getMaDongXe()).isEmpty()) {
             throw new IllegalArgumentException(ERROR_KHONG_TIM_THAY);
         }
-        int maxNam = Year.now(ZoneId.of("Asia/Ho_Chi_Minh")).getValue() + 1;
-        if (doiXe.getNamSX() < 1886 || doiXe.getNamSX() > maxNam) {
+        int maxNam = namSxLonNhat();
+        if (doiXe.getNamSX() < NAM_SX_NHO_NHAT || doiXe.getNamSX() > maxNam) {
             throw new IllegalArgumentException(ERROR_NAM_SX);
         }
         for (DoiXe other : doiXeDAO.findByDong(doiXe.getMaDongXe())) {

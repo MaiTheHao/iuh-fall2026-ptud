@@ -263,7 +263,11 @@
 			"loiTrungTen": "This name already exists at the same level.",
 			"chuaChonHang": "Please select a car make.",
 			"chuaChonDong": "Please select a car model.",
-			"chuaChonDoi": "Please select a model year."
+			"chuaChonDoi": "Please select a model year.",
+			"chuaCoHangXe": "No car makes yet. Please create a car make first.",
+			"chuaCoDongXe": "This car make has no models yet. Please create a car model first.",
+			"chuaChonXoa": "Please select a record to delete.",
+			"xacNhanXoaTen": "Are you sure you want to delete \"{0}\"?"
 		},
 		"phuTung": {
 			"thongTinTitle": "Part Information",
