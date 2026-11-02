@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gara Ô tô Lúa - Tiếp Nhận Khiếu Nại</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/utilities.css">
+</head>
+<body>
+  <div class="swing-window">
+      <header data-include="titlebar"></header>
+      <nav data-include="menubar"></nav>
+      <div class="flex-1 flex flex-col garage-backdrop p-1.5 overflow-auto">
+        <main id="SCR-16" class="flex-1 flex flex-col space-y-2">
+
+          <div class="swing-panel bg-white !mt-0 flex-1 flex flex-col justify-between">
+            <div>
+              <span class="swing-panel-legend">Tiếp Nhận Khiếu Nại</span>
+
+              <form id="formKhieuNai" class="space-y-3 mt-2">
+
+                <!-- 2 Cột tra cứu: Khách Hàng & Phiếu Tiếp Nhận -->
+                <div class="grid grid-cols-2 gap-3">
+
+                  <!-- KHỐI 1: KHÁCH HÀNG KHIẾU NẠI -->
+                  <div class="border border-zinc-400 p-3 bg-white relative">
+                    <div class="font-bold text-[11px] text-zinc-900 border-b border-zinc-200 pb-1 mb-2">
+                      <span class="uppercase">1. Khách Hàng Khiếu Nại</span>
+                    </div>
+
+                    <div class="space-y-2">
+                      <div>
+                        <label class="block text-[10px] font-bold">Số điện thoại khách hàng (*):</label>
+                        <div class="flex gap-1.5">
+                          <input type="text" id="knSdtInput" value="0918234567" placeholder="Nhập SĐT 10 số (VD: 0918234567)..." class="flex-1 font-mono font-bold text-xs">
+                          <button type="button" class="swing-btn-primary font-bold px-3 py-1 text-xs">
+                             Tìm Khách
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label class="block text-[10px] font-bold">Họ và tên khách hàng:</label>
+                        <input type="text" id="knHoTenInput" value="Trần Thị Bích Ngọc" readonly placeholder="Họ và tên khách hàng..." class="w-full font-bold">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- KHỐI 2: PHIẾU TIẾP NHẬN LIÊN QUAN -->
+                  <div class="border border-zinc-400 p-3 bg-white relative">
+                    <div class="font-bold text-[11px] text-zinc-900 border-b border-zinc-200 pb-1 mb-2">
+                      <span class="uppercase">2. Phiếu Tiếp Nhận Liên Quan</span>
+                    </div>
+
+                    <div class="space-y-2">
+                      <div>
+                        <label class="block text-[10px] font-bold">Phiếu tiếp nhận khiếu nại (*):</label>
+                        <select id="knPhieu" class="w-full font-mono font-bold text-xs">
+                          <option value="TN202609290002" selected>TN202609290002 - 51F12345 (Đang triển khai)</option>
+                          <option value="TN202609290001">TN202609290001 - 51G88912 (Đang kiểm tra)</option>
+                          <option value="TN202609280014">TN202609280014 - 60A33211 (Chờ bàn giao)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label class="block text-[10px] font-bold">Nội dung yêu cầu ban đầu:</label>
+                        <input type="text" id="knPhieuNoiDungInput" value="Bảo dưỡng định kỳ mốc 40,000 Km" readonly class="w-full">
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Nội dung khiếu nại -->
+                <div class="border border-zinc-400 p-3 bg-white">
+                  <label class="block text-[10.5px] font-bold text-zinc-900 mb-1">
+                    Nội Dung Khiếu Nại (*):
+                  </label>
+                  <textarea id="knNoiDung" rows="5" class="w-full text-xs font-medium" placeholder="Mô tả rõ vấn đề khách hàng phản ánh sau khi nhận xe...">Sau khi nhận xe về, tôi vẫn nghe tiếng kêu lạ ở khu vực gầm trước mỗi khi qua gờ giảm tốc. Đề nghị gara kiểm tra và phản hồi lại trong tuần này.</textarea>
+                </div>
+
+              </form>
+            </div>
+
+            <!-- Cụm nút thao tác (đặt ở cuối form) -->
+            <div class="pt-2 border-t border-zinc-300 mt-2 flex flex-wrap justify-end gap-1.5">
+              <button type="button" class="text-xs py-1 px-3 hover:bg-zinc-200">
+                 Làm Mới
+              </button>
+              <button type="button" class="swing-btn-primary px-4 py-1 text-xs font-bold">
+                 Lưu Khiếu Nại
+              </button>
+            </div>
+
+          </div>
+
+        </main>
+      </div>
+      <footer data-include="statusbar"></footer>
+    </div>
+  <script src="../partials/chrome.js"></script>
+</body>
+</html>
