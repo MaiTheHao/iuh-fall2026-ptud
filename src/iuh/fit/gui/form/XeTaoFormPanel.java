@@ -19,7 +19,7 @@ public final class XeTaoFormPanel extends XeFormPanel {
     this.addField("app.xe.bienSo", this.bienSoField);
     this.addField("app.xe.hangXe", this.hangXeCombo);
     this.addField("app.xe.dongXe", this.dongXeCombo);
-    this.addField("app.xe.doiXe", this.doiXeField);
+    this.addField("app.xe.doiXe", this.doiXeCombo);
     this.addField("app.xe.odo", this.odoField);
   }
 }

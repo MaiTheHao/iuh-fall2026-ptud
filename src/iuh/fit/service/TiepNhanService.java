@@ -56,14 +56,12 @@ public class TiepNhanService {
                     this.xeService.update(scope, xe);
                 }
             } else {
-                if (data.doiXe() == null) {
+                if (data.maDoiXe() == null || data.maDoiXe().isBlank()) {
                     throw new IllegalArgumentException(ERROR_DOI_XE);
                 }
                 xe = new Xe();
                 xe.setBienSo(data.bienSo());
-                xe.setHangXe(data.hangXe());
-                xe.setDongXe(data.dongXe());
-                xe.setDoiXe(data.doiXe());
+                xe.setMaDoiXe(data.maDoiXe());
                 xe.setOdo(data.odo() == null ? 0 : data.odo());
                 this.xeService.create(scope, xe);
             }

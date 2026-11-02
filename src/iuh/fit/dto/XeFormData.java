@@ -2,8 +2,8 @@ package iuh.fit.dto;
 
 public record XeFormData(
         String bienSo,
-        String hangXe,
-        String dongXe,
-        Integer doiXe,
+        String maHangXe,
+        String maDongXe,
+        String maDoiXe,
         Integer odo) {
 }

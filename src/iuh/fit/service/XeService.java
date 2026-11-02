@@ -1,5 +1,6 @@
 package iuh.fit.service;
 
+import iuh.fit.dao.DoiXeDAO;
 import iuh.fit.dao.TransactionScope;
 import iuh.fit.dao.XeDAO;
 import iuh.fit.dto.DanhSachXeCriteria;
@@ -15,6 +16,7 @@ import java.util.Optional;
 public class XeService {
 
     private final XeDAO xeDAO = new XeDAO();
+    private final DoiXeDAO doiXeDAO = new DoiXeDAO();
 
     private static final String ERROR_XE_NOT_FOUND = "app.xe.loiKhongTimThay";
     private static final String ERROR_BIEN_SO = "app.xe.loiBienSo";
@@ -142,31 +144,7 @@ public class XeService {
         }
     }
 
-    public List<String> getDanhSachHangXe() throws SQLException {
-        return this.xeDAO.findAll().stream()
-                .map(Xe::getHangXe)
-                .map(this::normalizeTenXe)
-                .filter(name -> !name.isEmpty())
-                .distinct()
-                .sorted()
-                .toList();
-    }
-
-    public List<String> getDanhSachDongXe(String hangXe) throws SQLException {
-        String chuanHoa = this.normalizeTenXe(hangXe);
-
-        return this.xeDAO.findAll().stream()
-                .filter(xe -> chuanHoa.isEmpty()
-                        || chuanHoa.equals(this.normalizeTenXe(xe.getHangXe())))
-                .map(Xe::getDongXe)
-                .map(this::normalizeTenXe)
-                .filter(name -> !name.isEmpty())
-                .distinct()
-                .sorted()
-                .toList();
-    }
-
-    private void validate(Xe xe) {
+    private void validate(Xe xe) throws SQLException {
         if (xe == null) {
             throw new IllegalArgumentException(
                     "Thông tin xe không được để trống.");
@@ -178,26 +156,12 @@ public class XeService {
             throw new IllegalArgumentException(ERROR_BIEN_SO);
         }
 
-        if (xe.getHangXe() == null || xe.getHangXe().isBlank()) {
-            throw new IllegalArgumentException(ERROR_HANG_XE);
+        if (xe.getMaDoiXe() == null || xe.getMaDoiXe().isBlank()) {
+            throw new IllegalArgumentException("app.danhMucXe.khongTimThay");
         }
 
-        if (xe.getHangXe().trim().length() > 50) {
-            throw new IllegalArgumentException(ERROR_HANG_XE_TOO_LONG);
-        }
-
-        if (xe.getDongXe() == null || xe.getDongXe().isBlank()) {
-            throw new IllegalArgumentException(ERROR_DONG_XE);
-        }
-
-        if (xe.getDongXe().trim().length() > 50) {
-            throw new IllegalArgumentException(ERROR_DONG_XE_TOO_LONG);
-        }
-
-        int currentYear = java.time.Year.now().getValue();
-
-        if (xe.getDoiXe() < 1886 || xe.getDoiXe() > currentYear + 1) {
-            throw new IllegalArgumentException(ERROR_DOI_XE);
+        if (!this.doiXeDAO.existsById(xe.getMaDoiXe().trim())) {
+            throw new IllegalArgumentException("app.danhMucXe.khongTimThay");
         }
 
         if (xe.getOdo() < 0) {
@@ -205,11 +169,8 @@ public class XeService {
         }
     }
 
-    private String chuanBi(Xe xe) {
+    private String chuanBi(Xe xe) throws SQLException {
         this.validate(xe);
-
-        xe.setHangXe(this.normalizeTenXe(xe.getHangXe()));
-        xe.setDongXe(this.normalizeTenXe(xe.getDongXe()));
 
         String bienSo = this.normalizeBienSo(xe.getBienSo());
         xe.setBienSo(bienSo);
@@ -221,21 +182,23 @@ public class XeService {
             return false;
         }
 
-        if (!this.containsText(criteria.hangXe(), xe.getHangXe())) {
+        if (criteria.maHangXe() != null && !criteria.maHangXe().isBlank()
+                && !criteria.maHangXe().equalsIgnoreCase(xe.getMaHangXe())) {
             return false;
         }
 
-        if (!this.containsText(criteria.dongXe(), xe.getDongXe())) {
+        if (criteria.maDongXe() != null && !criteria.maDongXe().isBlank()
+                && !criteria.maDongXe().equals(xe.getMaDongXe())) {
             return false;
         }
 
-        if (criteria.doiXeTu() != null
-                && xe.getDoiXe() < criteria.doiXeTu()) {
+        if (criteria.namSXTu() != null
+                && xe.getNamSX() < criteria.namSXTu()) {
             return false;
         }
 
-        if (criteria.doiXeDen() != null
-                && xe.getDoiXe() > criteria.doiXeDen()) {
+        if (criteria.namSXDen() != null
+                && xe.getNamSX() > criteria.namSXDen()) {
             return false;
         }
 
@@ -252,7 +215,7 @@ public class XeService {
         if (criteria.timNhanh() != null
                 && !criteria.timNhanh().isBlank()) {
             String combined = xe.getBienSo() + " "
-                    + xe.getHangXe() + " " + xe.getDongXe();
+                    + xe.getTenHangXe() + " " + xe.getTenDongXe();
 
             if (!TextNormalizerUtil.normalize(combined)
                     .contains(TextNormalizerUtil.normalize(criteria.timNhanh()))) {

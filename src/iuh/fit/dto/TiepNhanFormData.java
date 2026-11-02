@@ -4,9 +4,9 @@ public record TiepNhanFormData(
         String sdt,
         String hoTen,
         String bienSo,
-        String hangXe,
-        String dongXe,
-        Integer doiXe,
+        String maHangXe,
+        String maDongXe,
+        String maDoiXe,
         Integer odo,
         String moTa) {
 }

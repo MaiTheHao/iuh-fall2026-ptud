@@ -1,10 +1,11 @@
 package iuh.fit.gui.form;
 
 import iuh.fit.dto.XeFormData;
-import iuh.fit.gui.component.ComboGoiY;
+import iuh.fit.entity.DoiXe;
+import iuh.fit.entity.DongXe;
+import iuh.fit.entity.HangXe;
 import iuh.fit.gui.component.FormFieldPanel;
 import iuh.fit.gui.component.FormValidationHelper;
-import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
@@ -12,8 +13,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-
-import java.time.Year;
 
 /**
  * Phần dùng chung của form xe: trường nhập liệu, đọc/ghi dữ liệu và kiểm tra hợp lệ.
@@ -24,23 +23,17 @@ public abstract class XeFormPanel extends FormFieldPanel {
   private static final long serialVersionUID = 1L;
 
   private static final String BIEN_SO_REGEX = "^[0-9]{2}[A-Z]{1,2}[0-9]{4,6}$";
-  private static final int NAM_SAN_XUAT_NHO_NHAT = 1886;
-  private static final int DO_DAI_TEN_XE_TOI_DA = 50;
 
   protected final JTextField bienSoField = new JTextField(14);
-  protected final JComboBox<String> hangXeCombo = new JComboBox<>();
-  protected final JComboBox<String> dongXeCombo = new JComboBox<>();
-  protected final JTextField doiXeField = new JTextField(14);
+  protected final JComboBox<HangXe> hangXeCombo = new JComboBox<>();
+  protected final JComboBox<DongXe> dongXeCombo = new JComboBox<>();
+  protected final JComboBox<DoiXe> doiXeCombo = new JComboBox<>();
   protected final JTextField odoField = new JTextField(14);
 
   protected XeFormPanel() {
     this.odoField.setHorizontalAlignment(SwingConstants.RIGHT);
-    this.doiXeField.setHorizontalAlignment(SwingConstants.RIGHT);
-    this.hangXeCombo.setEditable(true);
-    this.dongXeCombo.setEditable(true);
 
     FormValidationHelper.autoClearOnInput(this.bienSoField);
-    FormValidationHelper.autoClearOnInput(this.doiXeField);
     FormValidationHelper.autoClearOnInput(this.odoField);
   }
 
@@ -49,18 +42,63 @@ public abstract class XeFormPanel extends FormFieldPanel {
 
   public void napDuLieu(XeFormData data) {
     this.bienSoField.setText(data.bienSo() == null ? "" : data.bienSo());
-    this.hangXeCombo.setSelectedItem(data.hangXe() == null ? "" : data.hangXe());
-    this.dongXeCombo.setSelectedItem(data.dongXe() == null ? "" : data.dongXe());
-    this.doiXeField.setText(data.doiXe() == null ? "" : String.valueOf(data.doiXe()));
+    this.chonHangXe(data.maHangXe());
+    this.chonDongXe(data.maDongXe());
+    this.chonDoiXe(data.maDoiXe());
     this.odoField.setText(data.odo() == null ? "" : String.valueOf(data.odo()));
   }
 
+  private void chonHangXe(String maHangXe) {
+    if (maHangXe == null) {
+      return;
+    }
+    for (int i = 0; i < this.hangXeCombo.getItemCount(); i++) {
+      HangXe item = this.hangXeCombo.getItemAt(i);
+      if (item != null && maHangXe.equals(item.getMaHangXe())) {
+        this.hangXeCombo.setSelectedIndex(i);
+        return;
+      }
+    }
+  }
+
+  private void chonDongXe(String maDongXe) {
+    if (maDongXe == null) {
+      return;
+    }
+    for (int i = 0; i < this.dongXeCombo.getItemCount(); i++) {
+      DongXe item = this.dongXeCombo.getItemAt(i);
+      if (item != null && maDongXe.equals(item.getMaDongXe())) {
+        this.dongXeCombo.setSelectedIndex(i);
+        return;
+      }
+    }
+  }
+
+  private void chonDoiXe(String maDoiXe) {
+    if (maDoiXe == null) {
+      return;
+    }
+    for (int i = 0; i < this.doiXeCombo.getItemCount(); i++) {
+      DoiXe item = this.doiXeCombo.getItemAt(i);
+      if (item != null && maDoiXe.equals(item.getMaDoiXe())) {
+        this.doiXeCombo.setSelectedIndex(i);
+        return;
+      }
+    }
+  }
+
   public XeFormData layDuLieu() {
+    Object hangSel = this.hangXeCombo.getSelectedItem();
+    Object dongSel = this.dongXeCombo.getSelectedItem();
+    Object doiSel = this.doiXeCombo.getSelectedItem();
+    String maHangXe = hangSel instanceof HangXe ? ((HangXe) hangSel).getMaHangXe() : null;
+    String maDongXe = dongSel instanceof DongXe ? ((DongXe) dongSel).getMaDongXe() : null;
+    String maDoiXe = doiSel instanceof DoiXe ? ((DoiXe) doiSel).getMaDoiXe() : null;
     return new XeFormData(
             this.bienSoField.getText().trim().toUpperCase(),
-            ComboGoiY.giaTri(this.hangXeCombo),
-            ComboGoiY.giaTri(this.dongXeCombo),
-            NumberParseUtil.toIntegerOrNull(this.doiXeField.getText()),
+            maHangXe,
+            maDongXe,
+            maDoiXe,
             NumberParseUtil.toIntegerOrNull(this.odoField.getText()));
   }
 
@@ -86,8 +124,6 @@ public abstract class XeFormPanel extends FormFieldPanel {
     JComponent loiDauTien = null;
 
     String bienSo = this.bienSoField.getText().trim().toUpperCase();
-    String hangXe = ComboGoiY.giaTri(this.hangXeCombo);
-    String dongXe = ComboGoiY.giaTri(this.dongXeCombo);
 
     if (!FormValidationHelper.kiemTra(this.bienSoField,
             bienSo.matches(BIEN_SO_REGEX),
@@ -95,15 +131,10 @@ public abstract class XeFormPanel extends FormFieldPanel {
       loiDauTien = this.bienSoField;
     }
 
-    if (hangXe.isBlank()) {
+    Object hangSel = this.hangXeCombo.getSelectedItem();
+    if (!(hangSel instanceof HangXe)) {
       FormValidationHelper.markError(this.hangXeCombo,
-              I18nReaderUtil.get("app.xe.loiHangXe"));
-      if (loiDauTien == null) {
-        loiDauTien = this.hangXeCombo;
-      }
-    } else if (hangXe.trim().length() > DO_DAI_TEN_XE_TOI_DA) {
-      FormValidationHelper.markError(this.hangXeCombo,
-              I18nReaderUtil.get("app.xe.loiHangXeQuaDai"));
+              I18nReaderUtil.get("app.danhMucXe.chuaChonHang"));
       if (loiDauTien == null) {
         loiDauTien = this.hangXeCombo;
       }
@@ -111,15 +142,10 @@ public abstract class XeFormPanel extends FormFieldPanel {
       FormValidationHelper.clearError(this.hangXeCombo);
     }
 
-    if (dongXe.isBlank()) {
+    Object dongSel = this.dongXeCombo.getSelectedItem();
+    if (!(dongSel instanceof DongXe)) {
       FormValidationHelper.markError(this.dongXeCombo,
-              I18nReaderUtil.get("app.xe.loiDongXe"));
-      if (loiDauTien == null) {
-        loiDauTien = this.dongXeCombo;
-      }
-    } else if (dongXe.trim().length() > DO_DAI_TEN_XE_TOI_DA) {
-      FormValidationHelper.markError(this.dongXeCombo,
-              I18nReaderUtil.get("app.xe.loiDongXeQuaDai"));
+              I18nReaderUtil.get("app.danhMucXe.chuaChonDong"));
       if (loiDauTien == null) {
         loiDauTien = this.dongXeCombo;
       }
@@ -127,17 +153,15 @@ public abstract class XeFormPanel extends FormFieldPanel {
       FormValidationHelper.clearError(this.dongXeCombo);
     }
 
-    Integer doiXe = NumberParseUtil.toIntegerOrNull(this.doiXeField.getText());
-    int namToiDa = Year.now().getValue() + 1;
-
-    if (doiXe == null || doiXe < NAM_SAN_XUAT_NHO_NHAT || doiXe > namToiDa) {
-      FormValidationHelper.markError(this.doiXeField,
-              I18nReaderUtil.get("app.xe.loiDoiXe"));
+    Object doiSel = this.doiXeCombo.getSelectedItem();
+    if (!(doiSel instanceof DoiXe)) {
+      FormValidationHelper.markError(this.doiXeCombo,
+              I18nReaderUtil.get("app.danhMucXe.chuaChonDoi"));
       if (loiDauTien == null) {
-        loiDauTien = this.doiXeField;
+        loiDauTien = this.doiXeCombo;
       }
     } else {
-      FormValidationHelper.clearError(this.doiXeField);
+      FormValidationHelper.clearError(this.doiXeCombo);
     }
 
     Integer odo = NumberParseUtil.toIntegerOrNull(this.odoField.getText());
@@ -155,11 +179,15 @@ public abstract class XeFormPanel extends FormFieldPanel {
     return loiDauTien;
   }
 
-  public JComboBox<String> getHangXeCombo() {
+  public JComboBox<HangXe> getHangXeCombo() {
     return this.hangXeCombo;
   }
 
-  public JComboBox<String> getDongXeCombo() {
+  public JComboBox<DongXe> getDongXeCombo() {
     return this.dongXeCombo;
+  }
+
+  public JComboBox<DoiXe> getDoiXeCombo() {
+    return this.doiXeCombo;
   }
 }

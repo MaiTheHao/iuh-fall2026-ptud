@@ -169,8 +169,12 @@ public final class KhachHangDAO extends BaseDao<KhachHang> {
 
     private List<Xe> loadDanhSachXe(Connection conn, String maKhachHang) throws SQLException {
         String sql = """
-                SELECT x.bienSo, x.hangXe, x.dongXe, x.doiXe, x.odo
+                SELECT x.bienSo, x.maDoiXe, x.odo,
+                       d.maHangXe, dx.maDongXe, h.ten AS tenHangXe, d.ten AS tenDongXe, dx.namSX
                 FROM Xe x
+                JOIN DoiXe dx ON dx.maDoiXe = x.maDoiXe
+                JOIN DongXe d ON d.maDongXe = dx.maDongXe
+                JOIN HangXe h ON h.maHangXe = d.maHangXe
                 JOIN KhachHang_Xe khx ON khx.bienSo = x.bienSo
                 WHERE khx.maKhachHang = ?
                 """;
@@ -179,12 +183,16 @@ public final class KhachHangDAO extends BaseDao<KhachHang> {
             ps.setString(1, maKhachHang);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(new Xe(
+                    Xe xe = new Xe(
                             rs.getString("bienSo"),
-                            rs.getString("hangXe"),
-                            rs.getString("dongXe"),
-                            rs.getInt("doiXe"),
-                            rs.getInt("odo")));
+                            rs.getString("maDoiXe"),
+                            rs.getInt("odo"));
+                    xe.setMaHangXe(rs.getString("maHangXe"));
+                    xe.setMaDongXe(rs.getString("maDongXe"));
+                    xe.setTenHangXe(rs.getString("tenHangXe"));
+                    xe.setTenDongXe(rs.getString("tenDongXe"));
+                    xe.setNamSX(rs.getInt("namSX"));
+                    list.add(xe);
                 }
             }
         }
