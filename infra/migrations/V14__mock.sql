@@ -2,9 +2,11 @@ SET XACT_ABORT ON;
 BEGIN TRANSACTION;
 
 -- ============================================================
--- Gara Ô tô Lúa — dữ liệu mẫu khởi tạo hệ thống (mock.sql)
+-- V14: Dữ liệu mẫu khởi tạo hệ thống (mock)
+-- Chạy SAU V13__danh_muc_xe: danh mục xe 3 cấp đã sẵn sàng.
 -- Chuẩn hóa mã theo MaService: PREFIX-yyyyMMdd-NNNNNN
 -- Dải thời gian lịch sử: 20/10/2026 đến 30/12/2026
+-- DayMetric phải khớp số bản ghi đã nạp để MaService cấp số tiếp theo đúng.
 -- ============================================================
 
 -- ============================================================
@@ -29,7 +31,7 @@ INSERT INTO DichVu (maDichVu, tenDichVu, moTa, anhUrl, donGia) VALUES
 ('DV-20261020-000015', N'Vệ sinh kim phun', N'Vệ sinh kim phun và kiểm tra hoạt động động cơ', 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&w=200&q=80', 600000.00);
 
 -- ============================================================
--- TABLE: NhaCungCap (4)
+-- 2. TABLE: NhaCungCap (4)
 -- Format: NCC-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO NhaCungCap (maNhaCungCap, tenNhaCungCap, sdt, email, diaChi, trangThai, ghiChu, ngayTao) VALUES
@@ -39,7 +41,7 @@ INSERT INTO NhaCungCap (maNhaCungCap, tenNhaCungCap, sdt, email, diaChi, trangTh
 ('NCC-20261020-000004', N'Công ty TNHH Thiết Bị Gara Việt', '0911000004', 'lienhe@thietbigaraviet.vn', N'Bình Dương', 'HOAT_DONG', NULL, '2026-10-20 08:00:00');
 
 -- ============================================================
--- 2. TABLE: PhuTung (15)
+-- 3. TABLE: PhuTung (15)
 -- Format: PT-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO PhuTung (maPhuTung, tenPhuTung, moTa, anhUrl, donGiaNhap, soLuongTon, maNhaCungCap) VALUES
@@ -60,7 +62,7 @@ INSERT INTO PhuTung (maPhuTung, tenPhuTung, moTa, anhUrl, donGiaNhap, soLuongTon
 ('PT-20261020-000015', N'Kẹp lọc dầu', N'Phụ kiện lắp đặt lọc dầu', 'https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&w=200&q=80', 25000.00, 50, 'NCC-20261020-000003');
 
 -- ============================================================
--- 3. TABLE: Voucher (10)
+-- 4. TABLE: Voucher (10)
 -- Format: VC-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO Voucher (maVoucher, tenChuongTrinh, moTa, mucGiam, thoiHanApDung, trangThaiKichHoat) VALUES
@@ -76,7 +78,64 @@ INSERT INTO Voucher (maVoucher, tenChuongTrinh, moTa, mucGiam, thoiHanApDung, tr
 ('VC-20261020-000010', N'Ưu đãi hết hạn', N'Dữ liệu mẫu voucher đã ngừng kích hoạt', 0.2500, '2026-11-30T23:59:59', 0);
 
 -- ============================================================
--- 4. TABLE: NhanVien (8)
+-- 5. TABLE: HangXe (9)
+-- Format: HX-yyyyMMdd-NNNNNN
+-- ============================================================
+INSERT INTO HangXe (maHangXe, ten) VALUES
+('HX-20261020-000001', N'Toyota'),
+('HX-20261020-000002', N'Honda'),
+('HX-20261020-000003', N'Hyundai'),
+('HX-20261020-000004', N'Mazda'),
+('HX-20261020-000005', N'Kia'),
+('HX-20261020-000006', N'Ford'),
+('HX-20261020-000007', N'Mitsubishi'),
+('HX-20261020-000008', N'VinFast'),
+('HX-20261020-000009', N'Suzuki');
+
+-- ============================================================
+-- 6. TABLE: DongXe (15)
+-- Format: DX-yyyyMMdd-NNNNNN
+-- ============================================================
+INSERT INTO DongXe (maDongXe, maHangXe, ten) VALUES
+('DX-20261020-000001', 'HX-20261020-000001', N'Vios'),
+('DX-20261020-000002', 'HX-20261020-000001', N'Corolla Cross'),
+('DX-20261020-000003', 'HX-20261020-000001', N'Fortuner'),
+('DX-20261020-000004', 'HX-20261020-000002', N'City'),
+('DX-20261020-000005', 'HX-20261020-000002', N'CR-V'),
+('DX-20261020-000006', 'HX-20261020-000003', N'Accent'),
+('DX-20261020-000007', 'HX-20261020-000003', N'Tucson'),
+('DX-20261020-000008', 'HX-20261020-000004', N'Mazda 3'),
+('DX-20261020-000009', 'HX-20261020-000004', N'CX-5'),
+('DX-20261020-000010', 'HX-20261020-000005', N'Seltos'),
+('DX-20261020-000011', 'HX-20261020-000005', N'Morning'),
+('DX-20261020-000012', 'HX-20261020-000006', N'Ranger'),
+('DX-20261020-000013', 'HX-20261020-000007', N'Xpander'),
+('DX-20261020-000014', 'HX-20261020-000008', N'VF e34'),
+('DX-20261020-000015', 'HX-20261020-000009', N'XL7');
+
+-- ============================================================
+-- 7. TABLE: DoiXe (15)
+-- Format: DO-yyyyMMdd-NNNNNN
+-- ============================================================
+INSERT INTO DoiXe (maDoiXe, maDongXe, namSX) VALUES
+('DO-20261020-000001', 'DX-20261020-000001', 2021),
+('DO-20261020-000002', 'DX-20261020-000004', 2022),
+('DO-20261020-000003', 'DX-20261020-000006', 2020),
+('DO-20261020-000004', 'DX-20261020-000008', 2023),
+('DO-20261020-000005', 'DX-20261020-000010', 2022),
+('DO-20261020-000006', 'DX-20261020-000002', 2024),
+('DO-20261020-000007', 'DX-20261020-000012', 2021),
+('DO-20261020-000008', 'DX-20261020-000013', 2020),
+('DO-20261020-000009', 'DX-20261020-000014', 2023),
+('DO-20261020-000010', 'DX-20261020-000005', 2019),
+('DO-20261020-000011', 'DX-20261020-000003', 2018),
+('DO-20261020-000012', 'DX-20261020-000009', 2021),
+('DO-20261020-000013', 'DX-20261020-000007', 2022),
+('DO-20261020-000014', 'DX-20261020-000011', 2017),
+('DO-20261020-000015', 'DX-20261020-000015', 2023);
+
+-- ============================================================
+-- 8. TABLE: NhanVien (8)
 -- Format: NV-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO NhanVien (maNhanVien, tenDangNhap, matKhau, hoTen, anhDaiDien, soDienThoai, vaiTro, trangThai, ngayTao) VALUES
@@ -90,7 +149,7 @@ INSERT INTO NhanVien (maNhanVien, tenDangNhap, matKhau, hoTen, anhDaiDien, soDie
 ('NV-20261020-000008', 'quanly02', 'test@123', N'Đỗ Quốc Việt', NULL, '0900000008', 'NHAN_VIEN_QUAN_LY', 'DA_KHOA', '2026-10-20T08:00:00');
 
 -- ============================================================
--- 5. TABLE: KhachHang (15)
+-- 9. TABLE: KhachHang (15)
 -- Format: KH-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO KhachHang (maKhachHang, sdt, hoTen, ngayTao) VALUES
@@ -111,28 +170,29 @@ INSERT INTO KhachHang (maKhachHang, sdt, hoTen, ngayTao) VALUES
 ('KH-20261115-000003', '0901000015', N'Phạm Anh Khoa', '2026-11-15T14:45:00');
 
 -- ============================================================
--- 6. TABLE: Xe (15)
--- Biển số chuẩn hóa: viết hoa, không dấu gạch/dấu chấm/khoảng trắng
+-- 10. TABLE: Xe (15)
+-- Biển số chuẩn hóa: viết hoa, không dấu gạch/dấu chấm/khoảng trắng.
+-- Mỗi xe tham chiếu đúng một dòng DoiXe (hãng -> dòng -> đời).
 -- ============================================================
-INSERT INTO Xe (bienSo, hangXe, dongXe, doiXe, odo) VALUES
-('51A12345', N'Toyota', N'Vios', 2021, 45200),
-('51H23456', N'Honda', N'City', 2022, 31800),
-('60A34567', N'Hyundai', N'Accent', 2020, 68500),
-('51K45678', N'Mazda', N'Mazda 3', 2023, 19200),
-('59A56789', N'Kia', N'Seltos', 2022, 36700),
-('51G67890', N'Toyota', N'Corolla Cross', 2024, 8500),
-('61A78901', N'Ford', N'Ranger', 2021, 73400),
-('51B89012', N'Mitsubishi', N'Xpander', 2020, 81000),
-('50H90123', N'VinFast', N'VF e34', 2023, 22500),
-('51C01234', N'Honda', N'CR-V', 2019, 96500),
-('60K11223', N'Toyota', N'Fortuner', 2018, 112000),
-('51D22334', N'Mazda', N'CX-5', 2021, 54800),
-('59C33445', N'Hyundai', N'Tucson', 2022, 29400),
-('51E44556', N'Kia', N'Morning', 2017, 124000),
-('60B55667', N'Suzuki', N'XL7', 2023, 17300);
+INSERT INTO Xe (bienSo, maDoiXe, odo) VALUES
+('51A12345', 'DO-20261020-000001', 45200),
+('51H23456', 'DO-20261020-000002', 31800),
+('60A34567', 'DO-20261020-000003', 68500),
+('51K45678', 'DO-20261020-000004', 19200),
+('59A56789', 'DO-20261020-000005', 36700),
+('51G67890', 'DO-20261020-000006', 8500),
+('61A78901', 'DO-20261020-000007', 73400),
+('51B89012', 'DO-20261020-000008', 81000),
+('50H90123', 'DO-20261020-000009', 22500),
+('51C01234', 'DO-20261020-000010', 96500),
+('60K11223', 'DO-20261020-000011', 112000),
+('51D22334', 'DO-20261020-000012', 54800),
+('59C33445', 'DO-20261020-000013', 29400),
+('51E44556', 'DO-20261020-000014', 124000),
+('60B55667', 'DO-20261020-000015', 17300);
 
 -- ============================================================
--- 7. TABLE: KhachHang_Xe (15)
+-- 11. TABLE: KhachHang_Xe (15)
 -- ============================================================
 INSERT INTO KhachHang_Xe (maKhachHang, bienSo, ngayTao) VALUES
 ('KH-20261020-000001', '51A12345', '2026-10-20T08:30:00'),
@@ -152,7 +212,7 @@ INSERT INTO KhachHang_Xe (maKhachHang, bienSo, ngayTao) VALUES
 ('KH-20261115-000003', '60B55667', '2026-11-15T15:00:00');
 
 -- ============================================================
--- 8. TABLE: PhieuNhapPhuTung (10)
+-- 12. TABLE: PhieuNhapPhuTung (10)
 -- Format: PN-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO PhieuNhapPhuTung (maPhieuNhap, ngayTao, maNhanVien, moTa) VALUES
@@ -168,7 +228,7 @@ INSERT INTO PhieuNhapPhuTung (maPhieuNhap, ngayTao, maNhanVien, moTa) VALUES
 ('PN-20261228-000001', '2026-12-28T16:25:00', 'NV-20261020-000001', N'Nhập hàng phục vụ mùa bảo dưỡng');
 
 -- ============================================================
--- 9. TABLE: ChiTietPhieuNhapPhuTung (20)
+-- 13. TABLE: ChiTietPhieuNhapPhuTung (20)
 -- ============================================================
 INSERT INTO ChiTietPhieuNhapPhuTung (maPhieuNhap, maPhuTung, soLuong, donGiaNhap) VALUES
 ('PN-20261021-000001', 'PT-20261020-000001', 30, 125000.00),
@@ -193,7 +253,7 @@ INSERT INTO ChiTietPhieuNhapPhuTung (maPhieuNhap, maPhuTung, soLuong, donGiaNhap
 ('PN-20261228-000001', 'PT-20261020-000008', 20, 85000.00);
 
 -- ============================================================
--- 10. TABLE: PhieuTiepNhan (15)
+-- 14. TABLE: PhieuTiepNhan (15)
 -- Format: PTN-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO PhieuTiepNhan (maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien, maKhachHang, bienSo) VALUES
@@ -214,7 +274,7 @@ INSERT INTO PhieuTiepNhan (maPhieuTiepNhan, ngayTao, moTa, trangThai, maNhanVien
 ('PTN-20261230-000001', '2026-12-30T08:05:00', N'Kiểm tra tổng quát trước chuyến đi', 'TIEP_NHAN', 'NV-20261020-000006', 'KH-20261115-000003', '60B55667');
 
 -- ============================================================
--- 11. TABLE: PhanCong (15)
+-- 15. TABLE: PhanCong (15)
 -- Format: PC-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO PhanCong (maPhanCong, maNhanVien, ngay, thang, nam, caLamViec, ghiChu) VALUES
@@ -235,7 +295,7 @@ INSERT INTO PhanCong (maPhanCong, maNhanVien, ngay, thang, nam, caLamViec, ghiCh
 ('PC-20261230-000001', 'NV-20261020-000002', 30, 12, 2026, 'CA_SANG', N'Tiếp nhận cuối năm');
 
 -- ============================================================
--- 12. TABLE: HoaDon (15)
+-- 16. TABLE: HoaDon (15)
 -- Format: HD-yyyyMMdd-NNNNNN
 -- Unique maPhieuTiepNhan constraint enforced
 -- ============================================================
@@ -257,7 +317,7 @@ INSERT INTO HoaDon (maHoaDon, maPhieuTiepNhan, maVoucher, trangThaiHoaDon, lyDoH
 ('HD-20261230-000001', 'PTN-20261230-000001', 'VC-20261020-000007', 'CHO_THANH_TOAN', NULL, N'Chờ lập báo giá', '2026-12-30T08:10:00', NULL, 0.2000);
 
 -- ============================================================
--- 13. TABLE: ChiTietHoaDon (30)
+-- 17. TABLE: ChiTietHoaDon (30)
 -- maSanPham liên kết đúng mã DichVu và PhuTung chuẩn mới
 -- ============================================================
 INSERT INTO ChiTietHoaDon (maHoaDon, loaiSanPham, maSanPham, soLuong, donGia) VALUES
@@ -293,7 +353,7 @@ INSERT INTO ChiTietHoaDon (maHoaDon, loaiSanPham, maSanPham, soLuong, donGia) VA
 ('HD-20261230-000001', 'DICH_VU', 'DV-20261020-000005', 1, 350000.00);
 
 -- ============================================================
--- 14. TABLE: VanDeKyThuat (15)
+-- 18. TABLE: VanDeKyThuat (15)
 -- Format: VD-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO VanDeKyThuat (maVanDe, maPhieuTiepNhan, tieuDe, moTa, mucDoUuTien, giaiPhap, khachHangDongY, ngayTao) VALUES
@@ -314,7 +374,7 @@ INSERT INTO VanDeKyThuat (maVanDe, maPhieuTiepNhan, tieuDe, moTa, mucDoUuTien, g
 ('VD-20261230-000001', 'PTN-20261230-000001', N'Kiểm tra trước chuyến đi', N'Khách hàng muốn rà soát các hạng mục an toàn', 25, N'Kiểm tra lốp, phanh, đèn, nước làm mát và ắc quy', 'CHUA_XAC_NHAN', '2026-12-30T08:20:00');
 
 -- ============================================================
--- 15. TABLE: KhieuNai (15)
+-- 19. TABLE: KhieuNai (15)
 -- Format: KN-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO KhieuNai (maKhieuNai, maKhachHang, maPhieuTiepNhan, noiDung, trangThai, ngayTao) VALUES
@@ -335,7 +395,7 @@ INSERT INTO KhieuNai (maKhieuNai, maKhachHang, maPhieuTiepNhan, noiDung, trangTh
 ('KN-20261230-000001', 'KH-20261115-000003', 'PTN-20261230-000001', N'Chưa nhận được báo giá trước khi thực hiện dịch vụ', 'DANG_XU_LY', '2026-12-30T11:35:00');
 
 -- ============================================================
--- 16. TABLE: DayMetric
+-- 20. TABLE: DayMetric
 -- ============================================================
 INSERT INTO DayMetric (ngay, target, amount) VALUES
 ('2026-10-20', 'DV',  15),
@@ -344,6 +404,9 @@ INSERT INTO DayMetric (ngay, target, amount) VALUES
 ('2026-10-20', 'NV',   8),
 ('2026-10-20', 'KH',   2),
 ('2026-10-20', 'NCC',  4),
+('2026-10-20', 'HX',   9),
+('2026-10-20', 'DX',  15),
+('2026-10-20', 'DO',  15),
 ('2026-10-21', 'PN',   1),
 ('2026-10-22', 'KH',   2),
 ('2026-10-22', 'PTN',  1),

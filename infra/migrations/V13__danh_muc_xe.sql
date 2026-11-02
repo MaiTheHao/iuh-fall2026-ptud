@@ -1,8 +1,15 @@
--- V14 - Danh muc xe 3 cap: HangXe -> DongXe -> DoiXe
--- CLEAN QUICK: xoa toan bo du lieu cu. PHAI backup truoc khi chay.
--- Chay sau V13__mock: xoa du lieu mock cu roi moi doi schema Xe.
--- CLEAN QUICK: xoa du lieu nghiep vu cu theo thu tu con -> cha.
--- FK_KhieuNai_PhieuTiepNhan la NO ACTION (tao o V3, sau V2) nen phai xoa tuong minh.
+-- ============================================================
+-- V13: Danh muc xe 3 cap HangXe -> DongXe -> DoiXe
+-- LY DO: thay 3 cot text (hangXe, dongXe, doiXe) cua Xe bang FK maDoiXe.
+-- THU TU: chay TRUOC V14__mock; V14 nap danh muc xe va Xe tham chieu maDoiXe.
+-- CLEAN QUICK: xoa toan bo du lieu nghiep vu cu. PHAI backup truoc khi chay.
+--   Cot maDoiXe duoc them o dang NOT NULL nen bang Xe phai rong.
+--   Xoa theo thu tu con -> cha.
+--   FK_KhieuNai_PhieuTiepNhan la NO ACTION (tao o V3, sau V2) nen phai xoa tuong minh.
+-- ROLLBACK (thu cong): xoa FK_Xe_DoiXe, cot Xe.maDoiXe, roi DROP DoiXe/DongXe/HangXe.
+--   Rollback chi ha schema, KHONG khoi phuc 3 cot text cu.
+-- CANH BAO: apply-once; khong sua file nay sau khi da apply.
+-- ============================================================
 DELETE FROM ChiTietHoaDon;
 DELETE FROM HoaDon;
 DELETE FROM VanDeKyThuat;
