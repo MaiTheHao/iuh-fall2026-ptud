@@ -33,7 +33,6 @@ public class PhieuNhapPhuTungService {
 	private static final String ERROR_QUANTITY = "app.phieuNhap.loiSoLuong";
 	private static final String ERROR_PRICE = "app.phieuNhap.loiDonGia";
 	private static final String ERROR_ID_REQUIRED = "app.phieuNhap.chuaChonXoa";
-	private static final String ERROR_NOT_FOUND = "app.common.notFound";
 	private static final String ERROR_NOT_LOGGED_IN = "app.common.notLoggedIn";
 
 	public PaginatedResult<PhieuNhapPhuTung> search(DanhSachCriteria criteria, String tuKhoa, String maPhieuFilter,
@@ -129,24 +128,15 @@ public class PhieuNhapPhuTungService {
 		return true;
 	}
 
+	/**
+	 * Phiếu nhập là chứng từ kho đã làm tăng tồn: không được xóa sau khi tạo.
+	 * Giữ chữ ký cũ để nơi gọi cũ nhận được thông báo nghiệp vụ rõ ràng.
+	 */
 	public boolean delete(String maPhieuNhap) throws SQLException {
 		if (maPhieuNhap == null || maPhieuNhap.isBlank()) {
 			throw new IllegalArgumentException(ERROR_ID_REQUIRED);
 		}
-
-		String ma = maPhieuNhap.trim();
-		try (TransactionScope scope = TransactionScope.begin()) {
-			PhieuNhapPhuTung existing = this.phieuNhapDAO.findById(scope, ma)
-					.orElseThrow(() -> new IllegalArgumentException(ERROR_NOT_FOUND));
-			for (ChiTietPhieuNhapPhuTung ct : existing.getDanhSachChiTietPhieuNhap()) {
-				this.phuTungService.decreaseStock(scope, ct.getMaPhuTung(), ct.getSoLuong());
-			}
-			if (!this.phieuNhapDAO.delete(scope, ma)) {
-				throw new IllegalArgumentException(ERROR_NOT_FOUND);
-			}
-			scope.commit();
-		}
-		return true;
+		throw new IllegalStateException("app.phieuNhap.khongTheXoa");
 	}
 
 	private List<ChiTietPhieuNhapPhuTung> gopChiTietTrung(List<ChiTietPhieuNhapPhuTung> chiTiets) {

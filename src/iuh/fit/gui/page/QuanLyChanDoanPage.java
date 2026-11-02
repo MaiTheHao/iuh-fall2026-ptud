@@ -4,21 +4,24 @@ import iuh.fit.dto.BaseFormDialogConfig;
 import iuh.fit.dto.ChanDoanUpdateFormData;
 import iuh.fit.dto.ChanDoanView;
 import iuh.fit.dto.DanhSachChanDoanCriteria;
+import iuh.fit.dto.DanhSachPhieuTiepNhanCriteria;
 import iuh.fit.dto.PaginatedResult;
+import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiVanDeKyThuat;
 import iuh.fit.gui.component.BaseFormDialog;
+import iuh.fit.gui.component.ComboTimKiem;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.ChanDoanSuaFormPanel;
 import iuh.fit.gui.theme.Theme;
+import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.service.VanDeKyThuatService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -36,19 +39,21 @@ public class QuanLyChanDoanPage extends AbstractPage {
     private static final Logger LOGGER = Logger.getLogger(QuanLyChanDoanPage.class.getName());
 
     private static final int SO_DONG_MOI_TRANG = 20;
+    private static final int SO_GOI_Y = 10;
 
-    /** Dialog sửa chẩn đoán: 3 khối đọc + 4 khối nhập liệu + combo. */
+    /** Dialog sửa chẩn đoán: 3 khối đọc + 4 khối nhập liệu + trạng thái đọc. */
     private static final int CHIEU_CAO_SUA = 650;
 
     private static final DateTimeFormatter DINH_DANG_NGAY_GIO =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
+    private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
 
     private ManagementPanel managementPanel;
     private List<ChanDoanView> danhSachHienTai = List.of();
 
-    private JTextField boLocPhieuTiepNhan;
+    private ComboTimKiem<PhieuTiepNhanView> boLocPhieuTiepNhan;
     private ManagementPanel.BoLocKhoang boLocMucDo;
     private ManagementPanel.BoLocChon boLocKhachHangDongY;
     private ManagementPanel.BoLocNgay boLocNgayTao;
@@ -87,7 +92,22 @@ public class QuanLyChanDoanPage extends AbstractPage {
                 new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.xoaChanDoan(row)));
 
-        this.boLocPhieuTiepNhan = this.managementPanel.addTextFilter("app.chanDoan.phieuTiepNhan");
+        this.boLocPhieuTiepNhan = new ComboTimKiem<>(
+                tuKhoa -> this.phieuTiepNhanService.search(new DanhSachPhieuTiepNhanCriteria(
+                        tuKhoa,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        1,
+                        SO_GOI_Y)).items(),
+                phieu -> phieu.maPhieuTiepNhan() + " - " + phieu.bienSo() + " - " + phieu.tenKhachHang(),
+                PhieuTiepNhanView::maPhieuTiepNhan);
+        this.managementPanel.addComboSearchFilter("app.chanDoan.phieuTiepNhan", this.boLocPhieuTiepNhan);
         this.boLocMucDo = this.managementPanel.addRangeFilter("app.chanDoan.mucDoUuTienTuDen");
         this.boLocKhachHangDongY = this.managementPanel.addComboBoxFilter(
                 "app.chanDoan.khachHangDongY", TrangThaiVanDeKyThuat.values());
@@ -121,7 +141,7 @@ public class QuanLyChanDoanPage extends AbstractPage {
                     instanceof TrangThaiVanDeKyThuat value ? value : null;
 
             DanhSachChanDoanCriteria tieuChi = new DanhSachChanDoanCriteria(
-                    this.boLocPhieuTiepNhan.getText(),
+                    this.boLocPhieuTiepNhan.getTuKhoa(),
                     NumberParseUtil.toIntegerOrNull(this.boLocMucDo.tuText()),
                     NumberParseUtil.toIntegerOrNull(this.boLocMucDo.denText()),
                     khachHangDongY,

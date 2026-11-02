@@ -528,6 +528,18 @@ public class ManagementPanel extends JPanel {
     return new BoLocChon(combo);
   }
 
+  /**
+   * Bộ lọc dùng combo tìm kiếm có gợi ý: gõ tới đâu lọc tới đó, chọn một gợi ý
+   * thì ô nhập nhận đúng khóa duy nhất của bản ghi (mã phiếu, số điện thoại...).
+   */
+  public void addComboSearchFilter(String labelKey, ComboTimKiem<?> combo) {
+    JTextField oNhap = (JTextField) combo.getEditor().getEditorComponent();
+    this.boLocText.add(oNhap);
+    this.attachTextListener(oNhap);
+    this.khungBoLoc.add(this.buildFilterItem(labelKey, combo));
+    this.khungBoLoc.revalidate();
+  }
+
   public BoLocNgay addDateRangeFilter(String labelKey) {
     DatePicker from = BoChonNgayGio.taoBoChonNgay();
     DatePicker to = BoChonNgayGio.taoBoChonNgay();

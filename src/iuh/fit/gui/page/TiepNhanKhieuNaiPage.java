@@ -1,10 +1,12 @@
 package iuh.fit.gui.page;
 
+import iuh.fit.dto.DanhSachKhachHangCriteria;
 import iuh.fit.dto.KhieuNaiFormData;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.KhieuNai;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.component.ComboTimKiem;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.KhachHangService;
@@ -23,8 +25,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -45,6 +45,8 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
     private static final Logger LOGGER = Logger.getLogger(TiepNhanKhieuNaiPage.class.getName());
 
+    private static final int SO_GOI_Y = 10;
+
     // Services
     private final KhachHangService khachHangService = new KhachHangService();
     private final KhieuNaiService khieuNaiService = new KhieuNaiService();
@@ -52,8 +54,18 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     private KhachHang khachHangDangChon;
 
     // Các thành phần UI
-    private final JTextField sdtField = new JTextField();
-    private final JButton timKhachBtn = new JButton();
+    private final ComboTimKiem<KhachHang> sdtField = new ComboTimKiem<>(
+            tuKhoa -> this.khachHangService.search(new DanhSachKhachHangCriteria(
+                    null,
+                    tuKhoa,
+                    null,
+                    null,
+                    null,
+                    null,
+                    1,
+                    SO_GOI_Y)).items(),
+            khachHang -> khachHang.getHoTen() + " - " + khachHang.getSdt(),
+            KhachHang::getSdt);
     private final JTextField hoTenField = new JTextField();
 
     private final JComboBox<PhieuTiepNhan> phieuCombo = new JComboBox<>();
@@ -69,22 +81,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     public TiepNhanKhieuNaiPage() {
         this.setLayout(new BorderLayout());
         this.setBackground(Theme.BG);
-        this.sdtField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                TiepNhanKhieuNaiPage.this.xuLyThayDoiSdt();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                TiepNhanKhieuNaiPage.this.xuLyThayDoiSdt();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                TiepNhanKhieuNaiPage.this.xuLyThayDoiSdt();
-            }
-        });
+        this.dangKySuKienTimKiem();
     }
 
     @Override
@@ -92,7 +89,6 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        this.timKhachBtn.setText(I18nReaderUtil.get("app.khieuNai.timKhach"));
         this.lamMoiBtn.setText(I18nReaderUtil.get("app.khieuNai.lamMoi"));
         this.luuBtn.setText(I18nReaderUtil.get("app.khieuNai.luu"));
 
@@ -162,10 +158,8 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         mainContainer.add(buttonPanel, BorderLayout.SOUTH);
 
         // --- Gắn sự kiện (Action Listeners) ---
-        this.clearActionListeners(this.timKhachBtn, this.lamMoiBtn, this.luuBtn);
+        this.clearActionListeners(this.lamMoiBtn, this.luuBtn);
         this.clearActionListeners(this.phieuCombo);
-
-        this.timKhachBtn.addActionListener(e -> this.timKhachHang());
 
         this.phieuCombo.addActionListener(e -> this.taiNoiDungBanDau());
 
@@ -178,7 +172,12 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         this.repaint();
     }
 
-    private void xuLyThayDoiSdt() {
+    private void dangKySuKienTimKiem() {
+        this.sdtField.datXuLyGo(this::xoaKhachHangKhiSdtThayDoi);
+        this.sdtField.datXuLyChon(this::dienKhachHang);
+    }
+
+    private void xoaKhachHangKhiSdtThayDoi() {
         if (this.dangCapNhat) {
             return;
         }
@@ -188,35 +187,11 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         this.noiDungBanDauField.setText("");
     }
 
-    private void timKhachHang() {
-        String sdt = this.sdtField.getText().trim();
-        if (sdt.isEmpty()) {
-            ThongBao.canhBao(this, "app.khieuNai.loiSdt");
-            this.sdtField.requestFocusInWindow();
-            return;
-        }
-
-        try {
-            var found = this.khachHangService.getBySdt(sdt);
-            if (found.isEmpty()) {
-                ThongBao.thongTin(this, "app.khieuNai.khongTimThayKhach");
-                this.khachHangDangChon = null;
-                this.hoTenField.setText("");
-                this.phieuCombo.removeAllItems();
-                this.noiDungBanDauField.setText("");
-                this.hoTenField.requestFocusInWindow();
-            } else {
-                this.khachHangDangChon = found.get();
-                this.hoTenField.setText(this.khachHangDangChon.getHoTen());
-                this.taiDanhSachPhieu();
-            }
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Lỗi khi tìm khách hàng theo số điện thoại", ex);
-            ThongBao.loi(this, "app.khieuNai.loiKetNoi");
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Lỗi hệ thống khi tìm khách hàng", ex);
-            ThongBao.loi(this, "app.tiepNhan.loiHeThong");
-        }
+    private void dienKhachHang(KhachHang khachHang) {
+        this.khachHangDangChon = khachHang;
+        this.hoTenField.setText(khachHang.getHoTen());
+        this.taiDanhSachPhieu();
+        this.phieuCombo.requestFocusInWindow();
     }
 
     private void taiDanhSachPhieu() {
@@ -292,7 +267,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     private void lamMoi() {
         this.dangCapNhat = true;
         try {
-            this.sdtField.setText("");
+            this.sdtField.xoa();
         } finally {
             this.dangCapNhat = false;
         }
@@ -301,6 +276,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         this.phieuCombo.removeAllItems();
         this.noiDungBanDauField.setText("");
         this.noiDungKhieuNaiArea.setText("");
+        this.sdtField.requestFocusInWindow();
     }
 
     private JPanel createKhachHangPanel() {
@@ -324,13 +300,9 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         lblSdt.setForeground(Theme.INK);
         panel.add(lblSdt, gbc);
 
-        // Nhập SĐT + Nút Tìm Khách
-        gbc.gridy = 1; gbc.gridwidth = 1;
+        // Nhập SĐT có gợi ý khách hàng
+        gbc.gridy = 1; gbc.gridwidth = 2;
         panel.add(this.sdtField, gbc);
-
-        gbc.gridx = 1; gbc.weightx = 0; gbc.insets = new Insets(0, 5, 5, 0);
-        Theme.applyPrimary(this.timKhachBtn);
-        panel.add(this.timKhachBtn, gbc);
 
         // Họ tên khách hàng
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; gbc.weightx = 1.0; gbc.insets = new Insets(10, 0, 5, 0);

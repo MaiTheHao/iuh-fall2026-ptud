@@ -375,6 +375,7 @@
 			"noiDung": "Request Content & Description",
 			"trangThai": "Progress Status",
 			"thongTinTitle": "Intake Slip Information",
+			"chiTietTitle": "Intake Slip Details",
 			"danhSachTitle": "Intake Slip List & Workshop Progress Status",
 			"loiMa": "Please select an intake slip from the list to update.",
 			"loiDuLieu": "Intake slip data must not be empty.",
@@ -541,7 +542,8 @@
 			"xacNhanXoaDong": "Remove this line from the import receipt?",
 			"tieuDeXoaDong": "Confirm line deletion",
 			"loiDinhDangSo": "Digits only.",
-			"loiKhoangChiPhi": "Invalid total cost range."
+			"loiKhoangChiPhi": "Invalid total cost range.",
+			"khongTheXoa": "This receipt has been created and increased stock, so it cannot be deleted."
 		},
 		"chanDoan": {
 			"thongTinTitle": "Intake Slip Information",
@@ -565,6 +567,7 @@
 			"danhSachChanDoanTitle": "Technical Diagnoses",
 			"maVanDe": "Issue Code",
 			"khachHangDongY": "Customer Agreement",
+			"khachHangDongYChiDoc": "Agreement status is confirmed by the customer; staff can view it but cannot change it.",
 			"ngayTao": "Created At",
 			"chuaChonPhieu": "Please select an intake slip.",
 			"loiDuLieu": "Invalid diagnosis data.",
@@ -586,6 +589,7 @@
 			"khongTonTai": "Diagnosis not found.",
 			"loiMaVanDe": "Please select a diagnosis from the list.",
 			"loiTrangThai": "Please select the customer's agreement status.",
+			"khongDoiTrangThai": "Customer agreement is confirmed by the customer; staff cannot change the status themselves.",
 			"loiKhoangMucDo": "Invalid priority range.",
 			"xacNhanXoa": "Are you sure you want to delete this diagnosis?",
 			"tieuDeXoa": "Confirm diagnosis deletion",

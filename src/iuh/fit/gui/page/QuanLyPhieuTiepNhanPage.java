@@ -14,6 +14,7 @@ import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.gui.form.PhieuTiepNhanChiTietFormPanel;
 import iuh.fit.gui.form.PhieuTiepNhanFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.HoaDonService;
@@ -43,6 +44,9 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
     /** Dialog sửa phiếu tiếp nhận: 6 khối nhập liệu. */
     private static final int CHIEU_CAO_SUA = 650;
+
+    /** Dialog xem chi tiết phiếu tiếp nhận: 7 khối chỉ đọc. */
+    private static final int CHIEU_CAO_CHI_TIET = 560;
 
     private static final DateTimeFormatter NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -88,6 +92,8 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         this.managementPanel.addActionColumn("app.common.actions",
                 new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
                         row -> this.suaPhieuTiepNhan(row)),
+                new ThaoTac("eye", "app.common.view", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.xemChiTiet(row)),
                 new ThaoTac("ban", "app.phieuTiepNhan.huyPhieu", ThaoTac.KieuThaoTac.NGUY_HIEM,
                         row -> this.huyPhieu(row)),
                 new ThaoTac("clipboard-list", "app.chanDoan.xemChanDoanTitle", ThaoTac.KieuThaoTac.THUONG,
@@ -106,7 +112,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
         this.managementPanel.setAddAction("app.common.add_new",
                 () -> this.goTo(TiepNhanKhachHangPage.class));
-        this.managementPanel.setRowDoubleClickListener(this::suaPhieuTiepNhan);
+        this.managementPanel.setRowDoubleClickListener(this::xemChiTiet);
 
         this.managementPanel.getClearFilterButton().addActionListener(e -> this.managementPanel.clearFilters());
         this.managementPanel.getPrevButton().addActionListener(e -> this.taiLaiData(this.trang - 1));
@@ -185,6 +191,24 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         if (dialog.showAndGet()) {
             this.taiLaiData(this.trang);
         }
+    }
+
+    private void xemChiTiet(int row) {
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
+            return;
+        }
+
+        PhieuTiepNhanChiTietFormPanel form = new PhieuTiepNhanChiTietFormPanel();
+        form.napDuLieu(this.danhSachHienTai.get(row));
+
+        BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+                SwingUtilities.getWindowAncestor(this),
+                "app.phieuTiepNhan.chiTietTitle",
+                form,
+                null,
+                CHIEU_CAO_CHI_TIET,
+                true));
+        dialog.showAndGet();
     }
 
     private void xemChanDoan(int row) {

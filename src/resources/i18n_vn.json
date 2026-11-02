@@ -375,6 +375,7 @@
 			"noiDung": "Nội Dung Yêu Cầu & Mô Tả",
 			"trangThai": "Trạng Thái Tiến Độ",
 			"thongTinTitle": "Thông Tin Phiếu Tiếp Nhận",
+			"chiTietTitle": "Chi Tiết Phiếu Tiếp Nhận",
 			"danhSachTitle": "Danh Sách Phiếu Tiếp Nhận & Trạng Thái Tiến Độ Xưởng",
 			"loiMa": "Vui lòng chọn một phiếu tiếp nhận từ danh sách để cập nhật.",
 			"loiDuLieu": "Dữ liệu phiếu tiếp nhận không được để trống.",
@@ -541,7 +542,8 @@
 			"xacNhanXoaDong": "Bạn có chắc chắn muốn xóa dòng chi tiết này khỏi phiếu nhập?",
 			"tieuDeXoaDong": "Xác nhận xóa dòng chi tiết",
 			"loiDinhDangSo": "Chỉ được nhập chữ số.",
-			"loiKhoangChiPhi": "Khoảng tổng chi phí không hợp lệ."
+			"loiKhoangChiPhi": "Khoảng tổng chi phí không hợp lệ.",
+			"khongTheXoa": "Phiếu nhập đã được tạo và làm tăng tồn kho, không thể xóa."
 		},
 		"chanDoan": {
 			"thongTinTitle": "Thông tin phiếu tiếp nhận",
@@ -565,6 +567,7 @@
 			"danhSachChanDoanTitle": "Danh sách chẩn đoán",
 			"maVanDe": "Mã vấn đề",
 			"khachHangDongY": "Khách hàng đồng ý",
+			"khachHangDongYChiDoc": "Trạng thái đồng ý do khách hàng xác nhận; nhân viên chỉ xem, không thay đổi.",
 			"ngayTao": "Ngày tạo",
 			"chuaChonPhieu": "Vui lòng chọn phiếu tiếp nhận.",
 			"loiDuLieu": "Dữ liệu chẩn đoán không hợp lệ.",
@@ -586,6 +589,7 @@
 			"khongTonTai": "Không tìm thấy chẩn đoán.",
 			"loiMaVanDe": "Vui lòng chọn một chẩn đoán từ danh sách.",
 			"loiTrangThai": "Vui lòng chọn trạng thái đồng ý của khách hàng.",
+			"khongDoiTrangThai": "Khách hàng đồng ý do khách hàng xác nhận; nhân viên không được tự đổi trạng thái.",
 			"loiKhoangMucDo": "Khoảng mức ưu tiên không hợp lệ.",
 			"xacNhanXoa": "Bạn có chắc chắn muốn xóa chẩn đoán này không?",
 			"tieuDeXoa": "Xác nhận xóa chẩn đoán",

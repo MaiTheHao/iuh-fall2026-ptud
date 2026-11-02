@@ -46,6 +46,7 @@ public class VanDeKyThuatService {
     private static final String ERROR_MA_VAN_DE = "app.chanDoan.loiMaVanDe";
     private static final String ERROR_KHONG_TON_TAI = "app.chanDoan.khongTonTai";
     private static final String ERROR_TRANG_THAI = "app.chanDoan.loiTrangThai";
+    private static final String ERROR_KHONG_DOI_TRANG_THAI = "app.chanDoan.khongDoiTrangThai";
     private static final String ERROR_KHOANG_MUC_DO = "app.chanDoan.loiKhoangMucDo";
 
     private final VanDeKyThuatDAO vanDeKyThuatDAO = new VanDeKyThuatDAO();
@@ -201,12 +202,15 @@ public class VanDeKyThuatService {
         if (data.khachHangDongY() == null) {
             throw new IllegalArgumentException(ERROR_TRANG_THAI);
         }
+        // "Khách hàng đồng ý" do khách hàng xác nhận; nhân viên không được tự đổi.
+        if (data.khachHangDongY() != vanDe.getKhachHangDongY()) {
+            throw new IllegalArgumentException(ERROR_KHONG_DOI_TRANG_THAI);
+        }
 
         vanDe.setTieuDe(data.tieuDe());
         vanDe.setMoTa(data.moTa());
         vanDe.setMucDoUuTien(data.mucDoUuTien());
         vanDe.setGiaiPhap(data.giaiPhap());
-        vanDe.setKhachHangDongY(data.khachHangDongY());
 
         this.chuanHoaDuLieu(vanDe);
 
