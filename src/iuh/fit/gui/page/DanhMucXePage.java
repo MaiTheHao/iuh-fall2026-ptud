@@ -10,13 +10,21 @@ import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.DoiXeFormPanel;
+import iuh.fit.gui.form.DoiXeSuaFormPanel;
+import iuh.fit.gui.form.DoiXeTaoFormPanel;
 import iuh.fit.gui.form.DongXeFormPanel;
+import iuh.fit.gui.form.DongXeSuaFormPanel;
+import iuh.fit.gui.form.DongXeTaoFormPanel;
 import iuh.fit.gui.form.HangXeFormPanel;
+import iuh.fit.gui.form.HangXeSuaFormPanel;
+import iuh.fit.gui.form.HangXeTaoFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.DanhMucXeService;
 import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -24,17 +32,58 @@ import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
 public final class DanhMucXePage extends AbstractPage {
 
   private static final long serialVersionUID = 1L;
-  private static final int CHIEU_CAO = 420;
+
+  private static final int SO_DONG_MOI_TRANG = 20;
+
+  /** Dialog tạo mới: 1 trường nhập. */
+  private static final int CHIEU_CAO_TAO_HANG = 240;
+
+  /** Dialog cập nhật: 2 trường (mã chỉ đọc + tên). */
+  private static final int CHIEU_CAO_SUA_HANG = 280;
+
+  /** Dialog tạo mới: 2 trường nhập. */
+  private static final int CHIEU_CAO_TAO_DONG = 300;
+
+  /** Dialog cập nhật: 3 trường (mã chỉ đọc + hãng + tên). */
+  private static final int CHIEU_CAO_SUA_DONG = 360;
+
+  /** Dialog tạo mới: 3 trường nhập. */
+  private static final int CHIEU_CAO_TAO_DOI = 380;
+
+  /** Dialog cập nhật: 4 trường (mã chỉ đọc + hãng + dòng + năm). */
+  private static final int CHIEU_CAO_SUA_DOI = 440;
+
+  private static final int COT_MA = 1;
+  private static final int COT_HANG_TEN = 2;
+  private static final int COT_DONG_HANG = 2;
+  private static final int COT_DONG_TEN = 3;
+  private static final int COT_DOI_HANG = 2;
+  private static final int COT_DOI_DONG = 3;
+  private static final int COT_DOI_NAM = 4;
 
   private final DanhMucXeService danhMucXeService = new DanhMucXeService();
-  private final Map<ManagementPanel, List<ManagementPanel.BoLocChon>> boLocTheoPanel = new HashMap<>();
+
+  private ManagementPanel panelHang;
+  private ManagementPanel panelDong;
+  private ManagementPanel panelDoi;
+
+  private ManagementPanel.BoLocChon boLocHangDong;
+  private ManagementPanel.BoLocChon boLocHangDoi;
+  private ManagementPanel.BoLocChon boLocDongDoi;
+
+  private List<Object[]> duLieuHang = new ArrayList<>();
+  private List<Object[]> duLieuDong = new ArrayList<>();
+  private List<Object[]> duLieuDoi = new ArrayList<>();
+
+  private int trangHang = 1;
+  private int trangDong = 1;
+  private int trangDoi = 1;
 
   public DanhMucXePage() {
     this.setLayout(new BorderLayout());
@@ -51,491 +100,14 @@ public final class DanhMucXePage extends AbstractPage {
     tabs.addTab(I18nReaderUtil.get("app.danhMucXe.tabDong"), this.taoTabDongXe());
     tabs.addTab(I18nReaderUtil.get("app.danhMucXe.tabDoi"), this.taoTabDoiXe());
     this.add(tabs, BorderLayout.CENTER);
+
+    this.trangHang = 1;
+    this.trangDong = 1;
+    this.trangDoi = 1;
+    this.taiLaiTatCa();
+
     this.revalidate();
     this.repaint();
-  }
-
-  private JPanel taoTabHangXe() {
-    ManagementPanel panel = new ManagementPanel();
-    panel.setListTitle("app.danhMucXe.hangTitle");
-    panel.setHeaders(I18nReaderUtil.get("app.danhMucXe.ma"), I18nReaderUtil.get("app.danhMucXe.ten"));
-    panel.addActionColumn("app.common.actions",
-            new ThaoTac("pencil",
-                    "app.common.edit",
-                    ThaoTac.KieuThaoTac.THUONG,
-                    row -> this.moDialogSuaHangXe(panel, row)),
-            new ThaoTac("trash-2",
-                    "app.common.delete",
-                    ThaoTac.KieuThaoTac.NGUY_HIEM,
-                    row -> this.xoaHangXe(row, panel)));
-    panel.setAddAction("app.common.add_new", () -> this.moDialogThemHangXe(panel));
-    panel.setRowDoubleClickListener(row -> this.moDialogSuaHangXe(panel, row));
-    this.taiLaiHangXe(panel);
-    JPanel wrapper = new JPanel(new BorderLayout());
-    wrapper.add(panel, BorderLayout.CENTER);
-    return wrapper;
-  }
-
-  private JPanel taoTabDongXe() {
-    ManagementPanel panel = new ManagementPanel();
-    panel.setListTitle("app.danhMucXe.dongTitle");
-    panel.setHeaders(I18nReaderUtil.get("app.danhMucXe.ma"), I18nReaderUtil.get("app.danhMucXe.hang"), I18nReaderUtil.get("app.danhMucXe.ten"));
-    panel.addActionColumn("app.common.actions",
-            new ThaoTac("pencil",
-                    "app.common.edit",
-                    ThaoTac.KieuThaoTac.THUONG,
-                    row -> this.moDialogSuaDongXe(panel, row)),
-            new ThaoTac("trash-2",
-                    "app.common.delete",
-                    ThaoTac.KieuThaoTac.NGUY_HIEM,
-                    row -> this.xoaDongXe(row, panel)));
-    panel.setAddAction("app.common.add_new", () -> this.moDialogThemDongXe(panel));
-    panel.setRowDoubleClickListener(row -> this.moDialogSuaDongXe(panel, row));
-    var loc = panel.addComboBoxFilter("app.danhMucXe.hang", this.tenHangXeArraySafe());
-    this.boLocTheoPanel.put(panel, List.of(loc));
-    panel.setFilterChangeListener(() -> this.taiLaiDongXe(panel));
-    this.taiLaiDongXe(panel);
-    JPanel wrapper = new JPanel(new BorderLayout());
-    wrapper.add(panel, BorderLayout.CENTER);
-    return wrapper;
-  }
-
-  private JPanel taoTabDoiXe() {
-    ManagementPanel panel = new ManagementPanel();
-    panel.setListTitle("app.danhMucXe.doiTitle");
-    panel.setHeaders(I18nReaderUtil.get("app.danhMucXe.ma"), I18nReaderUtil.get("app.danhMucXe.hang"), I18nReaderUtil.get("app.danhMucXe.dong"), I18nReaderUtil.get("app.danhMucXe.nam"));
-    panel.addActionColumn("app.common.actions",
-            new ThaoTac("pencil",
-                    "app.common.edit",
-                    ThaoTac.KieuThaoTac.THUONG,
-                    row -> this.moDialogSuaDoiXe(panel, row)),
-            new ThaoTac("trash-2",
-                    "app.common.delete",
-                    ThaoTac.KieuThaoTac.NGUY_HIEM,
-                    row -> this.xoaDoiXe(row, panel)));
-    panel.setAddAction("app.common.add_new", () -> this.moDialogThemDoiXe(panel));
-    panel.setRowDoubleClickListener(row -> this.moDialogSuaDoiXe(panel, row));
-    var locHang = panel.addComboBoxFilter("app.danhMucXe.hang", this.tenHangXeArraySafe());
-    var locDong = panel.addComboBoxFilter("app.danhMucXe.dong", this.tenDongXeArraySafe(null));
-    this.boLocTheoPanel.put(panel, List.of(locHang, locDong));
-    panel.setFilterChangeListener(() -> this.taiLaiDoiXe(panel));
-    this.taiLaiDoiXe(panel);
-    JPanel wrapper = new JPanel(new BorderLayout());
-    wrapper.add(panel, BorderLayout.CENTER);
-    return wrapper;
-  }
-
-  private void taiLaiHangXe(ManagementPanel panel) {
-    try {
-      List<Object[]> rows = new ArrayList<>();
-      for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
-        rows.add(new Object[] {hangXe.getMaHangXe(), hangXe.getTen()});
-      }
-      panel.setRows(rows);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private void taiLaiDongXe(ManagementPanel panel) {
-    try {
-      String maHang = this.maHangTuBoLoc(panel, 0);
-      List<Object[]> rows = new ArrayList<>();
-      for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(maHang)) {
-        rows.add(new Object[] {dongXe.getMaDongXe(), dongXe.getTenHangXe(), dongXe.getTen()});
-      }
-      panel.setRows(rows);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private void taiLaiDoiXe(ManagementPanel panel) {
-    try {
-      String maDong = this.maDongTuBoLoc(panel);
-      List<Object[]> rows = new ArrayList<>();
-      for (DoiXe doiXe : this.danhMucXeService.getDanhSachDoiXe(maDong)) {
-        rows.add(new Object[] {doiXe.getMaDoiXe(), doiXe.getTenHangXe(), doiXe.getTenDongXe(), doiXe.getNamSX()});
-      }
-      panel.setRows(rows);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private void moDialogThemHangXe(ManagementPanel panel) {
-    HangXeFormPanel form = new HangXeFormPanel();
-    BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
-            SwingUtilities.getWindowAncestor(this),
-            "app.danhMucXe.themHangTitle",
-            form,
-            () -> this.taoHangXe(form, panel),
-            CHIEU_CAO));
-    if (dialog.showAndGet()) {
-      this.taiLaiHangXe(panel);
-    }
-  }
-
-  private void moDialogSuaHangXe(ManagementPanel panel, int row) {
-    String ma = (String) panel.getModel().getValueAt(row, 0);
-    String ten = (String) panel.getModel().getValueAt(row, 1);
-    HangXeFormPanel form = new HangXeFormPanel();
-    form.napDuLieu(new HangXe(ma, ten));
-    BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
-            SwingUtilities.getWindowAncestor(this),
-            "app.danhMucXe.suaHangTitle",
-            form,
-            () -> this.capNhatHangXe(form, panel, ma),
-            CHIEU_CAO));
-    if (dialog.showAndGet()) {
-      this.taiLaiHangXe(panel);
-    }
-  }
-
-  private void moDialogThemDongXe(ManagementPanel panel) {
-    try {
-      DongXeFormPanel form = new DongXeFormPanel();
-      form.napDanhSachHang(this.danhMucXeService.getDanhSachHangXe());
-      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
-              SwingUtilities.getWindowAncestor(this),
-              "app.danhMucXe.themDongTitle",
-              form,
-              () -> this.taoDongXe(form, panel),
-              CHIEU_CAO));
-      if (dialog.showAndGet()) {
-        this.taiLaiDongXe(panel);
-      }
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private void moDialogSuaDongXe(ManagementPanel panel, int row) {
-    try {
-      String ma = (String) panel.getModel().getValueAt(row, 0);
-      String ten = (String) panel.getModel().getValueAt(row, 2);
-      DongXeFormPanel form = new DongXeFormPanel();
-      form.napDanhSachHang(this.danhMucXeService.getDanhSachHangXe());
-      form.napDuLieu(new DongXe(ma, null, ten, null));
-      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
-              SwingUtilities.getWindowAncestor(this),
-              "app.danhMucXe.suaDongTitle",
-              form,
-              () -> this.capNhatDongXe(form, panel, ma),
-              CHIEU_CAO));
-      if (dialog.showAndGet()) {
-        this.taiLaiDongXe(panel);
-      }
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private void moDialogThemDoiXe(ManagementPanel panel) {
-    try {
-      DoiXeFormPanel form = new DoiXeFormPanel();
-      form.napDanhSachHang(this.danhMucXeService.getDanhSachHangXe());
-      form.napDanhSachDong(this.danhMucXeService.getDanhSachDongXe(form.layMaHangXe()));
-      form.getHangXeCombo().addActionListener(e -> {
-        try {
-          form.napDanhSachDong(this.danhMucXeService.getDanhSachDongXe(form.layMaHangXe()));
-        } catch (SQLException ex) {
-          ThongBao.loi(this, "app.login.errorSystem");
-        }
-      });
-      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
-              SwingUtilities.getWindowAncestor(this),
-              "app.danhMucXe.themDoiTitle",
-              form,
-              () -> this.taoDoiXe(form, panel),
-              CHIEU_CAO));
-      if (dialog.showAndGet()) {
-        this.taiLaiDoiXe(panel);
-      }
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private void moDialogSuaDoiXe(ManagementPanel panel, int row) {
-    try {
-      String ma = (String) panel.getModel().getValueAt(row, 0);
-      Object namObj = panel.getModel().getValueAt(row, 3);
-      int namSX = namObj instanceof Number ? ((Number) namObj).intValue() : Integer.parseInt(String.valueOf(namObj));
-      String maHangXe = this.maHangTheoTen(String.valueOf(panel.getModel().getValueAt(row, 1)));
-      String maDongXe = this.maDongTheoTen(String.valueOf(panel.getModel().getValueAt(row, 2)), maHangXe);
-      DoiXeFormPanel form = new DoiXeFormPanel();
-      form.napDanhSachHang(this.danhMucXeService.getDanhSachHangXe());
-      form.napDanhSachDong(this.danhMucXeService.getDanhSachDongXe(maHangXe));
-      form.napDuLieu(new DoiXe(ma, maDongXe, namSX, maHangXe, null, null));
-      form.getHangXeCombo().addActionListener(e -> {
-        try {
-          form.napDanhSachDong(this.danhMucXeService.getDanhSachDongXe(form.layMaHangXe()));
-        } catch (SQLException ex) {
-          ThongBao.loi(this, "app.login.errorSystem");
-        }
-      });
-      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
-              SwingUtilities.getWindowAncestor(this),
-              "app.danhMucXe.suaDoiTitle",
-              form,
-              () -> this.capNhatDoiXe(form, panel, ma),
-              CHIEU_CAO));
-      if (dialog.showAndGet()) {
-        this.taiLaiDoiXe(panel);
-      }
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private boolean taoHangXe(HangXeFormPanel form, ManagementPanel panel) {
-    if (!form.validateInput()) {
-      ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
-      return false;
-    }
-    try {
-      this.danhMucXeService.taoHangXe(form.layTen());
-      ThongBao.thongTin(this, "app.common.create_succeed");
-      return true;
-    } catch (IllegalArgumentException e) {
-      ThongBao.loi(this, e);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-    return false;
-  }
-
-  private boolean capNhatHangXe(HangXeFormPanel form, ManagementPanel panel, String maCu) {
-    if (!form.validateInput()) {
-      ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
-      return false;
-    }
-    try {
-      this.danhMucXeService.capNhatHangXe(new HangXe(maCu, form.layTen()));
-      ThongBao.thongTin(this, "app.common.update_succeed");
-      return true;
-    } catch (IllegalArgumentException e) {
-      ThongBao.loi(this, e);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-    return false;
-  }
-
-  private boolean taoDongXe(DongXeFormPanel form, ManagementPanel panel) {
-    if (!form.validateInput()) {
-      ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
-      return false;
-    }
-    try {
-      this.danhMucXeService.taoDongXe(form.layMaHangXe(), form.layTen());
-      ThongBao.thongTin(this, "app.common.create_succeed");
-      return true;
-    } catch (IllegalArgumentException e) {
-      ThongBao.loi(this, e);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-    return false;
-  }
-
-  private boolean capNhatDongXe(DongXeFormPanel form, ManagementPanel panel, String maCu) {
-    if (!form.validateInput()) {
-      ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
-      return false;
-    }
-    try {
-      this.danhMucXeService.capNhatDongXe(new DongXe(maCu, form.layMaHangXe(), form.layTen(), null));
-      ThongBao.thongTin(this, "app.common.update_succeed");
-      return true;
-    } catch (IllegalArgumentException e) {
-      ThongBao.loi(this, e);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-    return false;
-  }
-
-  private boolean taoDoiXe(DoiXeFormPanel form, ManagementPanel panel) {
-    if (!form.validateInput()) {
-      ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
-      return false;
-    }
-    try {
-      this.danhMucXeService.taoDoiXe(form.layMaDongXe(), form.layNamSX());
-      ThongBao.thongTin(this, "app.common.create_succeed");
-      return true;
-    } catch (IllegalArgumentException e) {
-      ThongBao.loi(this, e);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-    return false;
-  }
-
-  private boolean capNhatDoiXe(DoiXeFormPanel form, ManagementPanel panel, String maCu) {
-    if (!form.validateInput()) {
-      ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
-      return false;
-    }
-    try {
-      this.danhMucXeService.capNhatDoiXe(new DoiXe(maCu, form.layMaDongXe(), form.layNamSX(), null, null, null));
-      ThongBao.thongTin(this, "app.common.update_succeed");
-      return true;
-    } catch (IllegalArgumentException e) {
-      ThongBao.loi(this, e);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-    return false;
-  }
-
-  private void xoaHangXe(int row, ManagementPanel panel) {
-    String ma = (String) panel.getModel().getValueAt(row, 0);
-    if (ma == null || ma.isBlank()) {
-      return;
-    }
-    if (!ThongBao.xacNhan(this, "app.danhMucXe.xacNhanXoa", "app.danhMucXe.tieuDeXoa")) {
-      return;
-    }
-    try {
-      this.danhMucXeService.xoaHangXe(ma);
-      ThongBao.thongTin(this, "app.common.delete_succeed");
-      this.taiLaiHangXe(panel);
-    } catch (IllegalArgumentException e) {
-      ThongBao.loi(this, e);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private void xoaDongXe(int row, ManagementPanel panel) {
-    String ma = (String) panel.getModel().getValueAt(row, 0);
-    if (ma == null || ma.isBlank()) {
-      return;
-    }
-    if (!ThongBao.xacNhan(this, "app.danhMucXe.xacNhanXoa", "app.danhMucXe.tieuDeXoa")) {
-      return;
-    }
-    try {
-      this.danhMucXeService.xoaDongXe(ma);
-      ThongBao.thongTin(this, "app.common.delete_succeed");
-      this.taiLaiDongXe(panel);
-    } catch (IllegalArgumentException e) {
-      ThongBao.loi(this, e);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private void xoaDoiXe(int row, ManagementPanel panel) {
-    String ma = (String) panel.getModel().getValueAt(row, 0);
-    if (ma == null || ma.isBlank()) {
-      return;
-    }
-    if (!ThongBao.xacNhan(this, "app.danhMucXe.xacNhanXoa", "app.danhMucXe.tieuDeXoa")) {
-      return;
-    }
-    try {
-      this.danhMucXeService.xoaDoiXe(ma);
-      ThongBao.thongTin(this, "app.common.delete_succeed");
-      this.taiLaiDoiXe(panel);
-    } catch (IllegalArgumentException e) {
-      ThongBao.loi(this, e);
-    } catch (SQLException e) {
-      ThongBao.loi(this, "app.login.errorSystem");
-    }
-  }
-
-  private Object[] tenHangXeArray() throws SQLException {
-    List<String> ten = new ArrayList<>();
-    for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
-      ten.add(hangXe.getTen());
-    }
-    return ten.toArray();
-  }
-
-  private Object[] tenHangXeArraySafe() {
-    try {
-      return this.tenHangXeArray();
-    } catch (SQLException e) {
-      return new Object[0];
-    }
-  }
-
-  private Object[] tenDongXeArray(String maHangXe) throws SQLException {
-    List<String> ten = new ArrayList<>();
-    for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(maHangXe)) {
-      ten.add(dongXe.getTen());
-    }
-    return ten.toArray();
-  }
-
-  private Object[] tenDongXeArraySafe(String maHangXe) {
-    try {
-      return this.tenDongXeArray(maHangXe);
-    } catch (SQLException e) {
-      return new Object[0];
-    }
-  }
-
-  private String maHangTuBoLoc(ManagementPanel panel, int index) {
-    try {
-      List<ManagementPanel.BoLocChon> locs = this.boLocTheoPanel.get(panel);
-      if (locs == null || locs.isEmpty()) {
-        return null;
-      }
-      Object val = locs.get(0).giaTri();
-      if (val == null || String.valueOf(val).isBlank()) {
-        return null;
-      }
-      return this.maHangTheoTen(String.valueOf(val));
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  private String maDongTuBoLoc(ManagementPanel panel) {
-    try {
-      List<ManagementPanel.BoLocChon> locs = this.boLocTheoPanel.get(panel);
-      if (locs == null || locs.size() < 2) {
-        return null;
-      }
-      Object val = locs.get(1).giaTri();
-      if (val == null || String.valueOf(val).isBlank()) {
-        return null;
-      }
-      return this.maDongTheoTen(String.valueOf(val), null);
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  private String maHangTheoTen(String ten) {
-    try {
-      for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
-        if (ten.equalsIgnoreCase(hangXe.getTen())) {
-          return hangXe.getMaHangXe();
-        }
-      }
-    } catch (SQLException e) {
-      return null;
-    }
-    return null;
-  }
-
-  private String maDongTheoTen(String ten, String maHangXe) {
-    try {
-      for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(maHangXe)) {
-        if (ten.equalsIgnoreCase(dongXe.getTen())) {
-          return dongXe.getMaDongXe();
-        }
-      }
-    } catch (SQLException e) {
-      return null;
-    }
-    return null;
   }
 
   @Override
@@ -546,5 +118,844 @@ public final class DanhMucXePage extends AbstractPage {
   @Override
   public MenuGroup getGroup() {
     return MenuGroup.TO_CHUC;
+  }
+
+  // ==================== DỰNG TAB ====================
+
+  private JPanel taoTabHangXe() {
+    this.panelHang = new ManagementPanel();
+    this.panelHang.setListTitle("app.danhMucXe.hangTitle");
+    this.panelHang.enableMultiSelection(true);
+    this.panelHang.setHeaders(
+            I18nReaderUtil.get("app.danhMucXe.ma"),
+            I18nReaderUtil.get("app.danhMucXe.ten"));
+
+    this.panelHang.addActionColumn("app.common.actions",
+            new ThaoTac("pencil",
+                    "app.common.edit",
+                    ThaoTac.KieuThaoTac.THUONG,
+                    this::moDialogSuaHangXe),
+            new ThaoTac("trash-2",
+                    "app.common.delete",
+                    ThaoTac.KieuThaoTac.NGUY_HIEM,
+                    this::xoaHangXe));
+    this.panelHang.setAddAction("app.common.add_new", this::moDialogThemHangXe);
+    this.panelHang.setBatchAction("app.common.batch_delete",
+            "trash-2",
+            ThaoTac.KieuThaoTac.NGUY_HIEM,
+            this::xoaNhieuHangXe);
+    this.panelHang.setRowDoubleClickListener(this::moDialogSuaHangXe);
+    this.panelHang.setFilterChangeListener(() -> {
+      this.trangHang = 1;
+      this.taiLaiHangXe();
+    });
+    this.panelHang.getPrevButton().addActionListener(e -> this.doiTrangHang(-1));
+    this.panelHang.getNextButton().addActionListener(e -> this.doiTrangHang(1));
+    this.panelHang.getClearFilterButton().addActionListener(e -> {
+      this.panelHang.clearFilters();
+      this.trangHang = 1;
+      this.taiLaiHangXe();
+    });
+
+    return this.panelHang;
+  }
+
+  private JPanel taoTabDongXe() {
+    this.panelDong = new ManagementPanel();
+    this.panelDong.setListTitle("app.danhMucXe.dongTitle");
+    this.panelDong.enableMultiSelection(true);
+    this.panelDong.setHeaders(
+            I18nReaderUtil.get("app.danhMucXe.ma"),
+            I18nReaderUtil.get("app.danhMucXe.hang"),
+            I18nReaderUtil.get("app.danhMucXe.ten"));
+
+    this.panelDong.addActionColumn("app.common.actions",
+            new ThaoTac("pencil",
+                    "app.common.edit",
+                    ThaoTac.KieuThaoTac.THUONG,
+                    this::moDialogSuaDongXe),
+            new ThaoTac("trash-2",
+                    "app.common.delete",
+                    ThaoTac.KieuThaoTac.NGUY_HIEM,
+                    this::xoaDongXe));
+    this.panelDong.setAddAction("app.common.add_new", this::moDialogThemDongXe);
+    this.panelDong.setBatchAction("app.common.batch_delete",
+            "trash-2",
+            ThaoTac.KieuThaoTac.NGUY_HIEM,
+            this::xoaNhieuDongXe);
+    this.panelDong.setRowDoubleClickListener(this::moDialogSuaDongXe);
+    this.boLocHangDong = this.panelDong.addComboBoxFilter("app.danhMucXe.hang", new Object[0]);
+    this.panelDong.setFilterChangeListener(() -> {
+      this.trangDong = 1;
+      this.taiLaiDongXe();
+    });
+    this.panelDong.getPrevButton().addActionListener(e -> this.doiTrangDong(-1));
+    this.panelDong.getNextButton().addActionListener(e -> this.doiTrangDong(1));
+    this.panelDong.getClearFilterButton().addActionListener(e -> {
+      this.panelDong.clearFilters();
+      this.trangDong = 1;
+      this.taiLaiDongXe();
+    });
+
+    return this.panelDong;
+  }
+
+  private JPanel taoTabDoiXe() {
+    this.panelDoi = new ManagementPanel();
+    this.panelDoi.setListTitle("app.danhMucXe.doiTitle");
+    this.panelDoi.enableMultiSelection(true);
+    this.panelDoi.setHeaders(
+            I18nReaderUtil.get("app.danhMucXe.ma"),
+            I18nReaderUtil.get("app.danhMucXe.hang"),
+            I18nReaderUtil.get("app.danhMucXe.dong"),
+            I18nReaderUtil.get("app.danhMucXe.nam"));
+
+    this.panelDoi.addActionColumn("app.common.actions",
+            new ThaoTac("pencil",
+                    "app.common.edit",
+                    ThaoTac.KieuThaoTac.THUONG,
+                    this::moDialogSuaDoiXe),
+            new ThaoTac("trash-2",
+                    "app.common.delete",
+                    ThaoTac.KieuThaoTac.NGUY_HIEM,
+                    this::xoaDoiXe));
+    this.panelDoi.setAddAction("app.common.add_new", this::moDialogThemDoiXe);
+    this.panelDoi.setBatchAction("app.common.batch_delete",
+            "trash-2",
+            ThaoTac.KieuThaoTac.NGUY_HIEM,
+            this::xoaNhieuDoiXe);
+    this.panelDoi.setRowDoubleClickListener(this::moDialogSuaDoiXe);
+    this.boLocHangDoi = this.panelDoi.addComboBoxFilter("app.danhMucXe.hang", new Object[0]);
+    this.boLocDongDoi = this.panelDoi.addComboBoxFilter("app.danhMucXe.dong", new Object[0]);
+    this.boLocHangDoi.combo().addActionListener(e -> this.napBoLocDong());
+    this.panelDoi.setFilterChangeListener(() -> {
+      this.trangDoi = 1;
+      this.taiLaiDoiXe();
+    });
+    this.panelDoi.getPrevButton().addActionListener(e -> this.doiTrangDoi(-1));
+    this.panelDoi.getNextButton().addActionListener(e -> this.doiTrangDoi(1));
+    this.panelDoi.getClearFilterButton().addActionListener(e -> {
+      this.panelDoi.clearFilters();
+      this.trangDoi = 1;
+      this.taiLaiDoiXe();
+    });
+
+    return this.panelDoi;
+  }
+
+  // ==================== NẠP DỮ LIỆU ====================
+
+  private void taiLaiTatCa() {
+    try {
+      List<HangXe> danhSachHang = this.danhMucXeService.getDanhSachHangXe();
+      this.napBoLocHang(this.boLocHangDong, danhSachHang);
+      this.napBoLocHang(this.boLocHangDoi, danhSachHang);
+      this.napBoLocDong();
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+      return;
+    }
+
+    this.taiLaiHangXe();
+    this.taiLaiDongXe();
+    this.taiLaiDoiXe();
+  }
+
+  private void taiLaiHangXe() {
+    try {
+      List<Object[]> rows = new ArrayList<>();
+      for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
+        rows.add(new Object[] {hangXe.getMaHangXe(), hangXe.getTen()});
+      }
+      this.duLieuHang = rows;
+      this.trangHang = this.hienThi(this.panelHang, rows, this.trangHang);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void taiLaiDongXe() {
+    try {
+      HangXe hangXe = this.chonHang(this.boLocHangDong);
+      List<Object[]> rows = new ArrayList<>();
+      for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(
+              hangXe == null ? null : hangXe.getMaHangXe())) {
+        rows.add(new Object[] {dongXe.getMaDongXe(), dongXe.getTenHangXe(), dongXe.getTen()});
+      }
+      this.duLieuDong = rows;
+      this.trangDong = this.hienThi(this.panelDong, rows, this.trangDong);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void taiLaiDoiXe() {
+    try {
+      HangXe hangXe = this.chonHang(this.boLocHangDoi);
+      DongXe dongXe = this.chonDong(this.boLocDongDoi);
+      List<Object[]> rows = new ArrayList<>();
+      for (DoiXe doiXe : this.danhMucXeService.getDanhSachDoiXe(
+              dongXe == null ? null : dongXe.getMaDongXe())) {
+        if (hangXe != null && !hangXe.getMaHangXe().equals(doiXe.getMaHangXe())) {
+          continue;
+        }
+        rows.add(new Object[] {
+            doiXe.getMaDoiXe(),
+            doiXe.getTenHangXe(),
+            doiXe.getTenDongXe(),
+            doiXe.getNamSX()});
+      }
+      this.duLieuDoi = rows;
+      this.trangDoi = this.hienThi(this.panelDoi, rows, this.trangDoi);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void napBoLocHang(ManagementPanel.BoLocChon boLoc, List<HangXe> danhSach) {
+    String maDangChon = this.maHangDangChon(boLoc);
+    JComboBox<Object> combo = boLoc.combo();
+    combo.removeAllItems();
+    combo.addItem(null);
+    for (HangXe hangXe : danhSach) {
+      combo.addItem(hangXe);
+    }
+    this.chonLaiHang(combo, maDangChon);
+  }
+
+  private void napBoLocDong() {
+    try {
+      HangXe hangXe = this.chonHang(this.boLocHangDoi);
+      List<DongXe> danhSach = this.danhMucXeService.getDanhSachDongXe(
+              hangXe == null ? null : hangXe.getMaHangXe());
+
+      String maDangChon = null;
+      Object giaTri = this.boLocDongDoi.giaTri();
+      if (giaTri instanceof DongXe dongXe) {
+        maDangChon = dongXe.getMaDongXe();
+      }
+
+      JComboBox<Object> combo = this.boLocDongDoi.combo();
+      combo.removeAllItems();
+      combo.addItem(null);
+      for (DongXe dongXe : danhSach) {
+        combo.addItem(dongXe);
+      }
+      this.chonLaiDong(combo, maDangChon);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void chonLaiHang(JComboBox<Object> combo, String maHangXe) {
+    combo.setSelectedIndex(0);
+    if (maHangXe == null) {
+      return;
+    }
+    for (int i = 0; i < combo.getItemCount(); i++) {
+      if (combo.getItemAt(i) instanceof HangXe hangXe && maHangXe.equals(hangXe.getMaHangXe())) {
+        combo.setSelectedIndex(i);
+        return;
+      }
+    }
+  }
+
+  private void chonLaiDong(JComboBox<Object> combo, String maDongXe) {
+    combo.setSelectedIndex(0);
+    if (maDongXe == null) {
+      return;
+    }
+    for (int i = 0; i < combo.getItemCount(); i++) {
+      if (combo.getItemAt(i) instanceof DongXe dongXe && maDongXe.equals(dongXe.getMaDongXe())) {
+        combo.setSelectedIndex(i);
+        return;
+      }
+    }
+  }
+
+  private HangXe chonHang(ManagementPanel.BoLocChon boLoc) {
+    Object giaTri = boLoc.giaTri();
+    return giaTri instanceof HangXe hangXe ? hangXe : null;
+  }
+
+  private DongXe chonDong(ManagementPanel.BoLocChon boLoc) {
+    Object giaTri = boLoc.giaTri();
+    return giaTri instanceof DongXe dongXe ? dongXe : null;
+  }
+
+  private String maHangDangChon(ManagementPanel.BoLocChon boLoc) {
+    HangXe hangXe = this.chonHang(boLoc);
+    return hangXe == null ? null : hangXe.getMaHangXe();
+  }
+
+  /**
+   * Áp tìm nhanh và phân trang phía client trên danh sách đã tải.
+   *
+   * @return trang thực tế đã hiển thị (đã kẹp trong khoảng hợp lệ)
+   */
+  private int hienThi(ManagementPanel panel, List<Object[]> duLieu, int trang) {
+    String tuKhoa = panel.getQuickFilter();
+    List<Object[]> ketQua = new ArrayList<>();
+
+    if (tuKhoa == null || tuKhoa.isBlank()) {
+      ketQua.addAll(duLieu);
+    } else {
+      String chuanHoa = tuKhoa.trim().toLowerCase(Locale.ROOT);
+      for (Object[] row : duLieu) {
+        for (Object giaTri : row) {
+          if (NumberParseUtil.textOf(giaTri).toLowerCase(Locale.ROOT).contains(chuanHoa)) {
+            ketQua.add(row);
+            break;
+          }
+        }
+      }
+    }
+
+    int tong = ketQua.size();
+    int tongTrang = Math.max(1, (tong + SO_DONG_MOI_TRANG - 1) / SO_DONG_MOI_TRANG);
+    int trangHienTai = Math.min(Math.max(trang, 1), tongTrang);
+    int tu = (trangHienTai - 1) * SO_DONG_MOI_TRANG;
+    int den = Math.min(tu + SO_DONG_MOI_TRANG, tong);
+
+    panel.setRows(new ArrayList<>(ketQua.subList(tu, den)));
+    panel.setCount(tong == 0 ? 0 : tu + 1, den, tong);
+    panel.setPage(trangHienTai, tongTrang);
+    return trangHienTai;
+  }
+
+  private void doiTrangHang(int buoc) {
+    this.trangHang = this.hienThi(this.panelHang, this.duLieuHang, this.trangHang + buoc);
+  }
+
+  private void doiTrangDong(int buoc) {
+    this.trangDong = this.hienThi(this.panelDong, this.duLieuDong, this.trangDong + buoc);
+  }
+
+  private void doiTrangDoi(int buoc) {
+    this.trangDoi = this.hienThi(this.panelDoi, this.duLieuDoi, this.trangDoi + buoc);
+  }
+
+  // ==================== DIALOG ====================
+
+  private void moDialogThemHangXe() {
+    HangXeTaoFormPanel form = new HangXeTaoFormPanel();
+    BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+            SwingUtilities.getWindowAncestor(this),
+            "app.danhMucXe.themHangTitle",
+            form,
+            () -> this.taoHangXe(form),
+            CHIEU_CAO_TAO_HANG));
+
+    if (dialog.showAndGet()) {
+      this.taiLaiTatCa();
+    }
+  }
+
+  private void moDialogSuaHangXe(int row) {
+    String ma = this.layMa(this.panelHang, row);
+
+    try {
+      HangXe hangXe = this.danhMucXeService.getHangXe(ma);
+      HangXeSuaFormPanel form = new HangXeSuaFormPanel();
+      form.napDuLieu(hangXe);
+
+      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+              SwingUtilities.getWindowAncestor(this),
+              "app.danhMucXe.suaHangTitle",
+              form,
+              () -> this.capNhatHangXe(form),
+              CHIEU_CAO_SUA_HANG));
+
+      if (dialog.showAndGet()) {
+        this.taiLaiTatCa();
+      }
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void moDialogThemDongXe() {
+    try {
+      List<HangXe> danhSachHang = this.danhMucXeService.getDanhSachHangXe();
+      if (danhSachHang.isEmpty()) {
+        ThongBao.canhBao(this, "app.danhMucXe.chuaCoHangXe");
+        return;
+      }
+
+      DongXeTaoFormPanel form = new DongXeTaoFormPanel();
+      form.napDanhSachHang(danhSachHang);
+
+      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+              SwingUtilities.getWindowAncestor(this),
+              "app.danhMucXe.themDongTitle",
+              form,
+              () -> this.taoDongXe(form),
+              CHIEU_CAO_TAO_DONG));
+
+      if (dialog.showAndGet()) {
+        this.taiLaiTatCa();
+      }
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void moDialogSuaDongXe(int row) {
+    String ma = this.layMa(this.panelDong, row);
+
+    try {
+      DongXe dongXe = this.danhMucXeService.getDongXe(ma);
+      DongXeSuaFormPanel form = new DongXeSuaFormPanel();
+      form.napDanhSachHang(this.danhMucXeService.getDanhSachHangXe());
+      form.napDuLieu(dongXe);
+
+      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+              SwingUtilities.getWindowAncestor(this),
+              "app.danhMucXe.suaDongTitle",
+              form,
+              () -> this.capNhatDongXe(form),
+              CHIEU_CAO_SUA_DONG));
+
+      if (dialog.showAndGet()) {
+        this.taiLaiTatCa();
+      }
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void moDialogThemDoiXe() {
+    try {
+      List<HangXe> danhSachHang = this.danhMucXeService.getDanhSachHangXe();
+      if (danhSachHang.isEmpty()) {
+        ThongBao.canhBao(this, "app.danhMucXe.chuaCoHangXe");
+        return;
+      }
+
+      DoiXeTaoFormPanel form = new DoiXeTaoFormPanel();
+      form.napDanhSachHang(danhSachHang);
+
+      List<DongXe> danhSachDong = this.danhMucXeService.getDanhSachDongXe(form.layMaHangXe());
+      if (danhSachDong.isEmpty()) {
+        ThongBao.canhBao(this, "app.danhMucXe.chuaCoDongXe");
+        return;
+      }
+      form.napDanhSachDong(danhSachDong);
+      form.getHangXeCombo().addActionListener(e -> this.napDongChoForm(form));
+
+      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+              SwingUtilities.getWindowAncestor(this),
+              "app.danhMucXe.themDoiTitle",
+              form,
+              () -> this.taoDoiXe(form),
+              CHIEU_CAO_TAO_DOI));
+
+      if (dialog.showAndGet()) {
+        this.taiLaiTatCa();
+      }
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void moDialogSuaDoiXe(int row) {
+    String ma = this.layMa(this.panelDoi, row);
+
+    try {
+      DoiXe doiXe = this.danhMucXeService.getDoiXe(ma);
+      DoiXeSuaFormPanel form = new DoiXeSuaFormPanel();
+      form.napDanhSachHang(this.danhMucXeService.getDanhSachHangXe());
+      form.napDanhSachDong(this.danhMucXeService.getDanhSachDongXe(doiXe.getMaHangXe()));
+      form.napDuLieu(doiXe);
+      form.getHangXeCombo().addActionListener(e -> this.napDongChoForm(form));
+
+      BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
+              SwingUtilities.getWindowAncestor(this),
+              "app.danhMucXe.suaDoiTitle",
+              form,
+              () -> this.capNhatDoiXe(form),
+              CHIEU_CAO_SUA_DOI));
+
+      if (dialog.showAndGet()) {
+        this.taiLaiTatCa();
+      }
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void napDongChoForm(DoiXeFormPanel form) {
+    try {
+      form.napDanhSachDong(this.danhMucXeService.getDanhSachDongXe(form.layMaHangXe()));
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  // ==================== LƯU ====================
+
+  private boolean taoHangXe(HangXeFormPanel form) {
+    if (!this.kiemTraForm(form)) {
+      return false;
+    }
+
+    try {
+      this.danhMucXeService.taoHangXe(form.layDuLieu().getTen());
+      ThongBao.thongTin(this, "app.common.create_succeed");
+      return true;
+    } catch (IllegalArgumentException e) {
+      return this.xuLyLoiTen(form, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+
+    return false;
+  }
+
+  private boolean capNhatHangXe(HangXeFormPanel form) {
+    if (!this.kiemTraForm(form)) {
+      return false;
+    }
+
+    try {
+      this.danhMucXeService.capNhatHangXe(form.layDuLieu());
+      ThongBao.thongTin(this, "app.common.update_succeed");
+      return true;
+    } catch (IllegalArgumentException e) {
+      return this.xuLyLoiTen(form, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+
+    return false;
+  }
+
+  private boolean taoDongXe(DongXeFormPanel form) {
+    if (!this.kiemTraForm(form)) {
+      return false;
+    }
+
+    DongXe data = form.layDuLieu();
+
+    try {
+      this.danhMucXeService.taoDongXe(data.getMaHangXe(), data.getTen());
+      ThongBao.thongTin(this, "app.common.create_succeed");
+      return true;
+    } catch (IllegalArgumentException e) {
+      return this.xuLyLoiTen(form, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+
+    return false;
+  }
+
+  private boolean capNhatDongXe(DongXeFormPanel form) {
+    if (!this.kiemTraForm(form)) {
+      return false;
+    }
+
+    try {
+      this.danhMucXeService.capNhatDongXe(form.layDuLieu());
+      ThongBao.thongTin(this, "app.common.update_succeed");
+      return true;
+    } catch (IllegalArgumentException e) {
+      return this.xuLyLoiTen(form, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+
+    return false;
+  }
+
+  private boolean taoDoiXe(DoiXeFormPanel form) {
+    if (!this.kiemTraForm(form)) {
+      return false;
+    }
+
+    DoiXe data = form.layDuLieu();
+
+    try {
+      this.danhMucXeService.taoDoiXe(data.getMaDongXe(), data.getNamSX());
+      ThongBao.thongTin(this, "app.common.create_succeed");
+      return true;
+    } catch (IllegalArgumentException e) {
+      return this.xuLyLoiNam(form, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+
+    return false;
+  }
+
+  private boolean capNhatDoiXe(DoiXeFormPanel form) {
+    if (!this.kiemTraForm(form)) {
+      return false;
+    }
+
+    try {
+      this.danhMucXeService.capNhatDoiXe(form.layDuLieu());
+      ThongBao.thongTin(this, "app.common.update_succeed");
+      return true;
+    } catch (IllegalArgumentException e) {
+      return this.xuLyLoiNam(form, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+
+    return false;
+  }
+
+  private boolean kiemTraForm(HangXeFormPanel form) {
+    if (form.validateInput()) {
+      return true;
+    }
+    ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
+    return false;
+  }
+
+  private boolean kiemTraForm(DongXeFormPanel form) {
+    if (form.validateInput()) {
+      return true;
+    }
+    ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
+    return false;
+  }
+
+  private boolean kiemTraForm(DoiXeFormPanel form) {
+    if (form.validateInput()) {
+      return true;
+    }
+    ThongBao.canhBao(this, "app.common.kiemTraLaiThongTin");
+    return false;
+  }
+
+  private boolean xuLyLoiTen(HangXeFormPanel form, IllegalArgumentException e) {
+    if (this.laLoiTen(e)) {
+      form.hienThiLoiTen(I18nReaderUtil.get(e.getMessage()));
+      return false;
+    }
+    ThongBao.loi(this, e);
+    return false;
+  }
+
+  private boolean xuLyLoiTen(DongXeFormPanel form, IllegalArgumentException e) {
+    if (this.laLoiTen(e)) {
+      form.hienThiLoiTen(I18nReaderUtil.get(e.getMessage()));
+      return false;
+    }
+    ThongBao.loi(this, e);
+    return false;
+  }
+
+  private boolean xuLyLoiNam(DoiXeFormPanel form, IllegalArgumentException e) {
+    if ("app.danhMucXe.loiNamSX".equals(e.getMessage())) {
+      form.hienThiLoiNam(I18nReaderUtil.get(e.getMessage()));
+      return false;
+    }
+    ThongBao.loi(this, e);
+    return false;
+  }
+
+  private boolean laLoiTen(IllegalArgumentException e) {
+    String key = e.getMessage();
+    return "app.danhMucXe.loiTen".equals(key)
+            || "app.danhMucXe.loiTenQuaDai".equals(key)
+            || "app.danhMucXe.loiTrungTen".equals(key);
+  }
+
+  // ==================== XÓA ====================
+
+  private void xoaHangXe(int row) {
+    String ma = this.layMa(this.panelHang, row);
+    if (ma.isBlank()) {
+      ThongBao.canhBao(this, "app.danhMucXe.chuaChonXoa");
+      return;
+    }
+
+    String ten = this.layChuoi(this.panelHang, row, COT_HANG_TEN);
+    if (!ThongBao.xacNhanDinhDang(this,
+            "app.danhMucXe.xacNhanXoaTen",
+            "app.danhMucXe.tieuDeXoa",
+            ten)) {
+      return;
+    }
+
+    try {
+      this.danhMucXeService.xoaHangXe(ma);
+      ThongBao.thongTin(this, "app.common.delete_succeed");
+      this.taiLaiTatCa();
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void xoaDongXe(int row) {
+    String ma = this.layMa(this.panelDong, row);
+    if (ma.isBlank()) {
+      ThongBao.canhBao(this, "app.danhMucXe.chuaChonXoa");
+      return;
+    }
+
+    String ten = this.layChuoi(this.panelDong, row, COT_DONG_HANG)
+            + " - " + this.layChuoi(this.panelDong, row, COT_DONG_TEN);
+    if (!ThongBao.xacNhanDinhDang(this,
+            "app.danhMucXe.xacNhanXoaTen",
+            "app.danhMucXe.tieuDeXoa",
+            ten)) {
+      return;
+    }
+
+    try {
+      this.danhMucXeService.xoaDongXe(ma);
+      ThongBao.thongTin(this, "app.common.delete_succeed");
+      this.taiLaiTatCa();
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void xoaDoiXe(int row) {
+    String ma = this.layMa(this.panelDoi, row);
+    if (ma.isBlank()) {
+      ThongBao.canhBao(this, "app.danhMucXe.chuaChonXoa");
+      return;
+    }
+
+    String ten = this.layChuoi(this.panelDoi, row, COT_DOI_HANG)
+            + " - " + this.layChuoi(this.panelDoi, row, COT_DOI_DONG)
+            + " - " + this.layChuoi(this.panelDoi, row, COT_DOI_NAM);
+    if (!ThongBao.xacNhanDinhDang(this,
+            "app.danhMucXe.xacNhanXoaTen",
+            "app.danhMucXe.tieuDeXoa",
+            ten)) {
+      return;
+    }
+
+    try {
+      this.danhMucXeService.xoaDoiXe(ma);
+      ThongBao.thongTin(this, "app.common.delete_succeed");
+      this.taiLaiTatCa();
+    } catch (IllegalArgumentException e) {
+      ThongBao.loi(this, e);
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void xoaNhieuHangXe(List<Integer> rows) {
+    if (!this.xacNhanXoaNhieu(rows)) {
+      return;
+    }
+
+    int thanhCong = 0;
+    boolean loiHeThong = false;
+
+    for (int row : rows) {
+      try {
+        this.danhMucXeService.xoaHangXe(this.layMa(this.panelHang, row));
+        thanhCong++;
+      } catch (IllegalArgumentException | IllegalStateException ignored) {
+        // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
+      } catch (SQLException e) {
+        loiHeThong = true;
+        break;
+      }
+    }
+
+    this.baoKetQuaHangLoat(thanhCong, rows.size(), loiHeThong);
+    this.taiLaiTatCa();
+  }
+
+  private void xoaNhieuDongXe(List<Integer> rows) {
+    if (!this.xacNhanXoaNhieu(rows)) {
+      return;
+    }
+
+    int thanhCong = 0;
+    boolean loiHeThong = false;
+
+    for (int row : rows) {
+      try {
+        this.danhMucXeService.xoaDongXe(this.layMa(this.panelDong, row));
+        thanhCong++;
+      } catch (IllegalArgumentException | IllegalStateException ignored) {
+        // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
+      } catch (SQLException e) {
+        loiHeThong = true;
+        break;
+      }
+    }
+
+    this.baoKetQuaHangLoat(thanhCong, rows.size(), loiHeThong);
+    this.taiLaiTatCa();
+  }
+
+  private void xoaNhieuDoiXe(List<Integer> rows) {
+    if (!this.xacNhanXoaNhieu(rows)) {
+      return;
+    }
+
+    int thanhCong = 0;
+    boolean loiHeThong = false;
+
+    for (int row : rows) {
+      try {
+        this.danhMucXeService.xoaDoiXe(this.layMa(this.panelDoi, row));
+        thanhCong++;
+      } catch (IllegalArgumentException | IllegalStateException ignored) {
+        // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
+      } catch (SQLException e) {
+        loiHeThong = true;
+        break;
+      }
+    }
+
+    this.baoKetQuaHangLoat(thanhCong, rows.size(), loiHeThong);
+    this.taiLaiTatCa();
+  }
+
+  private boolean xacNhanXoaNhieu(List<Integer> rows) {
+    if (rows.isEmpty()) {
+      return false;
+    }
+    return ThongBao.xacNhanDinhDang(this,
+            "app.common.batch_delete_confirm",
+            "app.common.confirm",
+            rows.size());
+  }
+
+  private void baoKetQuaHangLoat(int thanhCong, int tong, boolean loiHeThong) {
+    if (loiHeThong) {
+      ThongBao.loi(this, "app.login.errorSystem");
+      return;
+    }
+
+    if (thanhCong == tong) {
+      ThongBao.thongTin(this, "app.common.delete_succeed");
+      return;
+    }
+
+    ThongBao.canhBaoDinhDang(this, "app.common.batch_delete_result", thanhCong, tong);
+  }
+
+  // ==================== TIỆN ÍCH ====================
+
+  private String layMa(ManagementPanel panel, int row) {
+    return NumberParseUtil.textOf(panel.getModel().getValueAt(row, COT_MA));
+  }
+
+  private String layChuoi(ManagementPanel panel, int row, int cot) {
+    return NumberParseUtil.textOf(panel.getModel().getValueAt(row, cot));
   }
 }

@@ -263,7 +263,11 @@
 			"loiTrungTen": "Tên này đã tồn tại trong cùng cấp.",
 			"chuaChonHang": "Vui lòng chọn hãng xe.",
 			"chuaChonDong": "Vui lòng chọn dòng xe.",
-			"chuaChonDoi": "Vui lòng chọn đời xe."
+			"chuaChonDoi": "Vui lòng chọn đời xe.",
+			"chuaCoHangXe": "Chưa có hãng xe. Vui lòng tạo hãng xe trước.",
+			"chuaCoDongXe": "Hãng xe này chưa có dòng xe. Vui lòng tạo dòng xe trước.",
+			"chuaChonXoa": "Vui lòng chọn bản ghi cần xóa.",
+			"xacNhanXoaTen": "Bạn có chắc chắn muốn xóa \"{0}\"?"
 		},
 		"phuTung": {
 			"thongTinTitle": "Thông Tin Phụ Tùng",
