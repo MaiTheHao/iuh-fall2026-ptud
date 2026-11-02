@@ -635,6 +635,7 @@
 			"loiLyDoHuyDai": "Cancellation reason cannot exceed 255 characters",
 			"chuaLuu": "Invoice has not been saved yet.",
 			"daTonTai": "This intake slip already has an invoice.",
+			"phieuKhongKhop": "Reception ticket does not match the open invoice. Please select a ticket from the suggestions.",
 			"loiDaHuy": "Invoice is already cancelled",
 			"batch_huy": "Cancel Selected",
 			"batch_huy_confirm": "Cancel {0} selected invoices?",

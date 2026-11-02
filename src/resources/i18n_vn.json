@@ -635,6 +635,7 @@
 			"loiLyDoHuyDai": "Lý do hủy tối đa 255 ký tự",
 			"chuaLuu": "Hóa đơn chưa được lưu.",
 			"daTonTai": "Phiếu tiếp nhận này đã có hóa đơn.",
+			"phieuKhongKhop": "Phiếu tiếp nhận không khớp với hóa đơn đang mở. Vui lòng chọn lại phiếu từ danh sách gợi ý.",
 			"loiDaHuy": "Hóa đơn đã hủy",
 			"batch_huy": "Hủy đã chọn",
 			"batch_huy_confirm": "Hủy {0} hóa đơn đã chọn?",

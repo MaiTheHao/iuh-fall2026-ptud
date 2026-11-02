@@ -4,7 +4,7 @@ import iuh.fit.dto.DanhSachDichVuCriteria;
 import iuh.fit.dto.DanhSachPhieuTiepNhanCriteria;
 import iuh.fit.dto.DanhSachPhuTungCriteria;
 import iuh.fit.dto.DanhSachVoucherCriteria;
-import iuh.fit.dto.PaginatedResult;
+import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.entity.ChiTietHoaDon;
 import iuh.fit.entity.DichVu;
 import iuh.fit.entity.HoaDon;
@@ -15,6 +15,7 @@ import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.gui.component.ChonDichVuDialog;
 import iuh.fit.gui.component.ChonPhuTungDialog;
+import iuh.fit.gui.component.ComboTimKiem;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThaoTacTableCellRenderer;
@@ -29,7 +30,6 @@ import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -51,6 +51,8 @@ import java.util.function.Function;
 
 public class LapHoaDonPage extends AbstractPage {
 
+	private static final int SO_GOI_Y = 10;
+
 	private final HoaDonService hoaDonService = new HoaDonService();
 	private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
 	private final VoucherService voucherService = new VoucherService();
@@ -59,8 +61,39 @@ public class LapHoaDonPage extends AbstractPage {
 
 	private final DecimalFormat currencyFormat = new DecimalFormat("#,##0");
 
-	private final JComboBox<String> cbPhieu = new JComboBox<>();
-	private final JComboBox<String> cbVoucher = new JComboBox<>();
+	private final ComboTimKiem<PhieuTiepNhanView> phieuField = new ComboTimKiem<>(
+			tuKhoa -> this.phieuTiepNhanService.search(new DanhSachPhieuTiepNhanCriteria(
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					tuKhoa,
+					1,
+					SO_GOI_Y)).items(),
+			p -> p.maPhieuTiepNhan() + " - " + p.bienSo() + " - " + p.tenKhachHang() + " - " + p.sdt(),
+			PhieuTiepNhanView::maPhieuTiepNhan);
+
+	private final ComboTimKiem<Voucher> voucherField = new ComboTimKiem<>(
+			tuKhoa -> this.voucherService.search(new DanhSachVoucherCriteria(
+					tuKhoa,
+					null,
+					null,
+					null,
+					null,
+					null,
+					true,
+					1,
+					SO_GOI_Y)).items().stream()
+					.filter(this.hoaDonService::voucherConHieuLuc)
+					.toList(),
+			v -> v.getMaVoucher() + " - " + v.getTenChuongTrinh() + " - "
+					+ Math.round((v.getMucGiam() == null ? 0.0 : v.getMucGiam()) * 100) + "%",
+			Voucher::getMaVoucher);
+
 	private final JTextField ghiChuField = new JTextField();
 
 	private final DefaultTableModel lineModel = new DefaultTableModel(0, 0) {
@@ -79,7 +112,7 @@ public class LapHoaDonPage extends AbstractPage {
 	private final List<ChiTietHoaDon> chiTiets = new ArrayList<>();
 	private final List<String> tenSanPham = new ArrayList<>();
 	private final Map<String, Integer> soLuongGoc = new HashMap<>();
-	private final Map<String, Voucher> voucherTheoMa = new HashMap<>();
+	private Voucher voucherDangChon;
 
 	private JLabel lblTong;
 	private JLabel lblGiamGia;
@@ -92,13 +125,16 @@ public class LapHoaDonPage extends AbstractPage {
 	private JButton nutThemPT;
 	private JButton nutXoaDaChon;
 	private String maHoaDonHienTai;
+	private String maPhieuHienTai;
 	private String maHoaDonCanMo;
 	private TrangThaiHoaDon trangThaiHienTai;
-	private boolean dangNap;
 
 	public LapHoaDonPage() {
 		this.setLayout(new BorderLayout());
 		this.lineModel.addTableModelListener(e -> this.capNhatNutXoaDaChon());
+		this.phieuField.datXuLyChon(this::chonPhieu);
+		this.voucherField.datXuLyChon(this::chonVoucherTuGoiY);
+		this.voucherField.datXuLyGo(this::khiGoVoucher);
 	}
 
 	@Override
@@ -109,11 +145,8 @@ public class LapHoaDonPage extends AbstractPage {
 
 		ManagementFormPanel form = new ManagementFormPanel("app.hoaDon.thongTinTitle");
 
-		this.loadPhieuCombo();
-		this.loadVoucherCombo();
-
-		form.addField("app.hoaDon.maPhieuTiepNhan", this.cbPhieu);
-		form.addField("app.hoaDon.voucher", this.cbVoucher);
+		form.addField("app.hoaDon.maPhieuTiepNhan", this.phieuField);
+		form.addField("app.hoaDon.voucher", this.voucherField);
 		form.addField("app.hoaDon.ghiChu", this.ghiChuField);
 
 		this.trangThaiHienTai = this.trangThaiHienTai == null ? TrangThaiHoaDon.CHO_THANH_TOAN : this.trangThaiHienTai;
@@ -201,54 +234,11 @@ public class LapHoaDonPage extends AbstractPage {
 		split.setBorder(null);
 		this.add(split, BorderLayout.CENTER);
 
-		this.clearActionListeners(this.cbPhieu, this.cbVoucher);
-		this.cbPhieu.addActionListener(e -> this.chonPhieu());
-		this.cbVoucher.addActionListener(e -> this.chonVoucherThayDoi());
-
 		this.moHoaDonDangCho();
 		this.refreshLineTable();
 		this.capNhatQuyen();
 		this.revalidate();
 		this.repaint();
-	}
-
-	private void loadPhieuCombo() {
-		this.dangNap = true;
-		try {
-			this.cbPhieu.removeAllItems();
-			for (var v : this.phieuTiepNhanService.search(DanhSachPhieuTiepNhanCriteria.macDinh()).items()) {
-				this.cbPhieu.addItem(v.maPhieuTiepNhan());
-			}
-		} catch (SQLException e) {
-			ThongBao.loi(this, "app.login.errorSystem");
-		} finally {
-			this.dangNap = false;
-		}
-	}
-
-	private void loadVoucherCombo() {
-		this.dangNap = true;
-		try {
-			this.cbVoucher.removeAllItems();
-			this.cbVoucher.addItem("");
-			this.voucherTheoMa.clear();
-
-			List<Voucher> danhSach = this.voucherService.search(DanhSachVoucherCriteria
-					.dangKichHoat(1, PaginatedResult.PAGE_SIZE_TAI_TOAN_BO)).items();
-
-			for (Voucher v : danhSach) {
-				// Bỏ voucher đã hết hạn hoặc đang tắt kích hoạt khỏi danh sách chọn.
-				if (!this.hoaDonService.voucherConHieuLuc(v)) {
-					continue;
-				}
-				this.cbVoucher.addItem(v.getMaVoucher());
-				this.voucherTheoMa.put(v.getMaVoucher(), v);
-			}
-		} catch (SQLException e) {
-			ThongBao.loi(this, "app.login.errorSystem");
-		} finally {
-			this.dangNap = false;
-		}
 	}
 
 	public void moHoaDon(String maHoaDon) {
@@ -257,49 +247,30 @@ public class LapHoaDonPage extends AbstractPage {
 
 	private void moHoaDonDangCho() {
 		if (this.maHoaDonCanMo == null) {
-			this.chonPhieu();
+			this.phieuField.datTuKhoa("");
+			this.voucherField.xoa();
+			this.voucherDangChon = null;
+			this.moLapMoi();
 			return;
 		}
 		String maHoaDon = this.maHoaDonCanMo;
 		this.maHoaDonCanMo = null;
 		try {
 			HoaDon hoaDon = this.hoaDonService.getById(maHoaDon);
-			this.dangNap = true;
-			try {
-				if (!this.coPhieuTrongCombo(hoaDon.getMaPhieuTiepNhan())) {
-					this.cbPhieu.addItem(hoaDon.getMaPhieuTiepNhan());
-				}
-				this.cbPhieu.setSelectedItem(hoaDon.getMaPhieuTiepNhan());
-			} finally {
-				this.dangNap = false;
-			}
+			this.phieuField.datTuKhoa(hoaDon.getMaPhieuTiepNhan());
 			this.taiHoaDon(hoaDon);
 		} catch (IllegalArgumentException | SQLException e) {
 			ThongBao.loi(this, "app.hoaDon.khongTonTai");
-			this.chonPhieu();
-		}
-	}
-
-	private boolean coPhieuTrongCombo(String maPhieu) {
-		for (int i = 0; i < this.cbPhieu.getItemCount(); i++) {
-			if (maPhieu.equals(this.cbPhieu.getItemAt(i))) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void chonPhieu() {
-		if (this.dangNap) {
-			return;
-		}
-		String maPhieu = (String) this.cbPhieu.getSelectedItem();
-		if (maPhieu == null || maPhieu.isBlank()) {
+			this.phieuField.datTuKhoa("");
+			this.voucherField.xoa();
+			this.voucherDangChon = null;
 			this.moLapMoi();
-			return;
 		}
+	}
+
+	private void chonPhieu(PhieuTiepNhanView phieu) {
 		try {
-			HoaDon hoaDon = this.hoaDonService.getByPhieuTiepNhan(maPhieu);
+			HoaDon hoaDon = this.hoaDonService.getByPhieuTiepNhan(phieu.maPhieuTiepNhan());
 			if (hoaDon == null) {
 				this.moLapMoi();
 			} else {
@@ -312,16 +283,11 @@ public class LapHoaDonPage extends AbstractPage {
 
 	private void taiHoaDon(HoaDon hoaDon) throws SQLException {
 		this.maHoaDonHienTai = hoaDon.getMaHoaDon();
+		this.maPhieuHienTai = hoaDon.getMaPhieuTiepNhan();
 		this.trangThaiHienTai = hoaDon.getTrangThaiHoaDon();
 		this.ghiChuField.setText(hoaDon.getGhiChu() == null ? "" : hoaDon.getGhiChu());
 
-		boolean dangNapTruoc = this.dangNap;
-		this.dangNap = true;
-		try {
-			this.chonVoucher(hoaDon.getMaVoucher());
-		} finally {
-			this.dangNap = dangNapTruoc;
-		}
+		this.chonVoucher(hoaDon.getMaVoucher());
 
 		this.napChiTiet(hoaDon.getDanhSachChiTietHoaDon());
 		this.refreshLineTable();
@@ -333,6 +299,7 @@ public class LapHoaDonPage extends AbstractPage {
 		this.tenSanPham.clear();
 		this.soLuongGoc.clear();
 		this.maHoaDonHienTai = null;
+		this.maPhieuHienTai = null;
 		this.trangThaiHienTai = TrangThaiHoaDon.CHO_THANH_TOAN;
 		this.ghiChuField.setText("");
 		this.refreshLineTable();
@@ -369,24 +336,24 @@ public class LapHoaDonPage extends AbstractPage {
 
 	private void chonVoucher(String maVoucher) throws SQLException {
 		if (maVoucher == null || maVoucher.isBlank()) {
-			this.cbVoucher.setSelectedItem("");
+			this.voucherField.xoa();
+			this.voucherDangChon = null;
 			return;
 		}
-		if (!this.voucherTheoMa.containsKey(maVoucher)) {
-			Voucher voucher = this.voucherService.getById(maVoucher).orElse(null);
 
-			// Hóa đơn cũ có thể trỏ tới voucher đã hết hạn hoặc bị tắt: không đưa lại vào combo,
-			// vì HoaDonService từ chối khi lưu; bỏ chọn để hóa đơn vẫn lưu được.
-			if (voucher == null || !this.hoaDonService.voucherConHieuLuc(voucher)) {
-				this.cbVoucher.setSelectedItem("");
-				ThongBao.canhBao(this, "app.hoaDon.loiVoucher");
-				return;
-			}
+		Voucher voucher = this.voucherService.getById(maVoucher).orElse(null);
 
-			this.cbVoucher.addItem(maVoucher);
-			this.voucherTheoMa.put(maVoucher, voucher);
+		// Hóa đơn cũ có thể trỏ tới voucher đã hết hạn hoặc bị tắt: bỏ chọn để hóa đơn vẫn lưu được,
+		// vì HoaDonService từ chối khi lưu.
+		if (voucher == null || !this.hoaDonService.voucherConHieuLuc(voucher)) {
+			this.voucherField.xoa();
+			this.voucherDangChon = null;
+			ThongBao.canhBao(this, "app.hoaDon.loiVoucher");
+			return;
 		}
-		this.cbVoucher.setSelectedItem(maVoucher);
+
+		this.voucherDangChon = voucher;
+		this.voucherField.datTuKhoa(voucher.getMaVoucher());
 	}
 
 	private boolean choPhepSua() {
@@ -409,8 +376,8 @@ public class LapHoaDonPage extends AbstractPage {
 		if (this.nutThemPT != null) {
 			this.nutThemPT.setEnabled(choPhepSua);
 		}
-		if (this.cbVoucher != null) {
-			this.cbVoucher.setEnabled(choPhepSua);
+		if (this.voucherField != null) {
+			this.voucherField.datChoPhepNhap(choPhepSua);
 		}
 		if (this.ghiChuField != null) {
 			if (choPhepSua) {
@@ -536,12 +503,13 @@ public class LapHoaDonPage extends AbstractPage {
 	        ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
 	        return;
 	    }
-	    boolean coDuLieu = !this.ghiChuField.getText().isBlank() || this.cbVoucher.getSelectedIndex() > 0;
+	    boolean coDuLieu = !this.ghiChuField.getText().isBlank() || !this.voucherField.getTuKhoa().isBlank();
 	    if (coDuLieu && !ThongBao.xacNhan(this, "app.common.confirmClear", "app.common.confirm")) {
 	        return;
 	    }
 	    this.ghiChuField.setText("");
-	    this.cbVoucher.setSelectedItem("");
+	    this.voucherField.xoa();
+	    this.voucherDangChon = null;
 	    this.refreshLineTable();
 	}
 
@@ -614,18 +582,24 @@ public class LapHoaDonPage extends AbstractPage {
 		this.nutXoaDaChon.setEnabled(soDong > 0);
 	}
 
-	private void chonVoucherThayDoi() {
-		this.refreshLineTable();
-		if (this.dangNap) {
-			return;
-		}
-		String maVoucher = (String) this.cbVoucher.getSelectedItem();
-		if (maVoucher == null || maVoucher.isBlank()) {
-			return;
-		}
-		if (!this.hoaDonService.voucherConHieuLuc(this.voucherTheoMa.get(maVoucher))) {
+	private void chonVoucherTuGoiY(Voucher voucher) {
+		if (!this.hoaDonService.voucherConHieuLuc(voucher)) {
+			this.voucherDangChon = null;
+			this.voucherField.xoa();
 			ThongBao.canhBao(this, "app.hoaDon.loiVoucher");
+			this.refreshLineTable();
+			return;
 		}
+		this.voucherDangChon = voucher;
+		this.refreshLineTable();
+	}
+
+	private void khiGoVoucher() {
+		if (this.voucherDangChon == null) {
+			return;
+		}
+		this.voucherDangChon = null;
+		this.refreshLineTable();
 	}
 
 	private void refreshLineTable() {
@@ -639,7 +613,7 @@ public class LapHoaDonPage extends AbstractPage {
 					this.dinhDangTien(thanhTien) });
 		}
 
-		Voucher voucher = this.voucherTheoMa.get((String) this.cbVoucher.getSelectedItem());
+		Voucher voucher = this.voucherDangChon;
 		double tongGoc = this.hoaDonService.tinhTongTienGoc(this.chiTiets);
 		double mucGiam = this.hoaDonService.tinhMucGiam(voucher);
 		double tong = this.hoaDonService.tinhTongTien(this.chiTiets, voucher);
@@ -663,8 +637,8 @@ public class LapHoaDonPage extends AbstractPage {
 		if (this.maHoaDonHienTai != null) {
 			return this.capNhatHoaDon();
 		}
-		String maPhieu = (String) this.cbPhieu.getSelectedItem();
-		if (maPhieu == null || maPhieu.isBlank()) {
+		String maPhieu = this.phieuField.getTuKhoa().trim();
+		if (maPhieu.isEmpty()) {
 			ThongBao.canhBao(this, "app.hoaDon.loiPhieuTiepNhan");
 			return false;
 		}
@@ -683,8 +657,8 @@ public class LapHoaDonPage extends AbstractPage {
 			ThongBao.canhBao(this, "app.hoaDon.loiChiTietTrong");
 			return false;
 		}
-		String maVoucher = (String) this.cbVoucher.getSelectedItem();
-		if (maVoucher != null && maVoucher.isBlank()) {
+		String maVoucher = this.voucherField.getTuKhoa().trim();
+		if (maVoucher.isEmpty()) {
 			maVoucher = null;
 		}
 
@@ -709,12 +683,17 @@ public class LapHoaDonPage extends AbstractPage {
 	}
 
 	private boolean capNhatHoaDon(boolean hienThongBao) {
+		String maPhieu = this.phieuField.getTuKhoa().trim();
+		if (this.maPhieuHienTai == null || !maPhieu.equalsIgnoreCase(this.maPhieuHienTai)) {
+			ThongBao.canhBao(this, "app.hoaDon.phieuKhongKhop");
+			return false;
+		}
 		if (this.chiTiets.isEmpty()) {
 			ThongBao.canhBao(this, "app.hoaDon.loiChiTietTrong");
 			return false;
 		}
-		String maVoucher = (String) this.cbVoucher.getSelectedItem();
-		if (maVoucher != null && maVoucher.isBlank()) {
+		String maVoucher = this.voucherField.getTuKhoa().trim();
+		if (maVoucher.isEmpty()) {
 			maVoucher = null;
 		}
 

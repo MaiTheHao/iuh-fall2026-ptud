@@ -140,6 +140,13 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
     }
   }
 
+  /** Bật/tắt cả combo lẫn ô nhập; JComboBox không tự khoá editor khi bị disable. */
+  public void datChoPhepNhap(boolean choPhep) {
+    this.setEnabled(choPhep);
+    this.oNhap.setEnabled(choPhep);
+    this.oNhap.setEditable(choPhep);
+  }
+
   /** Xoá text và danh sách gợi ý. */
   public void xoa() {
     this.datTuKhoa("");
