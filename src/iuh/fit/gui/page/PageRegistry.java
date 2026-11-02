@@ -16,6 +16,7 @@ public final class PageRegistry {
         this.register(new DashboardPage());
         this.register(new KhachHangPage());
         this.register(new XePage());
+        this.register(new DanhMucXePage());
         this.register(new NhanVienPage());
         this.register(new PhuTungPage());
         this.register(new NhaCungCapPage());

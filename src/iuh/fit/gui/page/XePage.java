@@ -5,9 +5,11 @@ import iuh.fit.dto.DanhSachXeCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.XeFormData;
 import iuh.fit.entity.Xe;
+import iuh.fit.entity.DoiXe;
+import iuh.fit.entity.DongXe;
+import iuh.fit.entity.HangXe;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.BaseFormDialog;
-import iuh.fit.gui.component.ComboGoiY;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
@@ -15,6 +17,7 @@ import iuh.fit.gui.form.XeFormPanel;
 import iuh.fit.gui.form.XeSuaFormPanel;
 import iuh.fit.gui.form.XeTaoFormPanel;
 import iuh.fit.gui.theme.Theme;
+import iuh.fit.service.DanhMucXeService;
 import iuh.fit.service.XeService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
@@ -44,12 +47,13 @@ public class XePage extends AbstractPage {
   private static final int COT_ODO = 5;
 
   private final XeService xeService = new XeService();
+  private final DanhMucXeService danhMucXeService = new DanhMucXeService();
 
   private ManagementPanel panel;
 
   private JTextField boLocBienSo;
-  private JTextField boLocHangXe;
-  private JTextField boLocDongXe;
+  private ManagementPanel.BoLocChon boLocHangXe;
+  private ManagementPanel.BoLocChon boLocDongXe;
   private ManagementPanel.BoLocKhoang boLocDoiXe;
   private ManagementPanel.BoLocKhoang boLocOdo;
 
@@ -108,8 +112,8 @@ public class XePage extends AbstractPage {
 
   private void khoiTaoBoLoc() {
     this.boLocBienSo = this.panel.addTextFilter("app.xe.bienSo");
-    this.boLocHangXe = this.panel.addTextFilter("app.xe.hangXe");
-    this.boLocDongXe = this.panel.addTextFilter("app.xe.dongXe");
+    this.boLocHangXe = this.panel.addComboBoxFilter("app.xe.hangXe", this.tenHangXeArraySafe());
+    this.boLocDongXe = this.panel.addComboBoxFilter("app.xe.dongXe", this.tenDongXeArraySafe(null));
     this.boLocDoiXe = this.panel.addRangeFilter("app.xe.doiXeTuDen");
     this.boLocOdo = this.panel.addRangeFilter("app.xe.odoTuDen");
     this.panel.setFilterChangeListener(() -> this.taiLai(1));
@@ -121,8 +125,8 @@ public class XePage extends AbstractPage {
     try {
       DanhSachXeCriteria tieuChi = new DanhSachXeCriteria(
               this.boLocBienSo.getText(),
-              this.boLocHangXe.getText(),
-              this.boLocDongXe.getText(),
+              this.maHangTuBoLoc(),
+              this.maDongTuBoLoc(),
               NumberParseUtil.toIntegerOrNull(this.boLocDoiXe.tuText()),
               NumberParseUtil.toIntegerOrNull(this.boLocDoiXe.denText()),
               NumberParseUtil.toIntegerOrNull(this.boLocOdo.tuText()),
@@ -137,9 +141,9 @@ public class XePage extends AbstractPage {
       for (Xe xe : ketQua.items()) {
         rows.add(new Object[] {
             xe.getBienSo(),
-            xe.getHangXe(),
-            xe.getDongXe(),
-            xe.getDoiXe(),
+            xe.getTenHangXe(),
+            xe.getTenDongXe(),
+            xe.getNamSX(),
             xe.getOdo()
         });
       }
@@ -159,19 +163,18 @@ public class XePage extends AbstractPage {
   private XeFormData docDuLieuDong(int row) {
     return new XeFormData(
             NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_BIEN_SO)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_HANG_XE)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_DONG_XE)),
-            NumberParseUtil.toIntegerOrNull(
-                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_DOI_XE))),
+            null,
+            null,
+            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_DOI_XE)),
             NumberParseUtil.toIntegerOrNull(
                     NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_ODO))));
   }
 
   private XeFormData taoFormData(Xe xe) {
     return new XeFormData(xe.getBienSo(),
-            xe.getHangXe(),
-            xe.getDongXe(),
-            xe.getDoiXe(),
+            xe.getMaHangXe(),
+            xe.getMaDongXe(),
+            xe.getMaDoiXe(),
             xe.getOdo());
   }
 
@@ -181,21 +184,38 @@ public class XePage extends AbstractPage {
 
   // ==================== GỢI Ý HÃNG / DÒNG XE ====================
 
-  private void napGoiYHangXe(XeFormPanel form) {
+  private void napHangXe(XeFormPanel form) {
     try {
-      ComboGoiY.nap(form.getHangXeCombo(),
-              this.xeService.getDanhSachHangXe(),
-              ComboGoiY.giaTri(form.getHangXeCombo()));
+      form.getHangXeCombo().removeAllItems();
+      for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
+        form.getHangXeCombo().addItem(hangXe);
+      }
     } catch (SQLException e) {
       ThongBao.loi(this, "app.login.errorSystem");
     }
   }
 
-  private void napGoiYDongXe(XeFormPanel form) {
+  private void napDongXe(XeFormPanel form) {
     try {
-      ComboGoiY.nap(form.getDongXeCombo(),
-              this.xeService.getDanhSachDongXe(ComboGoiY.giaTri(form.getHangXeCombo())),
-              ComboGoiY.giaTri(form.getDongXeCombo()));
+      Object sel = form.getHangXeCombo().getSelectedItem();
+      String maHang = sel instanceof HangXe ? ((HangXe) sel).getMaHangXe() : null;
+      form.getDongXeCombo().removeAllItems();
+      for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(maHang)) {
+        form.getDongXeCombo().addItem(dongXe);
+      }
+    } catch (SQLException e) {
+      ThongBao.loi(this, "app.login.errorSystem");
+    }
+  }
+
+  private void napDoiXe(XeFormPanel form) {
+    try {
+      Object sel = form.getDongXeCombo().getSelectedItem();
+      String maDong = sel instanceof DongXe ? ((DongXe) sel).getMaDongXe() : null;
+      form.getDoiXeCombo().removeAllItems();
+      for (DoiXe doiXe : this.danhMucXeService.getDanhSachDoiXe(maDong)) {
+        form.getDoiXeCombo().addItem(doiXe);
+      }
     } catch (SQLException e) {
       ThongBao.loi(this, "app.login.errorSystem");
     }
@@ -203,17 +223,81 @@ public class XePage extends AbstractPage {
 
   private void ganGoiYHangXe(XeFormPanel form) {
     form.getHangXeCombo().addActionListener(e -> {
-      form.getDongXeCombo().setSelectedItem("");
-      this.napGoiYDongXe(form);
+      form.getDongXeCombo().removeAllItems();
+      form.getDoiXeCombo().removeAllItems();
+      this.napDongXe(form);
     });
+    form.getDongXeCombo().addActionListener(e -> {
+      form.getDoiXeCombo().removeAllItems();
+      this.napDoiXe(form);
+    });
+  }
+
+  private String maHangTuBoLoc() {
+    try {
+      Object val = this.boLocHangXe.giaTri();
+      if (val == null || String.valueOf(val).isBlank()) {
+        return null;
+      }
+      for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
+        if (String.valueOf(val).equalsIgnoreCase(hangXe.getTen())) {
+          return hangXe.getMaHangXe();
+        }
+      }
+    } catch (SQLException e) {
+      return null;
+    }
+    return null;
+  }
+
+  private String maDongTuBoLoc() {
+    try {
+      Object val = this.boLocDongXe.giaTri();
+      if (val == null || String.valueOf(val).isBlank()) {
+        return null;
+      }
+      for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(null)) {
+        if (String.valueOf(val).equalsIgnoreCase(dongXe.getTen())) {
+          return dongXe.getMaDongXe();
+        }
+      }
+    } catch (SQLException e) {
+      return null;
+    }
+    return null;
+  }
+
+  private Object[] tenHangXeArraySafe() {
+    try {
+      List<String> ten = new ArrayList<>();
+      for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
+        ten.add(hangXe.getTen());
+      }
+      return ten.toArray();
+    } catch (SQLException e) {
+      return new Object[0];
+    }
+  }
+
+  private Object[] tenDongXeArraySafe(String maHangXe) {
+    try {
+      List<String> ten = new ArrayList<>();
+      for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(maHangXe)) {
+        ten.add(dongXe.getTen());
+      }
+      return ten.toArray();
+    } catch (SQLException e) {
+      return new Object[0];
+    }
   }
 
   // ==================== DIALOG ====================
 
   private void moDialogThem() {
     XeTaoFormPanel form = new XeTaoFormPanel();
-    this.napGoiYHangXe(form);
-    this.napGoiYDongXe(form);
+    this.napHangXe(form);
+    this.napDongXe(form);
+    this.napDoiXe(form);
     this.ganGoiYHangXe(form);
 
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
@@ -236,9 +320,10 @@ public class XePage extends AbstractPage {
               .orElseThrow(() -> new IllegalArgumentException("app.xe.loiKhongTimThay"));
 
       XeSuaFormPanel form = new XeSuaFormPanel();
+      this.napHangXe(form);
+      this.napDongXe(form);
+      this.napDoiXe(form);
       form.napDuLieu(this.taoFormData(xe));
-      this.napGoiYHangXe(form);
-      this.napGoiYDongXe(form);
       this.ganGoiYHangXe(form);
 
       BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
@@ -268,9 +353,7 @@ public class XePage extends AbstractPage {
     try {
       Xe xe = new Xe();
       xe.setBienSo(data.bienSo());
-      xe.setHangXe(data.hangXe());
-      xe.setDongXe(data.dongXe());
-      xe.setDoiXe(data.doiXe());
+      xe.setMaDoiXe(data.maDoiXe());
       xe.setOdo(data.odo() == null ? 0 : data.odo());
 
       this.xeService.create(xe);
@@ -293,9 +376,7 @@ public class XePage extends AbstractPage {
     XeFormData data = form.layDuLieu();
 
     try {
-      xe.setHangXe(data.hangXe());
-      xe.setDongXe(data.dongXe());
-      xe.setDoiXe(data.doiXe());
+      xe.setMaDoiXe(data.maDoiXe());
       xe.setOdo(data.odo() == null ? 0 : data.odo());
 
       this.xeService.update(xe);

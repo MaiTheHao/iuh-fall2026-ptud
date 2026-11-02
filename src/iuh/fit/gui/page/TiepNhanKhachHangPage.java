@@ -3,13 +3,16 @@ package iuh.fit.gui.page;
 import iuh.fit.dto.DanhSachKhachHangCriteria;
 import iuh.fit.dto.DanhSachXeCriteria;
 import iuh.fit.dto.TiepNhanFormData;
+import iuh.fit.entity.DoiXe;
+import iuh.fit.entity.DongXe;
+import iuh.fit.entity.HangXe;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.theme.Theme;
-import iuh.fit.gui.component.ComboGoiY;
 import iuh.fit.gui.component.ComboTimKiem;
 import iuh.fit.gui.component.ThongBao;
+import iuh.fit.service.DanhMucXeService;
 import iuh.fit.service.KhachHangService;
 import iuh.fit.service.TiepNhanService;
 import iuh.fit.service.XeService;
@@ -46,6 +49,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
   private final KhachHangService khachHangService = new KhachHangService();
   private final XeService xeService = new XeService();
+  private final DanhMucXeService danhMucXeService = new DanhMucXeService();
   private final TiepNhanService tiepNhanService = new TiepNhanService();
 
   private final ComboTimKiem<KhachHang> sdtField = new ComboTimKiem<>(
@@ -74,12 +78,12 @@ public class TiepNhanKhachHangPage extends AbstractPage {
                   null,
                   1,
                   SO_GOI_Y)).items(),
-          xe -> xe.getBienSo() + " - " + xe.getHangXe() + " - " + xe.getDongXe() + " - " + xe.getDoiXe(),
+          xe -> xe.getBienSo() + " - " + xe.getTenHangXe() + " - " + xe.getTenDongXe() + " - " + xe.getNamSX(),
           Xe::getBienSo);
 
-  private final JComboBox<String> hangXeCombo = new JComboBox<>();
-  private final JComboBox<String> dongXeCombo = new JComboBox<>();
-  private final JTextField doiXeField = new JTextField();
+  private final JComboBox<HangXe> hangXeCombo = new JComboBox<>();
+  private final JComboBox<DongXe> dongXeCombo = new JComboBox<>();
+  private final JComboBox<DoiXe> doiXeCombo = new JComboBox<>();
   private final JTextField odoField = new JTextField();
   private final JTextArea moTaArea = new JTextArea(6, 60);
 
@@ -92,8 +96,6 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   public TiepNhanKhachHangPage() {
     this.setLayout(new BorderLayout());
     this.setBackground(Theme.BG);
-    this.hangXeCombo.setEditable(true);
-    this.dongXeCombo.setEditable(true);
     this.dangKyDocumentListener();
   }
 
@@ -134,7 +136,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     pnlChiTietXe.setOpaque(false);
     pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.hangXe") + ":", this.hangXeCombo));
     pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.dongXe") + ":", this.dongXeCombo));
-    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.doiXe") + " (*):", this.doiXeField));
+    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.doiXe") + " (*):", this.doiXeCombo));
     pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.tiepNhan.odo"), this.odoField));
 
     gbcXe.gridx = 0;
@@ -175,18 +177,20 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
     this.add(contentPanel, BorderLayout.CENTER);
 
-    // Nạp gợi ý hãng/dòng xe từ dữ liệu đã có (combo vẫn cho nhập giá trị mới)
+    // Nạp danh mục hãng/dòng/đời xe
     this.taiGoiYHangXe();
     this.taiGoiYDongXe();
+    this.taiGoiYDoiXe();
 
     // Xóa hết Listener cũ tránh lặp sự kiện
     this.clearActionListeners(this.lamMoiButton, this.luuButton);
-    this.clearActionListeners(this.hangXeCombo);
+    this.clearActionListeners(this.hangXeCombo, this.dongXeCombo);
 
     // Đăng ký đúng Action Listeners
     this.lamMoiButton.addActionListener(e -> this.lamMoiForm());
     this.luuButton.addActionListener(e -> this.luuPhieuTiepNhan());
     this.hangXeCombo.addActionListener(e -> this.hangXeThayDoi());
+    this.dongXeCombo.addActionListener(e -> this.dongXeThayDoi());
 
     this.revalidate();
     this.repaint();
@@ -217,10 +221,12 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   private void dienThongTinXe(Xe xe) {
     this.dangCapNhat = true;
     try {
-      this.hangXeCombo.setSelectedItem(xe.getHangXe() == null ? "" : xe.getHangXe());
-      this.dongXeCombo.setSelectedItem(xe.getDongXe() == null ? "" : xe.getDongXe());
-      this.hangXeDaNap = ComboGoiY.giaTri(this.hangXeCombo);
-      this.doiXeField.setText(String.valueOf(xe.getDoiXe()));
+      this.chonHangXe(xe.getMaHangXe());
+      this.taiGoiYDongXe();
+      this.chonDongXe(xe.getMaDongXe());
+      this.taiGoiYDoiXe();
+      this.chonDoiXe(xe.getMaDoiXe());
+      this.hangXeDaNap = this.maHangDaChon();
       this.odoField.setText(String.valueOf(xe.getOdo()));
     } finally {
       this.dangCapNhat = false;
@@ -232,9 +238,15 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     if (this.dangCapNhat) {
       return;
     }
-    ComboGoiY.xoa(this.hangXeCombo);
-    ComboGoiY.xoa(this.dongXeCombo);
-    this.doiXeField.setText("");
+    this.dangCapNhat = true;
+    try {
+      this.hangXeCombo.removeAllItems();
+      this.dongXeCombo.removeAllItems();
+      this.doiXeCombo.removeAllItems();
+    } finally {
+      this.dangCapNhat = false;
+    }
+    this.hangXeDaNap = "";
     this.odoField.setText("");
   }
 
@@ -242,7 +254,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     if (this.dangCapNhat) {
       return;
     }
-    String hienTai = ComboGoiY.giaTri(this.hangXeCombo);
+    String hienTai = this.maHangDaChon() == null ? "" : this.maHangDaChon();
     if (hienTai.equals(this.hangXeDaNap)) {
       return;
     }
@@ -250,17 +262,83 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
     this.dangCapNhat = true;
     try {
-      ComboGoiY.xoa(this.dongXeCombo);
+      this.dongXeCombo.removeAllItems();
+      this.doiXeCombo.removeAllItems();
     } finally {
       this.dangCapNhat = false;
     }
     this.taiGoiYDongXe();
   }
 
+  private void dongXeThayDoi() {
+    if (this.dangCapNhat) {
+      return;
+    }
+    this.doiXeCombo.removeAllItems();
+    this.taiGoiYDoiXe();
+  }
+
+  private String maHangDaChon() {
+    Object sel = this.hangXeCombo.getSelectedItem();
+    return sel instanceof HangXe ? ((HangXe) sel).getMaHangXe() : null;
+  }
+
+  private String maDongDaChon() {
+    Object sel = this.dongXeCombo.getSelectedItem();
+    return sel instanceof DongXe ? ((DongXe) sel).getMaDongXe() : null;
+  }
+
+  private String maDoiDaChon() {
+    Object sel = this.doiXeCombo.getSelectedItem();
+    return sel instanceof DoiXe ? ((DoiXe) sel).getMaDoiXe() : null;
+  }
+
+  private void chonHangXe(String maHangXe) {
+    if (maHangXe == null) {
+      return;
+    }
+    for (int i = 0; i < this.hangXeCombo.getItemCount(); i++) {
+      HangXe item = this.hangXeCombo.getItemAt(i);
+      if (item != null && maHangXe.equals(item.getMaHangXe())) {
+        this.hangXeCombo.setSelectedIndex(i);
+        return;
+      }
+    }
+  }
+
+  private void chonDongXe(String maDongXe) {
+    if (maDongXe == null) {
+      return;
+    }
+    for (int i = 0; i < this.dongXeCombo.getItemCount(); i++) {
+      DongXe item = this.dongXeCombo.getItemAt(i);
+      if (item != null && maDongXe.equals(item.getMaDongXe())) {
+        this.dongXeCombo.setSelectedIndex(i);
+        return;
+      }
+    }
+  }
+
+  private void chonDoiXe(String maDoiXe) {
+    if (maDoiXe == null) {
+      return;
+    }
+    for (int i = 0; i < this.doiXeCombo.getItemCount(); i++) {
+      DoiXe item = this.doiXeCombo.getItemAt(i);
+      if (item != null && maDoiXe.equals(item.getMaDoiXe())) {
+        this.doiXeCombo.setSelectedIndex(i);
+        return;
+      }
+    }
+  }
+
   private void taiGoiYHangXe() {
     try {
-      ComboGoiY.nap(this.hangXeCombo, this.xeService.getDanhSachHangXe(), null);
-      this.hangXeDaNap = ComboGoiY.giaTri(this.hangXeCombo);
+      this.hangXeCombo.removeAllItems();
+      for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
+        this.hangXeCombo.addItem(hangXe);
+      }
+      this.hangXeDaNap = this.maHangDaChon() == null ? "" : this.maHangDaChon();
     } catch (SQLException ex) {
       LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý hãng xe", ex);
       ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
@@ -269,11 +347,24 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
   private void taiGoiYDongXe() {
     try {
-      ComboGoiY.nap(this.dongXeCombo,
-              this.xeService.getDanhSachDongXe(ComboGoiY.giaTri(this.hangXeCombo)),
-              null);
+      this.dongXeCombo.removeAllItems();
+      for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(this.maHangDaChon())) {
+        this.dongXeCombo.addItem(dongXe);
+      }
     } catch (SQLException ex) {
       LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý dòng xe", ex);
+      ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
+    }
+  }
+
+  private void taiGoiYDoiXe() {
+    try {
+      this.doiXeCombo.removeAllItems();
+      for (DoiXe doiXe : this.danhMucXeService.getDanhSachDoiXe(this.maDongDaChon())) {
+        this.doiXeCombo.addItem(doiXe);
+      }
+    } catch (SQLException ex) {
+      LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý đời xe", ex);
       ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
     }
   }
@@ -344,9 +435,10 @@ public class TiepNhanKhachHangPage extends AbstractPage {
       this.sdtField.xoa();
       this.hoTenField.setText("");
       this.bienSoField.xoa();
-      ComboGoiY.xoa(this.hangXeCombo);
-      ComboGoiY.xoa(this.dongXeCombo);
-      this.doiXeField.setText("");
+      this.hangXeCombo.removeAllItems();
+      this.dongXeCombo.removeAllItems();
+      this.doiXeCombo.removeAllItems();
+      this.hangXeDaNap = "";
       this.odoField.setText("");
       this.moTaArea.setText("");
     } finally {
@@ -360,9 +452,9 @@ public class TiepNhanKhachHangPage extends AbstractPage {
             this.sdtField.getTuKhoa().trim(),
             this.hoTenField.getText().trim(),
             this.bienSoField.getTuKhoa().trim(),
-            ComboGoiY.giaTri(this.hangXeCombo),
-            ComboGoiY.giaTri(this.dongXeCombo),
-            NumberParseUtil.toIntegerOrNull(this.doiXeField.getText()),
+            this.maHangDaChon(),
+            this.maDongDaChon(),
+            this.maDoiDaChon(),
             NumberParseUtil.toIntegerOrNull(this.odoField.getText()),
             this.moTaArea.getText().trim());
   }
@@ -383,11 +475,9 @@ public class TiepNhanKhachHangPage extends AbstractPage {
       this.bienSoField.requestFocusInWindow();
       return false;
     }
-    try {
-      Integer.valueOf(this.doiXeField.getText().trim());
-    } catch (NumberFormatException e) {
-      ThongBao.thongTin(this, "app.xe.loiDoiXe");
-      this.doiXeField.requestFocusInWindow();
+    if (this.maDoiDaChon() == null) {
+      ThongBao.thongTin(this, "app.danhMucXe.chuaChonDoi");
+      this.doiXeCombo.requestFocusInWindow();
       return false;
     }
     if (!this.odoField.getText().trim().isEmpty()) {

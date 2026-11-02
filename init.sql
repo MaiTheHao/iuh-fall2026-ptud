@@ -90,15 +90,49 @@ CREATE TABLE Voucher (
 );
 
 -- ============================================================
+-- TABLE: HangXe
+-- ============================================================
+CREATE TABLE HangXe (
+    maHangXe  varchar(20)   NOT NULL,
+    ten       nvarchar(100) NOT NULL,
+    CONSTRAINT PK_HangXe PRIMARY KEY (maHangXe),
+    CONSTRAINT UQ_HangXe_ten UNIQUE (ten)
+);
+
+-- ============================================================
+-- TABLE: DongXe
+-- ============================================================
+CREATE TABLE DongXe (
+    maDongXe  varchar(20)   NOT NULL,
+    maHangXe  varchar(20)   NOT NULL,
+    ten       nvarchar(100) NOT NULL,
+    CONSTRAINT PK_DongXe PRIMARY KEY (maDongXe),
+    CONSTRAINT FK_DongXe_HangXe FOREIGN KEY (maHangXe) REFERENCES HangXe(maHangXe),
+    CONSTRAINT UQ_DongXe_hang_ten UNIQUE (maHangXe, ten)
+);
+
+-- ============================================================
+-- TABLE: DoiXe
+-- ============================================================
+CREATE TABLE DoiXe (
+    maDoiXe   varchar(20) NOT NULL,
+    maDongXe  varchar(20) NOT NULL,
+    namSX     int         NOT NULL,
+    CONSTRAINT PK_DoiXe PRIMARY KEY (maDoiXe),
+    CONSTRAINT FK_DoiXe_DongXe FOREIGN KEY (maDongXe) REFERENCES DongXe(maDongXe),
+    CONSTRAINT UQ_DoiXe_dong_nam UNIQUE (maDongXe, namSX),
+    CONSTRAINT CK_DoiXe_namSX CHECK (namSX >= 1886)
+);
+
+-- ============================================================
 -- TABLE: Xe
 -- ============================================================
 CREATE TABLE Xe (
-    bienSo    varchar(15)  NOT NULL,
-    hangXe    nvarchar(50) NOT NULL,
-    dongXe    nvarchar(50) NOT NULL,
-    doiXe     int          NOT NULL,
+    bienSo    varchar(15) NOT NULL,
+    maDoiXe   varchar(20) NOT NULL,
     odo       int DEFAULT 0 NOT NULL,
-    CONSTRAINT PK_Xe PRIMARY KEY (bienSo)
+    CONSTRAINT PK_Xe PRIMARY KEY (bienSo),
+    CONSTRAINT FK_Xe_DoiXe FOREIGN KEY (maDoiXe) REFERENCES DoiXe(maDoiXe)
 );
 
 -- ============================================================

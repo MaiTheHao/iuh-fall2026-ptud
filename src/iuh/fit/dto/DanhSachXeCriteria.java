@@ -2,10 +2,10 @@ package iuh.fit.dto;
 
 public record DanhSachXeCriteria(
         String bienSo,
-        String hangXe,
-        String dongXe,
-        Integer doiXeTu,
-        Integer doiXeDen,
+        String maHangXe,
+        String maDongXe,
+        Integer namSXTu,
+        Integer namSXDen,
         Integer odoTu,
         Integer odoDen,
         String timNhanh,

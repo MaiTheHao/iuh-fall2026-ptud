@@ -13,8 +13,12 @@ import java.util.Optional;
 public final class XeDAO extends BaseDao<Xe> {
 
     private static final String SQL_SELECT = """
-            SELECT bienSo, hangXe, dongXe, doiXe, odo
-            FROM Xe
+            SELECT x.bienSo, x.maDoiXe, x.odo,
+                   d.maHangXe, dx.maDongXe, h.ten AS tenHangXe, d.ten AS tenDongXe, dx.namSX
+            FROM Xe x
+            JOIN DoiXe dx ON dx.maDoiXe = x.maDoiXe
+            JOIN DongXe d ON d.maDongXe = dx.maDongXe
+            JOIN HangXe h ON h.maHangXe = d.maHangXe
             """;
 
     public Optional<Xe> findById(String bienSo) throws SQLException {
@@ -70,16 +74,14 @@ public final class XeDAO extends BaseDao<Xe> {
 
     public boolean insert(TransactionScope scope, Xe xe) throws SQLException {
         String sql = """
-                INSERT INTO Xe (bienSo, hangXe, dongXe, doiXe, odo)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO Xe (bienSo, maDoiXe, odo)
+                VALUES (?, ?, ?)
                 """;
 
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             ps.setString(1, xe.getBienSo());
-            ps.setString(2, xe.getHangXe());
-            ps.setString(3, xe.getDongXe());
-            ps.setInt(4, xe.getDoiXe());
-            ps.setInt(5, xe.getOdo());
+            ps.setString(2, xe.getMaDoiXe());
+            ps.setInt(3, xe.getOdo());
 
             return ps.executeUpdate() > 0;
         }
@@ -96,16 +98,14 @@ public final class XeDAO extends BaseDao<Xe> {
     public boolean update(TransactionScope scope, Xe xe) throws SQLException {
         String sql = """
                 UPDATE Xe
-                SET hangXe = ?, dongXe = ?, doiXe = ?, odo = ?
+                SET maDoiXe = ?, odo = ?
                 WHERE bienSo = ?
                 """;
 
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
-            ps.setString(1, xe.getHangXe());
-            ps.setString(2, xe.getDongXe());
-            ps.setInt(3, xe.getDoiXe());
-            ps.setInt(4, xe.getOdo());
-            ps.setString(5, xe.getBienSo());
+            ps.setString(1, xe.getMaDoiXe());
+            ps.setInt(2, xe.getOdo());
+            ps.setString(3, xe.getBienSo());
 
             return ps.executeUpdate() > 0;
         }
@@ -168,11 +168,15 @@ public final class XeDAO extends BaseDao<Xe> {
 
     @Override
     protected Xe mapRow(ResultSet rs) throws SQLException {
-        return new Xe(
+        Xe xe = new Xe(
                 rs.getString("bienSo"),
-                rs.getString("hangXe"),
-                rs.getString("dongXe"),
-                rs.getInt("doiXe"),
+                rs.getString("maDoiXe"),
                 rs.getInt("odo"));
+        xe.setMaHangXe(rs.getString("maHangXe"));
+        xe.setMaDongXe(rs.getString("maDongXe"));
+        xe.setTenHangXe(rs.getString("tenHangXe"));
+        xe.setTenDongXe(rs.getString("tenDongXe"));
+        xe.setNamSX(rs.getInt("namSX"));
+        return xe;
     }
 }
