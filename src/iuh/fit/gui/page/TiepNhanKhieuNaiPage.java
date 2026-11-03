@@ -2,6 +2,7 @@ package iuh.fit.gui.page;
 
 import iuh.fit.dto.DanhSachKhachHangCriteria;
 import iuh.fit.dto.KhieuNaiFormData;
+import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.KhieuNai;
 import iuh.fit.entity.PhieuTiepNhan;
@@ -16,23 +17,21 @@ import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,7 +67,11 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
             KhachHang::getSdt);
     private final JTextField hoTenField = new JTextField();
 
-    private final JComboBox<PhieuTiepNhan> phieuCombo = new JComboBox<>();
+    private final ComboTimKiem<PhieuTiepNhanView> phieuCombo = new ComboTimKiem<>(
+            this::timPhieuTheoKhachHang,
+            phieu -> phieu.maPhieuTiepNhan() + " - " + phieu.bienSo(),
+            PhieuTiepNhanView::maPhieuTiepNhan);
+    private PhieuTiepNhanView phieuDangChon;
     private final JTextField noiDungBanDauField = new JTextField();
 
     private final JTextArea noiDungKhieuNaiArea = new JTextArea(8, 30);
@@ -92,20 +95,6 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         this.lamMoiBtn.setText(I18nReaderUtil.get("app.khieuNai.lamMoi"));
         this.luuBtn.setText(I18nReaderUtil.get("app.khieuNai.luu"));
 
-        this.phieuCombo.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof PhieuTiepNhan phieu) {
-                    this.setText(phieu.getMaPhieuTiepNhan() + " — " + phieu.getBienSo());
-                } else {
-                    this.setText("");
-                }
-                return this;
-            }
-        });
-
         // Container chính bao bọc toàn bộ Form
         JPanel mainContainer = new JPanel(new BorderLayout(0, 10));
         mainContainer.setOpaque(false);
@@ -115,32 +104,15 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
                 BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
         ));
 
-        // -- VÙNG FORM (NORTH) --
-        JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setOpaque(false);
-        GridBagConstraints gbcForm = new GridBagConstraints();
-        gbcForm.fill = GridBagConstraints.BOTH;
-        gbcForm.weightx = 0.5; // Chia đều 50% cho 2 cột
-        gbcForm.insets = new Insets(0, 0, 10, 10);
+        // -- HAI PANEL TRÊN (NORTH) --
+        JPanel pnlTop = new JPanel(new GridLayout(1, 2, 16, 0));
+        pnlTop.setOpaque(false);
+        pnlTop.add(this.createKhachHangPanel());
+        pnlTop.add(this.createPhieuTiepNhanPanel());
+        mainContainer.add(pnlTop, BorderLayout.NORTH);
 
-        // 1. Cột Khách Hàng (Trái)
-        gbcForm.gridx = 0;
-        gbcForm.gridy = 0;
-        formPanel.add(this.createKhachHangPanel(), gbcForm);
-
-        // 2. Cột Phiếu Tiếp Nhận (Phải)
-        gbcForm.gridx = 1;
-        gbcForm.insets = new Insets(0, 0, 10, 0); // Bỏ margin phải ở cột cuối
-        formPanel.add(this.createPhieuTiepNhanPanel(), gbcForm);
-
-        // 3. Vùng Nội Dung Khiếu Nại (Dưới cùng, chiếm 2 cột)
-        gbcForm.gridx = 0;
-        gbcForm.gridy = 1;
-        gbcForm.gridwidth = 2;
-        gbcForm.weighty = 1.0;
-        formPanel.add(this.createNoiDungPanel(), gbcForm);
-
-        mainContainer.add(formPanel, BorderLayout.CENTER);
+        // -- NỘI DUNG KHIẾU NẠI (CENTER) --
+        mainContainer.add(this.createNoiDungPanel(), BorderLayout.CENTER);
 
         // -- VÙNG NÚT BẤM (SOUTH) --
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
@@ -159,9 +131,6 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
         // --- Gắn sự kiện (Action Listeners) ---
         this.clearActionListeners(this.lamMoiBtn, this.luuBtn);
-        this.clearActionListeners(this.phieuCombo);
-
-        this.phieuCombo.addActionListener(e -> this.taiNoiDungBanDau());
 
         this.lamMoiBtn.addActionListener(e -> this.lamMoi());
 
@@ -175,6 +144,46 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     private void dangKySuKienTimKiem() {
         this.sdtField.datXuLyGo(this::xoaKhachHangKhiSdtThayDoi);
         this.sdtField.datXuLyChon(this::dienKhachHang);
+
+        this.phieuCombo.datXuLyGo(this::xoaPhieuKhiGo);
+        this.phieuCombo.datXuLyChon(this::dienPhieu);
+    }
+
+    private List<PhieuTiepNhanView> timPhieuTheoKhachHang(String tuKhoa) throws SQLException {
+        if (this.khachHangDangChon == null
+                || this.khachHangDangChon.getMaKhachHang() == null
+                || this.khachHangDangChon.getMaKhachHang().isBlank()) {
+            return List.of();
+        }
+
+        String tuKhoaChuan = tuKhoa == null ? "" : tuKhoa.trim().toLowerCase();
+
+        return this.phieuTiepNhanService
+                .getDanhSachTheoKhachHang(this.khachHangDangChon.getMaKhachHang())
+                .stream()
+                .filter(phieu -> tuKhoaChuan.isEmpty() || this.khopTuKhoa(phieu, tuKhoaChuan))
+                .limit(SO_GOI_Y)
+                .map(this::taoPhieuView)
+                .toList();
+    }
+
+    private boolean khopTuKhoa(PhieuTiepNhan phieu, String tuKhoa) {
+        String maPhieu = phieu.getMaPhieuTiepNhan() == null
+                ? "" : phieu.getMaPhieuTiepNhan().toLowerCase();
+        String bienSo = phieu.getBienSo() == null ? "" : phieu.getBienSo().toLowerCase();
+
+        return maPhieu.contains(tuKhoa) || bienSo.contains(tuKhoa);
+    }
+
+    private PhieuTiepNhanView taoPhieuView(PhieuTiepNhan phieu) {
+        return new PhieuTiepNhanView(
+                phieu.getMaPhieuTiepNhan(),
+                phieu.getBienSo(),
+                this.khachHangDangChon.getHoTen(),
+                this.khachHangDangChon.getSdt(),
+                phieu.getMoTa(),
+                phieu.getTrangThai(),
+                phieu.getNgayTao());
     }
 
     private void xoaKhachHangKhiSdtThayDoi() {
@@ -183,43 +192,34 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         }
         this.khachHangDangChon = null;
         this.hoTenField.setText("");
-        this.phieuCombo.removeAllItems();
-        this.noiDungBanDauField.setText("");
+        this.datLaiPhieu();
     }
 
     private void dienKhachHang(KhachHang khachHang) {
         this.khachHangDangChon = khachHang;
         this.hoTenField.setText(khachHang.getHoTen());
-        this.taiDanhSachPhieu();
+        this.datLaiPhieu();
+        this.phieuCombo.napLaiGoiY();
         this.phieuCombo.requestFocusInWindow();
     }
 
-    private void taiDanhSachPhieu() {
-        this.phieuCombo.removeAllItems();
+    private void datLaiPhieu() {
+        this.phieuDangChon = null;
+        this.phieuCombo.xoa();
         this.noiDungBanDauField.setText("");
-        if (this.khachHangDangChon == null) {
-            return;
-        }
-        try {
-            for (PhieuTiepNhan p : this.phieuTiepNhanService.getDanhSachTheoKhachHang(
-                    this.khachHangDangChon.getMaKhachHang())) {
-                this.phieuCombo.addItem(p);
-            }
-        } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, "Lỗi khi tải danh sách phiếu tiếp nhận của khách hàng", ex);
-            ThongBao.loi(this, "app.khieuNai.loiTaiDanhSach");
-        }
     }
 
-    private void taiNoiDungBanDau() {
-        Object chon = this.phieuCombo.getSelectedItem();
-        if (!(chon instanceof PhieuTiepNhan phieu)) {
-            this.noiDungBanDauField.setText("");
-            return;
-        }
+    private void xoaPhieuKhiGo() {
+        this.phieuDangChon = null;
+        this.noiDungBanDauField.setText("");
+    }
+
+    private void dienPhieu(PhieuTiepNhanView phieu) {
+        this.phieuDangChon = phieu;
+
         try {
             this.noiDungBanDauField.setText(
-                    this.phieuTiepNhanService.getById(phieu.getMaPhieuTiepNhan()).getMoTa());
+                    this.phieuTiepNhanService.getById(phieu.maPhieuTiepNhan()).getMoTa());
         } catch (IllegalArgumentException ex) {
             LOGGER.log(Level.SEVERE, "Không tìm thấy phiếu tiếp nhận đã chọn", ex);
             this.noiDungBanDauField.setText("");
@@ -234,7 +234,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
             ThongBao.loi(this, "app.khieuNai.loiKhachHang");
             return false;
         }
-        if (!(this.phieuCombo.getSelectedItem() instanceof PhieuTiepNhan)) {
+        if (this.phieuDangChon == null) {
             ThongBao.loi(this, "app.khieuNai.loiPhieu");
             return false;
         }
@@ -252,7 +252,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
             }
             KhieuNai khieuNai = this.khieuNaiService.create(new KhieuNaiFormData(
                     this.khachHangDangChon.getMaKhachHang(),
-                    ((PhieuTiepNhan) this.phieuCombo.getSelectedItem()).getMaPhieuTiepNhan(),
+                    this.phieuDangChon.maPhieuTiepNhan(),
                     this.noiDungKhieuNaiArea.getText().trim()));
             ThongBao.thongTinDinhDang(this, "app.khieuNai.luuThanhCong", khieuNai.getMaKhieuNai());
             this.lamMoi();
@@ -273,8 +273,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         }
         this.hoTenField.setText("");
         this.khachHangDangChon = null;
-        this.phieuCombo.removeAllItems();
-        this.noiDungBanDauField.setText("");
+        this.datLaiPhieu();
         this.noiDungKhieuNaiArea.setText("");
         this.sdtField.requestFocusInWindow();
     }
@@ -284,7 +283,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         panel.setOpaque(false);
         Insets padding = Theme.fieldRowInsets();
         panel.setBorder(BorderFactory.createCompoundBorder(
-                Theme.titledBorder("app.khieuNai.khachHangTitle"),
+                Theme.titledBorder("app.khieuNai.tieuDeKhachHang"),
                 BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
         ));
 
@@ -323,7 +322,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         panel.setOpaque(false);
         Insets padding = Theme.fieldRowInsets();
         panel.setBorder(BorderFactory.createCompoundBorder(
-                Theme.titledBorder("app.khieuNai.phieuTitle"),
+                Theme.titledBorder("app.khieuNai.tieuDePhieu"),
                 BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
         ));
 
@@ -361,7 +360,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         panel.setOpaque(false);
         Insets padding = Theme.fieldRowInsets();
         panel.setBorder(BorderFactory.createCompoundBorder(
-                Theme.titledBorder("app.khieuNai.noiDungKhieuNai"),
+                Theme.titledBorder("app.khieuNai.tieuDeNoiDung"),
                 BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
         ));
 

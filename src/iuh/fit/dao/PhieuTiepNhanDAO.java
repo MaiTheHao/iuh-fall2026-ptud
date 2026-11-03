@@ -48,6 +48,19 @@ public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
         return Optional.of(phieuTiepNhan);
     }
 
+    public Optional<PhieuTiepNhan> findByIdForUpdate(TransactionScope scope, String maPhieuTiepNhan)
+            throws SQLException {
+        Optional<PhieuTiepNhan> found = this.findOne(scope,
+                SQL_SELECT + " WITH (UPDLOCK) WHERE maPhieuTiepNhan = ?", maPhieuTiepNhan);
+        if (found.isEmpty()) {
+            return Optional.empty();
+        }
+        PhieuTiepNhan phieuTiepNhan = found.get();
+        phieuTiepNhan.setDanhSachVanDeKyThuat(
+                this.loadDanhSachVanDeKyThuat(scope.getConnection(), maPhieuTiepNhan));
+        return Optional.of(phieuTiepNhan);
+    }
+
     public List<PhieuTiepNhan> findAll() throws SQLException {
         return this.findAll(SQL_SELECT);
     }

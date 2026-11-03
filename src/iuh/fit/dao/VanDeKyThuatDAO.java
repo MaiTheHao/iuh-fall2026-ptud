@@ -39,6 +39,18 @@ public final class VanDeKyThuatDAO extends BaseDao<VanDeKyThuat> {
         }
     }
 
+    public List<VanDeKyThuat> findByPhieuTiepNhan(TransactionScope scope, String maPhieuTiepNhan)
+            throws SQLException {
+        String sql = SQL_SELECT + " WHERE maPhieuTiepNhan = ?";
+
+        try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
+            ps.setString(1, maPhieuTiepNhan);
+            try (ResultSet rs = ps.executeQuery()) {
+                return this.mapRows(rs);
+            }
+        }
+    }
+
     public boolean insert(TransactionScope scope, VanDeKyThuat vanDe) throws SQLException {
         String sql = """
                 INSERT INTO VanDeKyThuat (maVanDe, maPhieuTiepNhan, tieuDe, moTa, mucDoUuTien, giaiPhap, khachHangDongY, ngayTao)

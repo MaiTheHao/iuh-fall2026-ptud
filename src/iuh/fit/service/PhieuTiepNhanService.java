@@ -40,6 +40,7 @@ public class PhieuTiepNhanService {
     private static final String ERROR_MO_TA_TRONG = "app.phieuTiepNhan.loiMoTaTrong";
     private static final String ERROR_GHI_DU_LIEU = "app.phieuTiepNhan.loiGhiDuLieu";
     private static final String ERROR_PHIEU_NOT_FOUND = "app.phieuTiepNhan.khongTonTai";
+    private static final String ERROR_CHI_SUA_KHI_MOI = "app.phieuTiepNhan.chiSuaKhiMoi";
 
     private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
@@ -96,6 +97,10 @@ public class PhieuTiepNhanService {
         PhieuTiepNhan hienTai = this.phieuTiepNhanDAO.findById(ma)
                 .orElseThrow(() -> new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND));
 
+        if (hienTai.getTrangThai() != TrangThaiPhieuTiepNhan.TIEP_NHAN) {
+            throw new IllegalStateException(ERROR_CHI_SUA_KHI_MOI);
+        }
+
         this.kiemTraChuyenTrangThai(hienTai.getTrangThai(), phieu.getTrangThai());
         if (phieu.getTrangThai() == TrangThaiPhieuTiepNhan.DA_HUY) {
             throw new IllegalArgumentException("app.phieuTiepNhan.huyBangNut");
@@ -109,6 +114,52 @@ public class PhieuTiepNhanService {
 
         if (!this.phieuTiepNhanDAO.update(phieu, hienTai.getTrangThai())) {
             throw new IllegalStateException(ERROR_TRANG_THAI_KHONG_HOP_LE);
+        }
+    }
+
+    public List<TrangThaiPhieuTiepNhan> trangThaiKeTiep(TrangThaiPhieuTiepNhan hienTai) {
+        if (hienTai == null || hienTai == TrangThaiPhieuTiepNhan.DA_HUY) {
+            return List.of();
+        }
+
+        List<TrangThaiPhieuTiepNhan> keTiep = new ArrayList<>();
+        for (TrangThaiPhieuTiepNhan trangThai : TrangThaiPhieuTiepNhan.values()) {
+            if (trangThai != TrangThaiPhieuTiepNhan.DA_HUY
+                    && trangThai.ordinal() == hienTai.ordinal() + 1) {
+                keTiep.add(trangThai);
+            }
+        }
+        return keTiep;
+    }
+
+    public void chuyenTrangThai(String maPhieuTiepNhan, TrangThaiPhieuTiepNhan moi) throws SQLException {
+        String ma = maPhieuTiepNhan == null ? "" : maPhieuTiepNhan.trim();
+        if (ma.isEmpty()) {
+            throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
+        }
+
+        PhieuTiepNhan hienTai = this.phieuTiepNhanDAO.findById(ma)
+                .orElseThrow(() -> new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND));
+
+        if (moi == null) {
+            throw new IllegalArgumentException(ERROR_DU_LIEU);
+        }
+        if (moi == TrangThaiPhieuTiepNhan.DA_HUY) {
+            throw new IllegalArgumentException("app.phieuTiepNhan.huyBangNut");
+        }
+
+        this.kiemTraChuyenTrangThai(hienTai.getTrangThai(), moi);
+
+        PhieuTiepNhan phieuMoi = new PhieuTiepNhan();
+        phieuMoi.setMaPhieuTiepNhan(hienTai.getMaPhieuTiepNhan());
+        phieuMoi.setMoTa(hienTai.getMoTa());
+        phieuMoi.setTrangThai(moi);
+
+        try (TransactionScope scope = TransactionScope.begin()) {
+            if (!this.phieuTiepNhanDAO.update(scope, phieuMoi, hienTai.getTrangThai())) {
+                throw new IllegalStateException(ERROR_TRANG_THAI_KHONG_HOP_LE);
+            }
+            scope.commit();
         }
     }
 
@@ -236,7 +287,7 @@ public class PhieuTiepNhanService {
         if (moi == TrangThaiPhieuTiepNhan.DA_HUY) {
             return;
         }
-        if (hienTai == null || moi.ordinal() != hienTai.ordinal() + 1) {
+        if (!this.trangThaiKeTiep(hienTai).contains(moi)) {
             throw new IllegalArgumentException(ERROR_TRANG_THAI_KHONG_HOP_LE);
         }
     }

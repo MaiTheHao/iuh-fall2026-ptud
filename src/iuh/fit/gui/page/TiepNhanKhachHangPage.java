@@ -91,6 +91,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   private final JButton luuButton = new JButton();
 
   private boolean dangCapNhat;
+  private boolean dangNapDanhSach = false;
   private String hangXeDaNap = "";
 
   public TiepNhanKhachHangPage() {
@@ -221,6 +222,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   private void dienThongTinXe(Xe xe) {
     this.dangCapNhat = true;
     try {
+      this.taiGoiYHangXe();
       this.chonHangXe(xe.getMaHangXe());
       this.taiGoiYDongXe();
       this.chonDongXe(xe.getMaDongXe());
@@ -240,7 +242,13 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     }
     this.dangCapNhat = true;
     try {
-      this.hangXeCombo.removeAllItems();
+      boolean cu = this.dangNapDanhSach;
+      this.dangNapDanhSach = true;
+      try {
+        this.hangXeCombo.setSelectedIndex(-1);
+      } finally {
+        this.dangNapDanhSach = cu;
+      }
       this.dongXeCombo.removeAllItems();
       this.doiXeCombo.removeAllItems();
     } finally {
@@ -251,7 +259,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   }
 
   private void hangXeThayDoi() {
-    if (this.dangCapNhat) {
+    if (this.dangCapNhat || this.dangNapDanhSach) {
       return;
     }
     String hienTai = this.maHangDaChon() == null ? "" : this.maHangDaChon();
@@ -271,7 +279,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   }
 
   private void dongXeThayDoi() {
-    if (this.dangCapNhat) {
+    if (this.dangCapNhat || this.dangNapDanhSach) {
       return;
     }
     this.doiXeCombo.removeAllItems();
@@ -333,39 +341,60 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   }
 
   private void taiGoiYHangXe() {
+    boolean cu = this.dangNapDanhSach;
+    this.dangNapDanhSach = true;
     try {
-      this.hangXeCombo.removeAllItems();
-      for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
-        this.hangXeCombo.addItem(hangXe);
+      try {
+        this.hangXeCombo.removeAllItems();
+        for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
+          this.hangXeCombo.addItem(hangXe);
+        }
+        this.hangXeCombo.setSelectedIndex(-1);
+        this.hangXeDaNap = this.maHangDaChon() == null ? "" : this.maHangDaChon();
+      } catch (SQLException ex) {
+        LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý hãng xe", ex);
+        ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
       }
-      this.hangXeDaNap = this.maHangDaChon() == null ? "" : this.maHangDaChon();
-    } catch (SQLException ex) {
-      LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý hãng xe", ex);
-      ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
+    } finally {
+      this.dangNapDanhSach = cu;
     }
   }
 
   private void taiGoiYDongXe() {
+    boolean cu = this.dangNapDanhSach;
+    this.dangNapDanhSach = true;
     try {
-      this.dongXeCombo.removeAllItems();
-      for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(this.maHangDaChon())) {
-        this.dongXeCombo.addItem(dongXe);
+      try {
+        this.dongXeCombo.removeAllItems();
+        for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(this.maHangDaChon())) {
+          this.dongXeCombo.addItem(dongXe);
+        }
+        this.dongXeCombo.setSelectedIndex(-1);
+      } catch (SQLException ex) {
+        LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý dòng xe", ex);
+        ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
       }
-    } catch (SQLException ex) {
-      LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý dòng xe", ex);
-      ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
+    } finally {
+      this.dangNapDanhSach = cu;
     }
   }
 
   private void taiGoiYDoiXe() {
+    boolean cu = this.dangNapDanhSach;
+    this.dangNapDanhSach = true;
     try {
-      this.doiXeCombo.removeAllItems();
-      for (DoiXe doiXe : this.danhMucXeService.getDanhSachDoiXe(this.maDongDaChon())) {
-        this.doiXeCombo.addItem(doiXe);
+      try {
+        this.doiXeCombo.removeAllItems();
+        for (DoiXe doiXe : this.danhMucXeService.getDanhSachDoiXe(this.maDongDaChon())) {
+          this.doiXeCombo.addItem(doiXe);
+        }
+        this.doiXeCombo.setSelectedIndex(-1);
+      } catch (SQLException ex) {
+        LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý đời xe", ex);
+        ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
       }
-    } catch (SQLException ex) {
-      LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý đời xe", ex);
-      ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
+    } finally {
+      this.dangNapDanhSach = cu;
     }
   }
 

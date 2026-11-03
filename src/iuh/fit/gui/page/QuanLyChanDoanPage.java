@@ -1,31 +1,22 @@
 package iuh.fit.gui.page;
 
-import iuh.fit.dto.BaseFormDialogConfig;
-import iuh.fit.dto.ChanDoanUpdateFormData;
-import iuh.fit.dto.ChanDoanView;
-import iuh.fit.dto.DanhSachChanDoanCriteria;
+import iuh.fit.core.context.AppContext;
 import iuh.fit.dto.DanhSachPhieuTiepNhanCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.enumeration.MenuGroup;
-import iuh.fit.enumeration.TrangThaiVanDeKyThuat;
-import iuh.fit.gui.component.BaseFormDialog;
-import iuh.fit.gui.component.ComboTimKiem;
+import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
-import iuh.fit.gui.form.ChanDoanSuaFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuTiepNhanService;
-import iuh.fit.service.VanDeKyThuatService;
 import iuh.fit.util.I18nReaderUtil;
-import iuh.fit.util.NumberParseUtil;
 
 import javax.swing.BorderFactory;
-import javax.swing.SwingUtilities;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.time.LocalDateTime;
+import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,25 +30,23 @@ public class QuanLyChanDoanPage extends AbstractPage {
     private static final Logger LOGGER = Logger.getLogger(QuanLyChanDoanPage.class.getName());
 
     private static final int SO_DONG_MOI_TRANG = 20;
-    private static final int SO_GOI_Y = 10;
-
-    /** Dialog sửa chẩn đoán: 3 khối đọc + 4 khối nhập liệu + trạng thái đọc. */
-    private static final int CHIEU_CAO_SUA = 650;
 
     private static final DateTimeFormatter DINH_DANG_NGAY_GIO =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
 
     private ManagementPanel managementPanel;
-    private List<ChanDoanView> danhSachHienTai = List.of();
 
-    private ComboTimKiem<PhieuTiepNhanView> boLocPhieuTiepNhan;
-    private ManagementPanel.BoLocKhoang boLocMucDo;
-    private ManagementPanel.BoLocChon boLocKhachHangDongY;
-    private ManagementPanel.BoLocNgay boLocNgayTao;
+    private JTextField boLocMa;
+    private JTextField boLocBienSo;
+    private JTextField boLocHoTen;
+    private JTextField boLocSdt;
+    private JTextField boLocNoiDung;
+    private ManagementPanel.BoLocNgay boLocThoiGianVao;
+    private ManagementPanel.BoLocChon boLocTrangThai;
 
+    private List<PhieuTiepNhanView> danhSachHienTai = new ArrayList<>();
     private int trang = 1;
 
     public QuanLyChanDoanPage() {
@@ -73,52 +62,33 @@ public class QuanLyChanDoanPage extends AbstractPage {
 
         this.managementPanel = new ManagementPanel();
         this.managementPanel.setListTitle("app.chanDoan.danhSachQuanLyTitle");
-        this.managementPanel.enableMultiSelection(true);
 
         this.managementPanel.setHeaders(
-                I18nReaderUtil.get("app.chanDoan.maVanDe"),
-                I18nReaderUtil.get("app.chanDoan.phieuTiepNhan"),
-                I18nReaderUtil.get("app.chanDoan.bienSo"),
-                I18nReaderUtil.get("app.chanDoan.khachHang"),
-                I18nReaderUtil.get("app.chanDoan.tieuDeCot"),
-                I18nReaderUtil.get("app.chanDoan.mucDoUuTien"),
-                I18nReaderUtil.get("app.chanDoan.khachHangDongY"),
-                I18nReaderUtil.get("app.chanDoan.ngayTao")
+                I18nReaderUtil.get("app.phieuTiepNhan.ma"),
+                I18nReaderUtil.get("app.xe.bienSo"),
+                I18nReaderUtil.get("app.khachHang.hoTen"),
+                I18nReaderUtil.get("app.khachHang.sdt"),
+                I18nReaderUtil.get("app.phieuTiepNhan.thoiGianVao"),
+                I18nReaderUtil.get("app.phieuTiepNhan.noiDung"),
+                I18nReaderUtil.get("app.phieuTiepNhan.trangThai")
         );
 
         this.managementPanel.addActionColumn("app.common.actions",
-                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
-                        row -> this.suaChanDoan(row)),
-                new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
-                        row -> this.xoaChanDoan(row)));
+                new ThaoTac("clipboard-list", "app.chanDoan.moChanDoan", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.moBangChanDoan(row)));
 
-        this.boLocPhieuTiepNhan = new ComboTimKiem<>(
-                tuKhoa -> this.phieuTiepNhanService.search(new DanhSachPhieuTiepNhanCriteria(
-                        tuKhoa,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        1,
-                        SO_GOI_Y)).items(),
-                phieu -> phieu.maPhieuTiepNhan() + " - " + phieu.bienSo() + " - " + phieu.tenKhachHang(),
-                PhieuTiepNhanView::maPhieuTiepNhan);
-        this.managementPanel.addComboSearchFilter("app.chanDoan.phieuTiepNhan", this.boLocPhieuTiepNhan);
-        this.boLocMucDo = this.managementPanel.addRangeFilter("app.chanDoan.mucDoUuTienTuDen");
-        this.boLocKhachHangDongY = this.managementPanel.addComboBoxFilter(
-                "app.chanDoan.khachHangDongY", TrangThaiVanDeKyThuat.values());
-        this.boLocNgayTao = this.managementPanel.addDateRangeFilter("app.chanDoan.ngayTaoTuDen");
+        this.boLocMa = this.managementPanel.addTextFilter("app.phieuTiepNhan.ma");
+        this.boLocBienSo = this.managementPanel.addTextFilter("app.xe.bienSo");
+        this.boLocHoTen = this.managementPanel.addTextFilter("app.khachHang.hoTen");
+        this.boLocSdt = this.managementPanel.addTextFilter("app.khachHang.sdt");
+        this.boLocNoiDung = this.managementPanel.addTextFilter("app.phieuTiepNhan.noiDung");
+        this.boLocThoiGianVao = this.managementPanel.addDateRangeFilter("app.phieuTiepNhan.thoiGianVao");
+        this.boLocTrangThai = this.managementPanel.addComboBoxFilter("app.phieuTiepNhan.trangThai",
+                TrangThaiPhieuTiepNhan.values());
 
         this.managementPanel.setFilterChangeListener(() -> this.taiLai(1));
 
-        this.managementPanel.setAddAction("app.common.add_new",
-                () -> this.goTo(LapChanDoanPage.class));
-        this.managementPanel.setBatchAction("app.common.batch_delete", "trash-2", ThaoTac.KieuThaoTac.NGUY_HIEM, this::xoaNhieu);
-        this.managementPanel.setRowDoubleClickListener(this::suaChanDoan);
+        this.managementPanel.setRowDoubleClickListener(this::moBangChanDoan);
 
         this.managementPanel.getClearFilterButton().addActionListener(
                 e -> this.managementPanel.clearFilters());
@@ -137,174 +107,61 @@ public class QuanLyChanDoanPage extends AbstractPage {
 
     private void taiLai(int page) {
         try {
-            TrangThaiVanDeKyThuat khachHangDongY = this.boLocKhachHangDongY.giaTri()
-                    instanceof TrangThaiVanDeKyThuat value ? value : null;
+            TrangThaiPhieuTiepNhan trangThai = this.boLocTrangThai.giaTri()
+                    instanceof TrangThaiPhieuTiepNhan value ? value : null;
 
-            DanhSachChanDoanCriteria tieuChi = new DanhSachChanDoanCriteria(
-                    this.boLocPhieuTiepNhan.getTuKhoa(),
-                    NumberParseUtil.toIntegerOrNull(this.boLocMucDo.tuText()),
-                    NumberParseUtil.toIntegerOrNull(this.boLocMucDo.denText()),
-                    khachHangDongY,
-                    this.boLocNgayTao.tuNgay(),
-                    this.boLocNgayTao.denNgay(),
+            DanhSachPhieuTiepNhanCriteria tieuChi = new DanhSachPhieuTiepNhanCriteria(
+                    this.boLocMa.getText(),
+                    this.boLocBienSo.getText(),
+                    this.boLocHoTen.getText(),
+                    this.boLocSdt.getText(),
+                    this.boLocNoiDung.getText(),
+                    trangThai,
+                    this.boLocThoiGianVao.tuNgay(),
+                    this.boLocThoiGianVao.denNgay(),
                     this.managementPanel.getQuickFilter(),
                     Math.max(page, 1),
                     SO_DONG_MOI_TRANG
             );
 
-            PaginatedResult<ChanDoanView> ketQua = this.vanDeKyThuatService.search(tieuChi);
+            PaginatedResult<PhieuTiepNhanView> ketQua = this.phieuTiepNhanService.search(tieuChi);
 
             List<Object[]> rows = new ArrayList<>();
-            for (ChanDoanView view : ketQua.items()) {
+            for (PhieuTiepNhanView view : ketQua.items()) {
                 rows.add(new Object[]{
-                        view.maVanDe(),
                         view.maPhieuTiepNhan(),
                         view.bienSo(),
                         view.tenKhachHang(),
-                        view.tieuDe(),
-                        String.valueOf(view.mucDoUuTien()),
-                        view.khachHangDongY() == null ? "" : view.khachHangDongY().getI18NBusinessName(),
-                        this.dinhDangNgayGio(view.ngayTao())
+                        view.sdt(),
+                        view.ngayTao() != null ? view.ngayTao().format(DINH_DANG_NGAY_GIO) : "",
+                        view.moTa(),
+                        view.trangThai() == null ? "" : view.trangThai().getI18NBusinessName()
                 });
             }
 
             this.danhSachHienTai = ketQua.items();
 
             this.managementPanel.setRows(rows);
-            this.managementPanel.setCount(
-                    ketQua.fromIndex(),
-                    ketQua.toIndex(),
-                    ketQua.totalItems());
-            this.managementPanel.setPage(
-                    ketQua.page(),
-                    Math.max(ketQua.totalPages(), 1));
+            this.managementPanel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+            this.managementPanel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
 
             this.trang = ketQua.page();
 
-        } catch (IllegalArgumentException ex) {
-            ThongBao.loi(this, ex);
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Khong the tai danh sach chan doan", ex);
-            ThongBao.loi(this, "app.chanDoan.loiTaiDanhSachQuanLy");
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Khong the tai danh sach phieu tiep nhan", ex);
+            ThongBao.loi(this, "app.phieuTiepNhan.loiTaiDanhSach");
         }
     }
 
-    private void suaChanDoan(int row) {
+    private void moBangChanDoan(int row) {
         if (row < 0 || row >= this.danhSachHienTai.size()) {
             return;
         }
 
-        ChanDoanView view = this.danhSachHienTai.get(row);
+        PhieuTiepNhanView view = this.danhSachHienTai.get(row);
 
-        ChanDoanSuaFormPanel formSua = new ChanDoanSuaFormPanel();
-        formSua.napDuLieu(view);
-
-        BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
-                SwingUtilities.getWindowAncestor(this),
-                "app.chanDoan.suaTitle",
-                formSua,
-                () -> this.capNhat(SwingUtilities.getWindowAncestor(formSua), formSua.layDuLieu()),
-                CHIEU_CAO_SUA));
-
-        if (dialog.showAndGet()) {
-            this.taiLai(this.trang);
-        }
-    }
-
-    private boolean capNhat(Component parent, ChanDoanUpdateFormData data) {
-        try {
-            this.vanDeKyThuatService.update(data);
-            ThongBao.thongTin(parent, "app.common.update_succeed");
-            return true;
-        } catch (IllegalArgumentException ex) {
-            ThongBao.loi(parent, ex);
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Khong the cap nhat chan doan", ex);
-            ThongBao.loi(parent, "app.login.errorSystem");
-        }
-
-        return false;
-    }
-
-    private void xoaChanDoan(int row) {
-        try {
-            if (row < 0 || row >= this.danhSachHienTai.size()) {
-                ThongBao.canhBao(this, "app.chanDoan.chuaChonXoa");
-                return;
-            }
-
-            String maVanDe = this.danhSachHienTai.get(row).maVanDe();
-            if (maVanDe == null || maVanDe.isBlank()) {
-                ThongBao.canhBao(this, "app.chanDoan.chuaChonXoa");
-                return;
-            }
-
-            if (!ThongBao.xacNhan(this, "app.chanDoan.xacNhanXoa", "app.chanDoan.tieuDeXoa")) {
-                return;
-            }
-
-            this.vanDeKyThuatService.delete(maVanDe);
-            ThongBao.thongTin(this, "app.common.delete_succeed");
-
-            this.taiLai(this.trang);
-
-        } catch (IllegalArgumentException ex) {
-            ThongBao.loi(this, ex);
-
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Khong the xoa chan doan", ex);
-            ThongBao.loi(this, "app.login.errorSystem");
-        }
-    }
-
-    private void xoaNhieu(List<Integer> rows) {
-        if (rows.isEmpty()) {
-            return;
-        }
-
-        if (!ThongBao.xacNhanDinhDang(this, "app.common.batch_delete_confirm", "app.common.confirm", rows.size())) {
-            return;
-        }
-
-        int thanhCong = 0;
-        boolean loiHeThong = false;
-
-        for (int row : rows) {
-            if (row < 0 || row >= this.danhSachHienTai.size()) {
-                continue;
-            }
-
-            String maVanDe = this.danhSachHienTai.get(row).maVanDe();
-
-            if (maVanDe == null || maVanDe.isBlank()) {
-                continue;
-            }
-
-            try {
-                this.vanDeKyThuatService.delete(maVanDe);
-                thanhCong++;
-            } catch (IllegalArgumentException | IllegalStateException ignored) {
-                // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
-            } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Khong the xoa chan doan", ex);
-                loiHeThong = true;
-                break;
-            }
-        }
-
-        if (loiHeThong) {
-            ThongBao.loi(this, "app.login.errorSystem");
-        } else if (thanhCong == rows.size()) {
-            ThongBao.thongTin(this, "app.common.delete_succeed");
-        } else {
-            ThongBao.canhBaoDinhDang(this, "app.common.batch_delete_result", thanhCong, rows.size());
-        }
-
-        this.taiLai(this.trang);
-    }
-
-    private String dinhDangNgayGio(LocalDateTime thoiGian) {
-        return thoiGian == null ? "" : thoiGian.format(DINH_DANG_NGAY_GIO);
+        AppContext.getInstance().setSelectedPhieuTiepNhan(view);
+        this.goTo(BangChanDoanPage.class);
     }
 
     @Override

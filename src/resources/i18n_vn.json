@@ -403,7 +403,11 @@
 			"loiTaiDanhSach": "Lỗi khi tải dữ liệu phiếu tiếp nhận.",
 			"lyDoHuy": "Lý do hủy (sẽ ghi vào hóa đơn liên kết)",
 			"loiHoaDonDaThanhToan": "Phiếu đã có hóa đơn đã thanh toán. Vui lòng sang trang Hóa đơn để hủy hóa đơn trước, rồi quay lại hủy phiếu.",
-			"huyBangNut": "Vui lòng dùng nút Hủy Phiếu để hủy phiếu tiếp nhận."
+			"huyBangNut": "Vui lòng dùng nút Hủy Phiếu để hủy phiếu tiếp nhận.",
+			"chuyenTrangThai": "Chuyển trạng thái",
+			"suaNoiDung": "Sửa nội dung",
+			"khongCoTrangThaiKeTiep": "Không còn trạng thái kế tiếp",
+			"chiSuaKhiMoi": "Chỉ được sửa nội dung khi phiếu ở trạng thái Mới"
 		},
 		"tiepNhan": {
 			"loiDuLieu": "Dữ liệu tiếp nhận không được để trống.",
@@ -452,6 +456,9 @@
 			"tiepNhanTitle": "Tiếp Nhận Khiếu Nại",
 			"khachHangTitle": "1. KHÁCH HÀNG KHIẾU NẠI",
 			"phieuTitle": "2. PHIẾU TIẾP NHẬN LIÊN QUAN",
+			"tieuDeKhachHang": "Khách hàng",
+			"tieuDePhieu": "Phiếu tiếp nhận",
+			"tieuDeNoiDung": "Nội dung khiếu nại",
 			"sdt": "Số điện thoại khách hàng (*):",
 			"hoTen": "Họ và tên khách hàng:",
 			"timKhach": "Tìm Khách",
@@ -584,6 +591,7 @@
 			"loiGhiDuLieu": "Không thể ghi dữ liệu chẩn đoán.",
 			"danhSachQuanLyTitle": "Danh Sách Chẩn Đoán Kỹ Thuật",
 			"phieuTiepNhan": "Phiếu Tiếp Nhận",
+			"moChanDoan": "Mở chẩn đoán",
 			"tieuDeCot": "Tiêu đề",
 			"mucDoUuTienTuDen": "Mức Ưu Tiên (từ - đến)",
 			"ngayTaoTuDen": "Ngày Tạo (từ - đến)",
@@ -595,7 +603,17 @@
 			"xacNhanXoa": "Bạn có chắc chắn muốn xóa chẩn đoán này không?",
 			"tieuDeXoa": "Xác nhận xóa chẩn đoán",
 			"chuaChonXoa": "Vui lòng chọn chẩn đoán cần xóa.",
-			"loiTaiDanhSachQuanLy": "Không thể tải danh sách chẩn đoán."
+			"loiTaiDanhSachQuanLy": "Không thể tải danh sách chẩn đoán.",
+			"bangTitle": "Lập chẩn đoán kỹ thuật",
+			"themDong": "Thêm dòng",
+			"suaDong": "Sửa dòng",
+			"xoaDongDaChon": "Xóa dòng đã chọn",
+			"luuTatCa": "Lưu",
+			"chiSuaKhiMoi": "Chỉ được sửa chẩn đoán khi phiếu ở trạng thái Mới",
+			"trangThaiDongY": "Trạng thái",
+			"khongTheHuyXacNhan": "Không thể huỷ xác nhận đã thực hiện",
+			"xacNhanBoThayDoi": "Bạn có thay đổi chẩn đoán chưa lưu. Bỏ các thay đổi này?",
+			"tieuDeBoThayDoi": "Bỏ thay đổi chẩn đoán"
 		},
 		"hoaDon": {
 			"danhSachTitle": "Danh Sách Hóa Đơn",

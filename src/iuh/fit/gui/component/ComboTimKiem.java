@@ -220,12 +220,16 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
   }
 
   private void taiLai() {
+    this.taiLai(false);
+  }
+
+  private void taiLai(boolean choPhepTuKhoaRong) {
     // Kết quả của lần gõ trước không được nạp đè lên text hiện tại.
     this.huyTimKiem();
     final int theHe = this.theHeTim;
 
     final String tuKhoa = this.getTuKhoa();
-    if (tuKhoa.isBlank()) {
+    if (tuKhoa.isBlank() && !choPhepTuKhoaRong) {
       this.xoaDanhSach();
       return;
     }
@@ -278,6 +282,12 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
 
     this.workerHienTai = worker;
     worker.execute();
+  }
+
+  public void napLaiGoiY() {
+    this.boDem.stop();
+    this.huyTimKiem();
+    this.taiLai(true);
   }
 
   /** Huỷ lần tải đang chạy và vô hiệu hoá kết quả còn trên đường về. */

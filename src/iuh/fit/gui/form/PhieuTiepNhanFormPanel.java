@@ -4,35 +4,27 @@ import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
 import iuh.fit.gui.component.FormFieldPanel;
-import iuh.fit.gui.component.BoHienThiI18n;
 import iuh.fit.gui.theme.Theme;
 
-import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Dimension;
-import java.util.Arrays;
 
 /**
  * Form nhập liệu phiếu tiếp nhận dùng chung cho màn quản lý và dialog sửa.
+ * Trạng thái không sửa trực tiếp ở đây mà đổi qua action chuyển trạng thái.
  */
 public class PhieuTiepNhanFormPanel extends FormFieldPanel {
 
     private static final long serialVersionUID = 1L;
-
-    private static final TrangThaiPhieuTiepNhan[] TRANG_THAI_CHON_DUOC = Arrays.stream(
-            TrangThaiPhieuTiepNhan.values())
-            .filter(trangThai -> trangThai != TrangThaiPhieuTiepNhan.DA_HUY)
-            .toArray(TrangThaiPhieuTiepNhan[]::new);
 
     private final JTextField maPhieuField = new JTextField();
     private final JTextField bienSoField = new JTextField();
     private final JTextField khachHangField = new JTextField();
     private final JTextField sdtField = new JTextField();
     private final JTextArea moTaArea = new JTextArea(4, 20);
-    private final JComboBox<TrangThaiPhieuTiepNhan> trangThaiCombo =
-            new JComboBox<>(TRANG_THAI_CHON_DUOC);
+    private TrangThaiPhieuTiepNhan trangThai;
 
     public PhieuTiepNhanFormPanel() {
         Theme.applyReadOnly(this.maPhieuField);
@@ -50,9 +42,6 @@ public class PhieuTiepNhanFormPanel extends FormFieldPanel {
         JScrollPane scrollMoTa = new JScrollPane(this.moTaArea);
         scrollMoTa.setPreferredSize(new Dimension(200, 100));
         this.addField("app.phieuTiepNhan.noiDungYeuCau", scrollMoTa);
-
-        this.trangThaiCombo.setRenderer(BoHienThiI18n.tao());
-        this.addField("app.phieuTiepNhan.trangThaiTienDo", this.trangThaiCombo);
     }
 
     public void napDuLieu(PhieuTiepNhanView view) {
@@ -61,22 +50,15 @@ public class PhieuTiepNhanFormPanel extends FormFieldPanel {
         this.khachHangField.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
         this.sdtField.setText(view.sdt() == null ? "" : view.sdt());
         this.moTaArea.setText(view.moTa() == null ? "" : view.moTa());
-        this.setTrangThai(view.trangThai());
+        this.trangThai = view.trangThai();
     }
 
     public PhieuTiepNhan layDuLieu() {
         PhieuTiepNhan phieu = new PhieuTiepNhan();
         phieu.setMaPhieuTiepNhan(this.maPhieuField.getText().trim());
         phieu.setMoTa(this.moTaArea.getText().trim());
-        phieu.setTrangThai((TrangThaiPhieuTiepNhan) this.trangThaiCombo.getSelectedItem());
+        phieu.setTrangThai(this.trangThai);
         return phieu;
-    }
-
-    public void setTrangThai(TrangThaiPhieuTiepNhan trangThai) {
-        if (trangThai == TrangThaiPhieuTiepNhan.DA_HUY) {
-            return;
-        }
-        this.trangThaiCombo.setSelectedItem(trangThai);
     }
 
     public void lamMoi() {
@@ -85,7 +67,7 @@ public class PhieuTiepNhanFormPanel extends FormFieldPanel {
         this.khachHangField.setText("");
         this.sdtField.setText("");
         this.moTaArea.setText("");
-        this.trangThaiCombo.setSelectedIndex(0);
+        this.trangThai = null;
         this.focus();
     }
 

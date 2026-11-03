@@ -70,9 +70,7 @@ public class XemChanDoanPage extends AbstractPage {
                 new ThaoTac("check", "app.chanDoan.datCo", ThaoTac.KieuThaoTac.THUONG,
                         row -> this.capNhatTrangThai(row, TrangThaiVanDeKyThuat.CO)),
                 new ThaoTac("ban", "app.chanDoan.datKhong", ThaoTac.KieuThaoTac.THUONG,
-                        row -> this.capNhatTrangThai(row, TrangThaiVanDeKyThuat.KHONG)),
-                new ThaoTac("rotate-ccw", "app.chanDoan.datChuaXacNhan", ThaoTac.KieuThaoTac.THUONG,
-                        row -> this.capNhatTrangThai(row, TrangThaiVanDeKyThuat.CHUA_XAC_NHAN)));
+                        row -> this.capNhatTrangThai(row, TrangThaiVanDeKyThuat.KHONG)));
 
         this.managementPanel.setFilterChangeListener(() -> this.taiLai());
         this.managementPanel.getClearFilterButton().addActionListener(

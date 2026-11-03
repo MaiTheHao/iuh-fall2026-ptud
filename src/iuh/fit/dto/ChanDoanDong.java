@@ -1,12 +1,9 @@
 package iuh.fit.dto;
 
-import iuh.fit.enumeration.TrangThaiVanDeKyThuat;
-
-public record ChanDoanUpdateFormData(
+public record ChanDoanDong(
         String maVanDe,
         String tieuDe,
         String moTa,
         int mucDoUuTien,
         String giaiPhap,
-        TrangThaiVanDeKyThuat khachHangDongY) {
-}
+        boolean xoa) {}

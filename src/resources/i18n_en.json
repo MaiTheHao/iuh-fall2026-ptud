@@ -403,7 +403,11 @@
 			"loiTaiDanhSach": "Error loading the intake slip list.",
 			"lyDoHuy": "Cancellation reason (recorded on the linked invoice)",
 			"loiHoaDonDaThanhToan": "This slip has a paid invoice. Cancel the invoice on the Invoice screen first, then cancel the slip.",
-			"huyBangNut": "Please use the Cancel Slip button to cancel an intake slip."
+			"huyBangNut": "Please use the Cancel Slip button to cancel an intake slip.",
+			"chuyenTrangThai": "Change Status",
+			"suaNoiDung": "Edit Content",
+			"khongCoTrangThaiKeTiep": "No next status available",
+			"chiSuaKhiMoi": "Content can only be edited while the slip is New"
 		},
 		"tiepNhan": {
 			"loiDuLieu": "Intake data must not be empty.",
@@ -452,6 +456,9 @@
 			"tiepNhanTitle": "Complaint Intake",
 			"khachHangTitle": "1. COMPLAINING CUSTOMER",
 			"phieuTitle": "2. RELATED INTAKE SLIP",
+			"tieuDeKhachHang": "Customer",
+			"tieuDePhieu": "Intake Slip",
+			"tieuDeNoiDung": "Complaint Content",
 			"sdt": "Customer phone number (*):",
 			"hoTen": "Customer full name:",
 			"timKhach": "Find Customer",
@@ -584,6 +591,7 @@
 			"loiGhiDuLieu": "Unable to save the diagnosis.",
 			"danhSachQuanLyTitle": "Technical Diagnosis List",
 			"phieuTiepNhan": "Intake Slip",
+			"moChanDoan": "Open diagnosis",
 			"tieuDeCot": "Title",
 			"mucDoUuTienTuDen": "Priority (from - to)",
 			"ngayTaoTuDen": "Created At (from - to)",
@@ -595,7 +603,17 @@
 			"xacNhanXoa": "Are you sure you want to delete this diagnosis?",
 			"tieuDeXoa": "Confirm diagnosis deletion",
 			"chuaChonXoa": "Please select a diagnosis to delete.",
-			"loiTaiDanhSachQuanLy": "Failed to load the diagnosis list."
+			"loiTaiDanhSachQuanLy": "Failed to load the diagnosis list.",
+			"bangTitle": "Create Technical Diagnosis",
+			"themDong": "Add Line",
+			"suaDong": "Edit Line",
+			"xoaDongDaChon": "Delete Selected Lines",
+			"luuTatCa": "Save",
+			"chiSuaKhiMoi": "Diagnoses can only be edited while the slip is New",
+			"trangThaiDongY": "Status",
+			"khongTheHuyXacNhan": "A confirmed diagnosis cannot be reverted",
+			"xacNhanBoThayDoi": "You have unsaved diagnosis changes. Discard them?",
+			"tieuDeBoThayDoi": "Discard diagnosis changes"
 		},
 		"hoaDon": {
 			"danhSachTitle": "Invoice List",

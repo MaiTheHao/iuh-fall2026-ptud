@@ -22,11 +22,15 @@ import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -90,8 +94,15 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         );
 
         this.managementPanel.addActionColumn("app.common.actions",
-                new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
-                        row -> this.suaPhieuTiepNhan(row)),
+                new ThaoTac("rotate-ccw", "app.phieuTiepNhan.chuyenTrangThai",
+                        ThaoTac.KieuThaoTac.THUONG, row -> this.moMenuTrangThai(row),
+                        row -> this.danhSachHienTai.size() > row && row >= 0
+                                && !this.phieuTiepNhanService.trangThaiKeTiep(
+                                        this.danhSachHienTai.get(row).trangThai()).isEmpty()),
+                new ThaoTac("pencil", "app.phieuTiepNhan.suaNoiDung", ThaoTac.KieuThaoTac.THUONG,
+                        row -> this.suaPhieuTiepNhan(row),
+                        row -> this.danhSachHienTai.size() > row && row >= 0
+                                && this.danhSachHienTai.get(row).trangThai() == TrangThaiPhieuTiepNhan.TIEP_NHAN),
                 new ThaoTac("eye", "app.common.view", ThaoTac.KieuThaoTac.THUONG,
                         row -> this.xemChiTiet(row)),
                 new ThaoTac("ban", "app.phieuTiepNhan.huyPhieu", ThaoTac.KieuThaoTac.NGUY_HIEM,
@@ -183,13 +194,60 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
         BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
                 SwingUtilities.getWindowAncestor(this),
-                "app.common.editTitle",
+                "app.phieuTiepNhan.suaNoiDung",
                 formSua,
                 () -> this.capNhat(SwingUtilities.getWindowAncestor(formSua), formSua.layDuLieu()),
                 CHIEU_CAO_SUA));
 
         if (dialog.showAndGet()) {
             this.taiLaiData(this.trang);
+        }
+    }
+
+    private void moMenuTrangThai(int row) {
+        if (row < 0 || row >= this.danhSachHienTai.size()) {
+            return;
+        }
+
+        PhieuTiepNhanView view = this.danhSachHienTai.get(row);
+        List<TrangThaiPhieuTiepNhan> keTiep = this.phieuTiepNhanService.trangThaiKeTiep(view.trangThai());
+
+        if (keTiep.isEmpty()) {
+            ThongBao.canhBao(this, "app.phieuTiepNhan.khongCoTrangThaiKeTiep");
+            return;
+        }
+
+        JPopupMenu menu = new JPopupMenu();
+
+        for (TrangThaiPhieuTiepNhan dich : keTiep) {
+            JMenuItem item = new JMenuItem(dich.getI18NBusinessName());
+            item.addActionListener(e -> this.chuyenTrangThai(view.maPhieuTiepNhan(), dich));
+            menu.add(item);
+        }
+
+        Point viTriChuot = MouseInfo.getPointerInfo() == null
+                ? null
+                : MouseInfo.getPointerInfo().getLocation();
+
+        if (viTriChuot == null) {
+            menu.show(this, 0, 0);
+            return;
+        }
+
+        SwingUtilities.convertPointFromScreen(viTriChuot, this);
+        menu.show(this, viTriChuot.x, viTriChuot.y);
+    }
+
+    private void chuyenTrangThai(String maPhieuTiepNhan, TrangThaiPhieuTiepNhan dich) {
+        try {
+            this.phieuTiepNhanService.chuyenTrangThai(maPhieuTiepNhan, dich);
+            ThongBao.thongTin(this, "app.common.update_succeed");
+            this.taiLaiData(this.trang);
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            ThongBao.loi(this, ex);
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Khong the chuyen trang thai phieu tiep nhan", ex);
+            ThongBao.loi(this, "app.login.errorSystem");
         }
     }
 
