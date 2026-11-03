@@ -48,7 +48,7 @@ public abstract class XeFormPanel extends FormFieldPanel {
     this.odoField.setText(data.odo() == null ? "" : String.valueOf(data.odo()));
   }
 
-  private void chonHangXe(String maHangXe) {
+  public void chonHangXe(String maHangXe) {
     if (maHangXe == null) {
       return;
     }
@@ -61,7 +61,7 @@ public abstract class XeFormPanel extends FormFieldPanel {
     }
   }
 
-  private void chonDongXe(String maDongXe) {
+  public void chonDongXe(String maDongXe) {
     if (maDongXe == null) {
       return;
     }

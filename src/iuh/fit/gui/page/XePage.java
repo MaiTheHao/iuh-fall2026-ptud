@@ -321,7 +321,9 @@ public class XePage extends AbstractPage {
 
       XeSuaFormPanel form = new XeSuaFormPanel();
       this.napHangXe(form);
+      form.chonHangXe(xe.getMaHangXe());
       this.napDongXe(form);
+      form.chonDongXe(xe.getMaDongXe());
       this.napDoiXe(form);
       form.napDuLieu(this.taoFormData(xe));
       this.ganGoiYHangXe(form);
