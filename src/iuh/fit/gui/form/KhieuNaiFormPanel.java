@@ -4,8 +4,8 @@ import iuh.fit.dto.KhieuNaiUpdateFormData;
 import iuh.fit.dto.KhieuNaiView;
 import iuh.fit.enumeration.TrangThaiKhieuNai;
 import iuh.fit.gui.component.FormFieldPanel;
+import iuh.fit.gui.Theme;
 import iuh.fit.gui.component.BoHienThiI18n;
-import iuh.fit.gui.theme.Theme;
 
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;

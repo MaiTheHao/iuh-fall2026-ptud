@@ -6,7 +6,7 @@ import com.github.lgooddatepicker.components.DateTimePicker;
 import com.github.lgooddatepicker.components.TimePicker;
 import com.github.lgooddatepicker.components.TimePickerSettings;
 import iuh.fit.core.context.AppContext;
-import iuh.fit.gui.theme.Theme;
+import iuh.fit.gui.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.JButton;

@@ -1,7 +1,7 @@
 package iuh.fit;
 
 import iuh.fit.gui.GUI;
-import iuh.fit.gui.theme.Theme;
+import iuh.fit.gui.Theme;
 import iuh.fit.service.DayMetricService;
 
 import java.sql.SQLException;

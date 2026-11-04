@@ -1,6 +1,6 @@
 package iuh.fit.gui.form;
 
-import iuh.fit.gui.theme.Theme;
+import iuh.fit.gui.Theme;
 
 /**
  * Form cập nhật xe: biển số là khóa nên chỉ đọc.

@@ -2,11 +2,11 @@ package iuh.fit.gui.layout;
 
 import iuh.fit.core.context.AppContext;
 import iuh.fit.enumeration.AppLocale;
+import iuh.fit.gui.Theme;
 import iuh.fit.gui.page.AbstractPage;
 import iuh.fit.gui.page.DashboardPage;
 import iuh.fit.gui.page.LoginPage;
 import iuh.fit.gui.page.PageRegistry;
-import iuh.fit.gui.theme.Theme;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;

@@ -1,9 +1,9 @@
 package iuh.fit.gui.layout;
 
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.Theme;
 import iuh.fit.gui.page.AbstractPage;
 import iuh.fit.gui.page.PageRegistry;
-import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.JComponent;

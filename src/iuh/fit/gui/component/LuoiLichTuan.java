@@ -1,7 +1,7 @@
 package iuh.fit.gui.component;
 
 import iuh.fit.enumeration.CaLamViec;
-import iuh.fit.gui.theme.Theme;
+import iuh.fit.gui.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.Box;

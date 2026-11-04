@@ -1,6 +1,6 @@
 package iuh.fit.gui.component;
 
-import iuh.fit.gui.theme.Theme;
+import iuh.fit.gui.Theme;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.TaiAnhUtil;
 

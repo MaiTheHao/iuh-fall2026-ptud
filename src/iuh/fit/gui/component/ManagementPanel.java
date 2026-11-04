@@ -2,7 +2,8 @@ package iuh.fit.gui.component;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.github.lgooddatepicker.components.DatePicker;
-import iuh.fit.gui.theme.Theme;
+
+import iuh.fit.gui.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.JButton;

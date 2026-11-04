@@ -2,9 +2,9 @@ package iuh.fit.gui.form;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import iuh.fit.dto.KhachHangFormData;
+import iuh.fit.gui.Theme;
 import iuh.fit.gui.component.FormFieldPanel;
 import iuh.fit.gui.component.FormValidationHelper;
-import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.JComponent;

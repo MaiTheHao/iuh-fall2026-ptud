@@ -1,4 +1,4 @@
-package iuh.fit.gui.theme;
+package iuh.fit.gui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 

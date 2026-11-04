@@ -2,9 +2,9 @@ package iuh.fit.gui.page;
 
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.exception.AuthException;
+import iuh.fit.gui.Theme;
 import iuh.fit.gui.component.ManagementFormPanel;
 import iuh.fit.gui.component.ThongBao;
-import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.AuthService;
 import iuh.fit.util.I18nReaderUtil;
 

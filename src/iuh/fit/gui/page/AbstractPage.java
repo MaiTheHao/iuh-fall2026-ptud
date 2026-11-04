@@ -1,7 +1,7 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.enumeration.MenuGroup;
-import iuh.fit.gui.theme.Theme;
+import iuh.fit.gui.Theme;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComboBox;

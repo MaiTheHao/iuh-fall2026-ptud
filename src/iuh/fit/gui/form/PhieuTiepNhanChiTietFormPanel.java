@@ -1,8 +1,8 @@
 package iuh.fit.gui.form;
 
 import iuh.fit.dto.PhieuTiepNhanView;
+import iuh.fit.gui.Theme;
 import iuh.fit.gui.component.FormFieldPanel;
-import iuh.fit.gui.theme.Theme;
 import iuh.fit.util.DateFormats;
 
 import javax.swing.JTextArea;
