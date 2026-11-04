@@ -3,7 +3,7 @@ package iuh.fit.service;
 import iuh.fit.core.context.AppContext;
 import iuh.fit.dao.PhieuNhapPhuTungDAO;
 import iuh.fit.dao.TransactionScope;
-import iuh.fit.dto.DanhSachCriteria;
+import iuh.fit.dto.DanhSachPhieuNhapCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.ChiTietPhieuNhapPhuTung;
 import iuh.fit.entity.NhanVien;
@@ -35,19 +35,20 @@ public class PhieuNhapPhuTungService {
 	private static final String ERROR_ID_REQUIRED = "app.phieuNhap.chuaChonXoa";
 	private static final String ERROR_NOT_LOGGED_IN = "app.common.notLoggedIn";
 
-	public PaginatedResult<PhieuNhapPhuTung> search(DanhSachCriteria criteria, String tuKhoa, String maPhieuFilter,
-			String maThuKhoFilter, String moTaFilter, LocalDate fromDate, LocalDate toDate, Double minCost,
-			Double maxCost) throws SQLException {
+	public PaginatedResult<PhieuNhapPhuTung> search(DanhSachPhieuNhapCriteria criteria) throws SQLException {
+		DanhSachPhieuNhapCriteria c = criteria != null ? criteria : DanhSachPhieuNhapCriteria.macDinh();
 		List<PhieuNhapPhuTung> all = this.phieuNhapDAO.findAll();
 
-		String keyword = (tuKhoa != null && !tuKhoa.isBlank()) ? TextNormalizerUtil.normalize(tuKhoa.trim()) : null;
-		String fMaPhieu = (maPhieuFilter != null && !maPhieuFilter.isBlank())
-				? TextNormalizerUtil.normalize(maPhieuFilter.trim())
+		String keyword = (c.timNhanh() != null && !c.timNhanh().isBlank())
+				? TextNormalizerUtil.normalize(c.timNhanh().trim())
 				: null;
-		String fMaNV = (maThuKhoFilter != null && !maThuKhoFilter.isBlank())
-				? TextNormalizerUtil.normalize(maThuKhoFilter.trim())
+		String fMaPhieu = (c.maPhieuNhap() != null && !c.maPhieuNhap().isBlank())
+				? TextNormalizerUtil.normalize(c.maPhieuNhap().trim())
 				: null;
-		String fMoTa = (moTaFilter != null && !moTaFilter.isBlank()) ? TextNormalizerUtil.normalize(moTaFilter.trim())
+		String fMaNV = (c.maThuKho() != null && !c.maThuKho().isBlank())
+				? TextNormalizerUtil.normalize(c.maThuKho().trim())
+				: null;
+		String fMoTa = (c.moTa() != null && !c.moTa().isBlank()) ? TextNormalizerUtil.normalize(c.moTa().trim())
 				: null;
 
 		List<PhieuNhapPhuTung> matched = new ArrayList<>(all.stream().filter(item -> {
@@ -67,18 +68,20 @@ public class PhieuNhapPhuTungService {
 			if (keyword != null && !(maPhieu.contains(keyword) || moTa.contains(keyword) || maNV.contains(keyword))) {
 				return false;
 			}
-			if (fromDate != null && item.getNgayTao() != null && item.getNgayTao().toLocalDate().isBefore(fromDate)) {
+			if (c.ngayTaoTu() != null && item.getNgayTao() != null
+					&& item.getNgayTao().toLocalDate().isBefore(c.ngayTaoTu())) {
 				return false;
 			}
-			if (toDate != null && item.getNgayTao() != null && item.getNgayTao().toLocalDate().isAfter(toDate)) {
+			if (c.ngayTaoDen() != null && item.getNgayTao() != null
+					&& item.getNgayTao().toLocalDate().isAfter(c.ngayTaoDen())) {
 				return false;
 			}
 
 			double tongChiPhi = this.tinhTongChiPhi(item);
-			if (minCost != null && tongChiPhi < minCost) {
+			if (c.tongChiPhiTu() != null && tongChiPhi < c.tongChiPhiTu()) {
 				return false;
 			}
-			if (maxCost != null && tongChiPhi > maxCost) {
+			if (c.tongChiPhiDen() != null && tongChiPhi > c.tongChiPhiDen()) {
 				return false;
 			}
 
@@ -89,9 +92,7 @@ public class PhieuNhapPhuTungService {
 				Comparator.nullsLast(Comparator.reverseOrder()))
 				.thenComparing(PhieuNhapPhuTung::getMaPhieuNhap, Comparator.reverseOrder()));
 
-		int page = criteria != null ? criteria.page() : 1;
-		int pageSize = criteria != null ? criteria.pageSize() : 10;
-		return PaginatedResult.of(matched, page, pageSize);
+		return PaginatedResult.of(matched, c);
 	}
 
 	public double tinhTongChiPhi(PhieuNhapPhuTung item) {

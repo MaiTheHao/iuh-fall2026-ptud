@@ -28,7 +28,7 @@ public record PaginatedResult<T>(
         return new PaginatedResult<>(List.copyOf(items.subList(from, to)), currentPage, size, items.size());
     }
 
-    public static <T> PaginatedResult<T> of(List<T> items, DanhSachCriteria criteria) {
+    public static <T> PaginatedResult<T> of(List<T> items, BaseCriteria criteria) {
         return of(items, criteria.page(), criteria.pageSize());
     }
 

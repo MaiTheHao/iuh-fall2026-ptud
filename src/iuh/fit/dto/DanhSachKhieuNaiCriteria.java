@@ -14,5 +14,11 @@ public record DanhSachKhieuNaiCriteria(
         LocalDate ngayTaoDen,
         String timNhanh,
         int page,
-        int pageSize) {
+        int pageSize) implements BaseCriteria {
+
+    public static DanhSachKhieuNaiCriteria macDinh() {
+        return new DanhSachKhieuNaiCriteria(
+                null, null, null, null, null, null, null, null,
+                1, PaginatedResult.DEFAULT_PAGE_SIZE);
+    }
 }

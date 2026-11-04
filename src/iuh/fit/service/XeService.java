@@ -41,7 +41,7 @@ public class XeService {
                 .toList();
 
         return PaginatedResult.of(
-                matched, filter.page(), filter.pageSize());
+                matched, filter);
     }
 
     public Optional<Xe> getByBienSo(String bienSo)

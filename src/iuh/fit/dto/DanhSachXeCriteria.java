@@ -10,5 +10,11 @@ public record DanhSachXeCriteria(
         Integer odoDen,
         String timNhanh,
         int page,
-        int pageSize) {
+        int pageSize) implements BaseCriteria {
+
+    public static DanhSachXeCriteria macDinh() {
+        return new DanhSachXeCriteria(
+                null, null, null, null, null, null, null, null,
+                1, PaginatedResult.DEFAULT_PAGE_SIZE);
+    }
 }

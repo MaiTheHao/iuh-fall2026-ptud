@@ -1,6 +1,7 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.dto.BaseFormDialogConfig;
+import iuh.fit.dto.DanhSachPhanCongCriteria;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
@@ -87,8 +88,8 @@ public class PhanCongCaPage extends AbstractPage {
 		try {
 			LocalDate ngayCuoiTuan = this.ngayDauTuan.plusDays(6);
 
-			List<PhanCong> danhSach = this.phanCongService.search(null, null, this.ngayDauTuan, ngayCuoiTuan, null,
-					null, null);
+			List<PhanCong> danhSach = this.phanCongService.search(
+					DanhSachPhanCongCriteria.tatCa(this.ngayDauTuan, ngayCuoiTuan)).items();
 			Map<String, String> tenNhanVienTheoMa = this.phanCongService.getTenNhanVienTheoMa();
 
 			Map<LocalDate, Map<CaLamViec, List<LuoiLichTuan.MucPhanCong>>> duLieu = new HashMap<>();

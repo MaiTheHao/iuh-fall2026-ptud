@@ -11,7 +11,7 @@ public record DanhSachNhaCungCapCriteria(
         LocalDate ngayTaoTu,
         LocalDate ngayTaoDen,
         int page,
-        int pageSize) implements DanhSachCriteria {
+        int pageSize) implements BaseCriteria {
 
   public static DanhSachNhaCungCapCriteria macDinh() {
     return new DanhSachNhaCungCapCriteria(null, null, null, null, null, null, null, 1, PaginatedResult.DEFAULT_PAGE_SIZE);

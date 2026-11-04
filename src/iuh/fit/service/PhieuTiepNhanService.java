@@ -240,7 +240,7 @@ public class PhieuTiepNhanService {
                 PhieuTiepNhanView::ngayTao,
                 Comparator.nullsLast(Comparator.reverseOrder())));
 
-        return PaginatedResult.of(views, filter.page(), filter.pageSize());
+        return PaginatedResult.of(views, filter);
     }
 
     public List<PhieuTiepNhan> getDanhSachTheoKhachHang(String maKhachHang) throws SQLException {

@@ -12,7 +12,7 @@ public record DanhSachVoucherCriteria(
         Boolean trangThaiKichHoat,
         int page,
         int pageSize
-) implements DanhSachCriteria {
+) implements BaseCriteria {
 
     public static DanhSachVoucherCriteria macDinh() {
         return new DanhSachVoucherCriteria(

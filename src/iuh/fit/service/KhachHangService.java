@@ -35,7 +35,7 @@ public class KhachHangService {
                 .filter(customer -> this.matches(customer, filter))
                 .toList();
 
-        return PaginatedResult.of(matched, filter.page(), filter.pageSize());
+        return PaginatedResult.of(matched, filter);
     }
 
     public void create(KhachHang customer) throws SQLException {

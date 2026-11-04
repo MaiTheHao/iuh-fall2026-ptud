@@ -15,7 +15,7 @@ public record DanhSachPhieuTiepNhanCriteria(
         LocalDate ngayTaoDen,
         String timNhanh,
         int page,
-        int pageSize) implements DanhSachCriteria {
+        int pageSize) implements BaseCriteria {
 
     public static DanhSachPhieuTiepNhanCriteria macDinh() {
         return new DanhSachPhieuTiepNhanCriteria(

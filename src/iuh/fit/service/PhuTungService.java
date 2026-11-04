@@ -35,11 +35,6 @@ public class PhuTungService {
     private final NhaCungCapDAO nhaCungCapDAO = new NhaCungCapDAO();
     private final MaService maService = new MaService();
 
-    public PaginatedResult<PhuTung> getAll(int page, int pageSize) throws SQLException {
-
-        return PaginatedResult.of(this.phuTungDAO.findAll(), page, pageSize);
-    }
-
     public PaginatedResult<PhuTung> search(DanhSachPhuTungCriteria criteria) throws SQLException {
 
         DanhSachPhuTungCriteria filter = criteria == null

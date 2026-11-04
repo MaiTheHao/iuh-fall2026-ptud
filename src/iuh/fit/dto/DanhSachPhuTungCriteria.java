@@ -10,7 +10,7 @@ public record DanhSachPhuTungCriteria(
         Integer soLuongDen,
         String maNhaCungCap,
         int page,
-        int pageSize) implements DanhSachCriteria {
+        int pageSize) implements BaseCriteria {
 
   public static DanhSachPhuTungCriteria macDinh() {
     return new DanhSachPhuTungCriteria(null, null, null, null, null, null, null, null, 1, PaginatedResult.DEFAULT_PAGE_SIZE);

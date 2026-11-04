@@ -2,6 +2,8 @@ package iuh.fit.service;
 
 import iuh.fit.dao.NhanVienDAO;
 import iuh.fit.dao.PhanCongDAO;
+import iuh.fit.dto.DanhSachPhanCongCriteria;
+import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
@@ -31,10 +33,6 @@ public final class PhanCongService {
 	private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
 	private final MaService maService = new MaService();
 
-	public List<PhanCong> getAll() throws SQLException {
-		return this.phanCongDAO.findAll();
-	}
-
 	public List<NhanVien> getDanhSachNhanVien() throws SQLException {
 		return this.nhanVienDAO.findAll();
 	}
@@ -47,8 +45,8 @@ public final class PhanCongService {
 		return this.nhanVienDAO.findById(maNhanVien.trim());
 	}
 
-	public List<PhanCong> search(String maPhanCong, String tenNhanVien, LocalDate tuNgay, LocalDate denNgay,
-			CaLamViec caLamViec, String ghiChu, String timNhanh) throws SQLException {
+	public PaginatedResult<PhanCong> search(DanhSachPhanCongCriteria criteria) throws SQLException {
+		DanhSachPhanCongCriteria c = criteria != null ? criteria : DanhSachPhanCongCriteria.macDinh();
 
 		List<PhanCong> danhSach = this.phanCongDAO.findAll();
 		List<NhanVien> nhanViens = this.nhanVienDAO.findAll();
@@ -59,12 +57,12 @@ public final class PhanCongService {
 			tenNhanVienTheoMa.put(nhanVien.getMaNhanVien(), nhanVien.getHoTen() == null ? "" : nhanVien.getHoTen());
 		}
 
-		String maCanTim = this.chuanHoa(maPhanCong);
-		String tenCanTim = this.chuanHoa(tenNhanVien);
-		String ghiChuCanTim = this.chuanHoa(ghiChu);
-		String timNhanhCanTim = this.chuanHoa(timNhanh);
+		String maCanTim = this.chuanHoa(c.maPhanCong());
+		String tenCanTim = this.chuanHoa(c.tenNhanVien());
+		String ghiChuCanTim = this.chuanHoa(c.ghiChu());
+		String timNhanhCanTim = this.chuanHoa(c.timNhanh());
 
-		return danhSach.stream().filter(phanCong -> {
+		List<PhanCong> matched = danhSach.stream().filter(phanCong -> {
 			String ma = phanCong.getMaPhanCong();
 			return this.chuaChuoi(ma, maCanTim);
 		}).filter(phanCong -> {
@@ -74,8 +72,9 @@ public final class PhanCongService {
 		}).filter(phanCong -> {
 			LocalDate ngayLam = LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay());
 
-			return (tuNgay == null || !ngayLam.isBefore(tuNgay)) && (denNgay == null || !ngayLam.isAfter(denNgay));
-		}).filter(phanCong -> caLamViec == null || phanCong.getCaLamViec() == caLamViec)
+			return (c.tuNgay() == null || !ngayLam.isBefore(c.tuNgay()))
+					&& (c.denNgay() == null || !ngayLam.isAfter(c.denNgay()));
+		}).filter(phanCong -> c.caLamViec() == null || phanCong.getCaLamViec() == c.caLamViec())
 				.filter(phanCong -> this.chuaChuoi(phanCong.getGhiChu(), ghiChuCanTim)).filter(phanCong -> {
 					if (timNhanhCanTim == null) {
 						return true;
@@ -92,7 +91,13 @@ public final class PhanCongService {
 							|| this.chuaChuoi(ngayLam.format(DATE_FORMATTER), timNhanhCanTim)
 							|| this.chuaChuoi(phanCong.getCaLamViec() == null ? "" : phanCong.getCaLamViec().name(),
 									timNhanhCanTim);
-				}).toList();
+				}).sorted(Comparator
+						.comparing((PhanCong phanCong) -> LocalDate.of(phanCong.getNam(), phanCong.getThang(),
+								phanCong.getNgay()))
+						.thenComparing(PhanCong::getMaPhanCong, Comparator.nullsLast(Comparator.naturalOrder())))
+				.toList();
+
+		return PaginatedResult.of(matched, c);
 	}
 
 	private String maNhanVienCua(PhanCong phanCong) {

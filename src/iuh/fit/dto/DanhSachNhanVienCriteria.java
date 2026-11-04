@@ -12,7 +12,7 @@ public record DanhSachNhanVienCriteria(
         LocalDate ngayTaoTu,
         LocalDate ngayTaoDen,
         int page,
-        int pageSize) implements DanhSachCriteria {
+        int pageSize) implements BaseCriteria {
 
     public static DanhSachNhanVienCriteria macDinh() {
         return new DanhSachNhanVienCriteria(null, null, null, null, null, null, null, null, 1, PaginatedResult.DEFAULT_PAGE_SIZE);

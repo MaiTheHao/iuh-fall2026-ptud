@@ -15,7 +15,7 @@ public record DanhSachHoaDonCriteria(
         Double tongTienDen,
         String timNhanh,
         int page,
-        int pageSize) implements DanhSachCriteria {
+        int pageSize) implements BaseCriteria {
 
     public static DanhSachHoaDonCriteria macDinh() {
         return new DanhSachHoaDonCriteria(

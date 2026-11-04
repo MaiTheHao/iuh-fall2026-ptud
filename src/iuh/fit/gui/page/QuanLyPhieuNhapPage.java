@@ -1,7 +1,7 @@
 package iuh.fit.gui.page;
 
 import iuh.fit.dto.BaseFormDialogConfig;
-import iuh.fit.dto.DanhSachCriteria;
+import iuh.fit.dto.DanhSachPhieuNhapCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.PhieuNhapPhuTung;
 import iuh.fit.enumeration.MenuGroup;
@@ -112,18 +112,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
 	private void taiLai(int page) {
 		try {
-			DanhSachCriteria criteria = new DanhSachCriteria() {
-				@Override
-				public int page() {
-					return page;
-				}
-
-				@Override
-				public int pageSize() {
-					return SO_DONG_MOI_TRANG;
-				}
-			};
-
 			Double minCost = this.parseCost(this.boLocTongChiPhi.tuText());
 			Double maxCost = this.parseCost(this.boLocTongChiPhi.denText());
 
@@ -136,17 +124,19 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 				return;
 			}
 
-			PaginatedResult<PhieuNhapPhuTung> res = this.phieuNhapService.search(
-					criteria,
-					this.pnlDanhSach.getQuickFilter(),
+			DanhSachPhieuNhapCriteria criteria = new DanhSachPhieuNhapCriteria(
 					this.txtBoLocMaPhieuNhap.getText(),
 					this.txtBoLocThuKho.getText(),
 					this.txtBoLocMoTa.getText(),
 					this.boLocNgayTao.tuNgay(),
 					this.boLocNgayTao.denNgay(),
 					minCost,
-					maxCost
-			);
+					maxCost,
+					this.pnlDanhSach.getQuickFilter(),
+					page,
+					SO_DONG_MOI_TRANG);
+
+			PaginatedResult<PhieuNhapPhuTung> res = this.phieuNhapService.search(criteria);
 
 			List<Object[]> rows = new ArrayList<>(res.items().size());
 			int stt = res.fromIndex();

@@ -115,7 +115,7 @@ public class KhieuNaiService {
                 KhieuNaiView::ngayTao,
                 Comparator.nullsLast(Comparator.reverseOrder())));
 
-        return PaginatedResult.of(views, filter.page(), filter.pageSize());
+        return PaginatedResult.of(views, filter);
     }
 
     public KhieuNai getById(String maKhieuNai) throws SQLException {
