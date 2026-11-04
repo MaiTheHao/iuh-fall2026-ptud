@@ -14,9 +14,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-public abstract class DichVuFormPanel extends FormFieldPanel {
+public class DichVuFormPanel extends FormFieldPanel {
 
-  
+  protected final boolean tao;
 
   private static final int DO_DAI_TEN_TOI_DA = 100;
   private static final int DO_DAI_MO_TA_TOI_DA = 500;
@@ -36,15 +36,26 @@ public abstract class DichVuFormPanel extends FormFieldPanel {
           "app.dichVu.loaiTepAnh",
           "app.dichVu.duLieuKhongPhaiAnh"));
 
-  protected DichVuFormPanel() {
+  public DichVuFormPanel(boolean tao) {
+    this.tao = tao;
     this.txtDonGia.setHorizontalAlignment(SwingConstants.RIGHT);
     Theme.applyReadOnly(this.txtMa);
 
     FormValidationHelper.autoClearOnInput(this.txtTen);
     FormValidationHelper.autoClearOnInput(this.txtDonGia);
+
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.dichVu.ma", this.txtMa);
+    }
+    this.addField("app.dichVu.ten", this.txtTen);
+    this.addField("app.dichVu.moTa", this.moTaScroll);
+    this.addBlock(this.pnlAnh);
+    this.addField("app.dichVu.donGia", this.txtDonGia);
+  }
 
   public void napDuLieu(DichVuFormData data) {
     this.txtMa.setText(data.maDichVu() == null ? "" : data.maDichVu());

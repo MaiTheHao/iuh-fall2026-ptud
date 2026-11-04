@@ -19,9 +19,10 @@ import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 
-public abstract class PhuTungFormPanel extends FormFieldPanel {
+public class PhuTungFormPanel extends FormFieldPanel {
 
-  
+  protected final boolean tao;
+
 
   protected final JTextField txtMa = new JTextField(14);
   protected final JTextField txtTen = new JTextField(14);
@@ -42,7 +43,8 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
           "app.phuTung.loaiTepAnh",
           "app.phuTung.duLieuKhongPhaiAnh"));
 
-  protected PhuTungFormPanel() {
+  public PhuTungFormPanel(boolean tao) {
+    this.tao = tao;
     this.txtDonGia.setHorizontalAlignment(SwingConstants.RIGHT);
     this.txtSoLuongTon.setHorizontalAlignment(SwingConstants.RIGHT);
 
@@ -55,6 +57,8 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
 
     FormValidationHelper.autoClearOnInput(this.txtTen);
     FormValidationHelper.autoClearOnInput(this.txtDonGia);
+
+    this.dungBoCuc();
   }
 
   public JButton getChonNhaCungCapButton() {
@@ -74,7 +78,16 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
     return this.pnlHangNhaCungCap;
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.phuTung.ma", this.txtMa);
+    }
+    this.addField("app.phuTung.ten", this.txtTen);
+    this.addField("app.phuTung.moTa", this.moTaScroll);
+    this.addField("app.phuTung.donGia", this.txtDonGia);
+    this.addField("app.phuTung.nhaCungCap", this.thanhNhaCungCap());
+    this.addBlock(this.pnlAnh);
+  }
 
   public void napDuLieu(PhuTungFormData data) {
     this.txtMa.setText(data.maPhuTung() == null ? "" : data.maPhuTung());

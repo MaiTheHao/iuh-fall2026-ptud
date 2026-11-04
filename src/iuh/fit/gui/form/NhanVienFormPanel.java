@@ -18,9 +18,9 @@ import javax.swing.JTextField;
 
 import java.time.format.DateTimeFormatter;
 
-public abstract class NhanVienFormPanel extends FormFieldPanel {
+public class NhanVienFormPanel extends FormFieldPanel {
 
-  
+  protected final boolean tao;
 
   private static final String SDT_REGEX = "\\d{9,10}";
   private static final int DO_DAI_HO_TEN_TOI_DA = 50;
@@ -46,11 +46,18 @@ public abstract class NhanVienFormPanel extends FormFieldPanel {
   protected final JComboBox<TrangThaiNhanVien> cmbTrangThai =
           new JComboBox<>(TrangThaiNhanVien.values());
 
-  protected NhanVienFormPanel() {
+  public NhanVienFormPanel(boolean tao) {
+    this.tao = tao;
     Theme.applyReadOnly(this.txtMa);
     this.txtMa.setFocusable(false);
     Theme.applyReadOnly(this.txtNgayTao);
     Theme.applyEditable(this.txtMatKhau);
+
+    if (this.tao) {
+      Theme.applyEditable(this.txtTenDangNhap);
+    } else {
+      Theme.applyReadOnly(this.txtTenDangNhap);
+    }
 
     this.cmbVaiTro.setRenderer(BoHienThiI18n.tao());
     this.cmbTrangThai.setRenderer(BoHienThiI18n.tao());
@@ -62,9 +69,28 @@ public abstract class NhanVienFormPanel extends FormFieldPanel {
     FormValidationHelper.autoClearOnInput(this.txtMatKhau);
     FormValidationHelper.autoClearOnInput(this.txtHoTen);
     FormValidationHelper.autoClearOnInput(this.txtSoDienThoai);
+
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.nhanVien.maNhanVien", this.txtMa);
+    }
+    this.addField("app.nhanVien.tenDangNhap", this.txtTenDangNhap);
+    this.addField("app.nhanVien.matKhau", this.txtMatKhau);
+    if (!this.tao) {
+      this.addBlock(taoGoiY("app.nhanVien.matKhauGoiY"));
+    }
+    this.addField("app.nhanVien.hoTen", this.txtHoTen);
+    this.addField("app.nhanVien.soDienThoai", this.txtSoDienThoai);
+    this.addField("app.nhanVien.vaiTro", this.cmbVaiTro);
+    this.addField("app.nhanVien.trangThai", this.cmbTrangThai);
+    if (!this.tao) {
+      this.addField("app.nhanVien.ngayTao", this.txtNgayTao);
+    }
+    this.addBlock(this.pnlAnh);
+  }
 
   public void napDuLieu(NhanVien nhanVien) {
     this.txtMa.setText(nhanVien.getMaNhanVien() == null ? "" : nhanVien.getMaNhanVien());
@@ -108,6 +134,22 @@ public abstract class NhanVienFormPanel extends FormFieldPanel {
   }
 
   protected JComponent kiemTraRieng() {
+    if (!this.tao) {
+      return null;
+    }
+
+    if (this.txtTenDangNhap.getText().trim().isEmpty()) {
+      FormValidationHelper.markError(this.txtTenDangNhap,
+              I18nReaderUtil.get("app.nhanVien.loiTenDangNhap"));
+      return this.txtTenDangNhap;
+    }
+
+    if (new String(this.txtMatKhau.getPassword()).isBlank()) {
+      FormValidationHelper.markError(this.txtMatKhau,
+              I18nReaderUtil.get("app.nhanVien.loiMatKhau"));
+      return this.txtMatKhau;
+    }
+
     return null;
   }
 

@@ -14,6 +14,11 @@ public abstract class AbstractPage extends JPanel {
 
     private Consumer<Class<? extends AbstractPage>> navigator;
 
+    protected AbstractPage() {
+        this.setOpaque(false);
+        this.setBackground(Theme.palette().BG());
+    }
+
     public final void setNavigator(Consumer<Class<? extends AbstractPage>> navigator) {
         this.navigator = navigator;
     }

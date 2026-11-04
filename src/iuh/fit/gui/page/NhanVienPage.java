@@ -16,8 +16,6 @@ import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.NhanVienFormPanel;
-import iuh.fit.gui.form.NhanVienSuaFormPanel;
-import iuh.fit.gui.form.NhanVienTaoFormPanel;
 import iuh.fit.service.NhanVienService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
@@ -247,7 +245,7 @@ public class NhanVienPage extends AbstractPage {
 
 
   private void moDialogThem() {
-    NhanVienTaoFormPanel form = new NhanVienTaoFormPanel();
+    NhanVienFormPanel form = new NhanVienFormPanel(true);
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
             SwingUtilities.getWindowAncestor(this),
             "app.nhanVien.themTitle",
@@ -266,7 +264,7 @@ public class NhanVienPage extends AbstractPage {
 
     try {
       NhanVien nhanVien = this.nhanVienService.getById(ma);
-      NhanVienSuaFormPanel form = new NhanVienSuaFormPanel();
+      NhanVienFormPanel form = new NhanVienFormPanel(false);
       form.napDuLieu(nhanVien);
 
       BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(

@@ -14,8 +14,6 @@ import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.DichVuFormPanel;
-import iuh.fit.gui.form.DichVuSuaFormPanel;
-import iuh.fit.gui.form.DichVuTaoFormPanel;
 import iuh.fit.service.DichVuService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
@@ -174,7 +172,7 @@ public class DichVuPage extends AbstractPage {
 
 
   private void moDialogThem() {
-    DichVuTaoFormPanel form = new DichVuTaoFormPanel();
+    DichVuFormPanel form = new DichVuFormPanel(true);
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
             SwingUtilities.getWindowAncestor(this),
             "app.dichVu.themTitle",
@@ -189,7 +187,7 @@ public class DichVuPage extends AbstractPage {
 
   private void moDialogSua(int row) {
     DichVuFormData duLieu = this.docDuLieuDong(row);
-    DichVuSuaFormPanel form = new DichVuSuaFormPanel();
+    DichVuFormPanel form = new DichVuFormPanel(false);
     form.napDuLieu(duLieu);
 
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(

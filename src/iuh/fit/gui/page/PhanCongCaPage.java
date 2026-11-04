@@ -14,7 +14,6 @@ import iuh.fit.gui.component.LuoiLichTuan;
 import iuh.fit.gui.component.ThanhDieuHuongTuan;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.PhanCongCaFormPanel;
-import iuh.fit.gui.form.PhanCongCaSuaFormPanel;
 import iuh.fit.service.PhanCongService;
 
 import javax.swing.SwingUtilities;
@@ -161,7 +160,7 @@ public class PhanCongCaPage extends AbstractPage {
 			List<NhanVien> danhSachNhanVien = new ArrayList<>(this.layDanhSachNhanVien());
 			this.boSungNhanVienDangPhanCong(danhSachNhanVien, phanCong);
 
-			PhanCongCaSuaFormPanel form = new PhanCongCaSuaFormPanel(danhSachNhanVien);
+			PhanCongCaFormPanel form = new PhanCongCaFormPanel(danhSachNhanVien, false);
 			form.napDuLieu(phanCong);
 
 			BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(

@@ -13,8 +13,6 @@ import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.KhachHangFormPanel;
-import iuh.fit.gui.form.KhachHangSuaFormPanel;
-import iuh.fit.gui.form.KhachHangTaoFormPanel;
 import iuh.fit.service.KhachHangService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
@@ -159,7 +157,7 @@ public class KhachHangPage extends AbstractPage {
 
 
   private void moDialogThem() {
-    KhachHangTaoFormPanel form = new KhachHangTaoFormPanel();
+    KhachHangFormPanel form = new KhachHangFormPanel(true);
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
             SwingUtilities.getWindowAncestor(this),
             "app.khachHang.themTitle",
@@ -174,7 +172,7 @@ public class KhachHangPage extends AbstractPage {
 
   private void moDialogSua(int row) {
     KhachHangFormData duLieu = this.docDuLieuDong(row);
-    KhachHangSuaFormPanel form = new KhachHangSuaFormPanel();
+    KhachHangFormPanel form = new KhachHangFormPanel(false);
     form.napDuLieu(duLieu);
 
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(

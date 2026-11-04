@@ -18,9 +18,10 @@ import javax.swing.SwingConstants;
 
 import java.time.LocalDateTime;
 
-public abstract class VoucherFormPanel extends FormFieldPanel {
+public class VoucherFormPanel extends FormFieldPanel {
 
-  
+  protected final boolean tao;
+
 
   private static final int DO_DAI_TEN_TOI_DA = 100;
   private static final int DO_DAI_MO_TA_TOI_DA = 500;
@@ -33,7 +34,8 @@ public abstract class VoucherFormPanel extends FormFieldPanel {
   protected final DateTimePicker thoiHanPicker = BoChonNgayGio.taoBoChonNgayGio();
   protected final JCheckBox chkTrangThai = new JCheckBox();
 
-  protected VoucherFormPanel() {
+  public VoucherFormPanel(boolean tao) {
+    this.tao = tao;
     this.txtMucGiam.setHorizontalAlignment(SwingConstants.RIGHT);
     Theme.applyReadOnly(this.txtMa);
 
@@ -44,9 +46,21 @@ public abstract class VoucherFormPanel extends FormFieldPanel {
 
     FormValidationHelper.autoClearOnInput(this.txtTenChuongTrinh);
     FormValidationHelper.autoClearOnInput(this.txtMucGiam);
+
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.voucher.ma", this.txtMa);
+    }
+    this.addField("app.voucher.tenChuongTrinh", this.txtTenChuongTrinh);
+    this.addField("app.voucher.moTa", this.moTaScroll);
+    this.addField("app.voucher.mucGiam", this.txtMucGiam);
+    this.addBlock(taoGoiY("app.voucher.huongDanMucGiam"));
+    this.addField("app.voucher.thoiHanApDung", this.thoiHanPicker);
+    this.addField("app.voucher.trangThaiKichHoat", this.chkTrangThai);
+  }
 
   public void napDuLieu(VoucherFormData data) {
     this.txtMa.setText(data.maVoucher() == null ? "" : data.maVoucher());
@@ -90,6 +104,22 @@ public abstract class VoucherFormPanel extends FormFieldPanel {
   }
 
   protected JComponent kiemTraRieng() {
+    if (!this.tao) {
+      return null;
+    }
+
+    LocalDateTime thoiHan = this.thoiHanPicker.getDateTimeStrict();
+
+    if (thoiHan == null) {
+      return null;
+    }
+
+    if (!thoiHan.isAfter(LocalDateTime.now())) {
+      FormValidationHelper.markError(this.thoiHanPicker,
+              I18nReaderUtil.get("app.voucher.loiThoiHan"));
+      return this.thoiHanPicker;
+    }
+
     return null;
   }
 

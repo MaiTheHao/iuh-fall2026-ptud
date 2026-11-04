@@ -10,8 +10,10 @@ import iuh.fit.gui.page.AbstractPage;
 import iuh.fit.gui.page.PageRegistry;
 import iuh.fit.util.I18nReaderUtil;
 
+import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -22,16 +24,25 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class LayoutHeader extends JMenuBar {
 
     private static final int CHIEU_CAO = 52;
     private static final int CO_ICON = 18;
+    private static final int DO_DAY_CHI_BAO = 2;
 
     private final PageRegistry registry;
-    private final MenuRegistry menuRegistry;
+    private final Map<Class<? extends AbstractPage>, JMenuItem> itemTheoTrang = new LinkedHashMap<>();
+    private final Map<MenuGroup, JMenu> menuTheoNhom = new EnumMap<>(MenuGroup.class);
+    private final List<JMenuItem> mucTrangChu = new ArrayList<>();
 
     private final JMenu mnuSettings = new JMenu();
     private final JPanel pnlAccount = new AccountBox();
@@ -43,17 +54,24 @@ public class LayoutHeader extends JMenuBar {
     public LayoutHeader(PageRegistry registry, Consumer<Class<? extends AbstractPage>> onSelect,
             Runnable onToggleLocale, Runnable onLogout) {
         this.registry = registry;
-        this.menuRegistry = new MenuRegistry(registry);
         this.setPreferredSize(new Dimension(0, CHIEU_CAO));
-        this.setBackground(Theme.BG);
+        this.setBackground(Theme.palette().BG());
         this.setBorder(Theme.vienDuoi());
 
-        this.buildGroupMenus(onSelect);
+        Map<MenuGroup, List<AbstractPage>> trangTheoNhom = new EnumMap<>(MenuGroup.class);
+        for (AbstractPage page : registry.all()) {
+            MenuGroup group = page.getGroup();
+            if (group != null) {
+                trangTheoNhom.computeIfAbsent(group, g -> new ArrayList<>()).add(page);
+            }
+        }
+
+        this.buildGroupMenus(trangTheoNhom, onSelect);
         this.add(Box.createHorizontalGlue());
         this.buildAccountBox();
         this.add(this.pnlAccount);
         this.add(Box.createHorizontalStrut(8));
-        this.buildSettingsMenu(onSelect);
+        this.buildSettingsMenu(trangTheoNhom.getOrDefault(MenuGroup.CAI_DAT, List.of()), onSelect);
         this.add(Box.createHorizontalStrut(8));
         this.buildLanguageButton(onToggleLocale);
         this.buildLogoutButton(onLogout);
@@ -64,37 +82,34 @@ public class LayoutHeader extends JMenuBar {
         this.refreshText();
     }
 
-    private void buildGroupMenus(Consumer<Class<? extends AbstractPage>> onSelect) {
-        this.buildHomeItems(onSelect);
+    private void buildGroupMenus(Map<MenuGroup, List<AbstractPage>> trangTheoNhom,
+            Consumer<Class<? extends AbstractPage>> onSelect) {
+        this.buildHomeItems(trangTheoNhom.getOrDefault(MenuGroup.TRANG_CHU, List.of()), onSelect);
         for (MenuGroup group : MenuGroup.values()) {
             if (group == MenuGroup.TRANG_CHU || group == MenuGroup.CAI_DAT) {
                 continue;
             }
-            this.buildGroupMenu(group, onSelect);
+            this.buildGroupMenu(group, trangTheoNhom.getOrDefault(group, List.of()), onSelect);
         }
     }
 
-    private void buildHomeItems(Consumer<Class<? extends AbstractPage>> onSelect) {
-        for (AbstractPage page : this.registry.all()) {
-            if (page.getGroup() != MenuGroup.TRANG_CHU) {
-                continue;
-            }
-            TopLevelItem item = new TopLevelItem(I18nReaderUtil.get(page.getTitleKey()), bieuTuong(MenuGroup.TRANG_CHU));
-            this.menuRegistry.registerHomeItem(item);
+    private void buildHomeItems(List<AbstractPage> pages, Consumer<Class<? extends AbstractPage>> onSelect) {
+        for (AbstractPage page : pages) {
+            TopLevelItem item = new TopLevelItem(I18nReaderUtil.get(page.getTitleKey()),
+                    bieuTuong(MenuGroup.TRANG_CHU));
+            this.registerHomeItem(item);
             this.registerPageItem(page, item, onSelect);
             this.add(item);
         }
     }
 
-    private void buildGroupMenu(MenuGroup group, Consumer<Class<? extends AbstractPage>> onSelect) {
+    private void buildGroupMenu(MenuGroup group, List<AbstractPage> pages,
+            Consumer<Class<? extends AbstractPage>> onSelect) {
         JMenu menu = null;
-        for (AbstractPage page : this.registry.all()) {
-            if (page.getGroup() != group) {
-                continue;
-            }
+        for (AbstractPage page : pages) {
             if (menu == null) {
                 menu = new GroupMenu(I18nReaderUtil.get(group.getTitleKey()), bieuTuong(group));
-                this.menuRegistry.registerMenu(group, menu);
+                this.registerMenu(group, menu);
                 this.add(menu);
             }
             if (page.hasSeparatorBefore()) {
@@ -104,20 +119,18 @@ public class LayoutHeader extends JMenuBar {
         }
     }
 
-    private void buildSettingsMenu(Consumer<Class<? extends AbstractPage>> onSelect) {
-        this.mnuSettings.setIcon(new LucideIcon(bieuTuong(MenuGroup.CAI_DAT), CO_ICON, Theme.palette().INK_SECONDARY()));
-        this.menuRegistry.registerMenu(MenuGroup.CAI_DAT, this.mnuSettings);
-        for (AbstractPage page : this.registry.all()) {
-            if (page.getGroup() == MenuGroup.CAI_DAT) {
-                this.mnuSettings.add(this.createMenuItem(page, onSelect));
-            }
+    private void buildSettingsMenu(List<AbstractPage> pages, Consumer<Class<? extends AbstractPage>> onSelect) {
+        this.mnuSettings.setIcon(taoBieuTuong(bieuTuong(MenuGroup.CAI_DAT), false));
+        this.registerMenu(MenuGroup.CAI_DAT, this.mnuSettings);
+        for (AbstractPage page : pages) {
+            this.mnuSettings.add(this.createMenuItem(page, onSelect));
         }
         this.add(this.mnuSettings);
     }
 
     private void buildAccountBox() {
         this.pnlAccount.setOpaque(false);
-        this.lblAccountName.setForeground(Theme.INK);
+        this.lblAccountName.setForeground(Theme.palette().INK());
         this.lblAccountName.setFont(Theme.fieldLabelFont());
         this.lblAccountRole.setForeground(Theme.palette().INK_MUTED());
         this.lblAccountRole.setFont(nhoChu());
@@ -134,7 +147,7 @@ public class LayoutHeader extends JMenuBar {
     }
 
     private void buildLogoutButton(Runnable onLogout) {
-        this.btnLogout.setIcon(new LucideIcon("log-out", CO_ICON, Theme.DANGER_TEXT));
+        this.btnLogout.setIcon(new LucideIcon("log-out", CO_ICON, Theme.palette().DANGER_TEXT()));
         this.btnLogout.setContentAreaFilled(false);
         this.btnLogout.setFocusPainted(false);
         this.btnLogout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -151,29 +164,44 @@ public class LayoutHeader extends JMenuBar {
             Consumer<Class<? extends AbstractPage>> onSelect) {
         Class<? extends AbstractPage> type = page.getClass();
         item.addActionListener(e -> onSelect.accept(type));
-        this.menuRegistry.registerItem(page, item);
+        this.itemTheoTrang.put(type, item);
+    }
+
+    private void registerHomeItem(JMenuItem item) {
+        this.mucTrangChu.add(item);
+    }
+
+    private void registerMenu(MenuGroup group, JMenu menu) {
+        this.menuTheoNhom.put(group, menu);
     }
 
     public void setActive(Class<? extends AbstractPage> active) {
-        this.menuRegistry.setActive(active);
+        this.itemTheoTrang.forEach((type, item) -> danhDau(item, type.equals(active)));
+
+        AbstractPage trang = this.registry.get(active);
+        MenuGroup activeGroup = trang == null ? null : trang.getGroup();
+        this.menuTheoNhom.forEach((group, menu) -> danhDau(menu, group == activeGroup));
     }
 
     public void setMenuVisible(boolean visible) {
-        this.menuRegistry.setVisible(visible);
+        this.menuTheoNhom.values().forEach(menu -> setVisibleAndEnabled(menu, visible));
+        this.mucTrangChu.forEach(item -> setVisibleAndEnabled(item, visible));
         this.pnlAccount.setVisible(visible);
         this.btnLanguage.setVisible(visible);
         this.btnLogout.setVisible(visible);
     }
 
     public void refreshText() {
-        this.menuRegistry.refreshText();
+        this.menuTheoNhom.forEach((group, menu) -> menu.setText(I18nReaderUtil.get(group.getTitleKey())));
+        this.itemTheoTrang.forEach((type, item) ->
+                item.setText(I18nReaderUtil.get(this.registry.get(type).getTitleKey())));
 
         AppLocale locale = AppContext.getInstance().getLocale();
         this.btnLanguage.setText(locale == AppLocale.VN ? "VI" : "EN");
         this.btnLanguage.setToolTipText(I18nReaderUtil.get("app.menu.language") + " (F11)");
 
         NhanVien nhanVien = AppContext.getInstance().getCurrentUser();
-        this.lblAccountName.setText(nhanVien == null ? "" : this.tenHienThi(nhanVien));
+        this.lblAccountName.setText(nhanVien == null ? "" : nhanVien.getTenHienThi());
         this.lblAccountRole.setText(nhanVien == null || nhanVien.getVaiTro() == null
                 ? ""
                 : nhanVien.getVaiTro().getI18NBusinessName());
@@ -181,9 +209,34 @@ public class LayoutHeader extends JMenuBar {
         this.btnLogout.setToolTipText(I18nReaderUtil.get("app.menu.logout"));
     }
 
-    private String tenHienThi(NhanVien nhanVien) {
-        String hoTen = nhanVien.getHoTen();
-        return hoTen == null || hoTen.isBlank() ? nhanVien.getTenDangNhap() : hoTen;
+    private static void danhDau(JMenuItem item, boolean active) {
+        item.setForeground(active ? Theme.palette().ACCENT() : Theme.palette().INK());
+        if (item instanceof MenuActive nut) {
+            nut.setActive(active);
+        }
+    }
+
+    private static void setVisibleAndEnabled(JComponent component, boolean visible) {
+        component.setVisible(visible);
+        component.setEnabled(visible);
+    }
+
+    private static LucideIcon taoBieuTuong(String ten, boolean active) {
+        return new LucideIcon(ten, CO_ICON,
+                active ? Theme.palette().ACCENT() : Theme.palette().INK_SECONDARY());
+    }
+
+    private static void ganBieuTuong(AbstractButton component, String ten) {
+        component.putClientProperty("bieuTuong", ten);
+        component.setIcon(taoBieuTuong(ten, false));
+    }
+
+    private static void lamMoiBieuTuong(AbstractButton component, boolean active) {
+        component.setIcon(taoBieuTuong((String) component.getClientProperty("bieuTuong"), active));
+    }
+
+    private static Dimension kichThuocToiDa(JComponent component) {
+        return component.getPreferredSize();
     }
 
     private static String bieuTuong(MenuGroup group) {
@@ -204,9 +257,21 @@ public class LayoutHeader extends JMenuBar {
         return coSo.deriveFont(Math.max(coSo.getSize2D() - 2f, 10f));
     }
 
-    private static final class AccountBox extends JPanel {
+    private static void veChiBaoDuoi(Graphics g, JComponent component, boolean active) {
+        if (!active) {
+            return;
+        }
+        Graphics2D doHoa = (Graphics2D) g.create();
+        try {
+            doHoa.setColor(Theme.palette().ACCENT());
+            doHoa.fillRect(0, component.getHeight() - DO_DAY_CHI_BAO,
+                    component.getWidth(), DO_DAY_CHI_BAO);
+        } finally {
+            doHoa.dispose();
+        }
+    }
 
-        
+    private static final class AccountBox extends JPanel {
 
         private AccountBox() {
             super(new GridLayout(2, 1, 0, 0));
@@ -214,71 +279,68 @@ public class LayoutHeader extends JMenuBar {
 
         @Override
         public Dimension getMaximumSize() {
-            return this.getPreferredSize();
+            return kichThuocToiDa(this);
         }
     }
 
     private static final class TopLevelItem extends JMenuItem implements MenuActive {
 
-        
-
-        private final String iconName;
         private boolean active;
 
         private TopLevelItem(String text, String iconName) {
             super(text);
-            this.iconName = iconName;
-            this.setIcon(new LucideIcon(this.iconName, CO_ICON, Theme.palette().INK_SECONDARY()));
+            ganBieuTuong(this, iconName);
         }
 
         @Override
         public void setActive(boolean active) {
             this.active = active;
-            this.setIcon(new LucideIcon(this.iconName, CO_ICON, active ? Theme.ACCENT : Theme.palette().INK_SECONDARY()));
+            lamMoiBieuTuong(this, active);
             this.repaint();
         }
 
         @Override
         public Dimension getMaximumSize() {
-            return this.getPreferredSize();
+            return kichThuocToiDa(this);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            MenuRegistry.veChiBaoDuoi(g, this, this.active);
+            veChiBaoDuoi(g, this, this.active);
         }
     }
 
     private static final class GroupMenu extends JMenu implements MenuActive {
 
-        
-
-        private final String iconName;
         private boolean active;
 
         private GroupMenu(String text, String iconName) {
             super(text);
-            this.iconName = iconName;
-            this.setIcon(new LucideIcon(this.iconName, CO_ICON, Theme.palette().INK_SECONDARY()));
+            ganBieuTuong(this, iconName);
         }
 
         @Override
         public void setActive(boolean active) {
             this.active = active;
-            this.setIcon(new LucideIcon(this.iconName, CO_ICON, active ? Theme.ACCENT : Theme.palette().INK_SECONDARY()));
+            lamMoiBieuTuong(this, active);
             this.repaint();
         }
 
         @Override
         public Dimension getMaximumSize() {
-            return this.getPreferredSize();
+            return kichThuocToiDa(this);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            MenuRegistry.veChiBaoDuoi(g, this, this.active);
+            veChiBaoDuoi(g, this, this.active);
         }
+    }
+
+    private interface MenuActive {
+
+        void setActive(boolean active);
     }
 }

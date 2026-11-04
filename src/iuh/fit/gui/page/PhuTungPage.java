@@ -19,8 +19,6 @@ import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.PhuTungFormPanel;
-import iuh.fit.gui.form.PhuTungSuaFormPanel;
-import iuh.fit.gui.form.PhuTungTaoFormPanel;
 import iuh.fit.service.PhuTungService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
@@ -274,7 +272,7 @@ public class PhuTungPage extends AbstractPage {
 
 
   private void moDialogThem() {
-    PhuTungTaoFormPanel form = new PhuTungTaoFormPanel();
+    PhuTungFormPanel form = new PhuTungFormPanel(true);
     form.getChonNhaCungCapButton().addActionListener(e -> {
       new ChonNhaCungCapDialog(SwingUtilities.getWindowAncestor(this), this.nhaCungCapService, this.tieuChiChonNhaCungCap()).showDialog()
           .ifPresent(kq -> form.setNhaCungCap(kq.sanPham().getMaNhaCungCap()));
@@ -293,7 +291,7 @@ public class PhuTungPage extends AbstractPage {
 
   private void moDialogSua(int row) {
     PhuTungFormData duLieu = this.docDuLieuDong(row);
-    PhuTungSuaFormPanel form = new PhuTungSuaFormPanel();
+    PhuTungFormPanel form = new PhuTungFormPanel(false);
     form.getChonNhaCungCapButton().addActionListener(e -> {
       new ChonNhaCungCapDialog(SwingUtilities.getWindowAncestor(this), this.nhaCungCapService, this.tieuChiChonNhaCungCap()).showDialog()
           .ifPresent(kq -> form.setNhaCungCap(kq.sanPham().getMaNhaCungCap()));

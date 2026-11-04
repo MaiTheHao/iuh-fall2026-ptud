@@ -14,8 +14,6 @@ import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.NhaCungCapFormPanel;
-import iuh.fit.gui.form.NhaCungCapSuaFormPanel;
-import iuh.fit.gui.form.NhaCungCapTaoFormPanel;
 import iuh.fit.service.NhaCungCapService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
@@ -180,7 +178,7 @@ public final class NhaCungCapPage extends AbstractPage {
   }
 
   private void moDialogThem() {
-    NhaCungCapTaoFormPanel form = new NhaCungCapTaoFormPanel();
+    NhaCungCapFormPanel form = new NhaCungCapFormPanel(true);
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
             SwingUtilities.getWindowAncestor(this),
             "app.nhaCungCap.themTitle",
@@ -197,7 +195,7 @@ public final class NhaCungCapPage extends AbstractPage {
     try {
       NhaCungCap ncc = this.service.getById(ma)
               .orElseThrow(() -> new IllegalArgumentException("app.nhaCungCap.khongTimThay"));
-      NhaCungCapSuaFormPanel form = new NhaCungCapSuaFormPanel();
+      NhaCungCapFormPanel form = new NhaCungCapFormPanel(false);
       form.napDuLieu(this.taoFormData(ncc));
       BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
               SwingUtilities.getWindowAncestor(this),

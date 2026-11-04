@@ -21,11 +21,6 @@ public class XeService {
     private static final String ERROR_XE_NOT_FOUND = "app.xe.loiKhongTimThay";
     private static final String ERROR_BIEN_SO = "app.xe.loiBienSo";
     private static final String ERROR_DUPLICATE = "app.xe.loiTrungBienSo";
-    private static final String ERROR_HANG_XE = "app.xe.loiHangXe";
-    private static final String ERROR_DONG_XE = "app.xe.loiDongXe";
-    private static final String ERROR_HANG_XE_TOO_LONG = "app.xe.loiHangXeQuaDai";
-    private static final String ERROR_DONG_XE_TOO_LONG = "app.xe.loiDongXeQuaDai";
-    private static final String ERROR_DOI_XE = "app.xe.loiDoiXe";
     private static final String ERROR_ODO = "app.xe.loiOdo";
     private static final String ERROR_XE_IN_USE = "app.xe.loiXeDangSuDung";
 
@@ -244,11 +239,11 @@ public class XeService {
                 .toUpperCase(Locale.ROOT);
     }
 
-    private String normalizeTenXe(String value) {
-        if (value == null || value.isBlank()) {
-            return "";
-        }
+    // private String normalizeTenXe(String value) {
+    //     if (value == null || value.isBlank()) {
+    //         return "";
+    //     }
 
-        return value.trim().toUpperCase(Locale.ROOT);
-    }
+    //     return value.trim().toUpperCase(Locale.ROOT);
+    // }
 }

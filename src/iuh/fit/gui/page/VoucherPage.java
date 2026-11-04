@@ -14,8 +14,6 @@ import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.VoucherFormPanel;
-import iuh.fit.gui.form.VoucherSuaFormPanel;
-import iuh.fit.gui.form.VoucherTaoFormPanel;
 import iuh.fit.service.VoucherService;
 import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
@@ -228,7 +226,7 @@ public class VoucherPage extends AbstractPage {
 
 
   private void moDialogThem() {
-    VoucherTaoFormPanel form = new VoucherTaoFormPanel();
+    VoucherFormPanel form = new VoucherFormPanel(true);
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
             SwingUtilities.getWindowAncestor(this),
             "app.voucher.themTitle",
@@ -243,7 +241,7 @@ public class VoucherPage extends AbstractPage {
 
   private void moDialogSua(int row) {
     VoucherFormData duLieu = this.docDuLieuDong(row);
-    VoucherSuaFormPanel form = new VoucherSuaFormPanel();
+    VoucherFormPanel form = new VoucherFormPanel(false);
     form.napDuLieu(duLieu);
 
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(

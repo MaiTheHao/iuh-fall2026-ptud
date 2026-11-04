@@ -8,7 +8,7 @@ public record PaginatedResult<T>(
         int pageSize,
         long totalItems) {
 
-    public static final int DEFAULT_PAGE_SIZE = 20;
+    public static final int DEFAULT_PAGE_SIZE = 10;
 
     public static final int PAGE_SIZE_TAI_TOAN_BO = 10_000;
 

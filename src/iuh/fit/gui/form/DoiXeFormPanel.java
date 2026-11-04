@@ -18,23 +18,35 @@ import javax.swing.text.AbstractDocument;
 
 import java.util.List;
 
-public abstract class DoiXeFormPanel extends FormFieldPanel {
+public class DoiXeFormPanel extends FormFieldPanel {
 
   
+
+  protected final boolean tao;
 
   protected final JTextField txtMa = new JTextField(14);
   protected final JComboBox<HangXe> cmbHangXe = new JComboBox<>();
   protected final JComboBox<DongXe> cmbDongXe = new JComboBox<>();
   protected final JTextField txtNam = new JTextField(14);
 
-  protected DoiXeFormPanel() {
+  public DoiXeFormPanel(boolean tao) {
+    this.tao = tao;
     Theme.applyReadOnly(this.txtMa);
     this.txtNam.setHorizontalAlignment(JTextField.RIGHT);
     ((AbstractDocument) this.txtNam.getDocument()).setDocumentFilter(new LocSoDocumentFilter());
     FormValidationHelper.autoClearOnInput(this.txtNam);
+
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.danhMucXe.ma", this.txtMa);
+    }
+    this.addField("app.danhMucXe.hang", this.cmbHangXe);
+    this.addField("app.danhMucXe.dong", this.cmbDongXe);
+    this.addField("app.danhMucXe.nam", this.txtNam);
+  }
 
   public JComboBox<HangXe> getHangXeCombo() {
     return this.cmbHangXe;

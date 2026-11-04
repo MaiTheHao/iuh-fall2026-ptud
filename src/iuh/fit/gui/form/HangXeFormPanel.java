@@ -9,21 +9,31 @@ import iuh.fit.util.I18nReaderUtil;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
-public abstract class HangXeFormPanel extends FormFieldPanel {
+public class HangXeFormPanel extends FormFieldPanel {
 
   
 
   private static final int DO_DAI_TEN_TOI_DA = 100;
 
+  protected final boolean tao;
+
   protected final JTextField txtMa = new JTextField(14);
   protected final JTextField txtTen = new JTextField(14);
 
-  protected HangXeFormPanel() {
+  public HangXeFormPanel(boolean tao) {
+    this.tao = tao;
     Theme.applyReadOnly(this.txtMa);
     FormValidationHelper.autoClearOnInput(this.txtTen);
+
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.danhMucXe.ma", this.txtMa);
+    }
+    this.addField("app.danhMucXe.ten", this.txtTen);
+  }
 
   public void napDuLieu(HangXe hangXe) {
     this.txtMa.setText(hangXe == null || hangXe.getMaHangXe() == null ? "" : hangXe.getMaHangXe());

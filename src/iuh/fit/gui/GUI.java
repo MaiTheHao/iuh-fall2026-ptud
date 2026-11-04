@@ -40,6 +40,7 @@ public class GUI {
         frmChinh.setSize(1280, 800);
         frmChinh.setResizable(true);
         frmChinh.setLocationRelativeTo(null);
+        frmChinh.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         layout.render();
         frmChinh.setVisible(true);

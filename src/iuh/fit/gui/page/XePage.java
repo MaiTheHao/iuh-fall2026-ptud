@@ -16,8 +16,6 @@ import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.XeFormPanel;
-import iuh.fit.gui.form.XeSuaFormPanel;
-import iuh.fit.gui.form.XeTaoFormPanel;
 import iuh.fit.service.DanhMucXeService;
 import iuh.fit.service.XeService;
 import iuh.fit.util.I18nReaderUtil;
@@ -41,9 +39,6 @@ public class XePage extends AbstractPage {
   private static final int CHIEU_CAO_SUA = 530;
 
   private static final int COT_BIEN_SO = 1;
-  private static final int COT_DOI_XE = 4;
-  private static final int COT_ODO = 5;
-
   private final XeService xeService = new XeService();
   private final DanhMucXeService danhMucXeService = new DanhMucXeService();
 
@@ -155,16 +150,6 @@ public class XePage extends AbstractPage {
     } catch (SQLException e) {
       ThongBao.loi(this, "app.login.errorSystem");
     }
-  }
-
-  private XeFormData docDuLieuDong(int row) {
-    return new XeFormData(
-            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_BIEN_SO)),
-            null,
-            null,
-            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_DOI_XE)),
-            NumberParseUtil.toIntegerOrNull(
-                    NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_ODO))));
   }
 
   private XeFormData taoFormData(Xe xe) {
@@ -289,7 +274,7 @@ public class XePage extends AbstractPage {
 
 
   private void moDialogThem() {
-    XeTaoFormPanel form = new XeTaoFormPanel();
+    XeFormPanel form = new XeFormPanel(true);
     this.napHangXe(form);
     this.napDongXe(form);
     this.napDoiXe(form);
@@ -314,7 +299,7 @@ public class XePage extends AbstractPage {
       Xe xe = this.xeService.getByBienSo(bienSo)
               .orElseThrow(() -> new IllegalArgumentException("app.xe.loiKhongTimThay"));
 
-      XeSuaFormPanel form = new XeSuaFormPanel();
+      XeFormPanel form = new XeFormPanel(false);
       this.napHangXe(form);
       form.chonHangXe(xe.getMaHangXe());
       this.napDongXe(form);

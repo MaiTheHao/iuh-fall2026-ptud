@@ -13,22 +13,33 @@ import javax.swing.JTextField;
 
 import java.util.List;
 
-public abstract class DongXeFormPanel extends FormFieldPanel {
+public class DongXeFormPanel extends FormFieldPanel {
 
   
 
   private static final int DO_DAI_TEN_TOI_DA = 100;
 
+  protected final boolean tao;
+
   protected final JTextField txtMa = new JTextField(14);
   protected final JTextField txtTen = new JTextField(14);
   protected final JComboBox<HangXe> cmbHangXe = new JComboBox<>();
 
-  protected DongXeFormPanel() {
+  public DongXeFormPanel(boolean tao) {
+    this.tao = tao;
     Theme.applyReadOnly(this.txtMa);
     FormValidationHelper.autoClearOnInput(this.txtTen);
+
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.danhMucXe.ma", this.txtMa);
+    }
+    this.addField("app.danhMucXe.hang", this.cmbHangXe);
+    this.addField("app.danhMucXe.ten", this.txtTen);
+  }
 
   public JComboBox<HangXe> getHangXeCombo() {
     return this.cmbHangXe;

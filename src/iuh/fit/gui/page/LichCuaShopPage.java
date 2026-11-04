@@ -26,14 +26,11 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
 
 public class LichCuaShopPage extends AbstractPage {
@@ -41,8 +38,6 @@ public class LichCuaShopPage extends AbstractPage {
 	
 
 	private static final int SO_NGAY = 7;
-	private static final int SO_CA = 3;
-
 	private final ThanhDieuHuongTuan thanhDieuHuong = new ThanhDieuHuongTuan();
 
 	private final JLabel lblTongPhanCong = new JLabel();
@@ -116,8 +111,6 @@ public class LichCuaShopPage extends AbstractPage {
 			String[] khoaThu = { "app.schedule.day.monday", "app.schedule.day.tuesday", "app.schedule.day.wednesday",
 					"app.schedule.day.thursday", "app.schedule.day.friday", "app.schedule.day.saturday",
 					"app.schedule.day.sunday" };
-
-			DateTimeFormatter dateformatter = DateTimeFormatter.ofPattern("dd/MM");
 
 			for (int ngay = 0; ngay < SO_NGAY; ngay++) {
 				LocalDate ngayHienTai = this.ngayDauTuan.plusDays(ngay);

@@ -50,12 +50,10 @@ public class LichCuaToiPage extends AbstractPage {
     private final PhanCongService phanCongService = new PhanCongService();
 
     private LocalDate ngayDauTuan;
-    private Locale locale;
-
     public LichCuaToiPage() {
         this.setLayout(new BorderLayout(0, 8));
 
-        this.locale = Locale.getDefault();
+        Locale.getDefault();
         this.ngayDauTuan = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         this.thanhDieuHuong.datNgayDauTuan(this.ngayDauTuan);
 

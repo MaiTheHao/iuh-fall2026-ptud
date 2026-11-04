@@ -21,17 +21,17 @@ import java.awt.Component;
 import java.time.LocalDate;
 import java.util.List;
 
-public abstract class PhanCongCaFormPanel extends FormFieldPanel {
+public class PhanCongCaFormPanel extends FormFieldPanel {
 
-  
-
+  protected final boolean tao;
   protected final JTextField txtMa = new JTextField(14);
   protected final JComboBox<NhanVien> cmbNhanVien = new JComboBox<>();
   protected final DatePicker ngayLamPicker = BoChonNgayGio.taoBoChonNgay();
   protected final JComboBox<CaLamViec> cmbCaLam = new JComboBox<>(CaLamViec.values());
   protected final JTextField txtGhiChu = new JTextField(14);
 
-  protected PhanCongCaFormPanel(List<NhanVien> danhSachNhanVien) {
+  public PhanCongCaFormPanel(List<NhanVien> danhSachNhanVien, boolean tao) {
+    this.tao = tao;
     Theme.applyReadOnly(this.txtMa);
     this.txtMa.setFocusable(false);
     this.ngayLamPicker.getSettings().setFormatForDatesCommonEra("dd/MM/yyyy");
@@ -54,9 +54,18 @@ public abstract class PhanCongCaFormPanel extends FormFieldPanel {
     }
 
     FormValidationHelper.autoClearOnInput(this.txtGhiChu);
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.schedule.assignmentId", this.txtMa);
+    }
+    this.addField("app.schedule.employee", this.cmbNhanVien);
+    this.addField("app.schedule.date", this.ngayLamPicker);
+    this.addField("app.schedule.shift", this.cmbCaLam);
+    this.addField("app.schedule.note", this.txtGhiChu);
+  }
 
   public void napDuLieu(PhanCong phanCong) {
     this.txtMa.setText(phanCong.getMaPhanCong() == null ? "" : phanCong.getMaPhanCong());

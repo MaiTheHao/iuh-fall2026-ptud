@@ -4,6 +4,7 @@ import iuh.fit.dto.XeFormData;
 import iuh.fit.entity.DoiXe;
 import iuh.fit.entity.DongXe;
 import iuh.fit.entity.HangXe;
+import iuh.fit.gui.Theme;
 import iuh.fit.gui.component.FormFieldPanel;
 import iuh.fit.gui.component.FormValidationHelper;
 import iuh.fit.util.I18nReaderUtil;
@@ -14,11 +15,13 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-public abstract class XeFormPanel extends FormFieldPanel {
+public class XeFormPanel extends FormFieldPanel {
 
   
 
   private static final String BIEN_SO_REGEX = "^[0-9]{2}[A-Z]{1,2}[0-9]{4,6}$";
+
+  protected final boolean tao;
 
   protected final JTextField txtBienSo = new JTextField(14);
   protected final JComboBox<HangXe> cmbHangXe = new JComboBox<>();
@@ -26,14 +29,28 @@ public abstract class XeFormPanel extends FormFieldPanel {
   protected final JComboBox<DoiXe> cmbDoiXe = new JComboBox<>();
   protected final JTextField txtOdo = new JTextField(14);
 
-  protected XeFormPanel() {
+  public XeFormPanel(boolean tao) {
+    this.tao = tao;
+    if (this.tao) {
+      Theme.applyEditable(this.txtBienSo);
+    } else {
+      Theme.applyReadOnly(this.txtBienSo);
+    }
     this.txtOdo.setHorizontalAlignment(SwingConstants.RIGHT);
 
     FormValidationHelper.autoClearOnInput(this.txtBienSo);
     FormValidationHelper.autoClearOnInput(this.txtOdo);
+
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    this.addField("app.xe.bienSo", this.txtBienSo);
+    this.addField("app.xe.hangXe", this.cmbHangXe);
+    this.addField("app.xe.dongXe", this.cmbDongXe);
+    this.addField("app.xe.doiXe", this.cmbDoiXe);
+    this.addField("app.xe.odo", this.txtOdo);
+  }
 
   public void napDuLieu(XeFormData data) {
     this.txtBienSo.setText(data.bienSo() == null ? "" : data.bienSo());

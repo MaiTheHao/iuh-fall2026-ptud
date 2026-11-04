@@ -12,14 +12,8 @@ import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.DoiXeFormPanel;
-import iuh.fit.gui.form.DoiXeSuaFormPanel;
-import iuh.fit.gui.form.DoiXeTaoFormPanel;
 import iuh.fit.gui.form.DongXeFormPanel;
-import iuh.fit.gui.form.DongXeSuaFormPanel;
-import iuh.fit.gui.form.DongXeTaoFormPanel;
 import iuh.fit.gui.form.HangXeFormPanel;
-import iuh.fit.gui.form.HangXeSuaFormPanel;
-import iuh.fit.gui.form.HangXeTaoFormPanel;
 import iuh.fit.service.DanhMucXeService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
@@ -424,7 +418,7 @@ public final class DanhMucXePage extends AbstractPage {
 
 
   private void moDialogThemHangXe() {
-    HangXeTaoFormPanel form = new HangXeTaoFormPanel();
+    HangXeFormPanel form = new HangXeFormPanel(true);
     BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
             SwingUtilities.getWindowAncestor(this),
             "app.danhMucXe.themHangTitle",
@@ -442,7 +436,7 @@ public final class DanhMucXePage extends AbstractPage {
 
     try {
       HangXe hangXe = this.danhMucXeService.getHangXe(ma);
-      HangXeSuaFormPanel form = new HangXeSuaFormPanel();
+      HangXeFormPanel form = new HangXeFormPanel(false);
       form.napDuLieu(hangXe);
 
       BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
@@ -470,7 +464,7 @@ public final class DanhMucXePage extends AbstractPage {
         return;
       }
 
-      DongXeTaoFormPanel form = new DongXeTaoFormPanel();
+      DongXeFormPanel form = new DongXeFormPanel(true);
       form.napDanhSachHang(danhSachHang);
 
       BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
@@ -493,7 +487,7 @@ public final class DanhMucXePage extends AbstractPage {
 
     try {
       DongXe dongXe = this.danhMucXeService.getDongXe(ma);
-      DongXeSuaFormPanel form = new DongXeSuaFormPanel();
+      DongXeFormPanel form = new DongXeFormPanel(false);
       form.napDanhSachHang(this.danhMucXeService.getDanhSachHangXe());
       form.napDuLieu(dongXe);
 
@@ -522,7 +516,7 @@ public final class DanhMucXePage extends AbstractPage {
         return;
       }
 
-      DoiXeTaoFormPanel form = new DoiXeTaoFormPanel();
+      DoiXeFormPanel form = new DoiXeFormPanel(true);
       form.napDanhSachHang(danhSachHang);
 
       List<DongXe> danhSachDong = this.danhMucXeService.getDanhSachDongXe(form.layMaHangXe());
@@ -553,7 +547,7 @@ public final class DanhMucXePage extends AbstractPage {
 
     try {
       DoiXe doiXe = this.danhMucXeService.getDoiXe(ma);
-      DoiXeSuaFormPanel form = new DoiXeSuaFormPanel();
+      DoiXeFormPanel form = new DoiXeFormPanel(false);
       form.napDanhSachHang(this.danhMucXeService.getDanhSachHangXe());
       form.napDanhSachDong(this.danhMucXeService.getDanhSachDongXe(doiXe.getMaHangXe()));
       form.napDuLieu(doiXe);

@@ -9,10 +9,11 @@ import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public abstract class NhaCungCapFormPanel extends FormFieldPanel {
+public class NhaCungCapFormPanel extends FormFieldPanel {
 
-  
+  protected final boolean tao;
 
+  protected final JTextField txtMa = new JTextField(14);
   protected final JTextField txtTen = new JTextField(14);
   protected final JTextField txtSdt = new JTextField(14);
   protected final JTextField txtEmail = new JTextField(14);
@@ -20,14 +21,33 @@ public abstract class NhaCungCapFormPanel extends FormFieldPanel {
   protected final JComboBox<TrangThaiNhaCungCap> cmbTrangThai = new JComboBox<>(TrangThaiNhaCungCap.values());
   protected final JTextArea txaGhiChu = new JTextArea(4, 20);
 
-  protected NhaCungCapFormPanel() {
+  public NhaCungCapFormPanel(boolean tao) {
+    this.tao = tao;
+    if (!this.tao) {
+      this.txtMa.setEditable(false);
+    }
     this.cmbTrangThai.setRenderer(BoHienThiI18n.tao());
     this.cmbTrangThai.setSelectedItem(TrangThaiNhaCungCap.HOAT_DONG);
+
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.nhaCungCap.ma", this.txtMa);
+    }
+    this.addField("app.nhaCungCap.ten", this.txtTen);
+    this.addField("app.nhaCungCap.soDienThoai", this.txtSdt);
+    this.addField("app.nhaCungCap.email", this.txtEmail);
+    this.addField("app.nhaCungCap.diaChi", this.txtDiaChi);
+    this.addField("app.nhaCungCap.trangThai", this.cmbTrangThai);
+    this.addBlock(taoKhungMoTa(this.txaGhiChu));
+  }
 
   public void napDuLieu(NhaCungCapFormData duLieu) {
+    if (!this.tao) {
+      this.txtMa.setText(duLieu.maNhaCungCap() == null ? "" : duLieu.maNhaCungCap());
+    }
     this.txtTen.setText(duLieu.tenNhaCungCap() == null ? "" : duLieu.tenNhaCungCap());
     this.txtSdt.setText(duLieu.sdt() == null ? "" : duLieu.sdt());
     this.txtEmail.setText(duLieu.email() == null ? "" : duLieu.email());
@@ -47,7 +67,9 @@ public abstract class NhaCungCapFormPanel extends FormFieldPanel {
             this.txaGhiChu.getText().isBlank() ? null : this.txaGhiChu.getText().trim());
   }
 
-  protected abstract String maHienTai();
+  protected String maHienTai() {
+    return this.tao ? null : this.txtMa.getText().trim();
+  }
 
   public boolean validateInput() {
     if (this.txtTen.getText().trim().isEmpty()) {

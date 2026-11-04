@@ -21,7 +21,6 @@ public final class DanhMucXeService {
     private static final String ERROR_NAM_SX = "app.danhMucXe.loiNamSX";
     private static final String ERROR_KHONG_TIM_THAY = "app.danhMucXe.khongTimThay";
     private static final String ERROR_DANG_SU_DUNG = "app.danhMucXe.loiDangSuDung";
-    private static final String ERROR_DU_LIEU = "app.danhMucXe.loiDuLieu";
     private static final String ERROR_TRUNG_TEN = "app.danhMucXe.loiTrungTen";
 
     public static final int NAM_SX_NHO_NHAT = 1886;

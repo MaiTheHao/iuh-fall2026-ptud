@@ -68,6 +68,10 @@ public class NhanVien {
         this.hoTen = hoTen;
     }
 
+    public String getTenHienThi() {
+        return hoTen == null || hoTen.isBlank() ? tenDangNhap : hoTen;
+    }
+
     public String getSoDienThoai() {
         return soDienThoai;
     }

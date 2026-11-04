@@ -27,17 +27,18 @@ import java.io.InputStream;
 
 public class Layout extends JPanel {
 
-    private static Image anhNen;
-    private static boolean daTaiAnh;
+    private static final String DUONG_DAN_ANH_NEN = "resources/background.jpg";
+    private static final Image ANH_NEN = taiAnhNen();
 
     private final PageRegistry registry = PageRegistry.getInstance();
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel pnlNoiDung = new JPanel(cardLayout);
     private final LayoutHeader header;
+    private AppContext context;
 
     public Layout() {
         this.setOpaque(true);
-        this.setBackground(Theme.BG);
+        this.setBackground(Theme.palette().BG());
         this.setLayout(new BorderLayout());
         this.header = new LayoutHeader(this.registry, this::goTo, this::toggleLocale, this::logout);
         this.pnlNoiDung.setOpaque(false);
@@ -46,27 +47,19 @@ public class Layout extends JPanel {
         this.add(this.pnlNoiDung, BorderLayout.CENTER);
     }
 
-    private static Image layAnhNen() {
-        if (!daTaiAnh) {
-            daTaiAnh = true;
-            InputStream luong = Layout.class.getClassLoader().getResourceAsStream("resources/background.jpg");
-            if (luong != null) {
-                try (luong) {
-                    anhNen = ImageIO.read(luong);
-                } catch (IOException e) {
-                    anhNen = null;
-                }
-            }
+    private static Image taiAnhNen() {
+        try (InputStream luong = Layout.class.getClassLoader().getResourceAsStream(DUONG_DAN_ANH_NEN)) {
+            return luong == null ? null : ImageIO.read(luong);
+        } catch (IOException e) {
+            return null;
         }
-        return anhNen;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Image anh = layAnhNen();
-        if (anh != null) {
-            this.veAnhNen(g, anh);
+        if (ANH_NEN != null) {
+            this.veAnhNen(g, ANH_NEN);
         }
         g.setColor(Theme.phuSangAnh());
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
@@ -94,8 +87,6 @@ public class Layout extends JPanel {
 
     private void addPages() {
         for (AbstractPage page : this.registry.all()) {
-            page.setOpaque(false);
-            page.setBackground(Theme.BG);
             page.setNavigator(this::goTo);
             this.pnlNoiDung.add(page, cardKey(page.getClass()));
         }
@@ -105,56 +96,46 @@ public class Layout extends JPanel {
         return type.getName();
     }
 
-    public LayoutHeader getHeader() {
-        return this.header;
-    }
-
-    public void goTo(Class<? extends AbstractPage> page) {
-        AppContext.getInstance().setCurrentPage(page);
+    private void goTo(Class<? extends AbstractPage> page) {
+        this.context.setCurrentPage(page);
         this.render();
     }
 
-    public void toggleLocale() {
-        AppContext context = AppContext.getInstance();
-        AppLocale next = context.getLocale() == AppLocale.VN ? AppLocale.EN : AppLocale.VN;
-        context.setLocale(next);
+    private void toggleLocale() {
+        AppLocale next = this.context.getLocale() == AppLocale.VN ? AppLocale.EN : AppLocale.VN;
+        this.context.setLocale(next);
         this.render();
     }
 
-    public void logout() {
-        AppContext.getInstance().logout();
+    private void logout() {
+        this.context.logout();
         this.goTo(LoginPage.class);
     }
 
     public void render() {
+        AppContext context = AppContext.getInstance();
+        this.context = context;
         AbstractPage page = this.resolveCurrentPage();
         this.cardLayout.show(this.pnlNoiDung, cardKey(page.getClass()));
         page.render();
         this.header.refreshText();
         this.header.setActive(page.getClass());
-        this.header.setMenuVisible(AppContext.getInstance().getCurrentUser() != null);
+        this.header.setMenuVisible(context.getCurrentUser() != null);
         this.pnlNoiDung.revalidate();
         this.pnlNoiDung.repaint();
-        this.updateWindowState();
+        this.syncMenuBar(context);
     }
 
-    private void updateWindowState() {
+    private void syncMenuBar(AppContext context) {
         Window window = SwingUtilities.getWindowAncestor(this);
         if (window instanceof JFrame frame) {
-            boolean loggedIn = AppContext.getInstance().getCurrentUser() != null;
+            boolean loggedIn = context.getCurrentUser() != null;
             frame.setJMenuBar(loggedIn ? this.header : null);
-            if ((frame.getExtendedState() & JFrame.MAXIMIZED_BOTH) == 0) {
-                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            }
         }
     }
 
     private AbstractPage resolveCurrentPage() {
-        AbstractPage page = this.registry.get(AppContext.getInstance().getCurrentPage());
-        if (page == null) {
-            AppContext.getInstance().setCurrentPage(DashboardPage.class);
-            page = this.registry.get(DashboardPage.class);
-        }
-        return page;
+        AbstractPage page = this.registry.get(this.context.getCurrentPage());
+        return page == null ? this.registry.get(DashboardPage.class) : page;
     }
 }

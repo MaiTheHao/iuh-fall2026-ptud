@@ -10,9 +10,9 @@ import iuh.fit.util.I18nReaderUtil;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
-public abstract class KhachHangFormPanel extends FormFieldPanel {
+public class KhachHangFormPanel extends FormFieldPanel {
 
-  
+  protected final boolean tao;
 
   private static final String SDT_REGEX = "\\d{10}";
   private static final int DO_DAI_HO_TEN_TOI_DA = 50;
@@ -22,7 +22,8 @@ public abstract class KhachHangFormPanel extends FormFieldPanel {
   protected final JTextField txtHoTen = new JTextField(14);
   protected final JTextField txtNgayTao = new JTextField(14);
 
-  protected KhachHangFormPanel() {
+  public KhachHangFormPanel(boolean tao) {
+    this.tao = tao;
     Theme.applyReadOnly(this.txtMa);
     Theme.applyReadOnly(this.txtNgayTao);
     this.txtSdt.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
@@ -30,9 +31,20 @@ public abstract class KhachHangFormPanel extends FormFieldPanel {
 
     FormValidationHelper.autoClearOnInput(this.txtSdt);
     FormValidationHelper.autoClearOnInput(this.txtHoTen);
+
+    this.dungBoCuc();
   }
 
-  protected abstract void dungBoCuc();
+  protected void dungBoCuc() {
+    if (!this.tao) {
+      this.addField("app.khachHang.ma", this.txtMa);
+    }
+    this.addField("app.khachHang.sdt", this.txtSdt);
+    this.addField("app.khachHang.hoTen", this.txtHoTen);
+    if (!this.tao) {
+      this.addField("app.khachHang.ngayTao", this.txtNgayTao);
+    }
+  }
 
   public void napDuLieu(KhachHangFormData data) {
     this.txtMa.setText(data.maKhachHang() == null ? "" : data.maKhachHang());

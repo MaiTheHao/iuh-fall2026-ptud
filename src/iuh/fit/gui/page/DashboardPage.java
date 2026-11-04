@@ -239,7 +239,7 @@ public class DashboardPage extends AbstractPage {
     }
 
     private String layHoTen(NhanVien nhanVien) {
-        return nhanVien == null || nhanVien.getHoTen() == null ? "" : nhanVien.getHoTen();
+        return nhanVien == null || nhanVien.getTenHienThi() == null ? "" : nhanVien.getTenHienThi();
     }
 
     private String layVaiTro(NhanVien nhanVien) {
