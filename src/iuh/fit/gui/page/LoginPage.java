@@ -3,7 +3,7 @@ package iuh.fit.gui.page;
 import com.formdev.flatlaf.FlatClientProperties;
 
 import iuh.fit.dto.LoginDTO;
-import iuh.fit.exception.CredentialsInvalidException;
+import iuh.fit.exception.AuthException;
 import iuh.fit.service.AuthService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.gui.Theme;
@@ -241,7 +241,7 @@ public class LoginPage extends AbstractPage {
         try {
             this.authService.login(new LoginDTO(tenDangNhap, matKhau));
             this.goTo(DashboardPage.class);
-        } catch (CredentialsInvalidException e) {
+        } catch (AuthException e) {
             ThongBao.loi(this, "app.login.errorInvalid");
         } catch (SQLException e) {
             ThongBao.loi(this, "app.login.errorSystem");

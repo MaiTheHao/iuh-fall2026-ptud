@@ -7,11 +7,7 @@ import iuh.fit.dto.RegisterDTO;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.TrangThaiNhanVien;
-import iuh.fit.exception.CredentialsInvalidException;
-import iuh.fit.exception.PasswordInvalidException;
-import iuh.fit.exception.PhoneInvalidException;
-import iuh.fit.exception.UserNameExistsException;
-import iuh.fit.exception.UserNotFoundException;
+import iuh.fit.exception.AuthException;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -27,29 +23,29 @@ public class AuthService {
         if (loginDTO == null
                 || loginDTO.tenDangNhap() == null || loginDTO.tenDangNhap().isBlank()
                 || loginDTO.matKhau() == null || loginDTO.matKhau().isBlank()) {
-            throw new CredentialsInvalidException();
+            throw new AuthException();
         }
         NhanVien nhanVien = nhanVienDAO.login(loginDTO.tenDangNhap(), loginDTO.matKhau())
-                .orElseThrow(CredentialsInvalidException::new);
+                .orElseThrow(AuthException::new);
         AppContext.getInstance().setCurrentUser(nhanVien);
         return nhanVien;
     }
 
     public NhanVien register(RegisterDTO registerDTO) throws SQLException {
         if (registerDTO == null || registerDTO.tenDangNhap() == null || registerDTO.tenDangNhap().isBlank()) {
-            throw new CredentialsInvalidException();
+            throw new AuthException();
         }
         if (!this.isValidPassword(registerDTO.matKhau())) {
-            throw new PasswordInvalidException();
+            throw new AuthException();
         }
         if (nhanVienDAO.findByTenDangNhap(registerDTO.tenDangNhap()).isPresent()) {
-            throw new UserNameExistsException();
+            throw new AuthException();
         }
 
         NhanVien nhanVien = new NhanVien();
         String soDienThoai = registerDTO.soDienThoai();
         if (soDienThoai == null || !soDienThoai.trim().matches("\\d{9,10}")) {
-            throw new PhoneInvalidException();
+            throw new AuthException();
         }
         LocalDateTime now = LocalDateTime.now();
         nhanVien.setMaNhanVien(this.maService.genMa(LoaiMa.NV));
@@ -79,20 +75,20 @@ public class AuthService {
         NhanVien nguoiDung = AppContext.getInstance().getCurrentUser();
         if (nguoiDung == null || nguoiDung.getMaNhanVien() == null || nguoiDung.getMaNhanVien().isBlank()
                 || nguoiDung.getTenDangNhap() == null || nguoiDung.getTenDangNhap().isBlank()) {
-            throw new UserNotFoundException("app.common.notLoggedIn");
+            throw new AuthException("app.common.notLoggedIn");
         }
         if (matKhauHienTai == null || matKhauHienTai.isBlank()) {
-            throw new CredentialsInvalidException("app.doiMatKhau.loiMatKhauHienTai");
+            throw new AuthException("app.doiMatKhau.loiMatKhauHienTai");
         }
 
         this.nhanVienDAO.login(nguoiDung.getTenDangNhap(), matKhauHienTai)
-                .orElseThrow(() -> new CredentialsInvalidException("app.doiMatKhau.loiMatKhauHienTai"));
+                .orElseThrow(() -> new AuthException("app.doiMatKhau.loiMatKhauHienTai"));
 
         if (matKhauMoi == null || !matKhauMoi.equals(xacNhan)) {
-            throw new PasswordInvalidException("app.doiMatKhau.loiKhongTrung");
+            throw new AuthException("app.doiMatKhau.loiKhongTrung");
         }
         if (!this.isValidPassword(matKhauMoi)) {
-            throw new PasswordInvalidException("app.doiMatKhau.loiDoManh");
+            throw new AuthException("app.doiMatKhau.loiDoManh");
         }
 
         NhanVien capNhat = new NhanVien();
@@ -106,7 +102,7 @@ public class AuthService {
     private void requireExisting(NhanVien nhanVien) throws SQLException {
         if (nhanVien == null || nhanVien.getMaNhanVien() == null
                 || nhanVienDAO.findById(nhanVien.getMaNhanVien()).isEmpty()) {
-            throw new UserNotFoundException();
+            throw new AuthException();
         }
     }
 
