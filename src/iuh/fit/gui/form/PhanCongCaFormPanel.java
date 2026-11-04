@@ -69,7 +69,7 @@ public abstract class PhanCongCaFormPanel extends FormFieldPanel {
             phanCong.getNam(), phanCong.getThang(), phanCong.getNgay()));
     this.caLamCombo.setSelectedItem(phanCong.getCaLamViec());
     this.ghiChuField.setText(phanCong.getGhiChu() == null ? "" : phanCong.getGhiChu());
-    this.chonNhanVien(phanCong.getMaNhanVien());
+    this.chonNhanVien(phanCong.getNhanVien() == null ? null : phanCong.getNhanVien().getMaNhanVien());
   }
 
   public DuLieu layDuLieu() {

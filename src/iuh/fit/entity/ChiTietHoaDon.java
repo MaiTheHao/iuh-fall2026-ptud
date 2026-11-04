@@ -3,7 +3,7 @@ package iuh.fit.entity;
 import iuh.fit.enumeration.LoaiSanPham;
 
 public class ChiTietHoaDon {
-    private String maHoaDon;
+    private HoaDon hoaDon;
     private LoaiSanPham loaiSanPham;
     private String maSanPham;
     private int soLuong;
@@ -12,20 +12,20 @@ public class ChiTietHoaDon {
     public ChiTietHoaDon() {
     }
 
-    public ChiTietHoaDon(String maHoaDon, LoaiSanPham loaiSanPham, String maSanPham, int soLuong, Double donGia) {
-        this.maHoaDon = maHoaDon;
+    public ChiTietHoaDon(HoaDon hoaDon, LoaiSanPham loaiSanPham, String maSanPham, int soLuong, Double donGia) {
+        this.hoaDon = hoaDon;
         this.loaiSanPham = loaiSanPham;
         this.maSanPham = maSanPham;
         this.soLuong = soLuong;
         this.donGia = donGia;
     }
 
-    public String getMaHoaDon() {
-        return maHoaDon;
+    public HoaDon getHoaDon() {
+        return hoaDon;
     }
 
-    public void setMaHoaDon(String maHoaDon) {
-        this.maHoaDon = maHoaDon;
+    public void setHoaDon(HoaDon hoaDon) {
+        this.hoaDon = hoaDon;
     }
 
     public LoaiSanPham getLoaiSanPham() {

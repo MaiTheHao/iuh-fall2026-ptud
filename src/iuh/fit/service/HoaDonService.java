@@ -74,8 +74,8 @@ public class HoaDonService {
         this.kiemTraTonKho(danhSachGop, List.of());
 
         HoaDon hoaDon = new HoaDon();
-        hoaDon.setMaPhieuTiepNhan(phieu.getMaPhieuTiepNhan());
-        hoaDon.setMaVoucher(voucher == null ? null : voucher.getMaVoucher());
+        hoaDon.setPhieuTiepNhan(phieu);
+        hoaDon.setVoucher(voucher);
         hoaDon.setGhiChu(this.chuanHoaGhiChu(ghiChu));
         hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.CHO_THANH_TOAN);
         hoaDon.setMucGiamApDung(voucher == null ? null : this.tinhMucGiam(voucher));
@@ -86,7 +86,7 @@ public class HoaDonService {
             hoaDon.setMaHoaDon(ma);
             hoaDon.setNgayTao(now);
             for (ChiTietHoaDon ct : danhSachGop) {
-                ct.setMaHoaDon(ma);
+                ct.setHoaDon(hoaDon);
             }
 
             this.hoaDonDAO.insert(scope, hoaDon, danhSachGop);
@@ -152,7 +152,7 @@ public class HoaDonService {
         LocalDateTime now = LocalDateTime.now();
         // Chot muc giam tai thoi diem thanh toan de tong tien khong doi sau khi voucher het han.
         Double mucGiamChot = hoaDon.getMucGiamApDung();
-        if (mucGiamChot == null && hoaDon.getMaVoucher() != null && !hoaDon.getMaVoucher().isBlank()) {
+        if (mucGiamChot == null && hoaDon.getVoucher() != null) {
             mucGiamChot = this.tinhMucGiam(hoaDon);
         }
 
@@ -261,7 +261,8 @@ public class HoaDonService {
             List<PhieuTiepNhan> danhSachPhieu) {
         Map<String, String> tenKhachHangTheoPhieu = new HashMap<>();
         for (PhieuTiepNhan phieu : danhSachPhieu) {
-            KhachHang khachHang = khachHangTheoMa.get(phieu.getMaKhachHang());
+            KhachHang khachHang = khachHangTheoMa.get(
+                    phieu.getKhachHang() == null ? null : phieu.getKhachHang().getMaKhachHang());
             tenKhachHangTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
                     khachHang == null || khachHang.getHoTen() == null ? "" : khachHang.getHoTen());
         }
@@ -300,17 +301,19 @@ public class HoaDonService {
 
     private HoaDonView taoView(HoaDon hoaDon, Map<String, String> tenKhachHangTheoPhieu,
             Map<String, String> bienSoTheoPhieu, Map<String, Voucher> voucherTheoMa) {
+        String maPhieuTiepNhan = hoaDon.getPhieuTiepNhan() == null ? ""
+                : hoaDon.getPhieuTiepNhan().getMaPhieuTiepNhan();
         return new HoaDonView(
                 hoaDon.getMaHoaDon(),
-                hoaDon.getMaPhieuTiepNhan(),
-                tenKhachHangTheoPhieu.getOrDefault(hoaDon.getMaPhieuTiepNhan(), ""),
-                bienSoTheoPhieu.getOrDefault(hoaDon.getMaPhieuTiepNhan(), ""),
+                maPhieuTiepNhan,
+                tenKhachHangTheoPhieu.getOrDefault(maPhieuTiepNhan, ""),
+                bienSoTheoPhieu.getOrDefault(maPhieuTiepNhan, ""),
                 hoaDon.getNgayTao(),
                 hoaDon.getTrangThaiHoaDon(),
                 this.tinhTongTien(hoaDon, voucherTheoMa),
                 hoaDon.getThoiGianThanhToan(),
                 hoaDon.getGhiChu(),
-                hoaDon.getMaVoucher(),
+                hoaDon.getVoucher() == null ? null : hoaDon.getVoucher().getMaVoucher(),
                 hoaDon.getLyDoHuy());
     }
 
@@ -336,10 +339,10 @@ public class HoaDonService {
         if (hoaDon.getMucGiamApDung() != null) {
             return Math.min(Math.max(hoaDon.getMucGiamApDung(), 0.0), 1.0);
         }
-        if (hoaDon.getMaVoucher() == null || hoaDon.getMaVoucher().isBlank()) {
+        if (hoaDon.getVoucher() == null) {
             return 0.0;
         }
-        return this.tinhMucGiam(voucherTheoMa.get(hoaDon.getMaVoucher()));
+        return this.tinhMucGiam(voucherTheoMa.get(hoaDon.getVoucher().getMaVoucher()));
     }
 
     public double tinhTongTienGoc(HoaDon hoaDon) {
@@ -365,11 +368,11 @@ public class HoaDonService {
         if (hoaDon.getMucGiamApDung() != null) {
             return Math.min(Math.max(hoaDon.getMucGiamApDung(), 0.0), 1.0);
         }
-        if (hoaDon.getMaVoucher() == null || hoaDon.getMaVoucher().isBlank()) {
+        if (hoaDon.getVoucher() == null) {
             return 0.0;
         }
         try {
-            return this.tinhMucGiam(this.voucherDAO.findById(hoaDon.getMaVoucher()).orElse(null));
+            return this.tinhMucGiam(this.voucherDAO.findById(hoaDon.getVoucher().getMaVoucher()).orElse(null));
         } catch (SQLException ignored) {
             return 0.0;
         }

@@ -7,17 +7,17 @@ import java.util.List;
 public class PhieuNhapPhuTung {
     private String maPhieuNhap;
     private LocalDateTime ngayTao;
-    private String maNhanVien;
+    private NhanVien nhanVien;
     private String moTa;
     private List<ChiTietPhieuNhapPhuTung> danhSachChiTietPhieuNhap = new ArrayList<>();
 
     public PhieuNhapPhuTung() {
     }
 
-    public PhieuNhapPhuTung(String maPhieuNhap, LocalDateTime ngayTao, String maNhanVien, String moTa) {
+    public PhieuNhapPhuTung(String maPhieuNhap, LocalDateTime ngayTao, NhanVien nhanVien, String moTa) {
         this.maPhieuNhap = maPhieuNhap;
         this.ngayTao = ngayTao;
-        this.maNhanVien = maNhanVien;
+        this.nhanVien = nhanVien;
         this.moTa = moTa;
     }
 
@@ -37,12 +37,12 @@ public class PhieuNhapPhuTung {
         this.ngayTao = ngayTao;
     }
 
-    public String getMaNhanVien() {
-        return maNhanVien;
+    public NhanVien getNhanVien() {
+        return nhanVien;
     }
 
-    public void setMaNhanVien(String maNhanVien) {
-        this.maNhanVien = maNhanVien;
+    public void setNhanVien(NhanVien nhanVien) {
+        this.nhanVien = nhanVien;
     }
 
     public String getMoTa() {

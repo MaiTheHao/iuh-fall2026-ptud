@@ -101,7 +101,7 @@ public class PhanCongCaPage extends AbstractPage {
 					continue;
 				}
 
-				String maNhanVien = phanCong.getMaNhanVien();
+				String maNhanVien = phanCong.getNhanVien() == null ? "" : phanCong.getNhanVien().getMaNhanVien();
 				LuoiLichTuan.MucPhanCong muc = new LuoiLichTuan.MucPhanCong(phanCong.getMaPhanCong(), maNhanVien,
 						tenNhanVienTheoMa.getOrDefault(maNhanVien, maNhanVien));
 
@@ -237,13 +237,14 @@ public class PhanCongCaPage extends AbstractPage {
 	private void boSungNhanVienDangPhanCong(List<NhanVien> danhSach, PhanCong phanCong) throws SQLException {
 		boolean daCo = danhSach.stream()
 				.anyMatch(nhanVien -> nhanVien.getMaNhanVien() != null
-						&& nhanVien.getMaNhanVien().equals(phanCong.getMaNhanVien()));
+						&& phanCong.getNhanVien() != null
+						&& nhanVien.getMaNhanVien().equals(phanCong.getNhanVien().getMaNhanVien()));
 
 		if (daCo) {
 			return;
 		}
 
-		Optional<NhanVien> nhanVien = this.phanCongService.getNhanVienById(phanCong.getMaNhanVien());
+		Optional<NhanVien> nhanVien = this.phanCongService.getNhanVienById(phanCong.getNhanVien() == null ? null : phanCong.getNhanVien().getMaNhanVien());
 		nhanVien.ifPresent(danhSach::add);
 	}
 

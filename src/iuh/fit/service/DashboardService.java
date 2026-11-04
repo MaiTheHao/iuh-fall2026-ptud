@@ -88,7 +88,7 @@ public class DashboardService {
         }
 
         for (PhanCong phanCong : phanCongs) {
-            if (maNhanVien.equals(phanCong.getMaNhanVien())
+            if (maNhanVien.equals(phanCong.getNhanVien() == null ? null : phanCong.getNhanVien().getMaNhanVien())
                     && phanCong.getNgay() == homNay.getDayOfMonth()
                     && phanCong.getThang() == homNay.getMonthValue()
                     && phanCong.getNam() == homNay.getYear()) {

@@ -14,6 +14,10 @@ public class KhachHang {
     public KhachHang() {
     }
 
+    public KhachHang(String maKhachHang) {
+        this.maKhachHang = maKhachHang;
+    }
+
     public KhachHang(String maKhachHang, String sdt, String hoTen, LocalDateTime ngayTao) {
         this.maKhachHang = maKhachHang;
         this.sdt = sdt;

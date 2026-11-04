@@ -257,7 +257,8 @@ public class LapHoaDonPage extends AbstractPage {
 		this.maHoaDonCanMo = null;
 		try {
 			HoaDon hoaDon = this.hoaDonService.getById(maHoaDon);
-			this.phieuField.datTuKhoa(hoaDon.getMaPhieuTiepNhan());
+			this.phieuField.datTuKhoa(hoaDon.getPhieuTiepNhan() == null ? ""
+					: hoaDon.getPhieuTiepNhan().getMaPhieuTiepNhan());
 			this.taiHoaDon(hoaDon);
 		} catch (IllegalArgumentException | SQLException e) {
 			ThongBao.loi(this, "app.hoaDon.khongTonTai");
@@ -283,11 +284,12 @@ public class LapHoaDonPage extends AbstractPage {
 
 	private void taiHoaDon(HoaDon hoaDon) throws SQLException {
 		this.maHoaDonHienTai = hoaDon.getMaHoaDon();
-		this.maPhieuHienTai = hoaDon.getMaPhieuTiepNhan();
+		this.maPhieuHienTai = hoaDon.getPhieuTiepNhan() == null ? null
+				: hoaDon.getPhieuTiepNhan().getMaPhieuTiepNhan();
 		this.trangThaiHienTai = hoaDon.getTrangThaiHoaDon();
 		this.ghiChuField.setText(hoaDon.getGhiChu() == null ? "" : hoaDon.getGhiChu());
 
-		this.chonVoucher(hoaDon.getMaVoucher());
+		this.chonVoucher(hoaDon.getVoucher() == null ? null : hoaDon.getVoucher().getMaVoucher());
 
 		this.napChiTiet(hoaDon.getDanhSachChiTietHoaDon());
 		this.refreshLineTable();

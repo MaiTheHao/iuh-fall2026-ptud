@@ -1,6 +1,8 @@
 package iuh.fit.dao;
 
 import iuh.fit.core.config.DatabaseConfig;
+import iuh.fit.entity.KhachHang;
+import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.entity.VanDeKyThuat;
 import iuh.fit.enumeration.TrangThaiVanDeKyThuat;
@@ -72,8 +74,8 @@ public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
         phieuTiepNhan.setNgayTao(rs.getObject("ngayTao", LocalDateTime.class));
         phieuTiepNhan.setMoTa(rs.getString("moTa"));
         phieuTiepNhan.setTrangThai(TrangThaiPhieuTiepNhan.valueOf(rs.getString("trangThai")));
-        phieuTiepNhan.setMaNhanVien(rs.getString("maNhanVien"));
-        phieuTiepNhan.setMaKhachHang(rs.getString("maKhachHang"));
+        phieuTiepNhan.setNhanVien(new NhanVien(rs.getString("maNhanVien")));
+        phieuTiepNhan.setKhachHang(new KhachHang(rs.getString("maKhachHang")));
         phieuTiepNhan.setBienSo(rs.getString("bienSo"));
         return phieuTiepNhan;
     }
@@ -128,8 +130,8 @@ public final class PhieuTiepNhanDAO extends BaseDao<PhieuTiepNhan> {
             ps.setString(4, phieu.getTrangThai() != null
                     ? phieu.getTrangThai().name()
                     : TrangThaiPhieuTiepNhan.TIEP_NHAN.name());
-            ps.setString(5, phieu.getMaNhanVien());
-            ps.setString(6, phieu.getMaKhachHang());
+            ps.setString(5, phieu.getNhanVien() == null ? null : phieu.getNhanVien().getMaNhanVien());
+            ps.setString(6, phieu.getKhachHang() == null ? null : phieu.getKhachHang().getMaKhachHang());
             ps.setString(7, phieu.getBienSo());
             return ps.executeUpdate() > 0;
         }

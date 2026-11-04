@@ -2,6 +2,7 @@
 package iuh.fit.dao;
 
 import iuh.fit.core.config.DatabaseConfig;
+import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
 
@@ -57,7 +58,7 @@ public final class PhanCongDAO extends BaseDao<PhanCong> {
 				PreparedStatement ps = connection.prepareStatement(SQL_INSERT)) {
 
 			ps.setString(1, phanCong.getMaPhanCong());
-			ps.setString(2, phanCong.getMaNhanVien());
+			ps.setString(2, phanCong.getNhanVien() == null ? null : phanCong.getNhanVien().getMaNhanVien());
 			ps.setInt(3, phanCong.getNgay());
 			ps.setInt(4, phanCong.getThang());
 			ps.setInt(5, phanCong.getNam());
@@ -82,7 +83,7 @@ public final class PhanCongDAO extends BaseDao<PhanCong> {
 		try (Connection connection = DatabaseConfig.getConnection();
 				PreparedStatement ps = connection.prepareStatement(SQL_UPDATE)) {
 
-			ps.setString(1, phanCong.getMaNhanVien());
+			ps.setString(1, phanCong.getNhanVien() == null ? null : phanCong.getNhanVien().getMaNhanVien());
 			ps.setInt(2, phanCong.getNgay());
 			ps.setInt(3, phanCong.getThang());
 			ps.setInt(4, phanCong.getNam());
@@ -124,7 +125,7 @@ public final class PhanCongDAO extends BaseDao<PhanCong> {
 		PhanCong phanCong = new PhanCong();
 
 		phanCong.setMaPhanCong(rs.getString("maPhanCong"));
-		phanCong.setMaNhanVien(rs.getString("maNhanVien"));
+		phanCong.setNhanVien(new NhanVien(rs.getString("maNhanVien")));
 		phanCong.setNgay(rs.getInt("ngay"));
 		phanCong.setThang(rs.getInt("thang"));
 		phanCong.setNam(rs.getInt("nam"));

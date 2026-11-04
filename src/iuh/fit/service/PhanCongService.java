@@ -68,9 +68,9 @@ public final class PhanCongService {
 			String ma = phanCong.getMaPhanCong();
 			return this.chuaChuoi(ma, maCanTim);
 		}).filter(phanCong -> {
-			String ten = tenNhanVienTheoMa.getOrDefault(phanCong.getMaNhanVien(), "");
+			String ten = tenNhanVienTheoMa.getOrDefault(this.maNhanVienCua(phanCong), "");
 
-			return this.chuaChuoi(ten, tenCanTim) || this.chuaChuoi(phanCong.getMaNhanVien(), tenCanTim);
+			return this.chuaChuoi(ten, tenCanTim) || this.chuaChuoi(this.maNhanVienCua(phanCong), tenCanTim);
 		}).filter(phanCong -> {
 			LocalDate ngayLam = LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay());
 
@@ -83,16 +83,24 @@ public final class PhanCongService {
 
 					LocalDate ngayLam = LocalDate.of(phanCong.getNam(), phanCong.getThang(), phanCong.getNgay());
 
-					String ten = tenNhanVienTheoMa.getOrDefault(phanCong.getMaNhanVien(), "");
+					String ten = tenNhanVienTheoMa.getOrDefault(this.maNhanVienCua(phanCong), "");
 
 					return this.chuaChuoi(phanCong.getMaPhanCong(), timNhanhCanTim)
-							|| this.chuaChuoi(phanCong.getMaNhanVien(), timNhanhCanTim)
+							|| this.chuaChuoi(this.maNhanVienCua(phanCong), timNhanhCanTim)
 							|| this.chuaChuoi(ten, timNhanhCanTim)
 							|| this.chuaChuoi(phanCong.getGhiChu(), timNhanhCanTim)
 							|| this.chuaChuoi(ngayLam.format(DATE_FORMATTER), timNhanhCanTim)
 							|| this.chuaChuoi(phanCong.getCaLamViec() == null ? "" : phanCong.getCaLamViec().name(),
 									timNhanhCanTim);
 				}).toList();
+	}
+
+	private String maNhanVienCua(PhanCong phanCong) {
+		if (phanCong == null || phanCong.getNhanVien() == null) {
+			return "";
+		}
+
+		return phanCong.getNhanVien().getMaNhanVien();
 	}
 
 	private String chuanHoa(String value) {
@@ -126,7 +134,7 @@ public final class PhanCongService {
 		this.kiemTraDuLieu(maNhanVien, ngayLam, caLamViec, ghiChu, danhSachChoLuu, null);
 	}
 
-	private void kiemTraDuLieu(String maNhanVien, LocalDate ngayLam, CaLamViec caLamViec, String ghiChu,
+	private NhanVien kiemTraDuLieu(String maNhanVien, LocalDate ngayLam, CaLamViec caLamViec, String ghiChu,
 			List<PhanCong> danhSachChoLuu, String maPhanCongBoQua) throws SQLException {
 
 		String maNhanVienDaChuanHoa = maNhanVien == null ? "" : maNhanVien.trim();
@@ -159,7 +167,7 @@ public final class PhanCongService {
 
 		boolean biTrungTrongDatabase = this.phanCongDAO.findAll().stream()
 				.filter(pc -> maPhanCongBoQua == null || !maPhanCongBoQua.equals(pc.getMaPhanCong()))
-				.anyMatch(pc -> maNhanVienDaChuanHoa.equals(pc.getMaNhanVien())
+				.anyMatch(pc -> maNhanVienDaChuanHoa.equals(this.maNhanVienCua(pc))
 						&& pc.getNgay() == ngayLam.getDayOfMonth() && pc.getThang() == ngayLam.getMonthValue()
 						&& pc.getNam() == ngayLam.getYear() && pc.getCaLamViec() == caLamViec);
 
@@ -168,28 +176,29 @@ public final class PhanCongService {
 		}
 
 		if (danhSachChoLuu == null) {
-			return;
+			return nhanVien;
 		}
 
 		boolean biTrungTrongDanhSachChoLuu = danhSachChoLuu.stream()
 				.filter(pc -> maPhanCongBoQua == null || !maPhanCongBoQua.equals(pc.getMaPhanCong()))
-				.anyMatch(pc -> maNhanVienDaChuanHoa.equals(pc.getMaNhanVien())
+				.anyMatch(pc -> maNhanVienDaChuanHoa.equals(this.maNhanVienCua(pc))
 						&& pc.getNgay() == ngayLam.getDayOfMonth() && pc.getThang() == ngayLam.getMonthValue()
 						&& pc.getNam() == ngayLam.getYear() && pc.getCaLamViec() == caLamViec);
 
 		if (biTrungTrongDanhSachChoLuu) {
 			throw new IllegalArgumentException("app.schedule.duplicateAssignment");
 		}
+
+		return nhanVien;
 	}
 
 	public void create(String maNhanVien, LocalDate ngayLam, CaLamViec caLamViec, String ghiChu) throws SQLException {
 
-		this.kiemTraDuLieu(maNhanVien, ngayLam, caLamViec, ghiChu, List.of(), null);
+		NhanVien nhanVien = this.kiemTraDuLieu(maNhanVien, ngayLam, caLamViec, ghiChu, List.of(), null);
 
-		String maNhanVienDaChuanHoa = maNhanVien.trim();
 		String ghiChuDaChuanHoa = ghiChu == null ? "" : ghiChu.trim();
 
-		PhanCong phanCong = new PhanCong(this.maService.genMa(LoaiMa.PC), maNhanVienDaChuanHoa,
+		PhanCong phanCong = new PhanCong(this.maService.genMa(LoaiMa.PC), nhanVien,
 				ngayLam.getDayOfMonth(), ngayLam.getMonthValue(), ngayLam.getYear(), caLamViec,
 				ghiChuDaChuanHoa.isEmpty() ? null : ghiChuDaChuanHoa);
 
@@ -244,9 +253,8 @@ public final class PhanCongService {
 			throw new IllegalArgumentException("app.schedule.assignmentNotFound");
 		}
 
-		if (this.nhanVienDAO.findById(maNhanVienDaChuanHoa).isEmpty()) {
-			throw new IllegalArgumentException("app.schedule.employeeNotFound");
-		}
+		NhanVien nhanVien = this.nhanVienDAO.findById(maNhanVienDaChuanHoa)
+				.orElseThrow(() -> new IllegalArgumentException("app.schedule.employeeNotFound"));
 
 		String ghiChuDaChuanHoa = ghiChu == null ? "" : ghiChu.trim();
 
@@ -255,7 +263,7 @@ public final class PhanCongService {
 		}
 
 		boolean biTrungLich = this.phanCongDAO.findAll().stream().filter(pc -> !pc.getMaPhanCong().equals(maDaChuanHoa))
-				.anyMatch(pc -> pc.getMaNhanVien().equals(maNhanVienDaChuanHoa)
+				.anyMatch(pc -> this.maNhanVienCua(pc).equals(maNhanVienDaChuanHoa)
 						&& pc.getNgay() == ngayLam.getDayOfMonth() && pc.getThang() == ngayLam.getMonthValue()
 						&& pc.getNam() == ngayLam.getYear() && pc.getCaLamViec() == caLamViec);
 
@@ -263,7 +271,7 @@ public final class PhanCongService {
 			throw new IllegalArgumentException("app.schedule.duplicateAssignment");
 		}
 
-		PhanCong phanCong = new PhanCong(maDaChuanHoa, maNhanVienDaChuanHoa, ngayLam.getDayOfMonth(),
+		PhanCong phanCong = new PhanCong(maDaChuanHoa, nhanVien, ngayLam.getDayOfMonth(),
 				ngayLam.getMonthValue(), ngayLam.getYear(), caLamViec,
 				ghiChuDaChuanHoa.isEmpty() ? null : ghiChuDaChuanHoa);
 
@@ -288,7 +296,7 @@ public final class PhanCongService {
 		List<PhanCong> danhSach = new ArrayList<>();
 
 		for (PhanCong phanCong : this.phanCongDAO.findAll()) {
-			if (!maNhanVienCanTim.equals(phanCong.getMaNhanVien())) {
+			if (!maNhanVienCanTim.equals(this.maNhanVienCua(phanCong))) {
 				continue;
 			}
 
@@ -348,7 +356,8 @@ public final class PhanCongService {
 				continue;
 			}
 
-			String tenNhanVien = tenNhanVienTheoMa.getOrDefault(phanCong.getMaNhanVien(), phanCong.getMaNhanVien());
+			String tenNhanVien = tenNhanVienTheoMa.getOrDefault(this.maNhanVienCua(phanCong),
+					this.maNhanVienCua(phanCong));
 
 			lichTheoCa.get(phanCong.getCaLamViec()).add(tenNhanVien);
 		}
@@ -411,7 +420,7 @@ public final class PhanCongService {
 						&& phanCong.getThang() == ngay.getMonthValue()
 						&& phanCong.getNam() == ngay.getYear()
 						&& phanCong.getCaLamViec() == ca)
-				.map(PhanCong::getMaNhanVien)
+				.map(this::maNhanVienCua)
 				.collect(Collectors.toSet());
 
 		return danhSach.stream()

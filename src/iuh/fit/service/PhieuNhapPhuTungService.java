@@ -52,7 +52,8 @@ public class PhieuNhapPhuTungService {
 
 		List<PhieuNhapPhuTung> matched = new ArrayList<>(all.stream().filter(item -> {
 			String maPhieu = TextNormalizerUtil.normalize(item.getMaPhieuNhap());
-			String maNV = item.getMaNhanVien() != null ? TextNormalizerUtil.normalize(item.getMaNhanVien()) : "";
+			String maNV = item.getNhanVien() != null ? TextNormalizerUtil.normalize(item.getNhanVien().getMaNhanVien())
+					: "";
 			String moTa = item.getMoTa() != null ? TextNormalizerUtil.normalize(item.getMoTa()) : "";
 			if (fMaPhieu != null && !maPhieu.contains(fMaPhieu)) {
 				return false;
@@ -118,7 +119,7 @@ public class PhieuNhapPhuTungService {
 		try (TransactionScope scope = TransactionScope.begin()) {
 			phieu.setMaPhieuNhap(this.maService.genMa(scope, LoaiMa.PN));
 			phieu.setNgayTao(now);
-			phieu.setMaNhanVien(user.getMaNhanVien());
+			phieu.setNhanVien(user);
 			this.phieuNhapDAO.insert(scope, phieu, danhSachGop);
 			for (ChiTietPhieuNhapPhuTung ct : danhSachGop) {
 				this.phuTungService.increaseStock(scope, ct.getMaPhuTung(), ct.getSoLuong());

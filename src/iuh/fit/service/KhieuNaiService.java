@@ -194,7 +194,8 @@ public class KhieuNaiService {
         PhieuTiepNhan phieu = this.phieuTiepNhanDAO.findById(data.maPhieuTiepNhan().trim())
                 .orElseThrow(() -> new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND));
 
-        String maKhachHangCuaPhieu = phieu.getMaKhachHang() == null ? "" : phieu.getMaKhachHang().trim();
+        String maKhachHangCuaPhieu = phieu.getKhachHang() == null ? ""
+                : phieu.getKhachHang().getMaKhachHang().trim();
         if (!maKhachHang.equals(maKhachHangCuaPhieu)) {
             throw new IllegalArgumentException(ERROR_PHIEU_NOT_OF_CUSTOMER);
         }

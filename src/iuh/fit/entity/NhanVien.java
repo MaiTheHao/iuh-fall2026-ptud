@@ -19,6 +19,10 @@ public class NhanVien {
     public NhanVien() {
     }
 
+    public NhanVien(String maNhanVien) {
+        this.maNhanVien = maNhanVien;
+    }
+
     public NhanVien(String maNhanVien, String tenDangNhap, String matKhau, String hoTen, String soDienThoai,
             String anhDaiDien, VaiTro vaiTro, TrangThaiNhanVien trangThai, LocalDateTime ngayTao) {
         this.maNhanVien = maNhanVien;

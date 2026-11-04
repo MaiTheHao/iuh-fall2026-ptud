@@ -76,7 +76,7 @@ public class TiepNhanService {
 
             PhieuTiepNhan phieu = new PhieuTiepNhan();
             phieu.setBienSo(bienSo);
-            phieu.setMaKhachHang(maKhachHang);
+            phieu.setKhachHang(khachHang);
             phieu.setMoTa(data.moTa());
             phieu.setTrangThai(TrangThaiPhieuTiepNhan.TIEP_NHAN);
             this.phieuTiepNhanService.create(scope, phieu);

@@ -4,7 +4,7 @@ import iuh.fit.enumeration.CaLamViec;
 
 public class PhanCong {
     private String maPhanCong;
-    private String maNhanVien;
+    private NhanVien nhanVien;
     private int ngay;
     private int thang;
     private int nam;
@@ -14,10 +14,10 @@ public class PhanCong {
     public PhanCong() {
     }
 
-    public PhanCong(String maPhanCong, String maNhanVien, int ngay, int thang, int nam, CaLamViec caLamViec,
+    public PhanCong(String maPhanCong, NhanVien nhanVien, int ngay, int thang, int nam, CaLamViec caLamViec,
             String ghiChu) {
         this.maPhanCong = maPhanCong;
-        this.maNhanVien = maNhanVien;
+        this.nhanVien = nhanVien;
         this.ngay = ngay;
         this.thang = thang;
         this.nam = nam;
@@ -33,12 +33,12 @@ public class PhanCong {
         this.maPhanCong = maPhanCong;
     }
 
-    public String getMaNhanVien() {
-        return maNhanVien;
+    public NhanVien getNhanVien() {
+        return nhanVien;
     }
 
-    public void setMaNhanVien(String maNhanVien) {
-        this.maNhanVien = maNhanVien;
+    public void setNhanVien(NhanVien nhanVien) {
+        this.nhanVien = nhanVien;
     }
 
     public int getNgay() {

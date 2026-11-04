@@ -11,22 +11,26 @@ public class PhieuTiepNhan {
     private LocalDateTime ngayTao;
     private String moTa;
     private TrangThaiPhieuTiepNhan trangThai;
-    private String maNhanVien;
-    private String maKhachHang;
+    private NhanVien nhanVien;
+    private KhachHang khachHang;
     private String bienSo;
     private List<VanDeKyThuat> danhSachVanDeKyThuat = new ArrayList<>();
 
     public PhieuTiepNhan() {
     }
 
+    public PhieuTiepNhan(String maPhieuTiepNhan) {
+        this.maPhieuTiepNhan = maPhieuTiepNhan;
+    }
+
     public PhieuTiepNhan(String maPhieuTiepNhan, LocalDateTime ngayTao, String moTa, TrangThaiPhieuTiepNhan trangThai,
-            String maNhanVien, String maKhachHang, String bienSo) {
+            NhanVien nhanVien, KhachHang khachHang, String bienSo) {
         this.maPhieuTiepNhan = maPhieuTiepNhan;
         this.ngayTao = ngayTao;
         this.moTa = moTa;
         this.trangThai = trangThai;
-        this.maNhanVien = maNhanVien;
-        this.maKhachHang = maKhachHang;
+        this.nhanVien = nhanVien;
+        this.khachHang = khachHang;
         this.bienSo = bienSo;
     }
 
@@ -62,20 +66,20 @@ public class PhieuTiepNhan {
         this.trangThai = trangThai;
     }
 
-    public String getMaNhanVien() {
-        return maNhanVien;
+    public NhanVien getNhanVien() {
+        return nhanVien;
     }
 
-    public void setMaNhanVien(String maNhanVien) {
-        this.maNhanVien = maNhanVien;
+    public void setNhanVien(NhanVien nhanVien) {
+        this.nhanVien = nhanVien;
     }
 
-    public String getMaKhachHang() {
-        return maKhachHang;
+    public KhachHang getKhachHang() {
+        return khachHang;
     }
 
-    public void setMaKhachHang(String maKhachHang) {
-        this.maKhachHang = maKhachHang;
+    public void setKhachHang(KhachHang khachHang) {
+        this.khachHang = khachHang;
     }
 
     public String getBienSo() {

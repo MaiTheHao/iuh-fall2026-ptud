@@ -156,7 +156,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 						stt++,
 						item.getMaPhieuNhap(),
 						item.getMoTa(),
-						item.getMaNhanVien(),
+						item.getNhanVien() == null ? "" : item.getNhanVien().getMaNhanVien(),
 						item.getNgayTao() != null ? item.getNgayTao().format(this.dateFormatter) : "",
 						this.currencyFormat.format(this.phieuNhapService.tinhTongChiPhi(item))
 				});

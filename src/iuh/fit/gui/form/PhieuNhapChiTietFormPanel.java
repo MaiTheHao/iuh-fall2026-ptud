@@ -81,7 +81,7 @@ public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
 
     this.maPhieuField.setText(phieu.getMaPhieuNhap() == null ? "" : phieu.getMaPhieuNhap());
     this.moTaField.setText(phieu.getMoTa() == null ? "" : phieu.getMoTa());
-    this.thuKhoField.setText(phieu.getMaNhanVien() == null ? "" : phieu.getMaNhanVien());
+    this.thuKhoField.setText(phieu.getNhanVien() == null ? "" : phieu.getNhanVien().getMaNhanVien());
     this.ngayTaoField.setText(ngayTao == null ? "" : ngayTao);
     this.tongChiPhiField.setText(tongChiPhi == null ? "" : tongChiPhi);
 

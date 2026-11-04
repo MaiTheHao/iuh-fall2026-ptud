@@ -3,6 +3,8 @@ package iuh.fit.dao;
 import iuh.fit.core.config.DatabaseConfig;
 import iuh.fit.entity.ChiTietHoaDon;
 import iuh.fit.entity.HoaDon;
+import iuh.fit.entity.PhieuTiepNhan;
+import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 
@@ -86,8 +88,9 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
                 """;
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sqlHoaDon)) {
             ps.setString(1, hoaDon.getMaHoaDon());
-            ps.setString(2, hoaDon.getMaPhieuTiepNhan());
-            ps.setString(3, hoaDon.getMaVoucher());
+            ps.setString(2, hoaDon.getPhieuTiepNhan() == null ? null
+                    : hoaDon.getPhieuTiepNhan().getMaPhieuTiepNhan());
+            ps.setString(3, hoaDon.getVoucher() == null ? null : hoaDon.getVoucher().getMaVoucher());
             ps.setString(4, hoaDon.getTrangThaiHoaDon().name());
             ps.setString(5, hoaDon.getLyDoHuy());
             ps.setString(6, hoaDon.getGhiChu());
@@ -222,8 +225,9 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
     protected HoaDon mapRow(ResultSet rs) throws SQLException {
         HoaDon hoaDon = new HoaDon();
         hoaDon.setMaHoaDon(rs.getString("maHoaDon"));
-        hoaDon.setMaPhieuTiepNhan(rs.getString("maPhieuTiepNhan"));
-        hoaDon.setMaVoucher(rs.getString("maVoucher"));
+        hoaDon.setPhieuTiepNhan(new PhieuTiepNhan(rs.getString("maPhieuTiepNhan")));
+        String maVoucher = rs.getString("maVoucher");
+        hoaDon.setVoucher(maVoucher == null ? null : new Voucher(maVoucher));
         hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.valueOf(rs.getString("trangThaiHoaDon")));
         hoaDon.setLyDoHuy(rs.getString("lyDoHuy"));
         hoaDon.setGhiChu(rs.getString("ghiChu"));
@@ -241,7 +245,7 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
             while (rs.next()) {
                 ChiTietHoaDon chiTiet = this.mapChiTiet(rs);
                 chiTietTheoHoaDon
-                        .computeIfAbsent(chiTiet.getMaHoaDon(), ma -> new ArrayList<>())
+                        .computeIfAbsent(chiTiet.getHoaDon().getMaHoaDon(), ma -> new ArrayList<>())
                         .add(chiTiet);
             }
         }
@@ -263,7 +267,7 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
 
     private ChiTietHoaDon mapChiTiet(ResultSet rs) throws SQLException {
         ChiTietHoaDon chiTiet = new ChiTietHoaDon();
-        chiTiet.setMaHoaDon(rs.getString("maHoaDon"));
+        chiTiet.setHoaDon(new HoaDon(rs.getString("maHoaDon")));
         chiTiet.setLoaiSanPham(LoaiSanPham.valueOf(rs.getString("loaiSanPham")));
         chiTiet.setMaSanPham(rs.getString("maSanPham"));
         chiTiet.setSoLuong(rs.getInt("soLuong"));

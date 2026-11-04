@@ -59,7 +59,7 @@ public class PhieuTiepNhanService {
     public PhieuTiepNhan create(TransactionScope scope, PhieuTiepNhan phieu) throws SQLException {
         if (phieu != null) {
             NhanVien nguoiDung = AppContext.getInstance().getCurrentUser();
-            phieu.setMaNhanVien(nguoiDung == null ? null : nguoiDung.getMaNhanVien());
+            phieu.setNhanVien(nguoiDung);
         }
 
         this.validate(scope, phieu);
@@ -216,11 +216,11 @@ public class PhieuTiepNhanService {
 
         List<PhieuTiepNhanView> views = new ArrayList<>();
         for (PhieuTiepNhan phieu : this.phieuTiepNhanDAO.findAll()) {
-            String tenKhachHang = tenKhachHangTheoMa.get(phieu.getMaKhachHang());
+            String tenKhachHang = tenKhachHangTheoMa.get(this.maKhachHangCua(phieu));
             if (tenKhachHang == null) {
                 tenKhachHang = "";
             }
-            String sdt = sdtTheoMa.get(phieu.getMaKhachHang());
+            String sdt = sdtTheoMa.get(this.maKhachHangCua(phieu));
             if (sdt == null) {
                 sdt = "";
             }
@@ -245,7 +245,7 @@ public class PhieuTiepNhanService {
 
     public List<PhieuTiepNhan> getDanhSachTheoKhachHang(String maKhachHang) throws SQLException {
         return this.phieuTiepNhanDAO.findAll().stream()
-                .filter(p -> maKhachHang != null && maKhachHang.equals(p.getMaKhachHang()))
+                .filter(p -> maKhachHang != null && maKhachHang.equals(this.maKhachHangCua(p)))
                 .filter(p -> p.getTrangThai() != TrangThaiPhieuTiepNhan.DA_HUY)
                 .sorted(Comparator.comparing(
                         PhieuTiepNhan::getNgayTao,
@@ -253,20 +253,34 @@ public class PhieuTiepNhanService {
                 .toList();
     }
 
+    private String maNhanVienCua(PhieuTiepNhan phieu) {
+        if (phieu == null || phieu.getNhanVien() == null || phieu.getNhanVien().getMaNhanVien() == null) {
+            return "";
+        }
+        return phieu.getNhanVien().getMaNhanVien();
+    }
+
+    private String maKhachHangCua(PhieuTiepNhan phieu) {
+        if (phieu == null || phieu.getKhachHang() == null || phieu.getKhachHang().getMaKhachHang() == null) {
+            return "";
+        }
+        return phieu.getKhachHang().getMaKhachHang();
+    }
+
     private void validate(TransactionScope scope, PhieuTiepNhan phieu) throws SQLException {
         if (phieu == null) {
             throw new IllegalArgumentException(ERROR_DU_LIEU);
         }
-        if (phieu.getMaNhanVien() == null || phieu.getMaNhanVien().isBlank()) {
+        if (this.maNhanVienCua(phieu).isBlank()) {
             throw new IllegalArgumentException(ERROR_NHAN_VIEN);
         }
-        if (phieu.getMaKhachHang() == null || phieu.getMaKhachHang().isBlank()) {
+        if (this.maKhachHangCua(phieu).isBlank()) {
             throw new IllegalArgumentException(ERROR_KHACH_HANG);
         }
         if (phieu.getBienSo() == null || phieu.getBienSo().isBlank()) {
             throw new IllegalArgumentException(ERROR_BIEN_SO);
         }
-        if (this.khachHangDAO.findById(scope, phieu.getMaKhachHang()).isEmpty()) {
+        if (this.khachHangDAO.findById(scope, this.maKhachHangCua(phieu)).isEmpty()) {
             throw new IllegalArgumentException(ERROR_KHACH_HANG_NOT_FOUND);
         }
         if (this.xeDAO.findById(scope, phieu.getBienSo()).isEmpty()) {

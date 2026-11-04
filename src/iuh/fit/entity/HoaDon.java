@@ -8,8 +8,8 @@ import java.util.List;
 
 public class HoaDon {
     private String maHoaDon;
-    private String maPhieuTiepNhan;
-    private String maVoucher;
+    private PhieuTiepNhan phieuTiepNhan;
+    private Voucher voucher;
     private TrangThaiHoaDon trangThaiHoaDon;
     private String lyDoHuy;
     private String ghiChu;
@@ -21,11 +21,16 @@ public class HoaDon {
     public HoaDon() {
     }
 
-    public HoaDon(String maHoaDon, String maPhieuTiepNhan, String maVoucher, TrangThaiHoaDon trangThaiHoaDon,
-            String lyDoHuy, String ghiChu, LocalDateTime ngayTao, LocalDateTime thoiGianThanhToan) {
+    public HoaDon(String maHoaDon) {
         this.maHoaDon = maHoaDon;
-        this.maPhieuTiepNhan = maPhieuTiepNhan;
-        this.maVoucher = maVoucher;
+    }
+
+    public HoaDon(String maHoaDon, PhieuTiepNhan phieuTiepNhan, Voucher voucher,
+            TrangThaiHoaDon trangThaiHoaDon, String lyDoHuy, String ghiChu, LocalDateTime ngayTao,
+            LocalDateTime thoiGianThanhToan) {
+        this.maHoaDon = maHoaDon;
+        this.phieuTiepNhan = phieuTiepNhan;
+        this.voucher = voucher;
         this.trangThaiHoaDon = trangThaiHoaDon;
         this.lyDoHuy = lyDoHuy;
         this.ghiChu = ghiChu;
@@ -41,20 +46,20 @@ public class HoaDon {
         this.maHoaDon = maHoaDon;
     }
 
-    public String getMaPhieuTiepNhan() {
-        return maPhieuTiepNhan;
+    public PhieuTiepNhan getPhieuTiepNhan() {
+        return phieuTiepNhan;
     }
 
-    public void setMaPhieuTiepNhan(String maPhieuTiepNhan) {
-        this.maPhieuTiepNhan = maPhieuTiepNhan;
+    public void setPhieuTiepNhan(PhieuTiepNhan phieuTiepNhan) {
+        this.phieuTiepNhan = phieuTiepNhan;
     }
 
-    public String getMaVoucher() {
-        return maVoucher;
+    public Voucher getVoucher() {
+        return voucher;
     }
 
-    public void setMaVoucher(String maVoucher) {
-        this.maVoucher = maVoucher;
+    public void setVoucher(Voucher voucher) {
+        this.voucher = voucher;
     }
 
     public TrangThaiHoaDon getTrangThaiHoaDon() {

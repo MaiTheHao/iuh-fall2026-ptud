@@ -13,6 +13,10 @@ public class Voucher {
     public Voucher() {
     }
 
+    public Voucher(String maVoucher) {
+        this.maVoucher = maVoucher;
+    }
+
     public Voucher(String maVoucher, String tenChuongTrinh, String moTa, Double mucGiam, LocalDateTime thoiHanApDung,
             boolean trangThaiKichHoat) {
         this.maVoucher = maVoucher;

@@ -2,6 +2,7 @@ package iuh.fit.dao;
 
 import iuh.fit.core.config.DatabaseConfig;
 import iuh.fit.entity.ChiTietPhieuNhapPhuTung;
+import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhieuNhapPhuTung;
 
 import java.sql.Connection;
@@ -81,7 +82,7 @@ public final class PhieuNhapPhuTungDAO extends BaseDao<PhieuNhapPhuTung> {
             psPhieu.setString(1, phieu.getMaPhieuNhap());
             psPhieu.setTimestamp(2,
                     Timestamp.valueOf(phieu.getNgayTao() != null ? phieu.getNgayTao() : LocalDateTime.now()));
-            psPhieu.setString(3, phieu.getMaNhanVien());
+            psPhieu.setString(3, phieu.getNhanVien() == null ? null : phieu.getNhanVien().getMaNhanVien());
             psPhieu.setString(4, phieu.getMoTa());
             psPhieu.executeUpdate();
         }
@@ -128,7 +129,7 @@ public final class PhieuNhapPhuTungDAO extends BaseDao<PhieuNhapPhuTung> {
         PhieuNhapPhuTung phieu = new PhieuNhapPhuTung();
         phieu.setMaPhieuNhap(rs.getString("maPhieuNhap"));
         phieu.setNgayTao(rs.getObject("ngayTao", LocalDateTime.class));
-        phieu.setMaNhanVien(rs.getString("maNhanVien"));
+        phieu.setNhanVien(new NhanVien(rs.getString("maNhanVien")));
         phieu.setMoTa(rs.getString("moTa"));
         return phieu;
     }
