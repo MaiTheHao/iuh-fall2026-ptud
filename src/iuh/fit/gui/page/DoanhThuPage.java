@@ -7,6 +7,7 @@ import iuh.fit.dto.BaoCaoDoanhThuDTO;
 import iuh.fit.dto.HoaDonDoanhThuDTO;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.service.DoanhThuService;
+import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.XlsxExportUtil;
 
@@ -43,13 +44,12 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
 public class DoanhThuPage extends AbstractPage {
 
-	private static final long serialVersionUID = 1L;
+	
 
 	private final DatePicker dpTuNgay = this.taoDatePicker();
 	private final DatePicker dpDenNgay = this.taoDatePicker();
@@ -64,7 +64,7 @@ public class DoanhThuPage extends AbstractPage {
 			I18nReaderUtil.get("app.report.revenue.paymentTime"), I18nReaderUtil.get("app.report.revenue.customer"),
 			I18nReaderUtil.get("app.report.revenue.licensePlate"), I18nReaderUtil.get("app.report.revenue.status"),
 			I18nReaderUtil.get("app.report.revenue.amount") }) {
-		private static final long serialVersionUID = 1L;
+		
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
@@ -171,14 +171,11 @@ public class DoanhThuPage extends AbstractPage {
 
 		model.setRowCount(0);
 
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm",
-				Locale.forLanguageTag("vi-VN"));
-
 		for (HoaDonDoanhThuDTO hoaDon : danhSachHoaDon) {
-			String ngayTao = hoaDon.ngayTao() == null ? "" : hoaDon.ngayTao().format(dateTimeFormatter);
+			String ngayTao = hoaDon.ngayTao() == null ? "" : hoaDon.ngayTao().format(DateFormats.NGAY_GIO);
 
 			String thoiGianThanhToan = hoaDon.thoiGianThanhToan() == null ? ""
-					: hoaDon.thoiGianThanhToan().format(dateTimeFormatter);
+					: hoaDon.thoiGianThanhToan().format(DateFormats.NGAY_GIO);
 
 			model.addRow(new Object[] { hoaDon.maHoaDon(), ngayTao, thoiGianThanhToan, hoaDon.tenKhachHang(),
 					hoaDon.bienSo(), hoaDon.trangThaiHoaDon(), this.dinhDangTien.format(hoaDon.tongDoanhThu()) });

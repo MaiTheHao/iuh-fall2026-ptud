@@ -5,6 +5,7 @@ import iuh.fit.entity.DoiXe;
 import iuh.fit.entity.DongXe;
 import iuh.fit.entity.HangXe;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -37,9 +38,8 @@ import java.util.Locale;
 
 public final class DanhMucXePage extends AbstractPage {
 
-  private static final long serialVersionUID = 1L;
+  
 
-  private static final int SO_DONG_MOI_TRANG = 20;
 
   /** Dialog tạo mới: 1 trường nhập. */
   private static final int CHIEU_CAO_TAO_HANG = 240;
@@ -412,10 +412,10 @@ public final class DanhMucXePage extends AbstractPage {
     }
 
     int tong = ketQua.size();
-    int tongTrang = Math.max(1, (tong + SO_DONG_MOI_TRANG - 1) / SO_DONG_MOI_TRANG);
+    int tongTrang = Math.max(1, (tong + UiConstants.SO_DONG_MOI_TRANG - 1) / UiConstants.SO_DONG_MOI_TRANG);
     int trangHienTai = Math.min(Math.max(trang, 1), tongTrang);
-    int tu = (trangHienTai - 1) * SO_DONG_MOI_TRANG;
-    int den = Math.min(tu + SO_DONG_MOI_TRANG, tong);
+    int tu = (trangHienTai - 1) * UiConstants.SO_DONG_MOI_TRANG;
+    int den = Math.min(tu + UiConstants.SO_DONG_MOI_TRANG, tong);
 
     panel.setRows(new ArrayList<>(ketQua.subList(tu, den)));
     panel.setCount(tong == 0 ? 0 : tu + 1, den, tong);

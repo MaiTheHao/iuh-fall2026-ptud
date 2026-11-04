@@ -5,6 +5,7 @@ import iuh.fit.dto.DanhSachPhieuNhapCriteria;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.PhieuNhapPhuTung;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -30,7 +31,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 	/** Dialog xem chi tiết phiếu nhập: 5 trường đầu phiếu + bảng dòng chi tiết. */
 	private static final int CHIEU_CAO_CHI_TIET = 650;
 
-	private static final int SO_DONG_MOI_TRANG = 20;
 
 	private final PhieuNhapPhuTungService phieuNhapService = new PhieuNhapPhuTungService();
 	private final DecimalFormat currencyFormat = new DecimalFormat("#,##0");
@@ -134,7 +134,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 					maxCost,
 					this.pnlDanhSach.getQuickFilter(),
 					page,
-					SO_DONG_MOI_TRANG);
+					UiConstants.SO_DONG_MOI_TRANG);
 
 			PaginatedResult<PhieuNhapPhuTung> res = this.phieuNhapService.search(criteria);
 

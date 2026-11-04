@@ -37,7 +37,7 @@ import java.util.function.Consumer;
  */
 public final class LuoiLichTuan extends JPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final int SO_NGAY = 7;
   private static final int CHIEU_CAO_THE = 28;

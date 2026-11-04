@@ -27,7 +27,7 @@ import java.io.File;
 
 public class AnhField extends JPanel {
 
-    private static final long serialVersionUID = 1L;
+    
 
     /**
      * Bộ khóa i18n cho một trường ảnh, tránh truyền bảy chuỗi rời theo thứ tự.

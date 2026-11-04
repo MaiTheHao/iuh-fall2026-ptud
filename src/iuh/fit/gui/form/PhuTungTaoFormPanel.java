@@ -5,7 +5,7 @@ package iuh.fit.gui.form;
  */
 public final class PhuTungTaoFormPanel extends PhuTungFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public PhuTungTaoFormPanel() {
     this.dungBoCuc();

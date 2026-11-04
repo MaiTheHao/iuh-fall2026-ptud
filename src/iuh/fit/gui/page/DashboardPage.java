@@ -129,7 +129,7 @@ public class DashboardPage extends AbstractPage {
                 I18nReaderUtil.get("app.dashboard.invoicesUnpaidSub") + " "
                         + this.dinhDangTien(thongKe.tongHoaDonChuaThanhToan()), true));
         luoi.add(new JPanel() {
-            private static final long serialVersionUID = 1L;
+            
 
             {
                 this.setOpaque(false);
@@ -274,7 +274,7 @@ public class DashboardPage extends AbstractPage {
 
     private static final class KhungCanPhai extends JPanel {
 
-        private static final long serialVersionUID = 1L;
+        
 
         private final JComponent the;
 

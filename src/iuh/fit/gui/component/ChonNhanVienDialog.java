@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public final class ChonNhanVienDialog extends ChonSanPhamDialog<NhanVien> {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private final PhanCongService phanCongService;
   private final LocalDate ngay;

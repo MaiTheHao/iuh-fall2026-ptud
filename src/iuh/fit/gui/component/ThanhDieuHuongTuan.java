@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  */
 public final class ThanhDieuHuongTuan extends JPanel {
 
-	private static final long serialVersionUID = 1L;
+	
 
 	private static final int BAN_KINH_NAM = 5;
 	private static final int NAM_HIEN_TAI = Year.now().getValue();

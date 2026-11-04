@@ -4,6 +4,7 @@ import iuh.fit.core.context.AppContext;
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ThanhDieuHuongTuan;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhanCongService;
 import iuh.fit.util.I18nReaderUtil;
 
@@ -29,16 +30,11 @@ import java.util.Locale;
 
 public class LichCuaToiPage extends AbstractPage {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private static final int SO_NGAY = 7;
     private static final int SO_CA = 3;
 
-    private static final Color MAU_TIEU_DE = new Color(232, 235, 238);
-    private static final Color MAU_O_LE = new Color(234, 242, 249);
-    private static final Color MAU_VIEN = new Color(195, 202, 210);
-    private static final Color MAU_CHU = new Color(35, 85, 135);
-    
     private final ThanhDieuHuongTuan thanhDieuHuong = new ThanhDieuHuongTuan();
 
     private final JLabel lblTongCa = new JLabel();
@@ -83,7 +79,7 @@ public class LichCuaToiPage extends AbstractPage {
         pnlTren.add(this.thanhDieuHuong, BorderLayout.CENTER);
 
         this.pnlBangLich.setBorder(
-                BorderFactory.createLineBorder(MAU_VIEN));
+                BorderFactory.createLineBorder(Theme.LICH_VIEN));
 
         JPanel pnlThongKe = new JPanel(new BorderLayout());
         JLabel lblGioLam = new JLabel(
@@ -198,9 +194,9 @@ public class LichCuaToiPage extends AbstractPage {
                     oLich.add(lblTrong, BorderLayout.NORTH);
                 } else {
                     JLabel lblCongViec = new JLabel(noiDung);
-                    lblCongViec.setForeground(MAU_CHU);
+                    lblCongViec.setForeground(Theme.LICH_CHU);
                     lblCongViec.setOpaque(true);
-                    lblCongViec.setBackground(MAU_O_LE);
+                    lblCongViec.setBackground(Theme.LICH_O_LE);
                     lblCongViec.setBorder(BorderFactory.createCompoundBorder(
                             BorderFactory.createLineBorder(
                                     new Color(80, 145, 210)),
@@ -228,9 +224,9 @@ public class LichCuaToiPage extends AbstractPage {
     private JPanel taoO(String noiDung, boolean tieuDe, boolean le) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(true);
-        panel.setBackground(tieuDe ? MAU_TIEU_DE : (le ? MAU_O_LE : Color.WHITE));
+        panel.setBackground(tieuDe ? Theme.LICH_TIEU_DE : (le ? Theme.LICH_O_LE : Color.WHITE));
 
-        Border vien = BorderFactory.createLineBorder(MAU_VIEN);
+        Border vien = BorderFactory.createLineBorder(Theme.LICH_VIEN);
         Border dem = BorderFactory.createEmptyBorder(6, 8, 6, 8);
         panel.setBorder(BorderFactory.createCompoundBorder(vien, dem));
 

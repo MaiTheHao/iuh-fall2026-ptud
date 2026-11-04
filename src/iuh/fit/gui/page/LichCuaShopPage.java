@@ -2,6 +2,7 @@ package iuh.fit.gui.page;
 
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.component.ThanhDieuHuongTuan;
+import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhanCongService;
 import iuh.fit.util.I18nReaderUtil;
 
@@ -40,15 +41,10 @@ import iuh.fit.enumeration.CaLamViec;
  */
 public class LichCuaShopPage extends AbstractPage {
 
-	private static final long serialVersionUID = 1L;
+	
 
 	private static final int SO_NGAY = 7;
 	private static final int SO_CA = 3;
-
-	private static final Color MAU_TIEU_DE = new Color(232, 235, 238);
-	private static final Color MAU_O_LE = new Color(234, 242, 249);
-	private static final Color MAU_VIEN = new Color(195, 202, 210);
-	private static final Color MAU_CHU = new Color(35, 85, 135);
 
 	private final ThanhDieuHuongTuan thanhDieuHuong = new ThanhDieuHuongTuan();
 
@@ -85,7 +81,7 @@ public class LichCuaShopPage extends AbstractPage {
 		pnlTren.add(lblTieuDe, BorderLayout.NORTH);
 		pnlTren.add(this.thanhDieuHuong, BorderLayout.CENTER);
 
-		this.pnlBangLich.setBorder(BorderFactory.createLineBorder(MAU_VIEN));
+		this.pnlBangLich.setBorder(BorderFactory.createLineBorder(Theme.LICH_VIEN));
 
 		JPanel pnlThongKe = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 4));
 		pnlThongKe.add(this.lblTongPhanCong);
@@ -159,9 +155,9 @@ public class LichCuaShopPage extends AbstractPage {
 
 						for (String tenNhanVien : nhanViens) {
 							JLabel lblNhanVien = new JLabel(tenNhanVien);
-							lblNhanVien.setForeground(MAU_CHU);
+							lblNhanVien.setForeground(Theme.LICH_CHU);
 							lblNhanVien.setOpaque(true);
-							lblNhanVien.setBackground(MAU_O_LE);
+							lblNhanVien.setBackground(Theme.LICH_O_LE);
 							lblNhanVien.setBorder(BorderFactory.createCompoundBorder(
 									BorderFactory.createLineBorder(new Color(80, 145, 210)),
 									BorderFactory.createEmptyBorder(4, 6, 4, 6)));
@@ -214,9 +210,9 @@ public class LichCuaShopPage extends AbstractPage {
 
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setOpaque(true);
-		panel.setBackground(tieuDe ? MAU_TIEU_DE : (le ? MAU_O_LE : Color.WHITE));
+		panel.setBackground(tieuDe ? Theme.LICH_TIEU_DE : (le ? Theme.LICH_O_LE : Color.WHITE));
 
-		Border vien = BorderFactory.createLineBorder(MAU_VIEN);
+		Border vien = BorderFactory.createLineBorder(Theme.LICH_VIEN);
 		Border dem = BorderFactory.createEmptyBorder(6, 8, 6, 8);
 
 		panel.setBorder(BorderFactory.createCompoundBorder(vien, dem));

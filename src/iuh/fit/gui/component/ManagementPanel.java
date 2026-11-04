@@ -94,7 +94,7 @@ public class ManagementPanel extends JPanel {
   private final List<JComboBox<Object>> boLocCombo = new ArrayList<>();
   private final DefaultTableModel moHinhBang = new DefaultTableModel() {
 
-    private static final long serialVersionUID = 1L;
+    
 
     @Override
     public boolean isCellEditable(int row, int column) {
@@ -110,7 +110,7 @@ public class ManagementPanel extends JPanel {
   };
   private final JTable tblDuLieu = new JTable(this.moHinhBang) {
 
-    private static final long serialVersionUID = 1L;
+    
 
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -438,7 +438,7 @@ public class ManagementPanel extends JPanel {
 
   private final class TieuDeChonTatCa extends JCheckBox implements TableCellRenderer {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private TieuDeChonTatCa() {
       this.setHorizontalAlignment(SwingConstants.CENTER);
@@ -736,7 +736,7 @@ public class ManagementPanel extends JPanel {
    */
   private static final class KhungBoLoc extends JPanel {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private int rongDaDo = -1;
 

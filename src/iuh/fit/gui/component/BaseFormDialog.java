@@ -23,7 +23,7 @@ import java.util.function.BooleanSupplier;
 
 public class BaseFormDialog extends JDialog {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final int CO_ICON = 16;
   private static final int CHIEU_RONG = 760;

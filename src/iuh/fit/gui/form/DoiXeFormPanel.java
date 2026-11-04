@@ -24,7 +24,7 @@ import java.util.List;
  */
 public abstract class DoiXeFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   protected final JTextField txtMa = new JTextField(14);
   protected final JComboBox<HangXe> cmbHangXe = new JComboBox<>();

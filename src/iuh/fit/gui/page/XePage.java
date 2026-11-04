@@ -9,6 +9,7 @@ import iuh.fit.entity.DoiXe;
 import iuh.fit.entity.DongXe;
 import iuh.fit.entity.HangXe;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -33,16 +34,13 @@ import java.util.List;
 
 public class XePage extends AbstractPage {
 
-  private static final long serialVersionUID = 1L;
-  private static final int SO_DONG_MOI_TRANG = 20;
+  
 
   private static final int CHIEU_CAO_TAO = 530;
 
   private static final int CHIEU_CAO_SUA = 530;
 
   private static final int COT_BIEN_SO = 1;
-  private static final int COT_HANG_XE = 2;
-  private static final int COT_DONG_XE = 3;
   private static final int COT_DOI_XE = 4;
   private static final int COT_ODO = 5;
 
@@ -133,7 +131,7 @@ public class XePage extends AbstractPage {
               NumberParseUtil.toIntegerOrNull(this.boLocOdo.denText()),
               this.pnlDanhSach.getQuickFilter(),
               Math.max(page, 1),
-              SO_DONG_MOI_TRANG);
+              UiConstants.SO_DONG_MOI_TRANG);
 
       PaginatedResult<Xe> ketQua = this.xeService.search(tieuChi);
       List<Object[]> rows = new ArrayList<>();

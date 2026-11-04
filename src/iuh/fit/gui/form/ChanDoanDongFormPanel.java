@@ -16,7 +16,7 @@ import javax.swing.SwingConstants;
  */
 public final class ChanDoanDongFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final int DO_DAI_TIEU_DE_TOI_DA = 200;
   private static final int DO_DAI_NOI_DUNG_TOI_DA = 1000;

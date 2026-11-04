@@ -7,7 +7,7 @@ import iuh.fit.gui.theme.Theme;
  */
 public final class XeTaoFormPanel extends XeFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public XeTaoFormPanel() {
     Theme.applyEditable(this.txtBienSo);

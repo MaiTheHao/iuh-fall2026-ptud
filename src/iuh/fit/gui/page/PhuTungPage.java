@@ -9,6 +9,7 @@ import iuh.fit.entity.NhaCungCap;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiNhaCungCap;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.ChonNhaCungCapDialog;
 import iuh.fit.service.NhaCungCapService;
 import iuh.fit.gui.component.AnhTableCellRenderer;
@@ -38,8 +39,7 @@ import java.util.List;
 
 public class PhuTungPage extends AbstractPage {
 
-  private static final long serialVersionUID = 1L;
-  private static final int SO_DONG_MOI_TRANG = 20;
+  
 
   /** Dialog tạo mới: 5 trường nhập + 1 ảnh. */
   private static final int CHIEU_CAO_TAO = 680;
@@ -224,7 +224,7 @@ public class PhuTungPage extends AbstractPage {
               NumberParseUtil.toIntegerOrNull(this.boLocSoLuong.denText()),
               this.boLocNhaCungCap.ma(),
               Math.max(page, 1),
-              SO_DONG_MOI_TRANG);
+              UiConstants.SO_DONG_MOI_TRANG);
 
       PaginatedResult<PhuTung> ketQua = this.phuTungService.search(tieuChi);
       List<Object[]> rows = new ArrayList<>();

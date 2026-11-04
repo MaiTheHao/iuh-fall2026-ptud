@@ -30,7 +30,7 @@ import java.util.List;
  */
 public final class ThaoTacTableCellRenderer extends JPanel implements TableCellRenderer {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final String CHIA_KHOA = "thaoTacTableCellRenderer";
 

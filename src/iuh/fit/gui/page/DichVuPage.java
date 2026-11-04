@@ -6,6 +6,7 @@ import iuh.fit.dto.DichVuFormData;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.DichVu;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.AnhTableCellRenderer;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
@@ -30,8 +31,7 @@ import java.util.List;
 
 public class DichVuPage extends AbstractPage {
 
-  private static final long serialVersionUID = 1L;
-  private static final int SO_DONG_MOI_TRANG = 20;
+  
 
   private static final int CHIEU_CAO_TAO = 670;
 
@@ -122,7 +122,7 @@ public class DichVuPage extends AbstractPage {
               NumberParseUtil.toDoubleOrNull(this.boLocDonGia.tuText()),
               NumberParseUtil.toDoubleOrNull(this.boLocDonGia.denText()),
               Math.max(page, 1),
-              SO_DONG_MOI_TRANG);
+              UiConstants.SO_DONG_MOI_TRANG);
 
       PaginatedResult<DichVu> ketQua = this.dichVuService.search(tieuChi);
       List<Object[]> rows = new ArrayList<>();

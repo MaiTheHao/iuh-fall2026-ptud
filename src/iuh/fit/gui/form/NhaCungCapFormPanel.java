@@ -14,7 +14,7 @@ import javax.swing.JTextField;
  */
 public abstract class NhaCungCapFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   protected final JTextField txtTen = new JTextField(14);
   protected final JTextField txtSdt = new JTextField(14);

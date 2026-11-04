@@ -21,7 +21,7 @@ import java.awt.Insets;
  */
 public class FormFieldPanel extends JPanel {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private static final int CHIEU_CAO_TRUONG = 36;
 

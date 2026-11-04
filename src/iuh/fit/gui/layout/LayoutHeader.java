@@ -206,7 +206,7 @@ public class LayoutHeader extends JMenuBar {
 
     private static final class AccountBox extends JPanel {
 
-        private static final long serialVersionUID = 1L;
+        
 
         private AccountBox() {
             super(new GridLayout(2, 1, 0, 0));
@@ -220,7 +220,7 @@ public class LayoutHeader extends JMenuBar {
 
     private static final class TopLevelItem extends JMenuItem implements MenuActive {
 
-        private static final long serialVersionUID = 1L;
+        
 
         private final String iconName;
         private boolean active;
@@ -252,7 +252,7 @@ public class LayoutHeader extends JMenuBar {
 
     private static final class GroupMenu extends JMenu implements MenuActive {
 
-        private static final long serialVersionUID = 1L;
+        
 
         private final String iconName;
         private boolean active;

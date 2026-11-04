@@ -5,7 +5,7 @@ package iuh.fit.gui.form;
  */
 public final class VoucherSuaFormPanel extends VoucherFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public VoucherSuaFormPanel() {
     this.dungBoCuc();

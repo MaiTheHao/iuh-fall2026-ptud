@@ -8,6 +8,7 @@ import iuh.fit.entity.NhanVien;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiNhanVien;
 import iuh.fit.enumeration.VaiTro;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.AnhTableCellRenderer;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
@@ -33,9 +34,8 @@ import java.util.List;
 
 public class NhanVienPage extends AbstractPage {
 
-  private static final long serialVersionUID = 1L;
+  
 
-  private static final int PAGE_SIZE = 20;
 
   /** Dialog tạo mới: 6 trường nhập + 1 ảnh. */
   private static final int CHIEU_CAO_TAO = 800;
@@ -194,7 +194,7 @@ public class NhanVienPage extends AbstractPage {
               this.boLocNgayTao.tuNgay(),
               this.boLocNgayTao.denNgay(),
               Math.max(this.trangHienTai, 1),
-              PAGE_SIZE);
+              UiConstants.SO_DONG_MOI_TRANG);
 
       PaginatedResult<NhanVien> ketQua = this.nhanVienService.search(criteria);
 

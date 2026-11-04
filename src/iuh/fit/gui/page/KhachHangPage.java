@@ -6,6 +6,7 @@ import iuh.fit.dto.KhachHangFormData;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -31,9 +32,8 @@ import java.util.List;
 
 public class KhachHangPage extends AbstractPage {
 
-  private static final long serialVersionUID = 1L;
+  
 
-  private static final int SO_DONG_MOI_TRANG = 20;
 
   private static final int CHIEU_CAO_TAO = 280;
 
@@ -119,7 +119,7 @@ public class KhachHangPage extends AbstractPage {
             this.boLocNgayTao.denNgay(),
             this.pnlDanhSach.getQuickFilter(),
             Math.max(page, 1),
-            SO_DONG_MOI_TRANG);
+            UiConstants.SO_DONG_MOI_TRANG);
 
     try {
       PaginatedResult<KhachHang> ketQua = this.khachHangService.search(tieuChi);

@@ -9,6 +9,7 @@ import iuh.fit.entity.HangXe;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.Xe;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.gui.component.ComboTimKiem;
 import iuh.fit.gui.component.ThongBao;
@@ -41,11 +42,10 @@ import java.util.logging.Logger;
 
 public class TiepNhanKhachHangPage extends AbstractPage {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final Logger LOGGER = Logger.getLogger(TiepNhanKhachHangPage.class.getName());
 
-  private static final int SO_GOI_Y = 10;
 
   private final KhachHangService khachHangService = new KhachHangService();
   private final XeService xeService = new XeService();
@@ -61,7 +61,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
                   null,
                   null,
                   1,
-                  SO_GOI_Y)).items(),
+                  UiConstants.SO_GOI_Y)).items(),
           kh -> kh.getHoTen() + " - " + kh.getSdt(),
           KhachHang::getSdt);
 
@@ -77,7 +77,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
                   null,
                   null,
                   1,
-                  SO_GOI_Y)).items(),
+                  UiConstants.SO_GOI_Y)).items(),
           xe -> xe.getBienSo() + " - " + xe.getTenHangXe() + " - " + xe.getTenDongXe() + " - " + xe.getNamSX(),
           Xe::getBienSo);
 

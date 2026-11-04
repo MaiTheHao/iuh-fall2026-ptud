@@ -18,7 +18,7 @@ public final class BoHienThiI18n {
 
     public static DefaultListCellRenderer tao() {
         return new DefaultListCellRenderer() {
-            private static final long serialVersionUID = 1L;
+            
 
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,

@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  */
 public final class ComboTimKiem<T> extends JComboBox<T> {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final Logger LOGGER = Logger.getLogger(ComboTimKiem.class.getName());
   private static final int THOI_GIAN_CHO_LOC = 300;
@@ -83,7 +83,7 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
     });
 
     this.setRenderer(new DefaultListCellRenderer() {
-      private static final long serialVersionUID = 1L;
+      
 
       @Override
       public Component getListCellRendererComponent(JList<?> list, Object value, int index,

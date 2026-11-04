@@ -7,6 +7,7 @@ import iuh.fit.dto.KhieuNaiView;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiKhieuNai;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -14,6 +15,7 @@ import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.KhieuNaiFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.KhieuNaiService;
+import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
@@ -23,7 +25,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -31,17 +32,13 @@ import java.util.logging.Logger;
 
 public class QuanLyKhieuNaiPage extends AbstractPage {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private static final Logger LOGGER = Logger.getLogger(QuanLyKhieuNaiPage.class.getName());
 
-    private static final int SO_DONG_MOI_TRANG = 20;
 
     /** Dialog sửa khiếu nại: 5 khối nhập liệu. */
     private static final int CHIEU_CAO_SUA = 570;
-
-    private static final DateTimeFormatter DINH_DANG_NGAY_GIO =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final KhieuNaiService khieuNaiService = new KhieuNaiService();
 
@@ -130,7 +127,7 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
                     this.boLocNgayTao.denNgay(),
                     this.pnlDanhSach.getQuickFilter(),
                     Math.max(page, 1),
-                    SO_DONG_MOI_TRANG
+                    UiConstants.SO_DONG_MOI_TRANG
             );
 
             PaginatedResult<KhieuNaiView> ketQua = this.khieuNaiService.search(tieuChi);
@@ -235,7 +232,7 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
     }
 
     private String dinhDangNgayGio(LocalDateTime thoiGian) {
-        return thoiGian == null ? "" : thoiGian.format(DINH_DANG_NGAY_GIO);
+        return thoiGian == null ? "" : thoiGian.format(DateFormats.NGAY_GIO);
     }
 
     @Override

@@ -25,7 +25,7 @@ import javax.swing.JPanel;
  */
 public abstract class PhuTungFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   protected final JTextField txtMa = new JTextField(14);
   protected final JTextField txtTen = new JTextField(14);

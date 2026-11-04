@@ -13,6 +13,7 @@ import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiHoaDon;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.ChonDichVuDialog;
 import iuh.fit.gui.component.ChonPhuTungDialog;
 import iuh.fit.gui.component.ComboTimKiem;
@@ -51,7 +52,6 @@ import java.util.function.Function;
 
 public class LapHoaDonPage extends AbstractPage {
 
-	private static final int SO_GOI_Y = 10;
 
 	private final HoaDonService hoaDonService = new HoaDonService();
 	private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
@@ -73,7 +73,7 @@ public class LapHoaDonPage extends AbstractPage {
 					null,
 					tuKhoa,
 					1,
-					SO_GOI_Y)).items(),
+					UiConstants.SO_GOI_Y)).items(),
 			p -> p.maPhieuTiepNhan() + " - " + p.bienSo() + " - " + p.tenKhachHang() + " - " + p.sdt(),
 			PhieuTiepNhanView::maPhieuTiepNhan);
 
@@ -87,7 +87,7 @@ public class LapHoaDonPage extends AbstractPage {
 					null,
 					true,
 					1,
-					SO_GOI_Y)).items().stream()
+					UiConstants.SO_GOI_Y)).items().stream()
 					.filter(this.hoaDonService::voucherConHieuLuc)
 					.toList(),
 			v -> v.getMaVoucher() + " - " + v.getTenChuongTrinh() + " - "

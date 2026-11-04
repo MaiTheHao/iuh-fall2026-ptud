@@ -10,6 +10,7 @@ import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.VanDeKyThuatService;
+import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
@@ -19,7 +20,6 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -31,10 +31,8 @@ import java.util.logging.Logger;
  */
 public class XemChanDoanPage extends AbstractPage {
 
-    private static final long serialVersionUID = 1L;
+    
     private static final Logger LOGGER = Logger.getLogger(XemChanDoanPage.class.getName());
-
-    private static final DateTimeFormatter NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
 
@@ -146,7 +144,7 @@ public class XemChanDoanPage extends AbstractPage {
                         vd.getMucDoUuTien(),
                         vd.getGiaiPhap(),
                         vd.getKhachHangDongY() == null ? "" : vd.getKhachHangDongY().getI18NBusinessName(),
-                        vd.getNgayTao() != null ? vd.getNgayTao().format(NGAY_GIO) : ""
+                        vd.getNgayTao() != null ? vd.getNgayTao().format(DateFormats.NGAY_GIO) : ""
                 });
             }
 

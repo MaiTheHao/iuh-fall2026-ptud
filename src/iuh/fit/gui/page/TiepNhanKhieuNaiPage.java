@@ -7,6 +7,7 @@ import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.KhieuNai;
 import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.ComboTimKiem;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
@@ -40,11 +41,10 @@ import java.util.logging.Logger;
  */
 public class TiepNhanKhieuNaiPage extends AbstractPage {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private static final Logger LOGGER = Logger.getLogger(TiepNhanKhieuNaiPage.class.getName());
 
-    private static final int SO_GOI_Y = 10;
 
     // Services
     private final KhachHangService khachHangService = new KhachHangService();
@@ -62,7 +62,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
                     null,
                     null,
                     1,
-                    SO_GOI_Y)).items(),
+                    UiConstants.SO_GOI_Y)).items(),
             khachHang -> khachHang.getHoTen() + " - " + khachHang.getSdt(),
             KhachHang::getSdt);
     private final JTextField txtHoTen = new JTextField();
@@ -162,7 +162,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
                 .getDanhSachTheoKhachHang(this.khachHangDangChon.getMaKhachHang())
                 .stream()
                 .filter(phieu -> tuKhoaChuan.isEmpty() || this.khopTuKhoa(phieu, tuKhoaChuan))
-                .limit(SO_GOI_Y)
+                .limit(UiConstants.SO_GOI_Y)
                 .map(this::taoPhieuView)
                 .toList();
     }

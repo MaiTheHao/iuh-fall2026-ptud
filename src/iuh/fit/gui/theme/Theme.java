@@ -76,6 +76,11 @@ public final class Theme {
     public static Color WARNING_TEXT = LIGHT.WARNING_TEXT();
     public static Color DANGER_TEXT = LIGHT.DANGER_TEXT();
 
+    public static final Color LICH_TIEU_DE = new Color(232, 235, 238);
+    public static final Color LICH_O_LE = new Color(234, 242, 249);
+    public static final Color LICH_VIEN = new Color(195, 202, 210);
+    public static final Color LICH_CHU = new Color(35, 85, 135);
+
     private static Color hex(String value) {
         return Color.decode(value);
     }

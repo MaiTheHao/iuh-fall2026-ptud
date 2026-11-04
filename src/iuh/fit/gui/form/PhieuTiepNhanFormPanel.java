@@ -17,7 +17,7 @@ import java.awt.Dimension;
  */
 public class PhieuTiepNhanFormPanel extends FormFieldPanel {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private final JTextField txtMaPhieu = new JTextField();
     private final JTextField txtBienSo = new JTextField();

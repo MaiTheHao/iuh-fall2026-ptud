@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  */
 public final class VoucherTaoFormPanel extends VoucherFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public VoucherTaoFormPanel() {
     this.dungBoCuc();

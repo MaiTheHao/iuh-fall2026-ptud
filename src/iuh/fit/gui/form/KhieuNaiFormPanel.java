@@ -18,7 +18,7 @@ import java.awt.Dimension;
  */
 public class KhieuNaiFormPanel extends FormFieldPanel {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private final JTextField txtMa = new JTextField();
     private final JTextField txtKhachHang = new JTextField();

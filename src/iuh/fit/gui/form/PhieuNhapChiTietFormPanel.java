@@ -18,7 +18,7 @@ import java.text.DecimalFormat;
  */
 public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final DecimalFormat CURRENCY = new DecimalFormat("#,##0");
 
@@ -36,7 +36,7 @@ public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
           I18nReaderUtil.get("app.phieuNhap.thanhTien")
       }, 0) {
 
-    private static final long serialVersionUID = 1L;
+    
 
     @Override
     public boolean isCellEditable(int row, int column) {

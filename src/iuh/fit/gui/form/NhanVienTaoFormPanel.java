@@ -11,7 +11,7 @@ import javax.swing.JComponent;
  */
 public final class NhanVienTaoFormPanel extends NhanVienFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public NhanVienTaoFormPanel() {
     Theme.applyEditable(this.txtTenDangNhap);

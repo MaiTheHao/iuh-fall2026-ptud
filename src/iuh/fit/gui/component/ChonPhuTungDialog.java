@@ -19,7 +19,7 @@ import java.util.function.Function;
  */
 public final class ChonPhuTungDialog extends ChonSanPhamDialog<PhuTung> {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private final PhuTungService phuTungService;
   private final DanhSachPhuTungCriteria boLocGoc;

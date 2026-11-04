@@ -50,8 +50,24 @@ public class LoginPage extends AbstractPage {
     private static final int BO_GOC_THE = 14;
     private static final String DUONG_DAN_ANH_NEN = "resources/background.jpg";
 
-    private static Image anhNen;
-    private static boolean daTaiAnh;
+    private static final class AnhNenHolder {
+
+        private static final Image ANH_NEN;
+
+        static {
+            Image anh = null;
+            InputStream luong = LoginPage.class.getClassLoader()
+                    .getResourceAsStream(DUONG_DAN_ANH_NEN);
+            if (luong != null) {
+                try (luong) {
+                    anh = ImageIO.read(luong);
+                } catch (IOException e) {
+                    anh = null;
+                }
+            }
+            ANH_NEN = anh;
+        }
+    }
 
     private final AuthService authService = new AuthService();
     private final JTextField txtTenDangNhap = new JTextField();
@@ -114,19 +130,7 @@ public class LoginPage extends AbstractPage {
     }
 
     private static Image layAnhNen() {
-        if (!daTaiAnh) {
-            daTaiAnh = true;
-            InputStream luong = LoginPage.class.getClassLoader()
-                    .getResourceAsStream(DUONG_DAN_ANH_NEN);
-            if (luong != null) {
-                try (luong) {
-                    anhNen = ImageIO.read(luong);
-                } catch (IOException e) {
-                    anhNen = null;
-                }
-            }
-        }
-        return anhNen;
+        return AnhNenHolder.ANH_NEN;
     }
 
     private JPanel taoTheDangNhap() {
@@ -249,7 +253,7 @@ public class LoginPage extends AbstractPage {
     /** Thẻ trắng bo góc đặt giữa nền ảnh gara. */
     private static final class TheDangNhap extends JPanel {
 
-        private static final long serialVersionUID = 1L;
+        
 
         private TheDangNhap() {
             this.setOpaque(false);

@@ -20,7 +20,7 @@ import javax.swing.SwingConstants;
  */
 public abstract class DichVuFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final int DO_DAI_TEN_TOI_DA = 100;
   private static final int DO_DAI_MO_TA_TOI_DA = 500;

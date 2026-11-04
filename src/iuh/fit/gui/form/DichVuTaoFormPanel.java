@@ -5,7 +5,7 @@ package iuh.fit.gui.form;
  */
 public final class DichVuTaoFormPanel extends DichVuFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public DichVuTaoFormPanel() {
     this.dungBoCuc();

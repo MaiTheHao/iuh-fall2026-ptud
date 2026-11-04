@@ -16,7 +16,7 @@ import javax.swing.JTextField;
  */
 public abstract class KhachHangFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final String SDT_REGEX = "\\d{10}";
   private static final int DO_DAI_HO_TEN_TOI_DA = 50;

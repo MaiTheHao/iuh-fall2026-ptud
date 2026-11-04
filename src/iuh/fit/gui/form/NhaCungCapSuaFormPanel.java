@@ -9,7 +9,7 @@ import javax.swing.JTextField;
  */
 public final class NhaCungCapSuaFormPanel extends NhaCungCapFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private final JTextField txtMa = new JTextField(14);
 

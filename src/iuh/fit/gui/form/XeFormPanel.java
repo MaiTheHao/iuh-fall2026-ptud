@@ -20,7 +20,7 @@ import javax.swing.SwingConstants;
  */
 public abstract class XeFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final String BIEN_SO_REGEX = "^[0-9]{2}[A-Z]{1,2}[0-9]{4,6}$";
 

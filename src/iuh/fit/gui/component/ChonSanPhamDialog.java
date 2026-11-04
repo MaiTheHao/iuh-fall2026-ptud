@@ -47,7 +47,7 @@ import java.util.concurrent.ExecutionException;
  */
 public abstract class ChonSanPhamDialog<T> extends JDialog {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final int DO_RONG = 960;
   private static final int CHIEU_CAO = 640;
@@ -65,7 +65,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
           new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
   private final JPanel pnlBoLoc = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
   private final DefaultTableModel model = new DefaultTableModel(new Object[0], 0) {
-    private static final long serialVersionUID = 1L;
+    
 
     @Override
     public boolean isCellEditable(int row, int column) {

@@ -9,7 +9,7 @@ import java.util.List;
  */
 public final class PhanCongCaSuaFormPanel extends PhanCongCaFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public PhanCongCaSuaFormPanel(List<NhanVien> danhSachNhanVien) {
     super(danhSachNhanVien);

@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public final class ChonDichVuDialog extends ChonSanPhamDialog<DichVu> {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private final DichVuService dichVuService;
   private final DanhSachDichVuCriteria boLocGoc;

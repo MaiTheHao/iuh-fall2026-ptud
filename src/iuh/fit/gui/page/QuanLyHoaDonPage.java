@@ -6,6 +6,7 @@ import iuh.fit.dto.HoaDonView;
 import iuh.fit.dto.PaginatedResult;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiHoaDon;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -29,7 +30,6 @@ import java.util.List;
 
 public class QuanLyHoaDonPage extends AbstractPage {
 
-	private static final int SO_DONG_MOI_TRANG = 20;
 
 	/** Dialog xem chi tiết hóa đơn: 10 trường chỉ đọc. */
 	private static final int CHIEU_CAO_CHI_TIET = 800;
@@ -140,7 +140,7 @@ public class QuanLyHoaDonPage extends AbstractPage {
 					tienDen,
 					panel.getQuickFilter(),
 					Math.max(page, 1),
-					SO_DONG_MOI_TRANG);
+					UiConstants.SO_DONG_MOI_TRANG);
 
 			PaginatedResult<HoaDonView> ketQua = this.hoaDonService.search(tieuChi);
 

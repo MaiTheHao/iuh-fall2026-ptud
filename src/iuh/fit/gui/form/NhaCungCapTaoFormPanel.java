@@ -5,7 +5,7 @@ package iuh.fit.gui.form;
  */
 public final class NhaCungCapTaoFormPanel extends NhaCungCapFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public NhaCungCapTaoFormPanel() {
     this.dungBoCuc();

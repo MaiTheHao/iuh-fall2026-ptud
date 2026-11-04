@@ -7,7 +7,7 @@ import iuh.fit.gui.theme.Theme;
  */
 public final class XeSuaFormPanel extends XeFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public XeSuaFormPanel() {
     Theme.applyReadOnly(this.txtBienSo);

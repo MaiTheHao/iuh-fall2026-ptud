@@ -7,6 +7,7 @@ import iuh.fit.dto.VoucherFormData;
 import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiKichHoat;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -16,6 +17,7 @@ import iuh.fit.gui.form.VoucherSuaFormPanel;
 import iuh.fit.gui.form.VoucherTaoFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.VoucherService;
+import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 import iuh.fit.util.TextNormalizerUtil;
@@ -27,22 +29,18 @@ import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class VoucherPage extends AbstractPage {
 
-  private static final long serialVersionUID = 1L;
+  
 
-  private static final int SO_DONG_MOI_TRANG = 20;
 
   private static final int CHIEU_CAO_TAO = 590;
 
   private static final int CHIEU_CAO_SUA = 670;
-
-  private static final DateTimeFormatter DINH_DANG_NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
   private static final int COT_MA = 1;
   private static final int COT_TEN = 2;
@@ -141,7 +139,7 @@ public class VoucherPage extends AbstractPage {
               this.boLocThoiHan.denNgay(),
               trangThai,
               Math.max(page, 1),
-              SO_DONG_MOI_TRANG);
+              UiConstants.SO_DONG_MOI_TRANG);
 
       PaginatedResult<Voucher> ketQua = this.voucherService.search(tieuChi);
       List<Object[]> rows = new ArrayList<>();
@@ -196,14 +194,14 @@ public class VoucherPage extends AbstractPage {
       return "";
     }
 
-    return thoiGian.format(DINH_DANG_NGAY_GIO);
+    return thoiGian.format(DateFormats.NGAY_GIO);
   }
 
   private VoucherFormData docDuLieuDong(int row) {
     String thoiHan = NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_THOI_HAN));
     LocalDateTime thoiHanApDung = thoiHan.isBlank()
             ? null
-            : LocalDateTime.parse(thoiHan, DINH_DANG_NGAY_GIO);
+            : LocalDateTime.parse(thoiHan, DateFormats.NGAY_GIO);
 
     String trangThai = TextNormalizerUtil.normalize(
             NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_TRANG_THAI)));

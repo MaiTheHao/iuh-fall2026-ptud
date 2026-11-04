@@ -5,6 +5,7 @@ import iuh.fit.dto.BaoCaoTieuThuDichVuDTO;
 import iuh.fit.dto.TieuThuDichVuBaoCaoDTO;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.service.TieuThuDichVuService;
+import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.XlsxExportUtil;
 
@@ -34,13 +35,12 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
 public class TieuThuDichVuPage extends AbstractPage {
 
-	private static final long serialVersionUID = 1L;
+	
 
 	private final TieuThuDichVuService tieuThuDichVuService = new TieuThuDichVuService();
 
@@ -53,7 +53,7 @@ public class TieuThuDichVuPage extends AbstractPage {
 
 	private final DefaultTableModel modelDichVu = new DefaultTableModel(new Object[0][6], new String[6]) {
 
-		private static final long serialVersionUID = 1L;
+		
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
@@ -62,8 +62,6 @@ public class TieuThuDichVuPage extends AbstractPage {
 	};
 
 	private final JTable tblDichVu = new JTable(this.modelDichVu);
-
-	private final DateTimeFormatter dinhDangThang = DateTimeFormatter.ofPattern("MM/yyyy");
 
 	private final NumberFormat dinhDangSo = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
 
@@ -104,7 +102,7 @@ public class TieuThuDichVuPage extends AbstractPage {
 		YearMonth thangHienTai = YearMonth.now();
 
 		for (int i = 0; i < 12; i++) {
-			this.cmbThang.addItem(thangHienTai.minusMonths(i).format(this.dinhDangThang));
+			this.cmbThang.addItem(thangHienTai.minusMonths(i).format(DateFormats.THANG_NAM));
 		}
 
 		this.cmbThang.setSelectedIndex(0);
@@ -118,7 +116,7 @@ public class TieuThuDichVuPage extends AbstractPage {
 			throw new IllegalArgumentException("Chưa chọn tháng báo cáo.");
 		}
 
-		return YearMonth.parse(thang, this.dinhDangThang);
+		return YearMonth.parse(thang, DateFormats.THANG_NAM);
 	}
 
 	private void capNhatTieuDeBang() {

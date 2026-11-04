@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
  */
 public final class HoaDonChiTietFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final DecimalFormat TIEN = new DecimalFormat("#,##0");
 

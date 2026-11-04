@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AnhTableCellRenderer extends DefaultTableCellRenderer {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private static final int GIOI_HAN_CACHE = 200;
 
@@ -172,7 +172,7 @@ public class AnhTableCellRenderer extends DefaultTableCellRenderer {
 
     private static final class LruCache<V> extends LinkedHashMap<String, V> {
 
-        private static final long serialVersionUID = 1L;
+        
 
         private LruCache() {
             super(16, 0.75f, true);

@@ -3,20 +3,17 @@ package iuh.fit.gui.form;
 import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.gui.component.FormFieldPanel;
 import iuh.fit.gui.theme.Theme;
+import iuh.fit.util.DateFormats;
 
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Form chỉ đọc hiển thị toàn bộ chi tiết của một phiếu tiếp nhận.
  */
 public final class PhieuTiepNhanChiTietFormPanel extends FormFieldPanel {
 
-    private static final long serialVersionUID = 1L;
-
-    private static final DateTimeFormatter NGAY_GIO =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    
 
     private final JTextField txtMaPhieu = new JTextField(14);
     private final JTextField txtBienSo = new JTextField(14);
@@ -60,6 +57,6 @@ public final class PhieuTiepNhanChiTietFormPanel extends FormFieldPanel {
         this.txaMoTa.setText(view.moTa() == null ? "" : view.moTa());
         this.txtTrangThai.setText(
                 view.trangThai() == null ? "" : view.trangThai().getI18NBusinessName());
-        this.txtNgayTao.setText(view.ngayTao() == null ? "" : view.ngayTao().format(NGAY_GIO));
+        this.txtNgayTao.setText(view.ngayTao() == null ? "" : view.ngayTao().format(DateFormats.NGAY_GIO));
     }
 }

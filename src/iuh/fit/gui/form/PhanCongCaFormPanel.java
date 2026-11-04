@@ -27,7 +27,7 @@ import java.util.List;
  */
 public abstract class PhanCongCaFormPanel extends FormFieldPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   protected final JTextField txtMa = new JTextField(14);
   protected final JComboBox<NhanVien> cmbNhanVien = new JComboBox<>();
@@ -41,7 +41,7 @@ public abstract class PhanCongCaFormPanel extends FormFieldPanel {
     this.ngayLamPicker.getSettings().setFormatForDatesCommonEra("dd/MM/yyyy");
     this.cmbCaLam.setRenderer(BoHienThiI18n.tao());
     this.cmbNhanVien.setRenderer(new DefaultListCellRenderer() {
-      private static final long serialVersionUID = 1L;
+      
 
       @Override
       public Component getListCellRendererComponent(JList<?> list, Object value, int index,

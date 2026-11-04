@@ -7,6 +7,7 @@ import iuh.fit.dto.PaginatedResult;
 import iuh.fit.entity.NhaCungCap;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiNhaCungCap;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -30,11 +31,10 @@ import java.util.List;
 
 public final class NhaCungCapPage extends AbstractPage {
 
-  private static final long serialVersionUID = 1L;
+  
 
   private static final int COT_MA = 1;
 
-  private static final int PAGE_SIZE = PaginatedResult.DEFAULT_PAGE_SIZE;
   private static final int CHIEU_CAO_TAO = 640;
   private static final int CHIEU_CAO_SUA = 720;
 
@@ -133,7 +133,7 @@ public final class NhaCungCapPage extends AbstractPage {
               this.boLocNgayTao.tuNgay(),
               this.boLocNgayTao.denNgay(),
               Math.max(page, 1),
-              PAGE_SIZE);
+              UiConstants.SO_DONG_MOI_TRANG);
 
       PaginatedResult<NhaCungCap> kq = this.service.search(tieuChi);
 

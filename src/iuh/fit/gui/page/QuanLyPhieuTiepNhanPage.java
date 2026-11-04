@@ -10,6 +10,7 @@ import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.BaseFormDialog;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
@@ -19,6 +20,7 @@ import iuh.fit.gui.form.PhieuTiepNhanFormPanel;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.HoaDonService;
 import iuh.fit.service.PhieuTiepNhanService;
+import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
@@ -32,7 +34,6 @@ import java.awt.Component;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,18 +42,15 @@ import java.util.logging.Logger;
 
 public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
-    private static final long serialVersionUID = 1L;
+    
     private static final Logger LOGGER = Logger.getLogger(QuanLyPhieuTiepNhanPage.class.getName());
 
-    private static final int SO_DONG_MOI_TRANG = 20;
 
     /** Dialog sửa phiếu tiếp nhận: 6 khối nhập liệu. */
     private static final int CHIEU_CAO_SUA = 650;
 
     /** Dialog xem chi tiết phiếu tiếp nhận: 7 khối chỉ đọc. */
     private static final int CHIEU_CAO_CHI_TIET = 560;
-
-    private static final DateTimeFormatter NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
     private final HoaDonService hoaDonService = new HoaDonService();
@@ -152,7 +150,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                     this.boLocThoiGianVao.denNgay(),
                     this.pnlDanhSach.getQuickFilter(),
                     Math.max(page, 1),
-                    SO_DONG_MOI_TRANG
+                    UiConstants.SO_DONG_MOI_TRANG
             );
 
             PaginatedResult<PhieuTiepNhanView> ketQua = this.phieuTiepNhanService.search(tieuChi);
@@ -164,7 +162,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                         view.bienSo(),
                         view.tenKhachHang(),
                         view.sdt(),
-                        view.ngayTao() != null ? view.ngayTao().format(NGAY_GIO) : "",
+                        view.ngayTao() != null ? view.ngayTao().format(DateFormats.NGAY_GIO) : "",
                         view.moTa(),
                         view.trangThai() == null ? "" : view.trangThai().getI18NBusinessName()
                 });

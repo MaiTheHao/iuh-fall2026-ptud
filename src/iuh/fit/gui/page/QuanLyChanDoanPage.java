@@ -6,18 +6,19 @@ import iuh.fit.dto.PaginatedResult;
 import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
+import iuh.fit.gui.UiConstants;
 import iuh.fit.gui.component.ManagementPanel;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.theme.Theme;
 import iuh.fit.service.PhieuTiepNhanService;
+import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -25,14 +26,10 @@ import java.util.logging.Logger;
 
 public class QuanLyChanDoanPage extends AbstractPage {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private static final Logger LOGGER = Logger.getLogger(QuanLyChanDoanPage.class.getName());
 
-    private static final int SO_DONG_MOI_TRANG = 20;
-
-    private static final DateTimeFormatter DINH_DANG_NGAY_GIO =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
 
@@ -121,7 +118,7 @@ public class QuanLyChanDoanPage extends AbstractPage {
                     this.boLocThoiGianVao.denNgay(),
                     this.pnlDanhSach.getQuickFilter(),
                     Math.max(page, 1),
-                    SO_DONG_MOI_TRANG
+                    UiConstants.SO_DONG_MOI_TRANG
             );
 
             PaginatedResult<PhieuTiepNhanView> ketQua = this.phieuTiepNhanService.search(tieuChi);
@@ -133,7 +130,7 @@ public class QuanLyChanDoanPage extends AbstractPage {
                         view.bienSo(),
                         view.tenKhachHang(),
                         view.sdt(),
-                        view.ngayTao() != null ? view.ngayTao().format(DINH_DANG_NGAY_GIO) : "",
+                        view.ngayTao() != null ? view.ngayTao().format(DateFormats.NGAY_GIO) : "",
                         view.moTa(),
                         view.trangThai() == null ? "" : view.trangThai().getI18NBusinessName()
                 });

@@ -3,7 +3,7 @@ package iuh.fit.gui.form;
 /** Form cập nhật đời xe: hiển thị thêm mã ở dạng chỉ đọc. */
 public final class DoiXeSuaFormPanel extends DoiXeFormPanel {
 
-  private static final long serialVersionUID = 1L;
+  
 
   public DoiXeSuaFormPanel() {
     this.dungBoCuc();

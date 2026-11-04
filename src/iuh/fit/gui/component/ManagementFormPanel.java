@@ -17,7 +17,7 @@ import java.awt.GridLayout;
  */
 public class ManagementFormPanel extends JPanel {
 
-    private static final long serialVersionUID = 1L;
+    
 
     private static final int DO_RONG = 480;
     private static final int CO_ICON = 18;

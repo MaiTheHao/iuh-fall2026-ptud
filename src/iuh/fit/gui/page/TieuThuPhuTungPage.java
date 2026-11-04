@@ -4,6 +4,7 @@ import iuh.fit.dto.BaoCaoTieuThuPhuTungDTO;
 import iuh.fit.dto.TieuThuPhuTungBaoCaoDTO;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.service.TieuThuPhuTungService;
+import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.XlsxExportUtil;
 
@@ -33,14 +34,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class TieuThuPhuTungPage extends AbstractPage {
 
-	private static final long serialVersionUID = 1L;
-
-	private static final DateTimeFormatter DINH_DANG_THANG = DateTimeFormatter.ofPattern("MM/yyyy");
+	
 
 	private final JComboBox<String> cmbThang = new JComboBox<>();
 
@@ -51,7 +49,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 	private final DefaultTableModel modelPhuTung = new DefaultTableModel(new Object[0][0], new String[8]) {
 
-		private static final long serialVersionUID = 1L;
+		
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
@@ -105,7 +103,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 		for (int i = 0; i < 12; i++) {
 			YearMonth thang = thangHienTai.minusMonths(i);
-			this.cmbThang.addItem(thang.format(DINH_DANG_THANG));
+			this.cmbThang.addItem(thang.format(DateFormats.THANG_NAM));
 		}
 
 		this.cmbThang.setSelectedIndex(0);
@@ -280,7 +278,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		}
 
 		try {
-			YearMonth thang = YearMonth.parse(thangDuocChon, DINH_DANG_THANG);
+			YearMonth thang = YearMonth.parse(thangDuocChon, DateFormats.THANG_NAM);
 
 			BaoCaoTieuThuPhuTungDTO baoCao = this.tieuThuPhuTungService.taoBaoCao(thang);
 
