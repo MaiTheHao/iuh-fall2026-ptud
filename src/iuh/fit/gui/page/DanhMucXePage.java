@@ -41,22 +41,16 @@ public final class DanhMucXePage extends AbstractPage {
   
 
 
-  /** Dialog tạo mới: 1 trường nhập. */
   private static final int CHIEU_CAO_TAO_HANG = 240;
 
-  /** Dialog cập nhật: 2 trường (mã chỉ đọc + tên). */
   private static final int CHIEU_CAO_SUA_HANG = 280;
 
-  /** Dialog tạo mới: 2 trường nhập. */
   private static final int CHIEU_CAO_TAO_DONG = 300;
 
-  /** Dialog cập nhật: 3 trường (mã chỉ đọc + hãng + tên). */
   private static final int CHIEU_CAO_SUA_DONG = 360;
 
-  /** Dialog tạo mới: 3 trường nhập. */
   private static final int CHIEU_CAO_TAO_DOI = 380;
 
-  /** Dialog cập nhật: 4 trường (mã chỉ đọc + hãng + dòng + năm). */
   private static final int CHIEU_CAO_SUA_DOI = 440;
 
   private static final int COT_MA = 1;
@@ -120,7 +114,6 @@ public final class DanhMucXePage extends AbstractPage {
     return MenuGroup.TO_CHUC;
   }
 
-  // ==================== DỰNG TAB ====================
 
   private JPanel taoTabHangXe() {
     this.pnlHang = new ManagementPanel();
@@ -243,7 +236,6 @@ public final class DanhMucXePage extends AbstractPage {
     return this.pnlDoi;
   }
 
-  // ==================== NẠP DỮ LIỆU ====================
 
   private void taiLaiTatCa() {
     try {
@@ -388,11 +380,6 @@ public final class DanhMucXePage extends AbstractPage {
     return hangXe == null ? null : hangXe.getMaHangXe();
   }
 
-  /**
-   * Áp tìm nhanh và phân trang phía client trên danh sách đã tải.
-   *
-   * @return trang thực tế đã hiển thị (đã kẹp trong khoảng hợp lệ)
-   */
   private int hienThi(ManagementPanel panel, List<Object[]> duLieu, int trang) {
     String tuKhoa = panel.getQuickFilter();
     List<Object[]> ketQua = new ArrayList<>();
@@ -435,7 +422,6 @@ public final class DanhMucXePage extends AbstractPage {
     this.trangDoi = this.hienThi(this.pnlDoi, this.duLieuDoi, this.trangDoi + buoc);
   }
 
-  // ==================== DIALOG ====================
 
   private void moDialogThemHangXe() {
     HangXeTaoFormPanel form = new HangXeTaoFormPanel();
@@ -598,7 +584,6 @@ public final class DanhMucXePage extends AbstractPage {
     }
   }
 
-  // ==================== LƯU ====================
 
   private boolean taoHangXe(HangXeFormPanel form) {
     if (!this.kiemTraForm(form)) {
@@ -770,7 +755,6 @@ public final class DanhMucXePage extends AbstractPage {
             || "app.danhMucXe.loiTrungTen".equals(key);
   }
 
-  // ==================== XÓA ====================
 
   private void xoaHangXe(int row) {
     String ma = this.layMa(this.pnlHang, row);
@@ -866,7 +850,6 @@ public final class DanhMucXePage extends AbstractPage {
         this.danhMucXeService.xoaHangXe(this.layMa(this.pnlHang, row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
-        // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
       } catch (SQLException e) {
         loiHeThong = true;
         break;
@@ -890,7 +873,6 @@ public final class DanhMucXePage extends AbstractPage {
         this.danhMucXeService.xoaDongXe(this.layMa(this.pnlDong, row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
-        // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
       } catch (SQLException e) {
         loiHeThong = true;
         break;
@@ -914,7 +896,6 @@ public final class DanhMucXePage extends AbstractPage {
         this.danhMucXeService.xoaDoiXe(this.layMa(this.pnlDoi, row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
-        // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
       } catch (SQLException e) {
         loiHeThong = true;
         break;
@@ -949,7 +930,6 @@ public final class DanhMucXePage extends AbstractPage {
     ThongBao.canhBaoDinhDang(this, "app.common.batch_delete_result", thanhCong, tong);
   }
 
-  // ==================== TIỆN ÍCH ====================
 
   private String layMa(ManagementPanel panel, int row) {
     return NumberParseUtil.textOf(panel.getModel().getValueAt(row, COT_MA));

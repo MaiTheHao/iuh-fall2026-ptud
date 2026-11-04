@@ -56,10 +56,6 @@ public class WrapLayout extends FlowLayout {
         return this.preferredLayoutSize(target, -1);
     }
 
-    /**
-     * Đo chiều cao theo đúng bề rộng sẽ dùng khi vẽ, để số hàng không phụ thuộc vào
-     * thời điểm container còn width 0. width <= 0 nghĩa là tự dò bề rộng.
-     */
     public Dimension preferredLayoutSize(Container target, int width) {
         synchronized (target.getTreeLock()) {
             Insets insets = target.getInsets();

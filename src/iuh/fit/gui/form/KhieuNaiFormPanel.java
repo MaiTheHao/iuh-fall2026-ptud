@@ -13,9 +13,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Dimension;
 
-/**
- * Form nhập liệu khiếu nại dùng chung cho màn quản lý và dialog sửa.
- */
 public class KhieuNaiFormPanel extends FormFieldPanel {
 
     

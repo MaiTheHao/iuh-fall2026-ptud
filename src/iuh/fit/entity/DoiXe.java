@@ -4,11 +4,8 @@ public class DoiXe {
     private String maDoiXe;
     private String maDongXe;
     private int namSX;
-    // chi de hien thi
     private String maHangXe;
-    // chi de hien thi
     private String tenHangXe;
-    // chi de hien thi
     private String tenDongXe;
 
     public DoiXe() {

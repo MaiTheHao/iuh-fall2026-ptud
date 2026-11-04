@@ -8,9 +8,6 @@ import iuh.fit.util.DateFormats;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-/**
- * Form chỉ đọc hiển thị toàn bộ chi tiết của một phiếu tiếp nhận.
- */
 public final class PhieuTiepNhanChiTietFormPanel extends FormFieldPanel {
 
     

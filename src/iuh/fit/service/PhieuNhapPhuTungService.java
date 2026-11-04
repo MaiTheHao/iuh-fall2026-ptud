@@ -130,10 +130,6 @@ public class PhieuNhapPhuTungService {
 		return true;
 	}
 
-	/**
-	 * Phiếu nhập là chứng từ kho đã làm tăng tồn: không được xóa sau khi tạo.
-	 * Giữ chữ ký cũ để nơi gọi cũ nhận được thông báo nghiệp vụ rõ ràng.
-	 */
 	public boolean delete(String maPhieuNhap) throws SQLException {
 		if (maPhieuNhap == null || maPhieuNhap.isBlank()) {
 			throw new IllegalArgumentException(ERROR_ID_REQUIRED);
@@ -143,7 +139,6 @@ public class PhieuNhapPhuTungService {
 
 	private List<ChiTietPhieuNhapPhuTung> gopChiTietTrung(List<ChiTietPhieuNhapPhuTung> chiTiets) {
 		Map<String, ChiTietPhieuNhapPhuTung> map = new LinkedHashMap<>();
-		// Gộp theo mã phụ tùng: cộng số lượng, lấy đơn giá của dòng mới nhất.
 		for (ChiTietPhieuNhapPhuTung ct : chiTiets) {
 			String ma = ct.getMaPhuTung().trim();
 			if (map.containsKey(ma)) {

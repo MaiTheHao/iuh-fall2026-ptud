@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-/**
- * Dialog chọn phụ tùng có tìm kiếm theo mã/tên/mô tả và bộ lọc tồn kho.
- */
 public final class ChonPhuTungDialog extends ChonSanPhamDialog<PhuTung> {
 
   
@@ -61,8 +58,6 @@ public final class ChonPhuTungDialog extends ChonSanPhamDialog<PhuTung> {
             .map(this.hienThi)
             .toList();
 
-    // Lọc trên số lượng đã ánh xạ: phụ tùng đã giữ chỗ trong hóa đơn vẫn còn khả dụng
-    // dù tồn trong DB bằng 0, nên không thể lọc bằng criteria.
     if (this.chiConTonDangChon) {
       int nguong = this.nguongTon();
       danhSach = danhSach.stream()
@@ -87,7 +82,6 @@ public final class ChonPhuTungDialog extends ChonSanPhamDialog<PhuTung> {
             PAGE_SIZE_TAI_TOAN_BO);
   }
 
-  /** Ngưỡng tồn tối thiểu khi bật "chỉ hiện còn tồn". */
   private int nguongTon() {
     Integer goc = this.boLocGoc.soLuongTu();
     return goc == null ? 1 : Math.max(1, goc);

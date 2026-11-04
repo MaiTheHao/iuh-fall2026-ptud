@@ -37,7 +37,6 @@ public class QuanLyKhieuNaiPage extends AbstractPage {
     private static final Logger LOGGER = Logger.getLogger(QuanLyKhieuNaiPage.class.getName());
 
 
-    /** Dialog sửa khiếu nại: 5 khối nhập liệu. */
     private static final int CHIEU_CAO_SUA = 570;
 
     private final KhieuNaiService khieuNaiService = new KhieuNaiService();

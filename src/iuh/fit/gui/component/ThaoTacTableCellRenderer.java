@@ -25,9 +25,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Vẽ các nút icon trong một ô và xử lý click theo tọa độ ô.
- */
 public final class ThaoTacTableCellRenderer extends JPanel implements TableCellRenderer {
 
   
@@ -274,7 +271,6 @@ public final class ThaoTacTableCellRenderer extends JPanel implements TableCellR
       return -1;
     }
 
-    // Chia ô theo đúng công thức GridLayout(1, soLuong, khoangCach, 0) đang đặt các nút.
     int rong = trongSo / soLuong;
 
     for (int i = 0; i < soLuong; i++) {

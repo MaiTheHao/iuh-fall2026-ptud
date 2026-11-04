@@ -27,9 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Nghiệp vụ tiếp nhận, tra cứu, cập nhật và xóa khiếu nại của khách hàng.
- */
 public class KhieuNaiService {
 
     private static final String ERROR_DU_LIEU = "app.khieuNai.loiDuLieu";

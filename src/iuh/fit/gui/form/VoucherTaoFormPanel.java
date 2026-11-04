@@ -7,9 +7,6 @@ import javax.swing.JComponent;
 
 import java.time.LocalDateTime;
 
-/**
- * Form tạo mới voucher: hạn áp dụng phải ở tương lai.
- */
 public final class VoucherTaoFormPanel extends VoucherFormPanel {
 
   

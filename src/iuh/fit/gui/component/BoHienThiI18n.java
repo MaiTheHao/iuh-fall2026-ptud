@@ -7,9 +7,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import java.awt.Component;
 
-/**
- * Renderer combo hiển thị nhãn i18n cho {@link I18nEnum} và nhãn "tất cả" cho giá trị {@code null}.
- */
 public final class BoHienThiI18n {
 
     private BoHienThiI18n() {

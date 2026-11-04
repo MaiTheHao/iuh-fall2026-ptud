@@ -3,10 +3,6 @@ package iuh.fit.gui.component;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-/**
- * Mô tả một nút thao tác dùng trong cột thao tác của bảng.
- * {@code hienThi} quyết định nút có xuất hiện trên một dòng hay không; {@code null} là luôn hiện.
- */
 public record ThaoTac(
         String iconName,
         String tooltipKey,

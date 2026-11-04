@@ -13,10 +13,6 @@ import javax.swing.JTextField;
 
 import java.util.List;
 
-/**
- * Phần dùng chung của form dòng xe: chọn hãng, nhập tên và kiểm tra hợp lệ.
- * Lớp con quyết định bố cục cho dialog tạo mới hoặc cập nhật.
- */
 public abstract class DongXeFormPanel extends FormFieldPanel {
 
   
@@ -32,7 +28,6 @@ public abstract class DongXeFormPanel extends FormFieldPanel {
     FormValidationHelper.autoClearOnInput(this.txtTen);
   }
 
-  /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public JComboBox<HangXe> getHangXeCombo() {
@@ -70,7 +65,6 @@ public abstract class DongXeFormPanel extends FormFieldPanel {
     return true;
   }
 
-  /** Chỗ mở rộng cho rule chỉ áp dụng ở một mode. */
   protected JComponent kiemTraRieng() {
     return null;
   }
@@ -99,7 +93,6 @@ public abstract class DongXeFormPanel extends FormFieldPanel {
     return null;
   }
 
-  /** Đánh dấu lỗi nghiệp vụ do service trả về lên đúng ô tên. */
   public void hienThiLoiTen(String thongDiep) {
     FormValidationHelper.markError(this.txtTen, thongDiep);
     this.txtTen.requestFocusInWindow();

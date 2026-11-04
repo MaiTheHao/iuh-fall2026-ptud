@@ -11,10 +11,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Dimension;
 
-/**
- * Form nhập liệu phiếu tiếp nhận dùng chung cho màn quản lý và dialog sửa.
- * Trạng thái không sửa trực tiếp ở đây mà đổi qua action chuyển trạng thái.
- */
 public class PhieuTiepNhanFormPanel extends FormFieldPanel {
 
     

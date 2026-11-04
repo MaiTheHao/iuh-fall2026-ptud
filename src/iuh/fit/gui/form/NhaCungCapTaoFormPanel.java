@@ -1,8 +1,5 @@
 package iuh.fit.gui.form;
 
-/**
- * Form thêm nhà cung cấp.
- */
 public final class NhaCungCapTaoFormPanel extends NhaCungCapFormPanel {
 
   

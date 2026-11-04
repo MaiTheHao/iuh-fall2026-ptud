@@ -32,9 +32,6 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-/**
- * Lưới lịch tuần 7 ngày × 3 ca, mỗi ô hiển thị nhân viên đã phân công kèm nút thêm.
- */
 public final class LuoiLichTuan extends JPanel {
 
   
@@ -272,7 +269,6 @@ public final class LuoiLichTuan extends JPanel {
     }
   }
 
-  /** Một lượt phân công hiển thị trong ô lịch. */
   public record MucPhanCong(String maPhanCong, String maNhanVien, String tenNhanVien) {
 
     public MucPhanCong {

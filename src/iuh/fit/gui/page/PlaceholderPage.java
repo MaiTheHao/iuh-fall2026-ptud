@@ -13,9 +13,6 @@ import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 
-/**
- * Trang giữ chỗ hiển thị tiêu đề tạm, chưa có chức năng thực.
- */
 public abstract class PlaceholderPage extends AbstractPage {
 
     private static final int CO_ICON = 34;

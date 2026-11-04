@@ -21,11 +21,6 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Combo nhập tay có gợi ý theo từ khóa, debounce 300 ms và tối đa 10 dòng.
- * Tách riêng "text đang gõ" khỏi "dòng đang chọn": gõ thì text không bị model ghi đè,
- * chọn dòng thì text được thay bằng {@code giaTriNhap} của phần tử đó.
- */
 public final class ComboTimKiem<T> extends JComboBox<T> {
 
   
@@ -34,7 +29,6 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
   private static final int THOI_GIAN_CHO_LOC = 300;
   private static final int SO_DONG_TOI_DA = 10;
 
-  /** Nguồn dữ liệu gợi ý theo từ khóa; ném {@link SQLException} khi không tải được. */
   @FunctionalInterface
   public interface NguonTim<T> {
     List<T> tim(String tuKhoa) throws SQLException;
@@ -66,7 +60,6 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
     this.setEditor(new BasicComboBoxEditor() {
       @Override
       public void setItem(Object anObject) {
-        // Bỏ qua null và lượt nạp model để text đang gõ không bị xoá/ghi đè.
         if (anObject == null || ComboTimKiem.this.dangNap) {
           return;
         }
@@ -123,12 +116,10 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
     this.addActionListener(e -> this.khiChon());
   }
 
-  /** Text thô đang gõ trong ô nhập (không trim). */
   public String getTuKhoa() {
     return this.txtONhap.getText();
   }
 
-  /** Đặt text theo chương trình; dừng debounce, huỷ lần tìm đang chạy và không gọi nguồn dữ liệu. */
   public void datTuKhoa(String tuKhoa) {
     this.huyTimKiem();
     this.dangLapTrinh = true;
@@ -140,25 +131,21 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
     }
   }
 
-  /** Bật/tắt cả combo lẫn ô nhập; JComboBox không tự khoá editor khi bị disable. */
   public void datChoPhepNhap(boolean choPhep) {
     this.setEnabled(choPhep);
     this.txtONhap.setEnabled(choPhep);
     this.txtONhap.setEditable(choPhep);
   }
 
-  /** Xoá text và danh sách gợi ý. */
   public void xoa() {
     this.datTuKhoa("");
     this.xoaDanhSach();
   }
 
-  /** Chỉ gọi khi người dùng chọn một dòng thật sự (không gọi khi nạp model). */
   public void datXuLyChon(Consumer<T> xuLy) {
     this.xuLyChon = xuLy;
   }
 
-  /** Chỉ gọi khi người dùng gõ tay (không gọi khi đặt text theo chương trình). */
   public void datXuLyGo(Runnable xuLy) {
     this.xuLyGo = xuLy;
   }
@@ -189,8 +176,6 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
       return;
     }
 
-    // Enter hoặc mất focus trên combo editable có thể đẩy text vào model;
-    // chỉ dòng thật sự nằm trong danh sách gợi ý mới coi là người dùng chọn.
     T item = this.timDongTrongModel(chon);
     if (item == null) {
       return;
@@ -224,7 +209,6 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
   }
 
   private void taiLai(boolean choPhepTuKhoaRong) {
-    // Kết quả của lần gõ trước không được nạp đè lên text hiện tại.
     this.huyTimKiem();
     final int theHe = this.theHeTim;
 
@@ -290,7 +274,6 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
     this.taiLai(true);
   }
 
-  /** Huỷ lần tải đang chạy và vô hiệu hoá kết quả còn trên đường về. */
   private void huyTimKiem() {
     if (this.workerHienTai != null) {
       this.workerHienTai.cancel(true);
@@ -300,7 +283,6 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
   }
 
   private void napDanhSach(List<T> danhSach) {
-    // Lấy text ngay trước khi dựng lại model để không ghi đè ký tự người dùng vừa gõ.
     String textDangGo = this.getTuKhoa();
 
     this.dangNap = true;
@@ -313,7 +295,6 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
           }
         }
       }
-      // Model tự chọn dòng đầu khi nạp; bỏ chọn để text đang gõ không bị thay.
       this.setSelectedItem(null);
       this.khoiPhucText(textDangGo);
     } finally {
@@ -323,7 +304,6 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
     this.setPopupVisible(this.getItemCount() > 0 && this.txtONhap.hasFocus() && this.isShowing());
   }
 
-  /** Đặt lại text sau khi dựng model mà không huỷ debounce đang chờ của lần gõ mới. */
   private void khoiPhucText(String text) {
     this.dangLapTrinh = true;
     try {

@@ -10,10 +10,6 @@ import iuh.fit.util.I18nReaderUtil;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
-/**
- * Phần dùng chung của form khách hàng: trường nhập liệu, đọc/ghi dữ liệu và kiểm tra hợp lệ.
- * Lớp con quyết định bố cục cho dialog tạo mới hoặc cập nhật.
- */
 public abstract class KhachHangFormPanel extends FormFieldPanel {
 
   
@@ -36,7 +32,6 @@ public abstract class KhachHangFormPanel extends FormFieldPanel {
     FormValidationHelper.autoClearOnInput(this.txtHoTen);
   }
 
-  /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(KhachHangFormData data) {
@@ -68,7 +63,6 @@ public abstract class KhachHangFormPanel extends FormFieldPanel {
     return true;
   }
 
-  /** Chỗ mở rộng cho rule chỉ áp dụng ở một mode. */
   protected JComponent kiemTraRieng() {
     return null;
   }

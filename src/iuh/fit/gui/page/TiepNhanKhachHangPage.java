@@ -113,11 +113,9 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     JPanel contentPanel = new JPanel(new BorderLayout(16, 16));
     contentPanel.setOpaque(false);
 
-    // Top Panel: Khách Hàng & Phương Tiện
     JPanel pnlTop = new JPanel(new GridLayout(1, 2, 16, 0));
     pnlTop.setOpaque(false);
 
-    // 1. Thông tin Khách Hàng
     JPanel pnlKhachHang = this.createTitledPanel("app.tiepNhan.tieuDeKhachHang");
     pnlKhachHang.setLayout(new GridBagLayout());
     GridBagConstraints gbcKH = this.createGbc();
@@ -126,7 +124,6 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.hoTen"), this.txtHoTen, gbcKH, 1);
     pnlTop.add(pnlKhachHang);
 
-    // 2. Thông tin Phương Tiện (Xe)
     JPanel pnlPhuongTien = this.createTitledPanel("app.tiepNhan.tieuDeXe");
     pnlPhuongTien.setLayout(new GridBagLayout());
     GridBagConstraints gbcXe = this.createGbc();
@@ -147,7 +144,6 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     pnlPhuongTien.add(pnlChiTietXe, gbcXe);
     pnlTop.add(pnlPhuongTien);
 
-    // Center Panel: Mô tả tình trạng xe
     JPanel pnlMoTa = new JPanel(new BorderLayout(0, 5));
     Theme.applyCardStyle(pnlMoTa);
 
@@ -160,7 +156,6 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     pnlMoTa.add(lblMoTa, BorderLayout.NORTH);
     pnlMoTa.add(new JScrollPane(this.txaMoTa), BorderLayout.CENTER);
 
-    // Bottom Panel: Buttons
     JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
     pnlButtons.setOpaque(false);
 
@@ -178,16 +173,13 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
     this.add(contentPanel, BorderLayout.CENTER);
 
-    // Nạp danh mục hãng/dòng/đời xe
     this.taiGoiYHangXe();
     this.taiGoiYDongXe();
     this.taiGoiYDoiXe();
 
-    // Xóa hết Listener cũ tránh lặp sự kiện
     this.clearActionListeners(this.btnLamMoi, this.btnLuu);
     this.clearActionListeners(this.cmbHangXe, this.cmbDongXe);
 
-    // Đăng ký đúng Action Listeners
     this.btnLamMoi.addActionListener(e -> this.lamMoiForm());
     this.btnLuu.addActionListener(e -> this.luuPhieuTiepNhan());
     this.cmbHangXe.addActionListener(e -> this.hangXeThayDoi());

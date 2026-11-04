@@ -4,15 +4,10 @@ public class Xe {
     private String bienSo;
     private String maDoiXe;
     private int odo;
-    // chi de hien thi, sinh tu JOIN
     private String maHangXe;
-    // chi de hien thi, sinh tu JOIN
     private String maDongXe;
-    // chi de hien thi, sinh tu JOIN
     private String tenHangXe;
-    // chi de hien thi, sinh tu JOIN
     private String tenDongXe;
-    // chi de hien thi, sinh tu JOIN
     private int namSX;
 
     public Xe() {

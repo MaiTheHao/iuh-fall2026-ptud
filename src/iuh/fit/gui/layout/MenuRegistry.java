@@ -16,9 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Sổ đăng ký thanh menu: item, menu nhóm và item cấp cao; đánh dấu active, làm mới nhãn và ẩn/hiện.
- */
 public final class MenuRegistry {
 
     private static final int DO_DAY_CHI_BAO = 2;
@@ -90,7 +87,6 @@ public final class MenuRegistry {
     }
 }
 
-/** Item/menu cấp 1 có thể hiển thị chỉ báo mục đang chọn. */
 interface MenuActive {
 
     void setActive(boolean active);

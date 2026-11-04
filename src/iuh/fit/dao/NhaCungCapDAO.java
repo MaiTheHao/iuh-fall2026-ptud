@@ -86,7 +86,6 @@ public final class NhaCungCapDAO extends BaseDao<NhaCungCap> {
     }
   }
 
-  // existsSdt: true khi sdt đã tồn tại (maLoaiTru != null thì loại trừ đúng bản ghi đó).
   public boolean existsSdt(String sdt, String maLoaiTru) throws SQLException {
     String sql = """
             SELECT COUNT(*) FROM NhaCungCap

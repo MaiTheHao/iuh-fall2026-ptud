@@ -41,10 +41,6 @@ import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Khung dialog chọn một sản phẩm (phụ tùng / dịch vụ) kèm số lượng.
- * Lớp con cung cấp nguồn dữ liệu theo từ khóa và cách hiển thị từng dòng.
- */
 public abstract class ChonSanPhamDialog<T> extends JDialog {
 
   
@@ -53,10 +49,6 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
   private static final int CHIEU_CAO = 640;
   private static final int THOI_GIAN_CHO_LOC = 250;
 
-  /**
-   * Dialog tải toàn bộ kết quả khớp với page cố định = 1.
-   * Trần 10_000 dùng chung từ {@link PaginatedResult}, chỉ để giới hạn số dòng dựng trên UI.
-   */
   protected static final int PAGE_SIZE_TAI_TOAN_BO = PaginatedResult.PAGE_SIZE_TAI_TOAN_BO;
 
   private final JTextField txtTimKiem = new JTextField();
@@ -155,10 +147,8 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     });
   }
 
-  /** Nguồn dữ liệu theo từ khóa; ném SQLException khi không tải được. */
   protected abstract KetQuaTai<T> taiDuLieu(String tuKhoa) throws SQLException;
 
-  /** Gọi trên EDT ngay trước khi tải dữ liệu ở background; lớp con chụp state UI tại đây. */
   protected void chuanBiTaiLieu() {
   }
 
@@ -166,16 +156,12 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
 
   protected abstract Object[] giaTriDong(T item);
 
-  /** Key i18n cho placeholder ô tìm kiếm. */
   protected abstract String placeholderTimKiem();
 
-  /** Key i18n khi không có kết quả. */
   protected abstract String keyKhongTimThay();
 
-  /** Key i18n khi bấm xác nhận mà chưa chọn dòng. */
   protected abstract String keyChuaChon();
 
-  /** Gắn thêm bộ lọc riêng của lớp con vào cạnh ô tìm kiếm. */
   protected final void datBoLoc(JComponent boLoc) {
     if (boLoc == null) {
       return;
@@ -183,15 +169,10 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     this.pnlBoLoc.add(boLoc);
   }
 
-  /** Đặt lại bộ đếm debounce để tải lại danh sách sau 250 ms. */
   protected final void locLai() {
     this.boDemLoc.restart();
   }
 
-  /**
-   * Hiện dialog và chờ người dùng xác nhận; mỗi instance chỉ dùng một lần.
-   * Gọi lại sau khi dialog đã đóng sẽ ném {@code IllegalStateException}.
-   */
   public final Optional<KetQuaChon<T>> showDialog() {
     if (this.daDong) {
       throw new IllegalStateException("Dialog đã đóng; tạo instance mới");
@@ -204,7 +185,6 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
       this.model.setColumnIdentifiers(this.tenCot());
     }
 
-    // Mỗi lần mở đều tải lại để luôn thấy dữ liệu mới.
     this.taiLai();
 
     this.setVisible(true);
@@ -280,7 +260,6 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
           return;
         }
 
-        // Bỏ kết quả của lần gõ cũ khi đã có lần tìm mới hơn.
         if (theHe != ChonSanPhamDialog.this.theHeTai) {
           return;
         }
@@ -294,7 +273,6 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
         try {
           ketQuaTai = this.get();
         } catch (CancellationException ex) {
-          // Worker bị hủy do có lần tìm mới hơn hoặc dialog đã đóng.
           return;
         } catch (InterruptedException ex) {
           Thread.currentThread().interrupt();
@@ -341,7 +319,6 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     this.lblTrangThai.setText(MessageFormat.format(mau == null ? "{0}" : mau, soKetQua));
   }
 
-  /** Xóa kết quả cũ và báo lỗi tải để người dùng không chọn nhầm dòng của từ khoá trước. */
   private void baoKhongTaiDuoc() {
     this.dangHienThi.clear();
     this.model.setDataVector(new Object[0][], this.tenCot());
@@ -349,10 +326,6 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     ThongBao.loi(this, "app.common.loiKhongXacDinh");
   }
 
-  /**
-   * Tổng số kết quả khớp để báo cho người dùng; {@code -1} khi trang không bị cắt
-   * (khi đó số dòng hiển thị chính là tổng, kể cả sau khi lọc tại dialog).
-   */
   protected static int tongSoKetQuaCanBao(PaginatedResult<?> ketQua) {
     if (ketQua.items().size() < ketQua.pageSize()) {
       return -1;
@@ -364,8 +337,6 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     int soLuong = 1;
 
     if (this.coSoLuong) {
-      // Validate số lượng trước để báo đúng nguyên nhân khi ô nhập sai,
-      // kể cả lúc chưa chọn dòng nào.
       try {
         this.soLuongSpinner.commitEdit();
       } catch (ParseException ex) {
@@ -376,8 +347,6 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
       Object giaTriSoLuong = this.soLuongSpinner.getValue();
       soLuong = giaTriSoLuong instanceof Number ? ((Number) giaTriSoLuong).intValue() : 0;
 
-      // Giữ nhánh phòng thủ: SpinnerNumberModel đang min=1 nên nhánh này
-      // hiếm khi chạm, nhưng vẫn cần khi model spinner bị đổi biên sau này.
       if (soLuong <= 0) {
         ThongBao.canhBao(this, "app.common.soLuongKhongHopLe");
         return;
@@ -411,14 +380,9 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     super.dispose();
   }
 
-  /** Kết quả chọn dòng dùng chung cho các lớp con. */
   public record KetQuaChon<T>(T sanPham, int soLuong) {
   }
 
-  /**
-   * Kết quả một lần tải: danh sách dòng hiển thị kèm tổng số kết quả khớp.
-   * {@code tongSoKetQua} âm nghĩa là không bị cắt (hoặc không rõ tổng).
-   */
   public record KetQuaTai<T>(List<T> items, int tongSoKetQua) {
     public KetQuaTai {
       items = items == null ? List.of() : List.copyOf(items);

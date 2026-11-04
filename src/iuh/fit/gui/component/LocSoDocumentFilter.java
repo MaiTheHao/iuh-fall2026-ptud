@@ -4,9 +4,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
-/**
- * Chỉ cho phép nhập chữ số vào ô văn bản (dùng cho năm sản xuất, khoảng số).
- */
 public final class LocSoDocumentFilter extends DocumentFilter {
 
   public LocSoDocumentFilter() {

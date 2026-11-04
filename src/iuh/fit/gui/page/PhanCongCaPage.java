@@ -38,7 +38,6 @@ public class PhanCongCaPage extends AbstractPage {
 
 	private static final Logger LOGGER = Logger.getLogger(PhanCongCaPage.class.getName());
 
-	/** Dialog cập nhật: 5 trường nhập. */
 	private static final int CHIEU_CAO_SUA = 500;
 
 	private final ThanhDieuHuongTuan thanhDieuHuong = new ThanhDieuHuongTuan();

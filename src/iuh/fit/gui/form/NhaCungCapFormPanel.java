@@ -9,9 +9,6 @@ import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-/**
- * Phần dùng chung của form nhà cung cấp.
- */
 public abstract class NhaCungCapFormPanel extends FormFieldPanel {
 
   

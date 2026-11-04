@@ -18,10 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Nạp tài nguyên ngôn ngữ một lần cho mỗi locale và lưu bản dịch vào map phẳng.
- * Ví dụ: {"menu": {"home": "Home"}} trở thành "menu.home" -> "Home".
- */
 public final class I18nReaderUtil {
 
     private static final Logger LOGGER = Logger.getLogger(I18nReaderUtil.class.getName());
@@ -102,7 +98,6 @@ public final class I18nReaderUtil {
             } else if (value.isJsonPrimitive()) {
                 result.put(key, value.getAsString());
             }
-            // Bỏ qua mảng và các giá trị không phải kiểu nguyên thủy.
         }
     }
 

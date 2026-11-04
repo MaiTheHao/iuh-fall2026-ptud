@@ -10,9 +10,6 @@ import java.awt.Window;
 import java.sql.SQLException;
 import java.util.Objects;
 
-/**
- * Dialog chọn dịch vụ có tìm kiếm theo mã/tên/mô tả.
- */
 public final class ChonDichVuDialog extends ChonSanPhamDialog<DichVu> {
 
   

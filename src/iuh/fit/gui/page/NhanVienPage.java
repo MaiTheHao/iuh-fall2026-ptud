@@ -37,10 +37,8 @@ public class NhanVienPage extends AbstractPage {
   
 
 
-  /** Dialog tạo mới: 6 trường nhập + 1 ảnh. */
   private static final int CHIEU_CAO_TAO = 800;
 
-  /** Dialog cập nhật: 8 trường nhập + 1 ảnh. */
   private static final int CHIEU_CAO_SUA = 800;
 
   private static final int COT_ANH = 1;
@@ -126,7 +124,6 @@ public class NhanVienPage extends AbstractPage {
     return true;
   }
 
-  // ==================== BỘ LỌC ====================
 
   private void khoiTaoBoLoc() {
     this.txtBoLocMa = this.pnlDanhSach.addTextFilter("app.nhanVien.maNhanVien");
@@ -180,7 +177,6 @@ public class NhanVienPage extends AbstractPage {
     });
   }
 
-  // ==================== TẢI DANH SÁCH ====================
 
   private void taiLaiDanhSach() {
     try {
@@ -249,7 +245,6 @@ public class NhanVienPage extends AbstractPage {
     return NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
   }
 
-  // ==================== DIALOG ====================
 
   private void moDialogThem() {
     NhanVienTaoFormPanel form = new NhanVienTaoFormPanel();
@@ -355,7 +350,6 @@ public class NhanVienPage extends AbstractPage {
     return false;
   }
 
-  // ==================== XÓA ====================
 
   private void xoa(int row) {
     String ma = this.layMaDong(row);
@@ -401,7 +395,6 @@ public class NhanVienPage extends AbstractPage {
         this.nhanVienService.delete(this.layMaDong(row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
-        // Nhân viên đã có giao dịch: ghi nhận vào báo cáo tổng hợp.
       } catch (SQLException ex) {
         loiHeThong = true;
         break;

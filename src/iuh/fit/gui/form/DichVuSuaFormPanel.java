@@ -1,8 +1,5 @@
 package iuh.fit.gui.form;
 
-/**
- * Form cập nhật dịch vụ: hiển thị thêm mã ở dạng chỉ đọc.
- */
 public final class DichVuSuaFormPanel extends DichVuFormPanel {
 
   

@@ -12,9 +12,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 
-/**
- * Khung form nhập liệu dùng chung cho các màn hình quản lý.
- */
 public class ManagementFormPanel extends JPanel {
 
     

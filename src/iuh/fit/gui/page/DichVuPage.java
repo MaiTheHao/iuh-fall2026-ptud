@@ -111,7 +111,6 @@ public class DichVuPage extends AbstractPage {
     this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai(1));
   }
 
-  // ==================== TẢI DANH SÁCH ====================
 
   private void taiLai(int page) {
     try {
@@ -173,7 +172,6 @@ public class DichVuPage extends AbstractPage {
     return NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
   }
 
-  // ==================== DIALOG ====================
 
   private void moDialogThem() {
     DichVuTaoFormPanel form = new DichVuTaoFormPanel();
@@ -265,7 +263,6 @@ public class DichVuPage extends AbstractPage {
     return false;
   }
 
-  // ==================== XÓA ====================
 
   private void xoa(int row) {
     String maDichVu = this.layMaDong(row);
@@ -310,7 +307,6 @@ public class DichVuPage extends AbstractPage {
         this.dichVuService.delete(this.layMaDong(row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
-        // Dịch vụ đã dùng trong hóa đơn: ghi nhận vào báo cáo tổng hợp.
       } catch (SQLException e) {
         loiHeThong = true;
         break;

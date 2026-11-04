@@ -13,9 +13,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.Dimension;
 import java.text.DecimalFormat;
 
-/**
- * Form chỉ đọc hiển thị chi tiết phiếu nhập: thông tin đầu phiếu và các dòng phụ tùng.
- */
 public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
 
   

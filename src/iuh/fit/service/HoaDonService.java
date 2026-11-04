@@ -150,7 +150,6 @@ public class HoaDonService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        // Chot muc giam tai thoi diem thanh toan de tong tien khong doi sau khi voucher het han.
         Double mucGiamChot = hoaDon.getMucGiamApDung();
         if (mucGiamChot == null && hoaDon.getVoucher() != null) {
             mucGiamChot = this.tinhMucGiam(hoaDon);

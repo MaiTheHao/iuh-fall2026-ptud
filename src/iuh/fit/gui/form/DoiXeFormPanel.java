@@ -18,10 +18,6 @@ import javax.swing.text.AbstractDocument;
 
 import java.util.List;
 
-/**
- * Phần dùng chung của form đời xe: chọn hãng, chọn dòng, nhập năm sản xuất và kiểm tra hợp lệ.
- * Lớp con quyết định bố cục cho dialog tạo mới hoặc cập nhật.
- */
 public abstract class DoiXeFormPanel extends FormFieldPanel {
 
   
@@ -38,7 +34,6 @@ public abstract class DoiXeFormPanel extends FormFieldPanel {
     FormValidationHelper.autoClearOnInput(this.txtNam);
   }
 
-  /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public JComboBox<HangXe> getHangXeCombo() {
@@ -104,7 +99,6 @@ public abstract class DoiXeFormPanel extends FormFieldPanel {
     return true;
   }
 
-  /** Chỗ mở rộng cho rule chỉ áp dụng ở một mode. */
   protected JComponent kiemTraRieng() {
     return null;
   }
@@ -135,7 +129,6 @@ public abstract class DoiXeFormPanel extends FormFieldPanel {
     return null;
   }
 
-  /** Đánh dấu lỗi nghiệp vụ do service trả về lên đúng ô năm sản xuất. */
   public void hienThiLoiNam(String thongDiep) {
     FormValidationHelper.markError(this.txtNam, thongDiep);
     this.txtNam.requestFocusInWindow();

@@ -4,9 +4,6 @@ import iuh.fit.entity.NhanVien;
 
 import java.util.List;
 
-/**
- * Form cập nhật phân công ca: mã phân công chỉ đọc.
- */
 public final class PhanCongCaSuaFormPanel extends PhanCongCaFormPanel {
 
   

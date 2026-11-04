@@ -37,37 +37,27 @@ public final class Theme {
     }
 
     private static final Palette LIGHT = new Palette(
-            // Surfaces: Clean White / Cool Gray
             hex("#F8FAFC"), hex("#FFFFFF"), hex("#F8FAFC"),
             hex("#E2E8F0"), hex("#CBD5E1"),
 
-            // Accent: Electric Blue
             hex("#2563EB"), hex("#1D4ED8"), hex("#1E40AF"), hex("#EFF6FF"),
 
-            // Typography
             hex("#111827"), hex("#475569"), hex("#64748B"), hex("#FFFFFF"),
 
-            // Inputs
             hex("#FFFFFF"), hex("#CBD5E1"), hex("#60A5FA"),
 
-            // Tables
             hex("#F1F5F9"), hex("#F8FAFC"),
             hex("#DBEAFE"), hex("#1E3A8A"),
 
-            // Info: Blue
             hex("#2563EB"), hex("#EFF6FF"), hex("#BFDBFE"), hex("#1D4ED8"),
 
-            // Success: Emerald
             hex("#059669"), hex("#ECFDF5"), hex("#A7F3D0"), hex("#065F46"),
 
-            // Warning: Amber
             hex("#B45309"), hex("#FFFBEB"), hex("#FCD34D"), hex("#92400E"),
 
-            // Danger: Red
             hex("#DC2626"), hex("#FEF2F2"), hex("#FECACA"), hex("#B91C1C")
     );
 
-    // Token hay dùng ngoài Theme, giữ dạng field ngắn để màn hình không phải gọi palette().
     public static Color BG = LIGHT.BG();
     public static Color PANEL = LIGHT.PANEL();
     public static Color BORDER = LIGHT.BORDER();
@@ -223,7 +213,6 @@ public final class Theme {
         datMau("PopupMenu.foreground", p.INK());
         UIManager.put("PopupMenu.border", new BorderUIResource.LineBorderUIResource(p.BORDER()));
         datMau("Label.foreground", p.INK());
-        // MetalButtonUI chỉ vẽ nền nút khi background không phải ColorUIResource.
         UIManager.put("Button.background", p.BG());
         datMau("Button.foreground", p.INK());
         datMau("TextField.background", p.INPUT_BG());

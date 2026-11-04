@@ -2,9 +2,6 @@ package iuh.fit.gui.form;
 
 import iuh.fit.gui.Theme;
 
-/**
- * Form cập nhật xe: biển số là khóa nên chỉ đọc.
- */
 public final class XeSuaFormPanel extends XeFormPanel {
 
   

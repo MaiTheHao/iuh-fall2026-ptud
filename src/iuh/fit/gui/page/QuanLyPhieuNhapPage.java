@@ -28,7 +28,6 @@ import java.util.List;
 
 public class QuanLyPhieuNhapPage extends AbstractPage {
 
-	/** Dialog xem chi tiết phiếu nhập: 5 trường đầu phiếu + bảng dòng chi tiết. */
 	private static final int CHIEU_CAO_CHI_TIET = 650;
 
 
@@ -69,7 +68,6 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 				I18nReaderUtil.get("app.phieuNhap.tongChiPhi")
 		);
 
-		// Phiếu nhập đã tạo là chứng từ kho: chỉ xem chi tiết, không sửa/xóa.
 		this.pnlDanhSach.addActionColumn("app.common.actions",
 				new ThaoTac("eye", "app.common.view", ThaoTac.KieuThaoTac.THUONG,
 						this::xemChiTiet));

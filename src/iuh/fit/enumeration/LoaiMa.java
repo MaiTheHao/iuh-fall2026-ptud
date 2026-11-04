@@ -12,7 +12,6 @@ public enum LoaiMa {
   HD("HD"),
   VD("VD"),
   KN("KN"),
-  // U3: tiền tố NCC cho MaService (NCC-yyyyMMdd-NNNNNN).
   NCC("NCC"),
   HX("HX"),
   DX("DX"),

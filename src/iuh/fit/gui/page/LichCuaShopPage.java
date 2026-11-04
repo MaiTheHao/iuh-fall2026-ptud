@@ -36,9 +36,6 @@ import java.util.Set;
 import iuh.fit.entity.PhanCong;
 import iuh.fit.enumeration.CaLamViec;
 
-/**
- * Trang lịch làm việc của cửa hàng.
- */
 public class LichCuaShopPage extends AbstractPage {
 
 	

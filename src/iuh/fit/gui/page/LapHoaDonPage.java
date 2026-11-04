@@ -345,8 +345,6 @@ public class LapHoaDonPage extends AbstractPage {
 
 		Voucher voucher = this.voucherService.getById(maVoucher).orElse(null);
 
-		// Hóa đơn cũ có thể trỏ tới voucher đã hết hạn hoặc bị tắt: bỏ chọn để hóa đơn vẫn lưu được,
-		// vì HoaDonService từ chối khi lưu.
 		if (voucher == null || !this.hoaDonService.voucherConHieuLuc(voucher)) {
 			this.cmbVoucher.xoa();
 			this.voucherDangChon = null;
@@ -429,7 +427,6 @@ public class LapHoaDonPage extends AbstractPage {
 		});
 	}
 
-	// tồn khả dụng = tồn DB + SL gốc - SL đã chọn
 	private PhuTung voiTonKhaDung(PhuTung p, Map<String, Integer> daChon, Map<String, Integer> soLuongGoc) {
 		return new PhuTung(p.getMaPhuTung(), p.getTenPhuTung(),
 				p.getMoTa(), p.getAnhUrl(), p.getDonGiaNhap(),
@@ -749,7 +746,6 @@ public class LapHoaDonPage extends AbstractPage {
 				return;
 			}
 		} else if (!this.capNhatHoaDon(false)) {
-			// Phai luu cac dong dang sua truoc khi thu tien, neu khong tien thu khac voi so tien hien tren man hinh.
 			return;
 		}
 		if (!ThongBao.xacNhan(this, "app.hoaDon.xacNhanThanhToan", "app.common.notification")) {

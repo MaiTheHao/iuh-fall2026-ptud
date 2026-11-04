@@ -41,10 +41,8 @@ public class PhuTungPage extends AbstractPage {
 
   
 
-  /** Dialog tạo mới: 5 trường nhập + 1 ảnh. */
   private static final int CHIEU_CAO_TAO = 680;
 
-  /** Dialog cập nhật: 6 trường nhập + 1 ảnh. */
   private static final int CHIEU_CAO_SUA = 800;
 
   private static final int COT_ANH = 1;
@@ -68,7 +66,6 @@ public class PhuTungPage extends AbstractPage {
 
   private int trang = 1;
 
-  /** Chan taiLai de quy khi rebuild combo bo loc. */
   private boolean dangLamMoiBoLoc = false;
 
   public PhuTungPage() {
@@ -162,7 +159,6 @@ public class PhuTungPage extends AbstractPage {
     }
   }
 
-  /** Tieu chi chon NCC cho phu tung: chi hien NCC dang hop tac. */
   private DanhSachNhaCungCapCriteria tieuChiChonNhaCungCap() {
     return new DanhSachNhaCungCapCriteria(
         null, null, null, null,
@@ -170,10 +166,6 @@ public class PhuTungPage extends AbstractPage {
         null, null, 1, PaginatedResult.PAGE_SIZE_TAI_TOAN_BO);
   }
 
-  /**
-   * Giai phap stale combo: tai lai danh sach NCC moi khi mo dropdown,
-   * giu lua chon hien tai neu van hop le. Co chan de quy filter-change.
-   */
   private void lamMoiBoLocNhaCungCap() {
     String dangChon = this.boLocNhaCungCap.ma();
     String[] moi = this.mangMaNhaCungCap();
@@ -280,7 +272,6 @@ public class PhuTungPage extends AbstractPage {
     return NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
   }
 
-  // ==================== DIALOG ====================
 
   private void moDialogThem() {
     PhuTungTaoFormPanel form = new PhuTungTaoFormPanel();
@@ -405,7 +396,6 @@ public class PhuTungPage extends AbstractPage {
     return true;
   }
 
-  // ==================== XÓA ====================
 
   private void xoa(int row) {
     String maPhuTung = this.layMaDong(row);
@@ -450,7 +440,6 @@ public class PhuTungPage extends AbstractPage {
         this.phuTungService.delete(this.layMaDong(row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
-        // Phụ tùng đã phát sinh phiếu nhập / hóa đơn: ghi nhận vào báo cáo tổng hợp.
       } catch (SQLException e) {
         loiHeThong = true;
         break;

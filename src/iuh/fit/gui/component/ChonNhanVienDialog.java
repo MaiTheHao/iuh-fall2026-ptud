@@ -11,9 +11,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Dialog chọn một nhân viên đủ điều kiện phân ca (không kèm số lượng).
- */
 public final class ChonNhanVienDialog extends ChonSanPhamDialog<NhanVien> {
 
   

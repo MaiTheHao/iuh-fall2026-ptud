@@ -121,7 +121,6 @@ public class VoucherPage extends AbstractPage {
     this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai(1));
   }
 
-  // ==================== TẢI DANH SÁCH ====================
 
   private void taiLai(int page) {
     try {
@@ -227,7 +226,6 @@ public class VoucherPage extends AbstractPage {
             Boolean.TRUE.equals(data.trangThaiKichHoat()));
   }
 
-  // ==================== DIALOG ====================
 
   private void moDialogThem() {
     VoucherTaoFormPanel form = new VoucherTaoFormPanel();
@@ -312,7 +310,6 @@ public class VoucherPage extends AbstractPage {
     return false;
   }
 
-  // ==================== ĐỔI TRẠNG THÁI KÍCH HOẠT ====================
 
   private boolean doiTrangThaiVoucher(VoucherFormData duLieu) throws SQLException {
     Voucher voucher = this.taoVoucher(duLieu);
@@ -353,7 +350,6 @@ public class VoucherPage extends AbstractPage {
         this.doiTrangThaiVoucher(this.docDuLieuDong(row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
-        // Voucher không còn hợp lệ để cập nhật: ghi nhận vào báo cáo tổng hợp.
       } catch (SQLException e) {
         loiHeThong = true;
         break;

@@ -410,9 +410,6 @@ public final class PhanCongService {
 				.toList();
 	}
 
-	/**
-	 * Lọc thêm các nhân viên đã có phân công trùng ngày và ca.
-	 */
 	public List<NhanVien> timNhanVienCoThePhanCong(String tuKhoa, LocalDate ngay, CaLamViec ca) throws SQLException {
 		List<NhanVien> danhSach = this.timNhanVienCoThePhanCong(tuKhoa);
 

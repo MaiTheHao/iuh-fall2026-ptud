@@ -4,9 +4,6 @@ import iuh.fit.dto.NhaCungCapFormData;
 
 import javax.swing.JTextField;
 
-/**
- * Form cập nhật nhà cung cấp: thêm mã read-only.
- */
 public final class NhaCungCapSuaFormPanel extends NhaCungCapFormPanel {
 
   

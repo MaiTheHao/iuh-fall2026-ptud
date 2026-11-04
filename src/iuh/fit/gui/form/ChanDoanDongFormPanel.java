@@ -11,9 +11,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-/**
- * Form cho một dòng chẩn đoán trong màn lập chẩn đoán đa dòng.
- */
 public final class ChanDoanDongFormPanel extends FormFieldPanel {
 
   

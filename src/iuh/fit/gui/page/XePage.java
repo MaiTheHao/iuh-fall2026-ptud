@@ -117,7 +117,6 @@ public class XePage extends AbstractPage {
     this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai(1));
   }
 
-  // ==================== TẢI DANH SÁCH ====================
 
   private void taiLai(int page) {
     try {
@@ -180,7 +179,6 @@ public class XePage extends AbstractPage {
     return NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_BIEN_SO));
   }
 
-  // ==================== GỢI Ý HÃNG / DÒNG XE ====================
 
   private void napHangXe(XeFormPanel form) {
     try {
@@ -289,7 +287,6 @@ public class XePage extends AbstractPage {
     }
   }
 
-  // ==================== DIALOG ====================
 
   private void moDialogThem() {
     XeTaoFormPanel form = new XeTaoFormPanel();
@@ -400,7 +397,6 @@ public class XePage extends AbstractPage {
     return false;
   }
 
-  // ==================== XÓA ====================
 
   private void xoa(int row) {
     String bienSo = this.layBienSoDong(row);
@@ -445,7 +441,6 @@ public class XePage extends AbstractPage {
         this.xeService.delete(this.layBienSoDong(row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
-        // Xe đã lập phiếu tiếp nhận / chẩn đoán: ghi nhận vào báo cáo tổng hợp.
       } catch (SQLException e) {
         loiHeThong = true;
         break;

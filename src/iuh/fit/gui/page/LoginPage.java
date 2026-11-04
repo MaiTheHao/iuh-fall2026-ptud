@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 
-/** Màn hình đăng nhập hệ thống. */
 public class LoginPage extends AbstractPage {
 
     private static final int RONG_THE = 420;
@@ -249,7 +248,6 @@ public class LoginPage extends AbstractPage {
         }
     }
 
-    /** Thẻ trắng bo góc đặt giữa nền ảnh gara. */
     private static final class TheDangNhap extends JPanel {
 
         

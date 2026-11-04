@@ -21,10 +21,6 @@ import java.awt.Component;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Phần dùng chung của form phân công ca: trường nhập liệu, đọc/ghi dữ liệu và kiểm tra hợp lệ.
- * Lớp con quyết định bố cục cho dialog tạo mới hoặc cập nhật.
- */
 public abstract class PhanCongCaFormPanel extends FormFieldPanel {
 
   
@@ -60,7 +56,6 @@ public abstract class PhanCongCaFormPanel extends FormFieldPanel {
     FormValidationHelper.autoClearOnInput(this.txtGhiChu);
   }
 
-  /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(PhanCong phanCong) {

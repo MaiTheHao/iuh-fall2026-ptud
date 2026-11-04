@@ -18,10 +18,6 @@ import javax.swing.SwingConstants;
 
 import java.time.LocalDateTime;
 
-/**
- * Phần dùng chung của form voucher: trường nhập liệu, đọc/ghi dữ liệu và kiểm tra hợp lệ.
- * Lớp con quyết định bố cục cho dialog tạo mới hoặc cập nhật.
- */
 public abstract class VoucherFormPanel extends FormFieldPanel {
 
   
@@ -50,7 +46,6 @@ public abstract class VoucherFormPanel extends FormFieldPanel {
     FormValidationHelper.autoClearOnInput(this.txtMucGiam);
   }
 
-  /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(VoucherFormData data) {
@@ -94,7 +89,6 @@ public abstract class VoucherFormPanel extends FormFieldPanel {
     return true;
   }
 
-  /** Chỗ mở rộng cho rule chỉ áp dụng ở một mode. */
   protected JComponent kiemTraRieng() {
     return null;
   }

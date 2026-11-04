@@ -19,10 +19,6 @@ import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 
-/**
- * Phần dùng chung của form phụ tùng: trường nhập liệu, đọc/ghi dữ liệu và kiểm tra hợp lệ.
- * Lớp con quyết định bố cục cho dialog tạo mới hoặc cập nhật.
- */
 public abstract class PhuTungFormPanel extends FormFieldPanel {
 
   
@@ -51,7 +47,6 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
     this.txtSoLuongTon.setHorizontalAlignment(SwingConstants.RIGHT);
 
     Theme.applyReadOnly(this.txtMa);
-    // Tồn kho chỉ thay đổi qua phiếu nhập / nghiệp vụ kho nên luôn chỉ đọc.
     Theme.applyReadOnly(this.txtSoLuongTon);
     this.txtSoLuongTon.setText("0");
     Theme.applyReadOnly(this.txtNhaCungCap);
@@ -79,7 +74,6 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
     return this.pnlHangNhaCungCap;
   }
 
-  /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(PhuTungFormData data) {
@@ -121,7 +115,6 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
     return true;
   }
 
-  /** Chỗ mở rộng cho rule chỉ áp dụng ở một mode. */
   protected JComponent kiemTraRieng() {
     return null;
   }

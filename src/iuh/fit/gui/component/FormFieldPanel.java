@@ -16,9 +16,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-/**
- * Khung lưới dùng chung để bố trí các cặp nhãn và trường nhập liệu.
- */
 public class FormFieldPanel extends JPanel {
 
     
@@ -73,7 +70,6 @@ public class FormFieldPanel extends JPanel {
         }
     }
 
-    /** Khung cuộn chuẩn cho vùng mô tả nhiều dòng. */
     protected static JScrollPane taoKhungMoTa(JTextArea area) {
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
@@ -83,7 +79,6 @@ public class FormFieldPanel extends JPanel {
         return scroll;
     }
 
-    /** Nhãn gợi ý phụ dưới một trường nhập liệu. */
     protected static JLabel taoGoiY(String labelKey) {
         JLabel goiY = new JLabel(I18nReaderUtil.get(labelKey));
         goiY.setForeground(Theme.palette().INK_MUTED());

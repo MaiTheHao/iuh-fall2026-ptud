@@ -29,9 +29,6 @@ public class AnhField extends JPanel {
 
     
 
-    /**
-     * Bộ khóa i18n cho một trường ảnh, tránh truyền bảy chuỗi rời theo thứ tự.
-     */
     public record KhoaAnh(
             String nhan,
             String chonAnh,

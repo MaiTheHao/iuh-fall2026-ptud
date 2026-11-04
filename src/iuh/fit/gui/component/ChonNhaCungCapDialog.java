@@ -10,9 +10,6 @@ import java.awt.Window;
 import java.sql.SQLException;
 import java.util.Objects;
 
-/**
- * Dialog chọn nhà cung cấp cho phụ tùng.
- */
 public final class ChonNhaCungCapDialog extends ChonSanPhamDialog<NhaCungCap> {
 
   

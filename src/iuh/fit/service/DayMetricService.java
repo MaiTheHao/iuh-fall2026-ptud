@@ -10,11 +10,6 @@ import java.time.ZoneId;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Bộ đếm số thứ tự theo ngày và số liệu nhanh cho dashboard.
- * Nguồn sự thật là bảng DayMetric; RAM giữ số hiện tại để đọc tức thời.
- * Việc định dạng mã nằm ở MaService.
- */
 public final class DayMetricService {
 
     public static final ZoneId MUI_GIO = ZoneId.of("Asia/Ho_Chi_Minh");

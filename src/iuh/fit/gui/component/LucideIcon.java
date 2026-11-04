@@ -17,9 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Icon Lucide nạp từ PNG trong resources và tô màu theo theme tại thời điểm vẽ.
- */
 public final class LucideIcon implements Icon {
 
     private static final Logger LOGGER = Logger.getLogger(LucideIcon.class.getName());

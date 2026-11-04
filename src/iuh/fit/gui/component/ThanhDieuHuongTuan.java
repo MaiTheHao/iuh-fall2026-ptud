@@ -19,10 +19,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
 import java.util.function.Consumer;
 
-/**
- * Thanh điều hướng tuần dùng chung: nút tuần trước/sau/tuần này kèm combo Tháng/Năm.
- * Mọi thay đổi đều quy về Thứ 2 của tuần và phát một callback duy nhất.
- */
 public final class ThanhDieuHuongTuan extends JPanel {
 
 	
@@ -144,7 +140,6 @@ public final class ThanhDieuHuongTuan extends JPanel {
 		this.dongBoDieuKhien();
 	}
 
-	/** Nạp lại toàn bộ chữ hiển thị; gọi từ render() của trang khi đổi ngôn ngữ. */
 	public void capNhatNgonNgu() {
 		this.btnTruoc.setToolTipText(I18nReaderUtil.get("app.schedule.previousWeek"));
 		this.btnSau.setToolTipText(I18nReaderUtil.get("app.schedule.nextWeek"));

@@ -32,9 +32,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-/**
- * Trang chủ: thông tin nhân viên, ca làm việc và các chỉ số nhanh trong ngày.
- */
 public class DashboardPage extends AbstractPage {
 
     private static final int RONG_THE = 820;

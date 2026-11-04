@@ -50,7 +50,6 @@ public class ManagementPanel extends JPanel {
   private static final int CO_ICON_NUT = 18;
   private static final int RONG_COT_CHON = 44;
 
-  /** Handle của một bộ lọc chọn một giá trị; đọc mã enum hoặc giá trị thô. */
   public record BoLocChon(JComboBox<Object> combo) {
 
     public String ma() {
@@ -68,7 +67,6 @@ public class ManagementPanel extends JPanel {
     }
   }
 
-  /** Handle của bộ lọc khoảng ngày. */
   public record BoLocNgay(DatePicker tu, DatePicker den) {
 
     public LocalDate tuNgay() {
@@ -80,7 +78,6 @@ public class ManagementPanel extends JPanel {
     }
   }
 
-  /** Handle của bộ lọc khoảng nhập tay. */
   public record BoLocKhoang(JTextField tu, JTextField den) {
 
     public String tuText() {
@@ -191,7 +188,6 @@ public class ManagementPanel extends JPanel {
     this.add(listPanel, BorderLayout.CENTER);
   }
 
-  // ==================== THANH THAO TÁC TRÊN BẢNG ====================
 
   private void cauHinhThanhThaoTac() {
     this.pnlThanhThaoTac.setOpaque(false);
@@ -375,7 +371,6 @@ public class ManagementPanel extends JPanel {
     });
   }
 
-  // ==================== CỘT CHỌN NHIỀU ====================
 
   private List<Object[]> chupDuLieu() {
     List<Object[]> ketQua = new ArrayList<>();
@@ -517,7 +512,7 @@ public class ManagementPanel extends JPanel {
 
   public BoLocChon addComboBoxFilter(String labelKey, Object[] values) {
     JComboBox<Object> combo = new JComboBox<>();
-    combo.addItem(null); // Tất cả
+    combo.addItem(null);
     for (Object value : values) {
       combo.addItem(value);
     }
@@ -529,10 +524,6 @@ public class ManagementPanel extends JPanel {
     return new BoLocChon(combo);
   }
 
-  /**
-   * Bộ lọc dùng combo tìm kiếm có gợi ý: gõ tới đâu lọc tới đó, chọn một gợi ý
-   * thì ô nhập nhận đúng khóa duy nhất của bản ghi (mã phiếu, số điện thoại...).
-   */
   public void addComboSearchFilter(String labelKey, ComboTimKiem<?> combo) {
     JTextField oNhap = (JTextField) combo.getEditor().getEditorComponent();
     this.boLocText.add(oNhap);
@@ -731,10 +722,6 @@ public class ManagementPanel extends JPanel {
     return this.tblDuLieu.getSelectedRow();
   }
 
-  /**
-   * Khung bộ lọc dùng WrapLayout: số hàng phụ thuộc bề rộng thật, nên khi bề rộng đổi
-   * phải báo parent tính lại chiều cao (BorderLayout chỉ lấy preferred size một lần).
-   */
   private static final class KhungBoLoc extends JPanel {
 
     

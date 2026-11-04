@@ -36,9 +36,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Tiếp nhận khiếu nại của khách hàng dựa trên số điện thoại và phiếu tiếp nhận liên quan.
- */
 public class TiepNhanKhieuNaiPage extends AbstractPage {
 
     
@@ -46,13 +43,11 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     private static final Logger LOGGER = Logger.getLogger(TiepNhanKhieuNaiPage.class.getName());
 
 
-    // Services
     private final KhachHangService khachHangService = new KhachHangService();
     private final KhieuNaiService khieuNaiService = new KhieuNaiService();
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
     private KhachHang khachHangDangChon;
 
-    // Các thành phần UI
     private final ComboTimKiem<KhachHang> cmbSdt = new ComboTimKiem<>(
             tuKhoa -> this.khachHangService.search(new DanhSachKhachHangCriteria(
                     null,
@@ -95,7 +90,6 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         this.btnLamMoi.setText(I18nReaderUtil.get("app.khieuNai.lamMoi"));
         this.btnLuu.setText(I18nReaderUtil.get("app.khieuNai.luu"));
 
-        // Container chính bao bọc toàn bộ Form
         JPanel mainContainer = new JPanel(new BorderLayout(0, 10));
         mainContainer.setOpaque(false);
         Insets padding = Theme.fieldRowInsets();
@@ -104,21 +98,18 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
                 BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
         ));
 
-        // -- HAI PANEL TRÊN (NORTH) --
         JPanel pnlTop = new JPanel(new GridLayout(1, 2, 16, 0));
         pnlTop.setOpaque(false);
         pnlTop.add(this.createKhachHangPanel());
         pnlTop.add(this.createPhieuTiepNhanPanel());
         mainContainer.add(pnlTop, BorderLayout.NORTH);
 
-        // -- NỘI DUNG KHIẾU NẠI (CENTER) --
         mainContainer.add(this.createNoiDungPanel(), BorderLayout.CENTER);
 
-        // -- VÙNG NÚT BẤM (SOUTH) --
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setOpaque(false);
-        buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.BORDER)); // Đường line mờ phân cách
-        buttonPanel.add(Box.createVerticalStrut(24)); // Tạo khoảng cách với đường line
+        buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.BORDER));
+        buttonPanel.add(Box.createVerticalStrut(24));
 
         this.btnLamMoi.setPreferredSize(new Dimension(140, 40));
         this.btnLuu.setPreferredSize(new Dimension(180, 40));
@@ -129,7 +120,6 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
         mainContainer.add(buttonPanel, BorderLayout.SOUTH);
 
-        // --- Gắn sự kiện (Action Listeners) ---
         this.clearActionListeners(this.btnLamMoi, this.btnLuu);
 
         this.btnLamMoi.addActionListener(e -> this.lamMoi());
@@ -292,18 +282,15 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         gbc.insets = new Insets(0, 0, 5, 0);
         gbc.weightx = 1.0;
 
-        // Số điện thoại (*)
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         JLabel lblSdt = new JLabel(I18nReaderUtil.get("app.khieuNai.sdt"));
         lblSdt.setFont(Theme.fieldLabelFont());
         lblSdt.setForeground(Theme.INK);
         panel.add(lblSdt, gbc);
 
-        // Nhập SĐT có gợi ý khách hàng
         gbc.gridy = 1; gbc.gridwidth = 2;
         panel.add(this.cmbSdt, gbc);
 
-        // Họ tên khách hàng
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; gbc.weightx = 1.0; gbc.insets = new Insets(10, 0, 5, 0);
         JLabel lblHoTen = new JLabel(I18nReaderUtil.get("app.khieuNai.hoTen"));
         lblHoTen.setFont(Theme.fieldLabelFont());
@@ -331,7 +318,6 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         gbc.insets = new Insets(0, 0, 5, 0);
         gbc.weightx = 1.0;
 
-        // Phiếu tiếp nhận khiếu nại (*)
         gbc.gridx = 0; gbc.gridy = 0;
         JLabel lblPhieu = new JLabel(I18nReaderUtil.get("app.khieuNai.phieuTiepNhan") + " (*):");
         lblPhieu.setFont(Theme.fieldLabelFont());
@@ -341,7 +327,6 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         gbc.gridy = 1;
         panel.add(this.cmbPhieu, gbc);
 
-        // Nội dung yêu cầu ban đầu
         gbc.gridy = 2; gbc.insets = new Insets(10, 0, 5, 0);
         JLabel lblNoiDung = new JLabel(I18nReaderUtil.get("app.khieuNai.noiDungBanDau"));
         lblNoiDung.setFont(Theme.fieldLabelFont());

@@ -25,10 +25,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Màn hình xem chẩn đoán kỹ thuật của phiếu tiếp nhận đang chọn.
- * Cho phép nhân viên đổi nhanh trạng thái "Khách hàng đồng ý" ngay trên từng dòng.
- */
 public class XemChanDoanPage extends AbstractPage {
 
     

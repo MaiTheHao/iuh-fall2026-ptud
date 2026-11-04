@@ -14,10 +14,6 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-/**
- * Phần dùng chung của form xe: trường nhập liệu, đọc/ghi dữ liệu và kiểm tra hợp lệ.
- * Lớp con quyết định bố cục cho dialog tạo mới hoặc cập nhật.
- */
 public abstract class XeFormPanel extends FormFieldPanel {
 
   
@@ -37,7 +33,6 @@ public abstract class XeFormPanel extends FormFieldPanel {
     FormValidationHelper.autoClearOnInput(this.txtOdo);
   }
 
-  /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(XeFormData data) {
@@ -115,7 +110,6 @@ public abstract class XeFormPanel extends FormFieldPanel {
     return true;
   }
 
-  /** Chỗ mở rộng cho rule chỉ áp dụng ở một mode. */
   protected JComponent kiemTraRieng() {
     return null;
   }

@@ -13,7 +13,6 @@ public record BaseFormDialogConfig(
         int chieuCao,
         boolean chiDoc) {
 
-  /** Dialog nhập liệu thông thường. */
   public BaseFormDialogConfig(Window owner,
           String titleKey,
           JComponent noiDungForm,

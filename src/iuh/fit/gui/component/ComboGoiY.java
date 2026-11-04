@@ -4,9 +4,6 @@ import java.util.List;
 
 import javax.swing.JComboBox;
 
-/**
- * Thao tác dùng chung cho combo nhập tay: đọc giá trị đang gõ và nạp danh sách gợi ý.
- */
 public final class ComboGoiY {
 
     private ComboGoiY() {
@@ -19,7 +16,6 @@ public final class ComboGoiY {
     }
 
     public static void nap(JComboBox<String> combo, List<String> danhSach, String giaTriGiuLai) {
-        // Phải đọc giá trị hiện tại trước removeAllItems vì thao tác đó xoá trắng editor.
         String giuLai = giaTriGiuLai == null ? giaTri(combo) : giaTriGiuLai;
 
         combo.removeAllItems();

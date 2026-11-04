@@ -108,7 +108,6 @@ public class KhachHangPage extends AbstractPage {
     this.repaint();
   }
 
-  // ==================== TẢI DANH SÁCH ====================
 
   private void taiLai(int page) {
     DanhSachKhachHangCriteria tieuChi = new DanhSachKhachHangCriteria(
@@ -158,7 +157,6 @@ public class KhachHangPage extends AbstractPage {
             NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_NGAY_TAO)));
   }
 
-  // ==================== DIALOG ====================
 
   private void moDialogThem() {
     KhachHangTaoFormPanel form = new KhachHangTaoFormPanel();
@@ -249,7 +247,6 @@ public class KhachHangPage extends AbstractPage {
     return false;
   }
 
-  // ==================== XÓA ====================
 
   private void xoa(int row) {
     String maKhachHang = NumberParseUtil.textOf(
@@ -298,7 +295,6 @@ public class KhachHangPage extends AbstractPage {
         this.khachHangService.delete(maKhachHang);
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
-        // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
       } catch (SQLException e) {
         loiHeThong = true;
         break;

@@ -46,10 +46,8 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
     private static final Logger LOGGER = Logger.getLogger(QuanLyPhieuTiepNhanPage.class.getName());
 
 
-    /** Dialog sửa phiếu tiếp nhận: 6 khối nhập liệu. */
     private static final int CHIEU_CAO_SUA = 650;
 
-    /** Dialog xem chi tiết phiếu tiếp nhận: 7 khối chỉ đọc. */
     private static final int CHIEU_CAO_CHI_TIET = 560;
 
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();

@@ -2,9 +2,6 @@ package iuh.fit.gui.form;
 
 import iuh.fit.gui.Theme;
 
-/**
- * Form tạo mới xe: biển số là dữ liệu nhập.
- */
 public final class XeTaoFormPanel extends XeFormPanel {
 
   

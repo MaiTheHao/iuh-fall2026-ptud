@@ -2,9 +2,6 @@ package iuh.fit.gui.form;
 
 import iuh.fit.gui.Theme;
 
-/**
- * Form cập nhật nhân viên: tên đăng nhập là khóa nên chỉ đọc, mật khẩu để trống nếu không đổi.
- */
 public final class NhanVienSuaFormPanel extends NhanVienFormPanel {
 
   

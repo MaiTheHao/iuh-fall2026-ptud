@@ -6,9 +6,6 @@ import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.JComponent;
 
-/**
- * Form tạo mới nhân viên: bắt buộc có tên đăng nhập và mật khẩu.
- */
 public final class NhanVienTaoFormPanel extends NhanVienFormPanel {
 
   

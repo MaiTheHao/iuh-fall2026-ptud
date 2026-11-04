@@ -4,7 +4,6 @@ public class DongXe {
     private String maDongXe;
     private String maHangXe;
     private String ten;
-    // chi de hien thi
     private String tenHangXe;
 
     public DongXe() {

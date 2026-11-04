@@ -32,9 +32,6 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Màn lập/sửa chẩn đoán đa dòng cho một phiếu tiếp nhận.
- */
 public class BangChanDoanPage extends AbstractPage {
 
     

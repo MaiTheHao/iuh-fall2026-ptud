@@ -2,9 +2,6 @@ package iuh.fit.dto;
 
 import java.util.List;
 
-/**
- * Kết quả phân trang: dữ liệu của một trang kèm thông tin để dựng điều hướng.
- */
 public record PaginatedResult<T>(
         List<T> items,
         int page,
@@ -13,10 +10,6 @@ public record PaginatedResult<T>(
 
     public static final int DEFAULT_PAGE_SIZE = 20;
 
-    /**
-     * Page size cho màn hình cần tải toàn bộ kết quả (dialog chọn, combo đầy đủ).
-     * Luôn dùng kèm page = 1; trần 10_000 chỉ để giới hạn số dòng dựng trên UI.
-     */
     public static final int PAGE_SIZE_TAI_TOAN_BO = 10_000;
 
     public static <T> PaginatedResult<T> of(List<T> items, int page, int pageSize) {

@@ -1,8 +1,5 @@
 package iuh.fit.gui.form;
 
-/**
- * Form tạo mới phụ tùng: mã do hệ thống sinh nên không hiển thị.
- */
 public final class PhuTungTaoFormPanel extends PhuTungFormPanel {
 
   

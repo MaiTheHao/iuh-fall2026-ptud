@@ -1,8 +1,5 @@
 package iuh.fit.gui.form;
 
-/**
- * Form tạo mới khách hàng: mã và ngày tạo do hệ thống sinh nên không hiển thị.
- */
 public final class KhachHangTaoFormPanel extends KhachHangFormPanel {
 
   

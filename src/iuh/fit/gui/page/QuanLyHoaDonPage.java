@@ -31,7 +31,6 @@ import java.util.List;
 public class QuanLyHoaDonPage extends AbstractPage {
 
 
-	/** Dialog xem chi tiết hóa đơn: 10 trường chỉ đọc. */
 	private static final int CHIEU_CAO_CHI_TIET = 800;
 
 	private final HoaDonService hoaDonService = new HoaDonService();
@@ -280,7 +279,6 @@ public class QuanLyHoaDonPage extends AbstractPage {
 				this.hoaDonService.huy(this.danhSachHienTai.get(row).maHoaDon(), lyDo);
 				thanhCong++;
 			} catch (IllegalArgumentException | IllegalStateException ignored) {
-				// Hóa đơn bị từ chối do ràng buộc nghiệp vụ: ghi nhận vào báo cáo tổng hợp.
 			} catch (SQLException e) {
 				loiHeThong = true;
 				break;

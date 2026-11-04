@@ -10,9 +10,6 @@ import javax.swing.JTextField;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Form chỉ đọc hiển thị chi tiết hóa đơn trong dialog.
- */
 public final class HoaDonChiTietFormPanel extends FormFieldPanel {
 
   

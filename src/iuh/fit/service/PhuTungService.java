@@ -45,7 +45,6 @@ public class PhuTungService {
 
         List<PhuTung> matched = this.phuTungDAO.findAll().stream()
                 .filter(item -> this.matches(item, filter))
-                // Mã null xếp cuối thay vì ném NullPointerException; dùng chung với getAllForSelection.
                 .sorted(THEO_MA_PHU_TUNG)
                 .toList();
 
@@ -79,7 +78,6 @@ public class PhuTungService {
             throw new IllegalArgumentException(ERROR_ID);
         }
 
-        // Không cho phép thay đổi tồn kho khi sửa thông tin.
         phuTung.setSoLuongTon(existing.get().getSoLuongTon());
 
         this.phuTungDAO.update(phuTung);
