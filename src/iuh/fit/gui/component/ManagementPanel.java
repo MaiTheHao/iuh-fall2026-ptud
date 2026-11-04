@@ -108,7 +108,7 @@ public class ManagementPanel extends JPanel {
               : Object.class;
     }
   };
-  private final JTable bang = new JTable(this.moHinhBang) {
+  private final JTable tblDuLieu = new JTable(this.moHinhBang) {
 
     private static final long serialVersionUID = 1L;
 
@@ -124,22 +124,22 @@ public class ManagementPanel extends JPanel {
     }
   };
   private final CardLayout theDanhSach = new CardLayout();
-  private final JPanel khungDanhSach = new JPanel(this.theDanhSach);
+  private final JPanel pnlDanhSach = new JPanel(this.theDanhSach);
 
-  private final JPanel khungBoLoc = new KhungBoLoc();
+  private final JPanel pnlBoLoc = new KhungBoLoc();
   private final List<JTextField> boLocText = new ArrayList<>();
   private final List<DatePicker[]> boLocNgay = new ArrayList<>();
   private final List<JLabel> nhanBoLoc = new ArrayList<>();
-  private final JTextField oTimNhanh = new JTextField(20);
-  private final JLabel nhanDem = new JLabel();
-  private final JButton nutXoaLoc = new JButton(I18nReaderUtil.get("app.common.clearFilter"));
-  private final JButton nutTruoc = new JButton(I18nReaderUtil.get("app.common.prev"));
-  private final JButton nutSau = new JButton(I18nReaderUtil.get("app.common.next"));
-  private final JLabel nhanTrang = new JLabel();
+  private final JTextField txtOTimNhanh = new JTextField(20);
+  private final JLabel lblNhanDem = new JLabel();
+  private final JButton btnXoaLoc = new JButton(I18nReaderUtil.get("app.common.clearFilter"));
+  private final JButton btnTruoc = new JButton(I18nReaderUtil.get("app.common.prev"));
+  private final JButton btnSau = new JButton(I18nReaderUtil.get("app.common.next"));
+  private final JLabel lblNhanTrang = new JLabel();
 
-  private final JPanel thanhThaoTac = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
-  private final JButton nutThem = new JButton();
-  private final JButton nutBatchAction = new JButton();
+  private final JPanel pnlThanhThaoTac = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
+  private final JButton btnThem = new JButton();
+  private final JButton btnBatchAction = new JButton();
 
   private Runnable khiDoiBoLoc;
   private boolean dangXoaLoc;
@@ -161,19 +161,19 @@ public class ManagementPanel extends JPanel {
     this.setLayout(new BorderLayout(4, 4));
     this.setOpaque(false);
 
-    this.bang.setFillsViewportHeight(true);
-    this.bang.setRowHeight(34);
-    this.oTimNhanh.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
+    this.tblDuLieu.setFillsViewportHeight(true);
+    this.tblDuLieu.setRowHeight(34);
+    this.txtOTimNhanh.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
             I18nReaderUtil.get("app.common.search"));
-    this.oTimNhanh.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON,
+    this.txtOTimNhanh.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON,
             new LucideIcon("search", CO_ICON_TIM, Theme.palette().INK_MUTED()));
 
-    Theme.styleTable(this.bang);
-    Theme.applySecondary(this.nutXoaLoc);
-    Theme.applySecondary(this.nutTruoc);
-    Theme.applySecondary(this.nutSau);
+    Theme.styleTable(this.tblDuLieu);
+    Theme.applySecondary(this.btnXoaLoc);
+    Theme.applySecondary(this.btnTruoc);
+    Theme.applySecondary(this.btnSau);
 
-    this.attachTextListener(this.oTimNhanh);
+    this.attachTextListener(this.txtOTimNhanh);
     this.cauHinhThanhThaoTac();
     this.caiDatSuKienBang();
 
@@ -183,9 +183,9 @@ public class ManagementPanel extends JPanel {
     listPanel.add(this.buildTablePanel(), BorderLayout.CENTER);
     listPanel.add(this.buildPaginationPanel(), BorderLayout.SOUTH);
 
-    this.khungDanhSach.setOpaque(false);
-    this.khungDanhSach.add(new JScrollPane(this.bang), THE_BANG);
-    this.khungDanhSach.add(this.buildEmptyLabel(), THE_TRONG);
+    this.pnlDanhSach.setOpaque(false);
+    this.pnlDanhSach.add(new JScrollPane(this.tblDuLieu), THE_BANG);
+    this.pnlDanhSach.add(this.buildEmptyLabel(), THE_TRONG);
 
     this.add(listPanel, BorderLayout.CENTER);
   }
@@ -193,48 +193,48 @@ public class ManagementPanel extends JPanel {
   // ==================== THANH THAO TÁC TRÊN BẢNG ====================
 
   private void cauHinhThanhThaoTac() {
-    this.thanhThaoTac.setOpaque(false);
+    this.pnlThanhThaoTac.setOpaque(false);
 
-    this.nutThem.setIcon(new LucideIcon("plus", CO_ICON_NUT, Theme.palette().ON_ACCENT()));
-    this.nutThem.setIconTextGap(6);
-    this.nutThem.setFocusPainted(false);
-    this.nutThem.setVisible(false);
-    this.nutThem.addActionListener(e -> {
+    this.btnThem.setIcon(new LucideIcon("plus", CO_ICON_NUT, Theme.palette().ON_ACCENT()));
+    this.btnThem.setIconTextGap(6);
+    this.btnThem.setFocusPainted(false);
+    this.btnThem.setVisible(false);
+    this.btnThem.addActionListener(e -> {
       if (this.xuLyThem != null) {
         this.xuLyThem.run();
       }
     });
-    Theme.applyPrimary(this.nutThem);
+    Theme.applyPrimary(this.btnThem);
 
-    this.nutBatchAction.setIcon(new LucideIcon("trash-2", CO_ICON_NUT, Theme.palette().ON_ACCENT()));
-    this.nutBatchAction.setIconTextGap(6);
-    this.nutBatchAction.setFocusPainted(false);
-    this.nutBatchAction.setVisible(false);
-    this.nutBatchAction.setEnabled(false);
-    this.nutBatchAction.addActionListener(e -> {
+    this.btnBatchAction.setIcon(new LucideIcon("trash-2", CO_ICON_NUT, Theme.palette().ON_ACCENT()));
+    this.btnBatchAction.setIconTextGap(6);
+    this.btnBatchAction.setFocusPainted(false);
+    this.btnBatchAction.setVisible(false);
+    this.btnBatchAction.setEnabled(false);
+    this.btnBatchAction.addActionListener(e -> {
       if (this.xuLyBatch != null) {
         this.xuLyBatch.accept(this.getSelectedRowIndices());
       }
     });
 
-    this.thanhThaoTac.add(this.nutBatchAction);
-    this.thanhThaoTac.add(this.nutThem);
+    this.pnlThanhThaoTac.add(this.btnBatchAction);
+    this.pnlThanhThaoTac.add(this.btnThem);
   }
 
   private JPanel buildTablePanel() {
     JPanel khung = new JPanel(new BorderLayout(0, 4));
     khung.setOpaque(false);
-    khung.add(this.thanhThaoTac, BorderLayout.NORTH);
-    khung.add(this.khungDanhSach, BorderLayout.CENTER);
+    khung.add(this.pnlThanhThaoTac, BorderLayout.NORTH);
+    khung.add(this.pnlDanhSach, BorderLayout.CENTER);
     return khung;
   }
 
   public void setAddAction(String labelKey, Runnable onAdd) {
     this.xuLyThem = onAdd;
-    this.nutThem.setText(I18nReaderUtil.get(labelKey));
-    this.nutThem.setVisible(true);
-    this.thanhThaoTac.revalidate();
-    this.thanhThaoTac.repaint();
+    this.btnThem.setText(I18nReaderUtil.get(labelKey));
+    this.btnThem.setVisible(true);
+    this.pnlThanhThaoTac.revalidate();
+    this.pnlThanhThaoTac.repaint();
   }
 
   public void setBatchAction(String labelKey,
@@ -246,19 +246,19 @@ public class ManagementPanel extends JPanel {
 
     boolean nguyHiem = kieu == ThaoTac.KieuThaoTac.NGUY_HIEM;
     if (nguyHiem) {
-      Theme.applyDanger(this.nutBatchAction);
+      Theme.applyDanger(this.btnBatchAction);
     } else {
-      Theme.applySecondary(this.nutBatchAction);
+      Theme.applySecondary(this.btnBatchAction);
     }
 
-    this.nutBatchAction.setIcon(new LucideIcon(iconName,
+    this.btnBatchAction.setIcon(new LucideIcon(iconName,
             CO_ICON_NUT,
             nguyHiem ? Theme.palette().ON_ACCENT() : Theme.INK));
-    this.nutBatchAction.setVisible(true);
+    this.btnBatchAction.setVisible(true);
 
     this.capNhatNutBatch();
-    this.thanhThaoTac.revalidate();
-    this.thanhThaoTac.repaint();
+    this.pnlThanhThaoTac.revalidate();
+    this.pnlThanhThaoTac.repaint();
   }
 
   public void enableMultiSelection(boolean enable) {
@@ -292,15 +292,15 @@ public class ManagementPanel extends JPanel {
   }
 
   private void capNhatNutBatch() {
-    this.bang.getTableHeader().repaint();
+    this.tblDuLieu.getTableHeader().repaint();
 
     if (this.nhanBatchKey == null) {
       return;
     }
 
     int soLuong = this.getSelectedRowIndices().size();
-    this.nutBatchAction.setText(I18nReaderUtil.get(this.nhanBatchKey) + " (" + soLuong + ")");
-    this.nutBatchAction.setEnabled(soLuong > 0);
+    this.btnBatchAction.setText(I18nReaderUtil.get(this.nhanBatchKey) + " (" + soLuong + ")");
+    this.btnBatchAction.setEnabled(soLuong > 0);
   }
 
   private boolean tatCaDuocChon() {
@@ -328,7 +328,7 @@ public class ManagementPanel extends JPanel {
   private void caiDatSuKienBang() {
     this.moHinhBang.addTableModelListener(e -> this.capNhatNutBatch());
 
-    this.bang.addMouseListener(new MouseAdapter() {
+    this.tblDuLieu.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (ManagementPanel.this.khiNhapDup == null
@@ -337,8 +337,8 @@ public class ManagementPanel extends JPanel {
           return;
         }
 
-        int dongView = ManagementPanel.this.bang.rowAtPoint(e.getPoint());
-        int cotView = ManagementPanel.this.bang.columnAtPoint(e.getPoint());
+        int dongView = ManagementPanel.this.tblDuLieu.rowAtPoint(e.getPoint());
+        int cotView = ManagementPanel.this.tblDuLieu.columnAtPoint(e.getPoint());
 
         if (dongView < 0) {
           return;
@@ -353,19 +353,19 @@ public class ManagementPanel extends JPanel {
         }
 
         ManagementPanel.this.khiNhapDup.accept(
-                ManagementPanel.this.bang.convertRowIndexToModel(dongView));
+                ManagementPanel.this.tblDuLieu.convertRowIndexToModel(dongView));
       }
     });
 
-    this.bang.getTableHeader().addMouseListener(new MouseAdapter() {
+    this.tblDuLieu.getTableHeader().addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (!ManagementPanel.this.chonNhieu
-                || ManagementPanel.this.bang.getColumnCount() == 0) {
+                || ManagementPanel.this.tblDuLieu.getColumnCount() == 0) {
           return;
         }
 
-        int cotView = ManagementPanel.this.bang.getColumnModel().getColumnIndexAtX(e.getX());
+        int cotView = ManagementPanel.this.tblDuLieu.getColumnModel().getColumnIndexAtX(e.getX());
 
         if (cotView == 0) {
           ManagementPanel.this.datTatCaChon(!ManagementPanel.this.tatCaDuocChon());
@@ -425,11 +425,11 @@ public class ManagementPanel extends JPanel {
   }
 
   private void cauHinhCotChon() {
-    if (this.bang.getColumnCount() == 0) {
+    if (this.tblDuLieu.getColumnCount() == 0) {
       return;
     }
 
-    TableColumn cotChon = this.bang.getColumnModel().getColumn(0);
+    TableColumn cotChon = this.tblDuLieu.getColumnModel().getColumn(0);
     cotChon.setMinWidth(RONG_COT_CHON);
     cotChon.setMaxWidth(RONG_COT_CHON);
     cotChon.setPreferredWidth(RONG_COT_CHON);
@@ -467,29 +467,29 @@ public class ManagementPanel extends JPanel {
 
   private void hienTrangThaiDanhSach() {
     if (this.moHinhBang.getRowCount() == 0) {
-      this.theDanhSach.show(this.khungDanhSach, THE_TRONG);
+      this.theDanhSach.show(this.pnlDanhSach, THE_TRONG);
     } else {
-      this.theDanhSach.show(this.khungDanhSach, THE_BANG);
+      this.theDanhSach.show(this.pnlDanhSach, THE_BANG);
     }
   }
 
   private JPanel buildFilterPanel() {
-    this.khungBoLoc.setOpaque(false);
+    this.pnlBoLoc.setOpaque(false);
 
     JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
     actions.setOpaque(false);
 
-    this.oTimNhanh.setPreferredSize(new Dimension(240,
-            this.oTimNhanh.getPreferredSize().height));
-    actions.add(this.oTimNhanh);
+    this.txtOTimNhanh.setPreferredSize(new Dimension(240,
+            this.txtOTimNhanh.getPreferredSize().height));
+    actions.add(this.txtOTimNhanh);
 
-    this.nhanDem.setForeground(Theme.palette().INK_SECONDARY());
-    actions.add(this.nhanDem);
-    actions.add(this.nutXoaLoc);
+    this.lblNhanDem.setForeground(Theme.palette().INK_SECONDARY());
+    actions.add(this.lblNhanDem);
+    actions.add(this.btnXoaLoc);
 
     JPanel panel = new JPanel(new BorderLayout(4, 4));
     panel.setOpaque(false);
-    panel.add(this.khungBoLoc, BorderLayout.CENTER);
+    panel.add(this.pnlBoLoc, BorderLayout.CENTER);
     panel.add(actions, BorderLayout.SOUTH);
     return panel;
   }
@@ -498,10 +498,10 @@ public class ManagementPanel extends JPanel {
     JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 6));
     panel.setOpaque(true);
     panel.setBackground(Theme.palette().PANEL_ALT());
-    this.nhanTrang.setForeground(Theme.INK);
-    panel.add(this.nutTruoc);
-    panel.add(this.nhanTrang);
-    panel.add(this.nutSau);
+    this.lblNhanTrang.setForeground(Theme.INK);
+    panel.add(this.btnTruoc);
+    panel.add(this.lblNhanTrang);
+    panel.add(this.btnSau);
     return panel;
   }
 
@@ -509,8 +509,8 @@ public class ManagementPanel extends JPanel {
     JTextField field = new JTextField(14);
     this.boLocText.add(field);
     this.attachTextListener(field);
-    this.khungBoLoc.add(this.buildFilterItem(labelKey, field));
-    this.khungBoLoc.revalidate();
+    this.pnlBoLoc.add(this.buildFilterItem(labelKey, field));
+    this.pnlBoLoc.revalidate();
     return field;
   }
 
@@ -523,8 +523,8 @@ public class ManagementPanel extends JPanel {
     combo.setRenderer(BoHienThiI18n.tao());
     this.boLocCombo.add(combo);
     combo.addActionListener(e -> this.fireFilterChange());
-    this.khungBoLoc.add(this.buildFilterItem(labelKey, combo));
-    this.khungBoLoc.revalidate();
+    this.pnlBoLoc.add(this.buildFilterItem(labelKey, combo));
+    this.pnlBoLoc.revalidate();
     return new BoLocChon(combo);
   }
 
@@ -536,8 +536,8 @@ public class ManagementPanel extends JPanel {
     JTextField oNhap = (JTextField) combo.getEditor().getEditorComponent();
     this.boLocText.add(oNhap);
     this.attachTextListener(oNhap);
-    this.khungBoLoc.add(this.buildFilterItem(labelKey, combo));
-    this.khungBoLoc.revalidate();
+    this.pnlBoLoc.add(this.buildFilterItem(labelKey, combo));
+    this.pnlBoLoc.revalidate();
   }
 
   public BoLocNgay addDateRangeFilter(String labelKey) {
@@ -547,8 +547,8 @@ public class ManagementPanel extends JPanel {
     this.attachDateListener(from);
     this.attachDateListener(to);
 
-    this.khungBoLoc.add(this.buildRangeItem(labelKey, from, to));
-    this.khungBoLoc.revalidate();
+    this.pnlBoLoc.add(this.buildRangeItem(labelKey, from, to));
+    this.pnlBoLoc.revalidate();
     return new BoLocNgay(from, to);
   }
 
@@ -566,8 +566,8 @@ public class ManagementPanel extends JPanel {
     this.attachTextListener(fromField);
     this.attachTextListener(toField);
 
-    this.khungBoLoc.add(this.buildRangeItem(labelKey, fromField, toField));
-    this.khungBoLoc.revalidate();
+    this.pnlBoLoc.add(this.buildRangeItem(labelKey, fromField, toField));
+    this.pnlBoLoc.revalidate();
     return new BoLocKhoang(fromField, toField);
   }
 
@@ -615,19 +615,19 @@ public class ManagementPanel extends JPanel {
   }
 
   public String getQuickFilter() {
-    return this.oTimNhanh.getText();
+    return this.txtOTimNhanh.getText();
   }
 
   public JButton getClearFilterButton() {
-    return this.nutXoaLoc;
+    return this.btnXoaLoc;
   }
 
   public JButton getPrevButton() {
-    return this.nutTruoc;
+    return this.btnTruoc;
   }
 
   public JButton getNextButton() {
-    return this.nutSau;
+    return this.btnSau;
   }
 
   public void setFilterChangeListener(Runnable listener) {
@@ -646,7 +646,7 @@ public class ManagementPanel extends JPanel {
         pickers[1].clear();
       }
 
-      this.oTimNhanh.setText("");
+      this.txtOTimNhanh.setText("");
       this.boLocCombo.forEach(combo -> combo.setSelectedIndex(0));
     } finally {
       this.dangXoaLoc = false;
@@ -656,17 +656,17 @@ public class ManagementPanel extends JPanel {
   }
 
   public void setCount(long from, long to, long total) {
-    this.nhanDem.setText(I18nReaderUtil.get("app.common.count") + " " + from + "-" + to + " / " + total);
+    this.lblNhanDem.setText(I18nReaderUtil.get("app.common.count") + " " + from + "-" + to + " / " + total);
   }
 
   public void setPage(int page, int totalPages) {
-    this.nhanTrang.setText(I18nReaderUtil.get("app.common.pageLabel") + " " + page + "/" + totalPages);
-    this.nutTruoc.setEnabled(page > 1);
-    this.nutSau.setEnabled(page < totalPages);
+    this.lblNhanTrang.setText(I18nReaderUtil.get("app.common.pageLabel") + " " + page + "/" + totalPages);
+    this.btnTruoc.setEnabled(page > 1);
+    this.btnSau.setEnabled(page < totalPages);
   }
 
   public JTable getTable() {
-    return this.bang;
+    return this.tblDuLieu;
   }
 
   public DefaultTableModel getModel() {
@@ -696,14 +696,14 @@ public class ManagementPanel extends JPanel {
   }
 
   private void ganCotThaoTac() {
-    int cotView = this.bang.getColumnCount() - 1;
+    int cotView = this.tblDuLieu.getColumnCount() - 1;
 
     if (cotView < 0 || this.dsThaoTacHienTai == null) {
       return;
     }
 
     this.cotThaoTacView = cotView;
-    ThaoTacTableCellRenderer.ganVao(this.bang, cotView, this.dsThaoTacHienTai);
+    ThaoTacTableCellRenderer.ganVao(this.tblDuLieu, cotView, this.dsThaoTacHienTai);
   }
 
   public void setRows(List<Object[]> rows) {
@@ -727,7 +727,7 @@ public class ManagementPanel extends JPanel {
   }
 
   public int getSelectedRow() {
-    return this.bang.getSelectedRow();
+    return this.tblDuLieu.getSelectedRow();
   }
 
   /**

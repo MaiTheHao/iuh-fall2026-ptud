@@ -69,9 +69,9 @@ public final class DanhMucXePage extends AbstractPage {
 
   private final DanhMucXeService danhMucXeService = new DanhMucXeService();
 
-  private ManagementPanel panelHang;
-  private ManagementPanel panelDong;
-  private ManagementPanel panelDoi;
+  private ManagementPanel pnlHang;
+  private ManagementPanel pnlDong;
+  private ManagementPanel pnlDoi;
 
   private ManagementPanel.BoLocChon boLocHangDong;
   private ManagementPanel.BoLocChon boLocHangDoi;
@@ -123,14 +123,14 @@ public final class DanhMucXePage extends AbstractPage {
   // ==================== DỰNG TAB ====================
 
   private JPanel taoTabHangXe() {
-    this.panelHang = new ManagementPanel();
-    this.panelHang.setListTitle("app.danhMucXe.hangTitle");
-    this.panelHang.enableMultiSelection(true);
-    this.panelHang.setHeaders(
+    this.pnlHang = new ManagementPanel();
+    this.pnlHang.setListTitle("app.danhMucXe.hangTitle");
+    this.pnlHang.enableMultiSelection(true);
+    this.pnlHang.setHeaders(
             I18nReaderUtil.get("app.danhMucXe.ma"),
             I18nReaderUtil.get("app.danhMucXe.ten"));
 
-    this.panelHang.addActionColumn("app.common.actions",
+    this.pnlHang.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -139,37 +139,37 @@ public final class DanhMucXePage extends AbstractPage {
                     "app.common.delete",
                     ThaoTac.KieuThaoTac.NGUY_HIEM,
                     this::xoaHangXe));
-    this.panelHang.setAddAction("app.common.add_new", this::moDialogThemHangXe);
-    this.panelHang.setBatchAction("app.common.batch_delete",
+    this.pnlHang.setAddAction("app.common.add_new", this::moDialogThemHangXe);
+    this.pnlHang.setBatchAction("app.common.batch_delete",
             "trash-2",
             ThaoTac.KieuThaoTac.NGUY_HIEM,
             this::xoaNhieuHangXe);
-    this.panelHang.setRowDoubleClickListener(this::moDialogSuaHangXe);
-    this.panelHang.setFilterChangeListener(() -> {
+    this.pnlHang.setRowDoubleClickListener(this::moDialogSuaHangXe);
+    this.pnlHang.setFilterChangeListener(() -> {
       this.trangHang = 1;
       this.taiLaiHangXe();
     });
-    this.panelHang.getPrevButton().addActionListener(e -> this.doiTrangHang(-1));
-    this.panelHang.getNextButton().addActionListener(e -> this.doiTrangHang(1));
-    this.panelHang.getClearFilterButton().addActionListener(e -> {
-      this.panelHang.clearFilters();
+    this.pnlHang.getPrevButton().addActionListener(e -> this.doiTrangHang(-1));
+    this.pnlHang.getNextButton().addActionListener(e -> this.doiTrangHang(1));
+    this.pnlHang.getClearFilterButton().addActionListener(e -> {
+      this.pnlHang.clearFilters();
       this.trangHang = 1;
       this.taiLaiHangXe();
     });
 
-    return this.panelHang;
+    return this.pnlHang;
   }
 
   private JPanel taoTabDongXe() {
-    this.panelDong = new ManagementPanel();
-    this.panelDong.setListTitle("app.danhMucXe.dongTitle");
-    this.panelDong.enableMultiSelection(true);
-    this.panelDong.setHeaders(
+    this.pnlDong = new ManagementPanel();
+    this.pnlDong.setListTitle("app.danhMucXe.dongTitle");
+    this.pnlDong.enableMultiSelection(true);
+    this.pnlDong.setHeaders(
             I18nReaderUtil.get("app.danhMucXe.ma"),
             I18nReaderUtil.get("app.danhMucXe.hang"),
             I18nReaderUtil.get("app.danhMucXe.ten"));
 
-    this.panelDong.addActionColumn("app.common.actions",
+    this.pnlDong.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -178,39 +178,39 @@ public final class DanhMucXePage extends AbstractPage {
                     "app.common.delete",
                     ThaoTac.KieuThaoTac.NGUY_HIEM,
                     this::xoaDongXe));
-    this.panelDong.setAddAction("app.common.add_new", this::moDialogThemDongXe);
-    this.panelDong.setBatchAction("app.common.batch_delete",
+    this.pnlDong.setAddAction("app.common.add_new", this::moDialogThemDongXe);
+    this.pnlDong.setBatchAction("app.common.batch_delete",
             "trash-2",
             ThaoTac.KieuThaoTac.NGUY_HIEM,
             this::xoaNhieuDongXe);
-    this.panelDong.setRowDoubleClickListener(this::moDialogSuaDongXe);
-    this.boLocHangDong = this.panelDong.addComboBoxFilter("app.danhMucXe.hang", new Object[0]);
-    this.panelDong.setFilterChangeListener(() -> {
+    this.pnlDong.setRowDoubleClickListener(this::moDialogSuaDongXe);
+    this.boLocHangDong = this.pnlDong.addComboBoxFilter("app.danhMucXe.hang", new Object[0]);
+    this.pnlDong.setFilterChangeListener(() -> {
       this.trangDong = 1;
       this.taiLaiDongXe();
     });
-    this.panelDong.getPrevButton().addActionListener(e -> this.doiTrangDong(-1));
-    this.panelDong.getNextButton().addActionListener(e -> this.doiTrangDong(1));
-    this.panelDong.getClearFilterButton().addActionListener(e -> {
-      this.panelDong.clearFilters();
+    this.pnlDong.getPrevButton().addActionListener(e -> this.doiTrangDong(-1));
+    this.pnlDong.getNextButton().addActionListener(e -> this.doiTrangDong(1));
+    this.pnlDong.getClearFilterButton().addActionListener(e -> {
+      this.pnlDong.clearFilters();
       this.trangDong = 1;
       this.taiLaiDongXe();
     });
 
-    return this.panelDong;
+    return this.pnlDong;
   }
 
   private JPanel taoTabDoiXe() {
-    this.panelDoi = new ManagementPanel();
-    this.panelDoi.setListTitle("app.danhMucXe.doiTitle");
-    this.panelDoi.enableMultiSelection(true);
-    this.panelDoi.setHeaders(
+    this.pnlDoi = new ManagementPanel();
+    this.pnlDoi.setListTitle("app.danhMucXe.doiTitle");
+    this.pnlDoi.enableMultiSelection(true);
+    this.pnlDoi.setHeaders(
             I18nReaderUtil.get("app.danhMucXe.ma"),
             I18nReaderUtil.get("app.danhMucXe.hang"),
             I18nReaderUtil.get("app.danhMucXe.dong"),
             I18nReaderUtil.get("app.danhMucXe.nam"));
 
-    this.panelDoi.addActionColumn("app.common.actions",
+    this.pnlDoi.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -219,28 +219,28 @@ public final class DanhMucXePage extends AbstractPage {
                     "app.common.delete",
                     ThaoTac.KieuThaoTac.NGUY_HIEM,
                     this::xoaDoiXe));
-    this.panelDoi.setAddAction("app.common.add_new", this::moDialogThemDoiXe);
-    this.panelDoi.setBatchAction("app.common.batch_delete",
+    this.pnlDoi.setAddAction("app.common.add_new", this::moDialogThemDoiXe);
+    this.pnlDoi.setBatchAction("app.common.batch_delete",
             "trash-2",
             ThaoTac.KieuThaoTac.NGUY_HIEM,
             this::xoaNhieuDoiXe);
-    this.panelDoi.setRowDoubleClickListener(this::moDialogSuaDoiXe);
-    this.boLocHangDoi = this.panelDoi.addComboBoxFilter("app.danhMucXe.hang", new Object[0]);
-    this.boLocDongDoi = this.panelDoi.addComboBoxFilter("app.danhMucXe.dong", new Object[0]);
+    this.pnlDoi.setRowDoubleClickListener(this::moDialogSuaDoiXe);
+    this.boLocHangDoi = this.pnlDoi.addComboBoxFilter("app.danhMucXe.hang", new Object[0]);
+    this.boLocDongDoi = this.pnlDoi.addComboBoxFilter("app.danhMucXe.dong", new Object[0]);
     this.boLocHangDoi.combo().addActionListener(e -> this.napBoLocDong());
-    this.panelDoi.setFilterChangeListener(() -> {
+    this.pnlDoi.setFilterChangeListener(() -> {
       this.trangDoi = 1;
       this.taiLaiDoiXe();
     });
-    this.panelDoi.getPrevButton().addActionListener(e -> this.doiTrangDoi(-1));
-    this.panelDoi.getNextButton().addActionListener(e -> this.doiTrangDoi(1));
-    this.panelDoi.getClearFilterButton().addActionListener(e -> {
-      this.panelDoi.clearFilters();
+    this.pnlDoi.getPrevButton().addActionListener(e -> this.doiTrangDoi(-1));
+    this.pnlDoi.getNextButton().addActionListener(e -> this.doiTrangDoi(1));
+    this.pnlDoi.getClearFilterButton().addActionListener(e -> {
+      this.pnlDoi.clearFilters();
       this.trangDoi = 1;
       this.taiLaiDoiXe();
     });
 
-    return this.panelDoi;
+    return this.pnlDoi;
   }
 
   // ==================== NẠP DỮ LIỆU ====================
@@ -268,7 +268,7 @@ public final class DanhMucXePage extends AbstractPage {
         rows.add(new Object[] {hangXe.getMaHangXe(), hangXe.getTen()});
       }
       this.duLieuHang = rows;
-      this.trangHang = this.hienThi(this.panelHang, rows, this.trangHang);
+      this.trangHang = this.hienThi(this.pnlHang, rows, this.trangHang);
     } catch (SQLException e) {
       ThongBao.loi(this, "app.login.errorSystem");
     }
@@ -283,7 +283,7 @@ public final class DanhMucXePage extends AbstractPage {
         rows.add(new Object[] {dongXe.getMaDongXe(), dongXe.getTenHangXe(), dongXe.getTen()});
       }
       this.duLieuDong = rows;
-      this.trangDong = this.hienThi(this.panelDong, rows, this.trangDong);
+      this.trangDong = this.hienThi(this.pnlDong, rows, this.trangDong);
     } catch (SQLException e) {
       ThongBao.loi(this, "app.login.errorSystem");
     }
@@ -306,7 +306,7 @@ public final class DanhMucXePage extends AbstractPage {
             doiXe.getNamSX()});
       }
       this.duLieuDoi = rows;
-      this.trangDoi = this.hienThi(this.panelDoi, rows, this.trangDoi);
+      this.trangDoi = this.hienThi(this.pnlDoi, rows, this.trangDoi);
     } catch (SQLException e) {
       ThongBao.loi(this, "app.login.errorSystem");
     }
@@ -424,15 +424,15 @@ public final class DanhMucXePage extends AbstractPage {
   }
 
   private void doiTrangHang(int buoc) {
-    this.trangHang = this.hienThi(this.panelHang, this.duLieuHang, this.trangHang + buoc);
+    this.trangHang = this.hienThi(this.pnlHang, this.duLieuHang, this.trangHang + buoc);
   }
 
   private void doiTrangDong(int buoc) {
-    this.trangDong = this.hienThi(this.panelDong, this.duLieuDong, this.trangDong + buoc);
+    this.trangDong = this.hienThi(this.pnlDong, this.duLieuDong, this.trangDong + buoc);
   }
 
   private void doiTrangDoi(int buoc) {
-    this.trangDoi = this.hienThi(this.panelDoi, this.duLieuDoi, this.trangDoi + buoc);
+    this.trangDoi = this.hienThi(this.pnlDoi, this.duLieuDoi, this.trangDoi + buoc);
   }
 
   // ==================== DIALOG ====================
@@ -452,7 +452,7 @@ public final class DanhMucXePage extends AbstractPage {
   }
 
   private void moDialogSuaHangXe(int row) {
-    String ma = this.layMa(this.panelHang, row);
+    String ma = this.layMa(this.pnlHang, row);
 
     try {
       HangXe hangXe = this.danhMucXeService.getHangXe(ma);
@@ -503,7 +503,7 @@ public final class DanhMucXePage extends AbstractPage {
   }
 
   private void moDialogSuaDongXe(int row) {
-    String ma = this.layMa(this.panelDong, row);
+    String ma = this.layMa(this.pnlDong, row);
 
     try {
       DongXe dongXe = this.danhMucXeService.getDongXe(ma);
@@ -563,7 +563,7 @@ public final class DanhMucXePage extends AbstractPage {
   }
 
   private void moDialogSuaDoiXe(int row) {
-    String ma = this.layMa(this.panelDoi, row);
+    String ma = this.layMa(this.pnlDoi, row);
 
     try {
       DoiXe doiXe = this.danhMucXeService.getDoiXe(ma);
@@ -773,13 +773,13 @@ public final class DanhMucXePage extends AbstractPage {
   // ==================== XÓA ====================
 
   private void xoaHangXe(int row) {
-    String ma = this.layMa(this.panelHang, row);
+    String ma = this.layMa(this.pnlHang, row);
     if (ma.isBlank()) {
       ThongBao.canhBao(this, "app.danhMucXe.chuaChonXoa");
       return;
     }
 
-    String ten = this.layChuoi(this.panelHang, row, COT_HANG_TEN);
+    String ten = this.layChuoi(this.pnlHang, row, COT_HANG_TEN);
     if (!ThongBao.xacNhanDinhDang(this,
             "app.danhMucXe.xacNhanXoaTen",
             "app.danhMucXe.tieuDeXoa",
@@ -799,14 +799,14 @@ public final class DanhMucXePage extends AbstractPage {
   }
 
   private void xoaDongXe(int row) {
-    String ma = this.layMa(this.panelDong, row);
+    String ma = this.layMa(this.pnlDong, row);
     if (ma.isBlank()) {
       ThongBao.canhBao(this, "app.danhMucXe.chuaChonXoa");
       return;
     }
 
-    String ten = this.layChuoi(this.panelDong, row, COT_DONG_HANG)
-            + " - " + this.layChuoi(this.panelDong, row, COT_DONG_TEN);
+    String ten = this.layChuoi(this.pnlDong, row, COT_DONG_HANG)
+            + " - " + this.layChuoi(this.pnlDong, row, COT_DONG_TEN);
     if (!ThongBao.xacNhanDinhDang(this,
             "app.danhMucXe.xacNhanXoaTen",
             "app.danhMucXe.tieuDeXoa",
@@ -826,15 +826,15 @@ public final class DanhMucXePage extends AbstractPage {
   }
 
   private void xoaDoiXe(int row) {
-    String ma = this.layMa(this.panelDoi, row);
+    String ma = this.layMa(this.pnlDoi, row);
     if (ma.isBlank()) {
       ThongBao.canhBao(this, "app.danhMucXe.chuaChonXoa");
       return;
     }
 
-    String ten = this.layChuoi(this.panelDoi, row, COT_DOI_HANG)
-            + " - " + this.layChuoi(this.panelDoi, row, COT_DOI_DONG)
-            + " - " + this.layChuoi(this.panelDoi, row, COT_DOI_NAM);
+    String ten = this.layChuoi(this.pnlDoi, row, COT_DOI_HANG)
+            + " - " + this.layChuoi(this.pnlDoi, row, COT_DOI_DONG)
+            + " - " + this.layChuoi(this.pnlDoi, row, COT_DOI_NAM);
     if (!ThongBao.xacNhanDinhDang(this,
             "app.danhMucXe.xacNhanXoaTen",
             "app.danhMucXe.tieuDeXoa",
@@ -863,7 +863,7 @@ public final class DanhMucXePage extends AbstractPage {
 
     for (int row : rows) {
       try {
-        this.danhMucXeService.xoaHangXe(this.layMa(this.panelHang, row));
+        this.danhMucXeService.xoaHangXe(this.layMa(this.pnlHang, row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
         // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
@@ -887,7 +887,7 @@ public final class DanhMucXePage extends AbstractPage {
 
     for (int row : rows) {
       try {
-        this.danhMucXeService.xoaDongXe(this.layMa(this.panelDong, row));
+        this.danhMucXeService.xoaDongXe(this.layMa(this.pnlDong, row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
         // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.
@@ -911,7 +911,7 @@ public final class DanhMucXePage extends AbstractPage {
 
     for (int row : rows) {
       try {
-        this.danhMucXeService.xoaDoiXe(this.layMa(this.panelDoi, row));
+        this.danhMucXeService.xoaDoiXe(this.layMa(this.pnlDoi, row));
         thanhCong++;
       } catch (IllegalArgumentException | IllegalStateException ignored) {
         // Bản ghi đang được tham chiếu: ghi nhận vào báo cáo tổng hợp.

@@ -41,11 +41,11 @@ public class QuanLyHoaDonPage extends AbstractPage {
 
 	private int trang = 1;
 	private List<HoaDonView> danhSachHienTai = new ArrayList<>();
-	private ManagementPanel managementPanel;
+	private ManagementPanel pnlDanhSach;
 
-	private JTextField boLocMaHoaDon;
-	private JTextField boLocMaPhieu;
-	private JTextField boLocKhachHang;
+	private JTextField txtBoLocMaHoaDon;
+	private JTextField txtBoLocMaPhieu;
+	private JTextField txtBoLocKhachHang;
 	private ManagementPanel.BoLocNgay boLocNgayTao;
 	private ManagementPanel.BoLocChon boLocTrangThai;
 	private ManagementPanel.BoLocKhoang boLocTongTien;
@@ -62,7 +62,7 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		this.setBackground(Theme.BG);
 
 		ManagementPanel panel = new ManagementPanel();
-		this.managementPanel = panel;
+		this.pnlDanhSach = panel;
 		panel.setListTitle("app.hoaDon.danhSachTitle");
 		panel.enableMultiSelection(true);
 		panel.setHeaders(
@@ -88,9 +88,9 @@ public class QuanLyHoaDonPage extends AbstractPage {
 				this::huyNhieu);
 		panel.setRowDoubleClickListener(this::xemChiTiet);
 
-		this.boLocMaHoaDon = panel.addTextFilter("app.hoaDon.maHoaDon");
-		this.boLocMaPhieu = panel.addTextFilter("app.hoaDon.maPhieuTiepNhan");
-		this.boLocKhachHang = panel.addTextFilter("app.khachHang.hoTen");
+		this.txtBoLocMaHoaDon = panel.addTextFilter("app.hoaDon.maHoaDon");
+		this.txtBoLocMaPhieu = panel.addTextFilter("app.hoaDon.maPhieuTiepNhan");
+		this.txtBoLocKhachHang = panel.addTextFilter("app.khachHang.hoTen");
 		this.boLocNgayTao = panel.addDateRangeFilter("app.hoaDon.ngayTao");
 		this.boLocTrangThai = panel.addComboBoxFilter("app.hoaDon.trangThai", TrangThaiHoaDon.values());
 		this.boLocTongTien = panel.addRangeFilter("app.hoaDon.tongTien");
@@ -130,9 +130,9 @@ public class QuanLyHoaDonPage extends AbstractPage {
 
 		try {
 			DanhSachHoaDonCriteria tieuChi = new DanhSachHoaDonCriteria(
-					this.boLocMaHoaDon.getText(),
-					this.boLocMaPhieu.getText(),
-					this.boLocKhachHang.getText(),
+					this.txtBoLocMaHoaDon.getText(),
+					this.txtBoLocMaPhieu.getText(),
+					this.txtBoLocKhachHang.getText(),
 					this.boLocTrangThai.giaTri() instanceof TrangThaiHoaDon value ? value : null,
 					this.boLocNgayTao.tuNgay(),
 					this.boLocNgayTao.denNgay(),
@@ -295,7 +295,7 @@ public class QuanLyHoaDonPage extends AbstractPage {
 			ThongBao.canhBaoDinhDang(this, "app.hoaDon.batch_huy_result", thanhCong, soLuong);
 		}
 
-		this.taiLai(this.managementPanel, this.trang);
+		this.taiLai(this.pnlDanhSach, this.trang);
 	}
 
 	@Override

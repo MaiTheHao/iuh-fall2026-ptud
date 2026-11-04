@@ -32,7 +32,7 @@ public class Layout extends JPanel {
 
     private final PageRegistry registry = PageRegistry.getInstance();
     private final CardLayout cardLayout = new CardLayout();
-    private final JPanel content = new JPanel(cardLayout);
+    private final JPanel pnlNoiDung = new JPanel(cardLayout);
     private final LayoutHeader header;
 
     public Layout() {
@@ -40,10 +40,10 @@ public class Layout extends JPanel {
         this.setBackground(Theme.BG);
         this.setLayout(new BorderLayout());
         this.header = new LayoutHeader(this.registry, this::goTo, this::toggleLocale, this::logout);
-        this.content.setOpaque(false);
+        this.pnlNoiDung.setOpaque(false);
         this.addPages();
         this.bindShortcuts();
-        this.add(this.content, BorderLayout.CENTER);
+        this.add(this.pnlNoiDung, BorderLayout.CENTER);
     }
 
     private static Image layAnhNen() {
@@ -97,7 +97,7 @@ public class Layout extends JPanel {
             page.setOpaque(false);
             page.setBackground(Theme.BG);
             page.setNavigator(this::goTo);
-            this.content.add(page, cardKey(page.getClass()));
+            this.pnlNoiDung.add(page, cardKey(page.getClass()));
         }
     }
 
@@ -128,13 +128,13 @@ public class Layout extends JPanel {
 
     public void render() {
         AbstractPage page = this.resolveCurrentPage();
-        this.cardLayout.show(this.content, cardKey(page.getClass()));
+        this.cardLayout.show(this.pnlNoiDung, cardKey(page.getClass()));
         page.render();
         this.header.refreshText();
         this.header.setActive(page.getClass());
         this.header.setMenuVisible(AppContext.getInstance().getCurrentUser() != null);
-        this.content.revalidate();
-        this.content.repaint();
+        this.pnlNoiDung.revalidate();
+        this.pnlNoiDung.repaint();
         this.updateWindowState();
     }
 

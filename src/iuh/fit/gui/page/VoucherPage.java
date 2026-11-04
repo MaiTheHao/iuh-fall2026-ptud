@@ -53,9 +53,9 @@ public class VoucherPage extends AbstractPage {
 
   private final VoucherService voucherService = new VoucherService();
 
-  private ManagementPanel panel;
+  private ManagementPanel pnlDanhSach;
 
-  private JTextField boLocMa;
+  private JTextField txtBoLocMa;
   private ManagementPanel.BoLocKhoang boLocMucGiam;
   private ManagementPanel.BoLocNgay boLocThoiHan;
   private ManagementPanel.BoLocChon boLocTrangThai;
@@ -72,11 +72,11 @@ public class VoucherPage extends AbstractPage {
     this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     this.setBackground(Theme.BG);
 
-    this.panel = new ManagementPanel();
-    this.panel.setListTitle("app.voucher.danhSachTitle");
-    this.panel.enableMultiSelection(true);
+    this.pnlDanhSach = new ManagementPanel();
+    this.pnlDanhSach.setListTitle("app.voucher.danhSachTitle");
+    this.pnlDanhSach.enableMultiSelection(true);
 
-    this.panel.setHeaders(
+    this.pnlDanhSach.setHeaders(
             I18nReaderUtil.get("app.voucher.ma"),
             I18nReaderUtil.get("app.voucher.tenChuongTrinh"),
             I18nReaderUtil.get("app.voucher.moTa"),
@@ -84,7 +84,7 @@ public class VoucherPage extends AbstractPage {
             I18nReaderUtil.get("app.voucher.thoiHanApDung"),
             I18nReaderUtil.get("app.voucher.trangThaiKichHoat"));
 
-    this.panel.addActionColumn("app.common.actions",
+    this.pnlDanhSach.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -94,33 +94,33 @@ public class VoucherPage extends AbstractPage {
                     ThaoTac.KieuThaoTac.THUONG,
                     this::doiTrangThai));
 
-    this.panel.setAddAction("app.common.add_new", this::moDialogThem);
-    this.panel.setBatchAction("app.voucher.batch_toggle_active",
+    this.pnlDanhSach.setAddAction("app.common.add_new", this::moDialogThem);
+    this.pnlDanhSach.setBatchAction("app.voucher.batch_toggle_active",
             "check",
             ThaoTac.KieuThaoTac.THUONG,
             this::doiTrangThaiNhieu);
-    this.panel.setRowDoubleClickListener(this::moDialogSua);
+    this.pnlDanhSach.setRowDoubleClickListener(this::moDialogSua);
 
     this.khoiTaoBoLoc();
 
-    this.panel.getClearFilterButton().addActionListener(e -> this.panel.clearFilters());
-    this.panel.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
-    this.panel.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
+    this.pnlDanhSach.getClearFilterButton().addActionListener(e -> this.pnlDanhSach.clearFilters());
+    this.pnlDanhSach.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
+    this.pnlDanhSach.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
 
     this.taiLai(1);
 
-    this.add(this.panel, BorderLayout.CENTER);
+    this.add(this.pnlDanhSach, BorderLayout.CENTER);
     this.revalidate();
     this.repaint();
   }
 
   private void khoiTaoBoLoc() {
-    this.boLocMa = this.panel.addTextFilter("app.voucher.ma");
-    this.boLocMucGiam = this.panel.addRangeFilter("app.voucher.mucGiam");
-    this.boLocThoiHan = this.panel.addDateRangeFilter("app.voucher.thoiHanApDung");
-    this.boLocTrangThai = this.panel.addComboBoxFilter("app.voucher.trangThaiKichHoat",
+    this.txtBoLocMa = this.pnlDanhSach.addTextFilter("app.voucher.ma");
+    this.boLocMucGiam = this.pnlDanhSach.addRangeFilter("app.voucher.mucGiam");
+    this.boLocThoiHan = this.pnlDanhSach.addDateRangeFilter("app.voucher.thoiHanApDung");
+    this.boLocTrangThai = this.pnlDanhSach.addComboBoxFilter("app.voucher.trangThaiKichHoat",
             TrangThaiKichHoat.values());
-    this.panel.setFilterChangeListener(() -> this.taiLai(1));
+    this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai(1));
   }
 
   // ==================== TẢI DANH SÁCH ====================
@@ -133,8 +133,8 @@ public class VoucherPage extends AbstractPage {
               : ((TrangThaiKichHoat) chonTrangThai).isGiaTri();
 
       DanhSachVoucherCriteria tieuChi = new DanhSachVoucherCriteria(
-              this.panel.getQuickFilter(),
-              this.boLocMa.getText(),
+              this.pnlDanhSach.getQuickFilter(),
+              this.txtBoLocMa.getText(),
               this.docMucGiam(this.boLocMucGiam.tuText()),
               this.docMucGiam(this.boLocMucGiam.denText()),
               this.boLocThoiHan.tuNgay(),
@@ -157,16 +157,16 @@ public class VoucherPage extends AbstractPage {
         });
       }
 
-      this.panel.setRows(rows);
-      this.panel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
-      this.panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
+      this.pnlDanhSach.setRows(rows);
+      this.pnlDanhSach.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+      this.pnlDanhSach.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
       this.trang = ketQua.page();
 
     } catch (IllegalArgumentException e) {
       ThongBao.loi(this, e);
-      this.panel.setRows(Collections.emptyList());
-      this.panel.setCount(0, 0, 0);
-      this.panel.setPage(1, 1);
+      this.pnlDanhSach.setRows(Collections.emptyList());
+      this.pnlDanhSach.setCount(0, 0, 0);
+      this.pnlDanhSach.setPage(1, 1);
       this.trang = 1;
     } catch (SQLException e) {
       ThongBao.loi(this, "app.login.errorSystem");
@@ -200,20 +200,20 @@ public class VoucherPage extends AbstractPage {
   }
 
   private VoucherFormData docDuLieuDong(int row) {
-    String thoiHan = NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_THOI_HAN));
+    String thoiHan = NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_THOI_HAN));
     LocalDateTime thoiHanApDung = thoiHan.isBlank()
             ? null
             : LocalDateTime.parse(thoiHan, DINH_DANG_NGAY_GIO);
 
     String trangThai = TextNormalizerUtil.normalize(
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_TRANG_THAI)));
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_TRANG_THAI)));
 
     return new VoucherFormData(
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_TEN)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MO_TA)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_TEN)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MO_TA)),
             NumberParseUtil.toDoubleOrNull(
-                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MUC_GIAM))),
+                    NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MUC_GIAM))),
             thoiHanApDung,
             trangThai.equals(TextNormalizerUtil.normalize(
                     TrangThaiKichHoat.DANG_KICH_HOAT.getI18NBusinessName())));

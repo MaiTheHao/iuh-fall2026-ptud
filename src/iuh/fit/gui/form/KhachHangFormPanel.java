@@ -21,38 +21,38 @@ public abstract class KhachHangFormPanel extends FormFieldPanel {
   private static final String SDT_REGEX = "\\d{10}";
   private static final int DO_DAI_HO_TEN_TOI_DA = 50;
 
-  protected final JTextField maField = new JTextField(14);
-  protected final JTextField sdtField = new JTextField(14);
-  protected final JTextField hoTenField = new JTextField(14);
-  protected final JTextField ngayTaoField = new JTextField(14);
+  protected final JTextField txtMa = new JTextField(14);
+  protected final JTextField txtSdt = new JTextField(14);
+  protected final JTextField txtHoTen = new JTextField(14);
+  protected final JTextField txtNgayTao = new JTextField(14);
 
   protected KhachHangFormPanel() {
-    Theme.applyReadOnly(this.maField);
-    Theme.applyReadOnly(this.ngayTaoField);
-    this.sdtField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
+    Theme.applyReadOnly(this.txtMa);
+    Theme.applyReadOnly(this.txtNgayTao);
+    this.txtSdt.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
             I18nReaderUtil.get("app.khachHang.sdtGoiY"));
 
-    FormValidationHelper.autoClearOnInput(this.sdtField);
-    FormValidationHelper.autoClearOnInput(this.hoTenField);
+    FormValidationHelper.autoClearOnInput(this.txtSdt);
+    FormValidationHelper.autoClearOnInput(this.txtHoTen);
   }
 
   /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(KhachHangFormData data) {
-    this.maField.setText(data.maKhachHang() == null ? "" : data.maKhachHang());
-    this.sdtField.setText(data.sdt() == null ? "" : data.sdt());
-    this.hoTenField.setText(data.hoTen() == null ? "" : data.hoTen());
-    this.ngayTaoField.setText(data.ngayTao() == null ? "" : data.ngayTao());
+    this.txtMa.setText(data.maKhachHang() == null ? "" : data.maKhachHang());
+    this.txtSdt.setText(data.sdt() == null ? "" : data.sdt());
+    this.txtHoTen.setText(data.hoTen() == null ? "" : data.hoTen());
+    this.txtNgayTao.setText(data.ngayTao() == null ? "" : data.ngayTao());
   }
 
   public KhachHangFormData layDuLieu() {
-    String ma = this.maField.getText().trim();
+    String ma = this.txtMa.getText().trim();
     return new KhachHangFormData(
             ma.isBlank() ? null : ma,
-            this.sdtField.getText().trim(),
-            this.hoTenField.getText().trim(),
-            this.ngayTaoField.getText().trim());
+            this.txtSdt.getText().trim(),
+            this.txtHoTen.getText().trim(),
+            this.txtNgayTao.getText().trim());
   }
 
   public final boolean validateInput() {
@@ -76,25 +76,25 @@ public abstract class KhachHangFormPanel extends FormFieldPanel {
   protected JComponent kiemTraChung() {
     JComponent loiDauTien = null;
 
-    String hoTen = this.hoTenField.getText().trim();
+    String hoTen = this.txtHoTen.getText().trim();
 
     if (hoTen.isEmpty()) {
-      FormValidationHelper.markError(this.hoTenField,
+      FormValidationHelper.markError(this.txtHoTen,
               I18nReaderUtil.get("app.khachHang.loiHoTen"));
-      loiDauTien = this.hoTenField;
+      loiDauTien = this.txtHoTen;
     } else if (hoTen.length() > DO_DAI_HO_TEN_TOI_DA) {
-      FormValidationHelper.markError(this.hoTenField,
+      FormValidationHelper.markError(this.txtHoTen,
               I18nReaderUtil.get("app.khachHang.loiHoTenQuaDai"));
-      loiDauTien = this.hoTenField;
+      loiDauTien = this.txtHoTen;
     } else {
-      FormValidationHelper.clearError(this.hoTenField);
+      FormValidationHelper.clearError(this.txtHoTen);
     }
 
-    if (!FormValidationHelper.kiemTra(this.sdtField,
-            this.sdtField.getText().trim().matches(SDT_REGEX),
+    if (!FormValidationHelper.kiemTra(this.txtSdt,
+            this.txtSdt.getText().trim().matches(SDT_REGEX),
             "app.khachHang.loiSdt")
             && loiDauTien == null) {
-      loiDauTien = this.sdtField;
+      loiDauTien = this.txtSdt;
     }
 
     return loiDauTien;

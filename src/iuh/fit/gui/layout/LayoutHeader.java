@@ -33,12 +33,12 @@ public class LayoutHeader extends JMenuBar {
     private final PageRegistry registry;
     private final MenuRegistry menuRegistry;
 
-    private final JMenu settingsMenu = new JMenu();
-    private final JPanel accountBox = new AccountBox();
-    private final JLabel accountNameLabel = new JLabel();
-    private final JLabel accountRoleLabel = new JLabel();
-    private final JButton languageButton = new JButton();
-    private final JButton logoutButton = new JButton();
+    private final JMenu mnuSettings = new JMenu();
+    private final JPanel pnlAccount = new AccountBox();
+    private final JLabel lblAccountName = new JLabel();
+    private final JLabel lblAccountRole = new JLabel();
+    private final JButton btnLanguage = new JButton();
+    private final JButton btnLogout = new JButton();
 
     public LayoutHeader(PageRegistry registry, Consumer<Class<? extends AbstractPage>> onSelect,
             Runnable onToggleLocale, Runnable onLogout) {
@@ -51,15 +51,15 @@ public class LayoutHeader extends JMenuBar {
         this.buildGroupMenus(onSelect);
         this.add(Box.createHorizontalGlue());
         this.buildAccountBox();
-        this.add(this.accountBox);
+        this.add(this.pnlAccount);
         this.add(Box.createHorizontalStrut(8));
         this.buildSettingsMenu(onSelect);
         this.add(Box.createHorizontalStrut(8));
         this.buildLanguageButton(onToggleLocale);
         this.buildLogoutButton(onLogout);
-        this.add(this.languageButton);
+        this.add(this.btnLanguage);
         this.add(Box.createHorizontalStrut(4));
-        this.add(this.logoutButton);
+        this.add(this.btnLogout);
         this.add(Box.createHorizontalStrut(4));
         this.refreshText();
     }
@@ -105,40 +105,40 @@ public class LayoutHeader extends JMenuBar {
     }
 
     private void buildSettingsMenu(Consumer<Class<? extends AbstractPage>> onSelect) {
-        this.settingsMenu.setIcon(new LucideIcon(bieuTuong(MenuGroup.CAI_DAT), CO_ICON, Theme.palette().INK_SECONDARY()));
-        this.menuRegistry.registerMenu(MenuGroup.CAI_DAT, this.settingsMenu);
+        this.mnuSettings.setIcon(new LucideIcon(bieuTuong(MenuGroup.CAI_DAT), CO_ICON, Theme.palette().INK_SECONDARY()));
+        this.menuRegistry.registerMenu(MenuGroup.CAI_DAT, this.mnuSettings);
         for (AbstractPage page : this.registry.all()) {
             if (page.getGroup() == MenuGroup.CAI_DAT) {
-                this.settingsMenu.add(this.createMenuItem(page, onSelect));
+                this.mnuSettings.add(this.createMenuItem(page, onSelect));
             }
         }
-        this.add(this.settingsMenu);
+        this.add(this.mnuSettings);
     }
 
     private void buildAccountBox() {
-        this.accountBox.setOpaque(false);
-        this.accountNameLabel.setForeground(Theme.INK);
-        this.accountNameLabel.setFont(Theme.fieldLabelFont());
-        this.accountRoleLabel.setForeground(Theme.palette().INK_MUTED());
-        this.accountRoleLabel.setFont(nhoChu());
-        this.accountBox.add(this.accountNameLabel);
-        this.accountBox.add(this.accountRoleLabel);
+        this.pnlAccount.setOpaque(false);
+        this.lblAccountName.setForeground(Theme.INK);
+        this.lblAccountName.setFont(Theme.fieldLabelFont());
+        this.lblAccountRole.setForeground(Theme.palette().INK_MUTED());
+        this.lblAccountRole.setFont(nhoChu());
+        this.pnlAccount.add(this.lblAccountName);
+        this.pnlAccount.add(this.lblAccountRole);
     }
 
     private void buildLanguageButton(Runnable onToggleLocale) {
-        this.languageButton.setIcon(new LucideIcon("globe", CO_ICON, Theme.palette().ACCENT()));
-        Theme.applyPillButton(this.languageButton, Theme.palette().ACCENT_SOFT(), Theme.palette().ACCENT());
-        this.languageButton.setFocusPainted(false);
-        this.languageButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        this.languageButton.addActionListener(e -> onToggleLocale.run());
+        this.btnLanguage.setIcon(new LucideIcon("globe", CO_ICON, Theme.palette().ACCENT()));
+        Theme.applyPillButton(this.btnLanguage, Theme.palette().ACCENT_SOFT(), Theme.palette().ACCENT());
+        this.btnLanguage.setFocusPainted(false);
+        this.btnLanguage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        this.btnLanguage.addActionListener(e -> onToggleLocale.run());
     }
 
     private void buildLogoutButton(Runnable onLogout) {
-        this.logoutButton.setIcon(new LucideIcon("log-out", CO_ICON, Theme.DANGER_TEXT));
-        this.logoutButton.setContentAreaFilled(false);
-        this.logoutButton.setFocusPainted(false);
-        this.logoutButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        this.logoutButton.addActionListener(e -> onLogout.run());
+        this.btnLogout.setIcon(new LucideIcon("log-out", CO_ICON, Theme.DANGER_TEXT));
+        this.btnLogout.setContentAreaFilled(false);
+        this.btnLogout.setFocusPainted(false);
+        this.btnLogout.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        this.btnLogout.addActionListener(e -> onLogout.run());
     }
 
     private JMenuItem createMenuItem(AbstractPage page, Consumer<Class<? extends AbstractPage>> onSelect) {
@@ -160,25 +160,25 @@ public class LayoutHeader extends JMenuBar {
 
     public void setMenuVisible(boolean visible) {
         this.menuRegistry.setVisible(visible);
-        this.accountBox.setVisible(visible);
-        this.languageButton.setVisible(visible);
-        this.logoutButton.setVisible(visible);
+        this.pnlAccount.setVisible(visible);
+        this.btnLanguage.setVisible(visible);
+        this.btnLogout.setVisible(visible);
     }
 
     public void refreshText() {
         this.menuRegistry.refreshText();
 
         AppLocale locale = AppContext.getInstance().getLocale();
-        this.languageButton.setText(locale == AppLocale.VN ? "VI" : "EN");
-        this.languageButton.setToolTipText(I18nReaderUtil.get("app.menu.language") + " (F11)");
+        this.btnLanguage.setText(locale == AppLocale.VN ? "VI" : "EN");
+        this.btnLanguage.setToolTipText(I18nReaderUtil.get("app.menu.language") + " (F11)");
 
         NhanVien nhanVien = AppContext.getInstance().getCurrentUser();
-        this.accountNameLabel.setText(nhanVien == null ? "" : this.tenHienThi(nhanVien));
-        this.accountRoleLabel.setText(nhanVien == null || nhanVien.getVaiTro() == null
+        this.lblAccountName.setText(nhanVien == null ? "" : this.tenHienThi(nhanVien));
+        this.lblAccountRole.setText(nhanVien == null || nhanVien.getVaiTro() == null
                 ? ""
                 : nhanVien.getVaiTro().getI18NBusinessName());
 
-        this.logoutButton.setToolTipText(I18nReaderUtil.get("app.menu.logout"));
+        this.btnLogout.setToolTipText(I18nReaderUtil.get("app.menu.logout"));
     }
 
     private String tenHienThi(NhanVien nhanVien) {

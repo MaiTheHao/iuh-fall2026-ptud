@@ -42,7 +42,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 	private static final DateTimeFormatter DINH_DANG_THANG = DateTimeFormatter.ofPattern("MM/yyyy");
 
-	private final JComboBox<String> cboThang = new JComboBox<>();
+	private final JComboBox<String> cmbThang = new JComboBox<>();
 
 	private final JLabel lblTongNhap = new JLabel("0");
 	private final JLabel lblTongXuat = new JLabel("0");
@@ -87,8 +87,8 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		this.add(this.taoNoiDung(), BorderLayout.CENTER);
 		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);
 
-		this.clearActionListeners(this.cboThang);
-		this.cboThang.addActionListener(e -> this.taiBaoCao());
+		this.clearActionListeners(this.cmbThang);
+		this.cmbThang.addActionListener(e -> this.taiBaoCao());
 
 		this.revalidate();
 		this.repaint();
@@ -97,7 +97,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 	}
 
 	private void khoiTaoThang() {
-		if (this.cboThang.getItemCount() > 0) {
+		if (this.cmbThang.getItemCount() > 0) {
 			return;
 		}
 
@@ -105,11 +105,11 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 		for (int i = 0; i < 12; i++) {
 			YearMonth thang = thangHienTai.minusMonths(i);
-			this.cboThang.addItem(thang.format(DINH_DANG_THANG));
+			this.cmbThang.addItem(thang.format(DINH_DANG_THANG));
 		}
 
-		this.cboThang.setSelectedIndex(0);
-		this.cboThang.setPreferredSize(new Dimension(150, 28));
+		this.cmbThang.setSelectedIndex(0);
+		this.cmbThang.setPreferredSize(new Dimension(150, 28));
 	}
 
 	private void capNhatTieuDeBang() {
@@ -156,7 +156,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		JLabel lblThang = new JLabel(I18nReaderUtil.get("app.report.parts.month"));
 
 		pnlThang.add(lblThang);
-		pnlThang.add(this.cboThang);
+		pnlThang.add(this.cmbThang);
 
 		pnl.add(pnlThang, BorderLayout.WEST);
 
@@ -271,7 +271,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 	}
 
 	private void taiBaoCao() {
-		String thangDuocChon = (String) this.cboThang.getSelectedItem();
+		String thangDuocChon = (String) this.cmbThang.getSelectedItem();
 
 		if (thangDuocChon == null || thangDuocChon.isBlank()) {
 			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.invalidMonth"),

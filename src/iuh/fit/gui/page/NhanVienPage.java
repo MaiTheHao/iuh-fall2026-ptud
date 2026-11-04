@@ -48,11 +48,11 @@ public class NhanVienPage extends AbstractPage {
 
   private final NhanVienService nhanVienService = new NhanVienService();
 
-  private ManagementPanel managementPanel;
+  private ManagementPanel pnlDanhSach;
 
-  private JTextField boLocMa;
-  private JTextField boLocHoTen;
-  private JTextField boLocSoDienThoai;
+  private JTextField txtBoLocMa;
+  private JTextField txtBoLocHoTen;
+  private JTextField txtBoLocSoDienThoai;
   private ManagementPanel.BoLocChon boLocVaiTro;
   private ManagementPanel.BoLocChon boLocTrangThai;
   private ManagementPanel.BoLocNgay boLocNgayTao;
@@ -70,11 +70,11 @@ public class NhanVienPage extends AbstractPage {
     setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     this.setBackground(Theme.BG);
 
-    this.managementPanel = new ManagementPanel();
-    this.managementPanel.setListTitle("app.nhanVien.danhSachTitle");
-    this.managementPanel.enableMultiSelection(true);
+    this.pnlDanhSach = new ManagementPanel();
+    this.pnlDanhSach.setListTitle("app.nhanVien.danhSachTitle");
+    this.pnlDanhSach.enableMultiSelection(true);
 
-    this.managementPanel.setHeaders(
+    this.pnlDanhSach.setHeaders(
             I18nReaderUtil.get("app.nhanVien.hinhAnh"),
             I18nReaderUtil.get("app.nhanVien.maNhanVien"),
             I18nReaderUtil.get("app.nhanVien.hoTen"),
@@ -82,7 +82,7 @@ public class NhanVienPage extends AbstractPage {
             I18nReaderUtil.get("app.nhanVien.vaiTro"),
             I18nReaderUtil.get("app.nhanVien.trangThai"));
 
-    this.managementPanel.addActionColumn("app.common.actions",
+    this.pnlDanhSach.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -92,12 +92,12 @@ public class NhanVienPage extends AbstractPage {
                     ThaoTac.KieuThaoTac.NGUY_HIEM,
                     this::xoa));
 
-    this.managementPanel.setAddAction("app.common.add_new", this::moDialogThem);
-    this.managementPanel.setBatchAction("app.common.batch_delete",
+    this.pnlDanhSach.setAddAction("app.common.add_new", this::moDialogThem);
+    this.pnlDanhSach.setBatchAction("app.common.batch_delete",
             "trash-2",
             ThaoTac.KieuThaoTac.NGUY_HIEM,
             this::xoaNhieu);
-    this.managementPanel.setRowDoubleClickListener(this::moDialogSua);
+    this.pnlDanhSach.setRowDoubleClickListener(this::moDialogSua);
 
     this.khoiTaoBoLoc();
     this.ganSuKien();
@@ -105,7 +105,7 @@ public class NhanVienPage extends AbstractPage {
     this.trangHienTai = 1;
     this.taiLaiDanhSach();
 
-    this.add(this.managementPanel, BorderLayout.CENTER);
+    this.add(this.pnlDanhSach, BorderLayout.CENTER);
 
     revalidate();
     repaint();
@@ -129,15 +129,15 @@ public class NhanVienPage extends AbstractPage {
   // ==================== BỘ LỌC ====================
 
   private void khoiTaoBoLoc() {
-    this.boLocMa = this.managementPanel.addTextFilter("app.nhanVien.maNhanVien");
-    this.boLocHoTen = this.managementPanel.addTextFilter("app.nhanVien.hoTen");
-    this.boLocSoDienThoai = this.managementPanel.addTextFilter("app.nhanVien.soDienThoai");
-    this.boLocVaiTro = this.managementPanel.addComboBoxFilter("app.nhanVien.vaiTro", VaiTro.values());
-    this.boLocTrangThai = this.managementPanel.addComboBoxFilter("app.nhanVien.trangThai",
+    this.txtBoLocMa = this.pnlDanhSach.addTextFilter("app.nhanVien.maNhanVien");
+    this.txtBoLocHoTen = this.pnlDanhSach.addTextFilter("app.nhanVien.hoTen");
+    this.txtBoLocSoDienThoai = this.pnlDanhSach.addTextFilter("app.nhanVien.soDienThoai");
+    this.boLocVaiTro = this.pnlDanhSach.addComboBoxFilter("app.nhanVien.vaiTro", VaiTro.values());
+    this.boLocTrangThai = this.pnlDanhSach.addComboBoxFilter("app.nhanVien.trangThai",
             TrangThaiNhanVien.values());
-    this.boLocNgayTao = this.managementPanel.addDateRangeFilter("app.nhanVien.ngayTao");
+    this.boLocNgayTao = this.pnlDanhSach.addDateRangeFilter("app.nhanVien.ngayTao");
 
-    this.managementPanel.setFilterChangeListener(() -> {
+    this.pnlDanhSach.setFilterChangeListener(() -> {
       this.trangHienTai = 1;
       this.taiLaiDanhSach();
     });
@@ -152,7 +152,7 @@ public class NhanVienPage extends AbstractPage {
   }
 
   private String layTimNhanh() {
-    String value = this.managementPanel.getQuickFilter();
+    String value = this.pnlDanhSach.getQuickFilter();
 
     if (value == null || value.isBlank()) {
       return null;
@@ -162,19 +162,19 @@ public class NhanVienPage extends AbstractPage {
   }
 
   private void ganSuKien() {
-    this.managementPanel.getClearFilterButton().addActionListener(e -> {
+    this.pnlDanhSach.getClearFilterButton().addActionListener(e -> {
       this.trangHienTai = 1;
-      this.managementPanel.clearFilters();
+      this.pnlDanhSach.clearFilters();
     });
 
-    this.managementPanel.getPrevButton().addActionListener(e -> {
+    this.pnlDanhSach.getPrevButton().addActionListener(e -> {
       if (this.trangHienTai > 1) {
         this.trangHienTai--;
         this.taiLaiDanhSach();
       }
     });
 
-    this.managementPanel.getNextButton().addActionListener(e -> {
+    this.pnlDanhSach.getNextButton().addActionListener(e -> {
       this.trangHienTai++;
       this.taiLaiDanhSach();
     });
@@ -185,9 +185,9 @@ public class NhanVienPage extends AbstractPage {
   private void taiLaiDanhSach() {
     try {
       DanhSachNhanVienCriteria criteria = new DanhSachNhanVienCriteria(
-              this.layGiaTriBoLoc(this.boLocMa.getText()),
-              this.layGiaTriBoLoc(this.boLocHoTen.getText()),
-              this.layGiaTriBoLoc(this.boLocSoDienThoai.getText()),
+              this.layGiaTriBoLoc(this.txtBoLocMa.getText()),
+              this.layGiaTriBoLoc(this.txtBoLocHoTen.getText()),
+              this.layGiaTriBoLoc(this.txtBoLocSoDienThoai.getText()),
               this.boLocVaiTro.ma(),
               this.boLocTrangThai.ma(),
               this.layTimNhanh(),
@@ -229,24 +229,24 @@ public class NhanVienPage extends AbstractPage {
       });
     }
 
-    this.managementPanel.setRows(rows);
+    this.pnlDanhSach.setRows(rows);
     this.cauHinhCotAnh();
 
-    this.managementPanel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
-    this.managementPanel.setPage(ketQua.page(), Math.max(1, ketQua.totalPages()));
+    this.pnlDanhSach.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+    this.pnlDanhSach.setPage(ketQua.page(), Math.max(1, ketQua.totalPages()));
 
     this.trangHienTai = ketQua.page();
   }
 
   private void cauHinhCotAnh() {
-    AnhTableCellRenderer.ganVao(this.managementPanel,
+    AnhTableCellRenderer.ganVao(this.pnlDanhSach,
             COT_ANH,
             "app.nhanVien.chuaCoAnh",
             "app.nhanVien.khongTaiDuocAnh");
   }
 
   private String layMaDong(int row) {
-    return NumberParseUtil.textOf(this.managementPanel.getModel().getValueAt(row, COT_MA));
+    return NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
   }
 
   // ==================== DIALOG ====================

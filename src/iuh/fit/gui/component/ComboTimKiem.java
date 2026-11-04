@@ -43,7 +43,7 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
   private final NguonTim<T> nguon;
   private final Function<T, String> nhanHienThi;
   private final Function<T, String> giaTriNhap;
-  private final JTextField oNhap;
+  private final JTextField txtONhap;
   private final Timer boDem = new Timer(THOI_GIAN_CHO_LOC, e -> this.taiLai());
 
   private SwingWorker<List<T>, Void> workerHienTai;
@@ -102,8 +102,8 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
       }
     });
 
-    this.oNhap = (JTextField) this.getEditor().getEditorComponent();
-    this.oNhap.getDocument().addDocumentListener(new DocumentListener() {
+    this.txtONhap = (JTextField) this.getEditor().getEditorComponent();
+    this.txtONhap.getDocument().addDocumentListener(new DocumentListener() {
       @Override
       public void insertUpdate(DocumentEvent e) {
         ComboTimKiem.this.khiGo();
@@ -125,7 +125,7 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
 
   /** Text thô đang gõ trong ô nhập (không trim). */
   public String getTuKhoa() {
-    return this.oNhap.getText();
+    return this.txtONhap.getText();
   }
 
   /** Đặt text theo chương trình; dừng debounce, huỷ lần tìm đang chạy và không gọi nguồn dữ liệu. */
@@ -134,7 +134,7 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
     this.dangLapTrinh = true;
     try {
       this.boDem.stop();
-      this.oNhap.setText(tuKhoa == null ? "" : tuKhoa);
+      this.txtONhap.setText(tuKhoa == null ? "" : tuKhoa);
     } finally {
       this.dangLapTrinh = false;
     }
@@ -143,8 +143,8 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
   /** Bật/tắt cả combo lẫn ô nhập; JComboBox không tự khoá editor khi bị disable. */
   public void datChoPhepNhap(boolean choPhep) {
     this.setEnabled(choPhep);
-    this.oNhap.setEnabled(choPhep);
-    this.oNhap.setEditable(choPhep);
+    this.txtONhap.setEnabled(choPhep);
+    this.txtONhap.setEditable(choPhep);
   }
 
   /** Xoá text và danh sách gợi ý. */
@@ -320,14 +320,14 @@ public final class ComboTimKiem<T> extends JComboBox<T> {
       this.dangNap = false;
     }
 
-    this.setPopupVisible(this.getItemCount() > 0 && this.oNhap.hasFocus() && this.isShowing());
+    this.setPopupVisible(this.getItemCount() > 0 && this.txtONhap.hasFocus() && this.isShowing());
   }
 
   /** Đặt lại text sau khi dựng model mà không huỷ debounce đang chờ của lần gõ mới. */
   private void khoiPhucText(String text) {
     this.dangLapTrinh = true;
     try {
-      this.oNhap.setText(text == null ? "" : text);
+      this.txtONhap.setText(text == null ? "" : text);
     } finally {
       this.dangLapTrinh = false;
     }

@@ -20,56 +20,56 @@ public class KhieuNaiFormPanel extends FormFieldPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private final JTextField maField = new JTextField();
-    private final JTextField khachHangField = new JTextField();
-    private final JTextField phieuTiepNhanField = new JTextField();
-    private final JTextArea noiDungArea = new JTextArea(4, 20);
-    private final JComboBox<TrangThaiKhieuNai> trangThaiCombo = new JComboBox<>(TrangThaiKhieuNai.values());
+    private final JTextField txtMa = new JTextField();
+    private final JTextField txtKhachHang = new JTextField();
+    private final JTextField txtPhieuTiepNhan = new JTextField();
+    private final JTextArea txaNoiDung = new JTextArea(4, 20);
+    private final JComboBox<TrangThaiKhieuNai> cmbTrangThai = new JComboBox<>(TrangThaiKhieuNai.values());
 
     public KhieuNaiFormPanel() {
-        Theme.applyReadOnly(this.maField);
-        Theme.applyReadOnly(this.khachHangField);
-        Theme.applyReadOnly(this.phieuTiepNhanField);
+        Theme.applyReadOnly(this.txtMa);
+        Theme.applyReadOnly(this.txtKhachHang);
+        Theme.applyReadOnly(this.txtPhieuTiepNhan);
 
-        this.addField("app.khieuNai.ma", this.maField);
-        this.addField("app.khieuNai.khachHang", this.khachHangField);
-        this.addField("app.khieuNai.phieuTiepNhan", this.phieuTiepNhanField);
+        this.addField("app.khieuNai.ma", this.txtMa);
+        this.addField("app.khieuNai.khachHang", this.txtKhachHang);
+        this.addField("app.khieuNai.phieuTiepNhan", this.txtPhieuTiepNhan);
 
-        this.noiDungArea.setLineWrap(true);
-        this.noiDungArea.setWrapStyleWord(true);
-        JScrollPane scrollNoiDung = new JScrollPane(this.noiDungArea);
+        this.txaNoiDung.setLineWrap(true);
+        this.txaNoiDung.setWrapStyleWord(true);
+        JScrollPane scrollNoiDung = new JScrollPane(this.txaNoiDung);
         scrollNoiDung.setPreferredSize(new Dimension(200, 100));
         this.addField("app.khieuNai.noiDung", scrollNoiDung);
 
-        this.trangThaiCombo.setRenderer(BoHienThiI18n.tao());
-        this.addField("app.khieuNai.trangThai", this.trangThaiCombo);
+        this.cmbTrangThai.setRenderer(BoHienThiI18n.tao());
+        this.addField("app.khieuNai.trangThai", this.cmbTrangThai);
     }
 
     public void napDuLieu(KhieuNaiView view) {
-        this.maField.setText(view.maKhieuNai() == null ? "" : view.maKhieuNai());
-        this.khachHangField.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
-        this.phieuTiepNhanField.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
-        this.noiDungArea.setText(view.noiDung() == null ? "" : view.noiDung());
-        this.trangThaiCombo.setSelectedItem(view.trangThai());
+        this.txtMa.setText(view.maKhieuNai() == null ? "" : view.maKhieuNai());
+        this.txtKhachHang.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
+        this.txtPhieuTiepNhan.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
+        this.txaNoiDung.setText(view.noiDung() == null ? "" : view.noiDung());
+        this.cmbTrangThai.setSelectedItem(view.trangThai());
     }
 
     public KhieuNaiUpdateFormData layDuLieu() {
         return new KhieuNaiUpdateFormData(
-                this.maField.getText().trim(),
-                this.noiDungArea.getText(),
-                (TrangThaiKhieuNai) this.trangThaiCombo.getSelectedItem());
+                this.txtMa.getText().trim(),
+                this.txaNoiDung.getText(),
+                (TrangThaiKhieuNai) this.cmbTrangThai.getSelectedItem());
     }
 
     public void lamMoi() {
-        this.maField.setText("");
-        this.khachHangField.setText("");
-        this.phieuTiepNhanField.setText("");
-        this.noiDungArea.setText("");
-        this.trangThaiCombo.setSelectedIndex(0);
+        this.txtMa.setText("");
+        this.txtKhachHang.setText("");
+        this.txtPhieuTiepNhan.setText("");
+        this.txaNoiDung.setText("");
+        this.cmbTrangThai.setSelectedIndex(0);
         this.focus();
     }
 
     public void focus() {
-        this.noiDungArea.requestFocusInWindow();
+        this.txaNoiDung.requestFocusInWindow();
     }
 }

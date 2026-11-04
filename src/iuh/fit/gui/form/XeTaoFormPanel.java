@@ -10,16 +10,16 @@ public final class XeTaoFormPanel extends XeFormPanel {
   private static final long serialVersionUID = 1L;
 
   public XeTaoFormPanel() {
-    Theme.applyEditable(this.bienSoField);
+    Theme.applyEditable(this.txtBienSo);
     this.dungBoCuc();
   }
 
   @Override
   protected void dungBoCuc() {
-    this.addField("app.xe.bienSo", this.bienSoField);
-    this.addField("app.xe.hangXe", this.hangXeCombo);
-    this.addField("app.xe.dongXe", this.dongXeCombo);
-    this.addField("app.xe.doiXe", this.doiXeCombo);
-    this.addField("app.xe.odo", this.odoField);
+    this.addField("app.xe.bienSo", this.txtBienSo);
+    this.addField("app.xe.hangXe", this.cmbHangXe);
+    this.addField("app.xe.dongXe", this.cmbDongXe);
+    this.addField("app.xe.doiXe", this.cmbDoiXe);
+    this.addField("app.xe.odo", this.txtOdo);
   }
 }

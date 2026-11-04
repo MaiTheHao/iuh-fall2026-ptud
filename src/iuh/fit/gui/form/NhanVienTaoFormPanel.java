@@ -14,33 +14,33 @@ public final class NhanVienTaoFormPanel extends NhanVienFormPanel {
   private static final long serialVersionUID = 1L;
 
   public NhanVienTaoFormPanel() {
-    Theme.applyEditable(this.tenDangNhapField);
+    Theme.applyEditable(this.txtTenDangNhap);
     this.dungBoCuc();
   }
 
   @Override
   protected void dungBoCuc() {
-    this.addField("app.nhanVien.tenDangNhap", this.tenDangNhapField);
-    this.addField("app.nhanVien.matKhau", this.matKhauField);
-    this.addField("app.nhanVien.hoTen", this.hoTenField);
-    this.addField("app.nhanVien.soDienThoai", this.soDienThoaiField);
-    this.addField("app.nhanVien.vaiTro", this.vaiTroCombo);
-    this.addField("app.nhanVien.trangThai", this.trangThaiCombo);
-    this.addBlock(this.anhField);
+    this.addField("app.nhanVien.tenDangNhap", this.txtTenDangNhap);
+    this.addField("app.nhanVien.matKhau", this.txtMatKhau);
+    this.addField("app.nhanVien.hoTen", this.txtHoTen);
+    this.addField("app.nhanVien.soDienThoai", this.txtSoDienThoai);
+    this.addField("app.nhanVien.vaiTro", this.cmbVaiTro);
+    this.addField("app.nhanVien.trangThai", this.cmbTrangThai);
+    this.addBlock(this.pnlAnh);
   }
 
   @Override
   protected JComponent kiemTraRieng() {
-    if (this.tenDangNhapField.getText().trim().isEmpty()) {
-      FormValidationHelper.markError(this.tenDangNhapField,
+    if (this.txtTenDangNhap.getText().trim().isEmpty()) {
+      FormValidationHelper.markError(this.txtTenDangNhap,
               I18nReaderUtil.get("app.nhanVien.loiTenDangNhap"));
-      return this.tenDangNhapField;
+      return this.txtTenDangNhap;
     }
 
-    if (new String(this.matKhauField.getPassword()).isBlank()) {
-      FormValidationHelper.markError(this.matKhauField,
+    if (new String(this.txtMatKhau.getPassword()).isBlank()) {
+      FormValidationHelper.markError(this.txtMatKhau,
               I18nReaderUtil.get("app.nhanVien.loiMatKhau"));
-      return this.matKhauField;
+      return this.txtMatKhau;
     }
 
     return null;

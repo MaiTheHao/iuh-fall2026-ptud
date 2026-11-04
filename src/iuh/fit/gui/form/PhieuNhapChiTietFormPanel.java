@@ -22,11 +22,11 @@ public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
 
   private static final DecimalFormat CURRENCY = new DecimalFormat("#,##0");
 
-  private final JTextField maPhieuField = new JTextField(14);
-  private final JTextField moTaField = new JTextField(14);
-  private final JTextField thuKhoField = new JTextField(14);
-  private final JTextField ngayTaoField = new JTextField(14);
-  private final JTextField tongChiPhiField = new JTextField(14);
+  private final JTextField txtMaPhieu = new JTextField(14);
+  private final JTextField txtMoTa = new JTextField(14);
+  private final JTextField txtThuKho = new JTextField(14);
+  private final JTextField txtNgayTao = new JTextField(14);
+  private final JTextField txtTongChiPhi = new JTextField(14);
 
   private final DefaultTableModel modelChiTiet = new DefaultTableModel(
       new String[]{
@@ -44,31 +44,31 @@ public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
     }
   };
 
-  private final JTable tableChiTiet = new JTable(this.modelChiTiet);
+  private final JTable tblChiTiet = new JTable(this.modelChiTiet);
 
   public PhieuNhapChiTietFormPanel() {
     for (JTextField field : new JTextField[]{
-        this.maPhieuField, this.moTaField, this.thuKhoField,
-        this.ngayTaoField, this.tongChiPhiField}) {
+        this.txtMaPhieu, this.txtMoTa, this.txtThuKho,
+        this.txtNgayTao, this.txtTongChiPhi}) {
       Theme.applyReadOnly(field);
       field.setFocusable(false);
     }
 
-    this.addField("app.phieuNhap.maPhieuNhap", this.maPhieuField);
-    this.addField("app.phieuNhap.moTa", this.moTaField);
-    this.addField("app.phieuNhap.thuKho", this.thuKhoField);
-    this.addField("app.phieuNhap.ngayTao", this.ngayTaoField);
-    this.addField("app.phieuNhap.tongChiPhi", this.tongChiPhiField);
+    this.addField("app.phieuNhap.maPhieuNhap", this.txtMaPhieu);
+    this.addField("app.phieuNhap.moTa", this.txtMoTa);
+    this.addField("app.phieuNhap.thuKho", this.txtThuKho);
+    this.addField("app.phieuNhap.ngayTao", this.txtNgayTao);
+    this.addField("app.phieuNhap.tongChiPhi", this.txtTongChiPhi);
 
-    Theme.styleTable(this.tableChiTiet);
-    this.tableChiTiet.setFocusable(false);
-    this.tableChiTiet.setRowHeight(34);
-    this.tableChiTiet.getColumnModel().getColumn(0).setPreferredWidth(180);
-    this.tableChiTiet.getColumnModel().getColumn(1).setPreferredWidth(100);
-    this.tableChiTiet.getColumnModel().getColumn(2).setPreferredWidth(140);
-    this.tableChiTiet.getColumnModel().getColumn(3).setPreferredWidth(150);
+    Theme.styleTable(this.tblChiTiet);
+    this.tblChiTiet.setFocusable(false);
+    this.tblChiTiet.setRowHeight(34);
+    this.tblChiTiet.getColumnModel().getColumn(0).setPreferredWidth(180);
+    this.tblChiTiet.getColumnModel().getColumn(1).setPreferredWidth(100);
+    this.tblChiTiet.getColumnModel().getColumn(2).setPreferredWidth(140);
+    this.tblChiTiet.getColumnModel().getColumn(3).setPreferredWidth(150);
 
-    JScrollPane scroll = new JScrollPane(this.tableChiTiet);
+    JScrollPane scroll = new JScrollPane(this.tblChiTiet);
     scroll.setPreferredSize(new Dimension(600, 220));
     scroll.setBorder(Theme.titledBorder("app.phieuNhap.danhSachChiTiet"));
     this.addBlock(scroll);
@@ -79,11 +79,11 @@ public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
       return;
     }
 
-    this.maPhieuField.setText(phieu.getMaPhieuNhap() == null ? "" : phieu.getMaPhieuNhap());
-    this.moTaField.setText(phieu.getMoTa() == null ? "" : phieu.getMoTa());
-    this.thuKhoField.setText(phieu.getNhanVien() == null ? "" : phieu.getNhanVien().getMaNhanVien());
-    this.ngayTaoField.setText(ngayTao == null ? "" : ngayTao);
-    this.tongChiPhiField.setText(tongChiPhi == null ? "" : tongChiPhi);
+    this.txtMaPhieu.setText(phieu.getMaPhieuNhap() == null ? "" : phieu.getMaPhieuNhap());
+    this.txtMoTa.setText(phieu.getMoTa() == null ? "" : phieu.getMoTa());
+    this.txtThuKho.setText(phieu.getNhanVien() == null ? "" : phieu.getNhanVien().getMaNhanVien());
+    this.txtNgayTao.setText(ngayTao == null ? "" : ngayTao);
+    this.txtTongChiPhi.setText(tongChiPhi == null ? "" : tongChiPhi);
 
     this.modelChiTiet.setRowCount(0);
     if (phieu.getDanhSachChiTietPhieuNhap() == null) {

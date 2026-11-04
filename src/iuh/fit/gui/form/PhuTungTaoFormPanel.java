@@ -13,10 +13,10 @@ public final class PhuTungTaoFormPanel extends PhuTungFormPanel {
 
   @Override
   protected void dungBoCuc() {
-    this.addField("app.phuTung.ten", this.tenField);
+    this.addField("app.phuTung.ten", this.txtTen);
     this.addField("app.phuTung.moTa", this.moTaScroll);
-    this.addField("app.phuTung.donGia", this.donGiaField);
+    this.addField("app.phuTung.donGia", this.txtDonGia);
     this.addField("app.phuTung.nhaCungCap", this.thanhNhaCungCap());
-    this.addBlock(this.anhField);
+    this.addBlock(this.pnlAnh);
   }
 }

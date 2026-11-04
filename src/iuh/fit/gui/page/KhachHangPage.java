@@ -46,11 +46,11 @@ public class KhachHangPage extends AbstractPage {
 
   private final KhachHangService khachHangService = new KhachHangService();
 
-  private ManagementPanel panel;
+  private ManagementPanel pnlDanhSach;
 
-  private JTextField boLocMa;
-  private JTextField boLocSdt;
-  private JTextField boLocHoTen;
+  private JTextField txtBoLocMa;
+  private JTextField txtBoLocSdt;
+  private JTextField txtBoLocHoTen;
   private ManagementPanel.BoLocNgay boLocNgayTao;
 
   private int trang = 1;
@@ -65,16 +65,16 @@ public class KhachHangPage extends AbstractPage {
     this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     this.setBackground(Theme.BG);
 
-    this.panel = new ManagementPanel();
-    this.panel.setListTitle("app.khachHang.danhSachTitle");
-    this.panel.enableMultiSelection(true);
-    this.panel.setHeaders(
+    this.pnlDanhSach = new ManagementPanel();
+    this.pnlDanhSach.setListTitle("app.khachHang.danhSachTitle");
+    this.pnlDanhSach.enableMultiSelection(true);
+    this.pnlDanhSach.setHeaders(
             I18nReaderUtil.get("app.khachHang.ma"),
             I18nReaderUtil.get("app.khachHang.sdt"),
             I18nReaderUtil.get("app.khachHang.hoTen"),
             I18nReaderUtil.get("app.khachHang.ngayTao"));
 
-    this.panel.addActionColumn("app.common.actions",
+    this.pnlDanhSach.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -84,26 +84,26 @@ public class KhachHangPage extends AbstractPage {
                     ThaoTac.KieuThaoTac.NGUY_HIEM,
                     this::xoa));
 
-    this.panel.setAddAction("app.common.add_new", this::moDialogThem);
-    this.panel.setBatchAction("app.common.batch_delete",
+    this.pnlDanhSach.setAddAction("app.common.add_new", this::moDialogThem);
+    this.pnlDanhSach.setBatchAction("app.common.batch_delete",
             "trash-2",
             ThaoTac.KieuThaoTac.NGUY_HIEM,
             this::xoaNhieu);
-    this.panel.setRowDoubleClickListener(this::moDialogSua);
+    this.pnlDanhSach.setRowDoubleClickListener(this::moDialogSua);
 
-    this.boLocMa = this.panel.addTextFilter("app.khachHang.ma");
-    this.boLocSdt = this.panel.addTextFilter("app.khachHang.sdt");
-    this.boLocHoTen = this.panel.addTextFilter("app.khachHang.hoTen");
-    this.boLocNgayTao = this.panel.addDateRangeFilter("app.khachHang.ngayTao");
-    this.panel.setFilterChangeListener(() -> this.taiLai(1));
+    this.txtBoLocMa = this.pnlDanhSach.addTextFilter("app.khachHang.ma");
+    this.txtBoLocSdt = this.pnlDanhSach.addTextFilter("app.khachHang.sdt");
+    this.txtBoLocHoTen = this.pnlDanhSach.addTextFilter("app.khachHang.hoTen");
+    this.boLocNgayTao = this.pnlDanhSach.addDateRangeFilter("app.khachHang.ngayTao");
+    this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai(1));
 
-    this.panel.getClearFilterButton().addActionListener(e -> this.panel.clearFilters());
-    this.panel.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
-    this.panel.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
+    this.pnlDanhSach.getClearFilterButton().addActionListener(e -> this.pnlDanhSach.clearFilters());
+    this.pnlDanhSach.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
+    this.pnlDanhSach.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
 
     this.taiLai(1);
 
-    this.add(this.panel, BorderLayout.CENTER);
+    this.add(this.pnlDanhSach, BorderLayout.CENTER);
     this.revalidate();
     this.repaint();
   }
@@ -112,12 +112,12 @@ public class KhachHangPage extends AbstractPage {
 
   private void taiLai(int page) {
     DanhSachKhachHangCriteria tieuChi = new DanhSachKhachHangCriteria(
-            this.boLocMa.getText(),
-            this.boLocSdt.getText(),
-            this.boLocHoTen.getText(),
+            this.txtBoLocMa.getText(),
+            this.txtBoLocSdt.getText(),
+            this.txtBoLocHoTen.getText(),
             this.boLocNgayTao.tuNgay(),
             this.boLocNgayTao.denNgay(),
-            this.panel.getQuickFilter(),
+            this.pnlDanhSach.getQuickFilter(),
             Math.max(page, 1),
             SO_DONG_MOI_TRANG);
 
@@ -134,9 +134,9 @@ public class KhachHangPage extends AbstractPage {
         });
       }
 
-      this.panel.setRows(rows);
-      this.panel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
-      this.panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
+      this.pnlDanhSach.setRows(rows);
+      this.pnlDanhSach.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+      this.pnlDanhSach.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
       this.trang = ketQua.page();
     } catch (SQLException e) {
       ThongBao.loi(this, "app.login.errorSystem");
@@ -152,10 +152,10 @@ public class KhachHangPage extends AbstractPage {
 
   private KhachHangFormData docDuLieuDong(int row) {
     return new KhachHangFormData(
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_SDT)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_HO_TEN)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_NGAY_TAO)));
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_SDT)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_HO_TEN)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_NGAY_TAO)));
   }
 
   // ==================== DIALOG ====================
@@ -253,7 +253,7 @@ public class KhachHangPage extends AbstractPage {
 
   private void xoa(int row) {
     String maKhachHang = NumberParseUtil.textOf(
-            this.panel.getModel().getValueAt(row, COT_MA));
+            this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
 
     if (maKhachHang.isBlank()) {
       ThongBao.canhBao(this, "app.khachHang.chuaChonXoa");
@@ -292,7 +292,7 @@ public class KhachHangPage extends AbstractPage {
 
     for (int row : rows) {
       String maKhachHang = NumberParseUtil.textOf(
-              this.panel.getModel().getValueAt(row, COT_MA));
+              this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
 
       try {
         this.khachHangService.delete(maKhachHang);

@@ -58,10 +58,10 @@ public class PhuTungPage extends AbstractPage {
   private final PhuTungService phuTungService = new PhuTungService();
   private final NhaCungCapService nhaCungCapService = new NhaCungCapService();
 
-  private ManagementPanel panel;
+  private ManagementPanel pnlDanhSach;
 
-  private JTextField boLocMa;
-  private JTextField boLocTen;
+  private JTextField txtBoLocMa;
+  private JTextField txtBoLocTen;
   private ManagementPanel.BoLocKhoang boLocDonGia;
   private ManagementPanel.BoLocKhoang boLocSoLuong;
   private ManagementPanel.BoLocChon boLocNhaCungCap;
@@ -81,11 +81,11 @@ public class PhuTungPage extends AbstractPage {
     this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     this.setBackground(Theme.BG);
 
-    this.panel = new ManagementPanel();
-    this.panel.setListTitle("app.phuTung.danhSachTitle");
-    this.panel.enableMultiSelection(true);
+    this.pnlDanhSach = new ManagementPanel();
+    this.pnlDanhSach.setListTitle("app.phuTung.danhSachTitle");
+    this.pnlDanhSach.enableMultiSelection(true);
 
-    this.panel.setHeaders(
+    this.pnlDanhSach.setHeaders(
             I18nReaderUtil.get("app.phuTung.hinhAnh"),
             I18nReaderUtil.get("app.phuTung.ma"),
             I18nReaderUtil.get("app.phuTung.ten"),
@@ -94,7 +94,7 @@ public class PhuTungPage extends AbstractPage {
             I18nReaderUtil.get("app.phuTung.soLuongTon"),
             I18nReaderUtil.get("app.phuTung.nhaCungCap"));
 
-    this.panel.addActionColumn("app.common.actions",
+    this.pnlDanhSach.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -104,32 +104,32 @@ public class PhuTungPage extends AbstractPage {
                     ThaoTac.KieuThaoTac.NGUY_HIEM,
                     this::xoa));
 
-    this.panel.setAddAction("app.common.add_new", this::moDialogThem);
-    this.panel.setBatchAction("app.common.batch_delete",
+    this.pnlDanhSach.setAddAction("app.common.add_new", this::moDialogThem);
+    this.pnlDanhSach.setBatchAction("app.common.batch_delete",
             "trash-2",
             ThaoTac.KieuThaoTac.NGUY_HIEM,
             this::xoaNhieu);
-    this.panel.setRowDoubleClickListener(this::moDialogSua);
+    this.pnlDanhSach.setRowDoubleClickListener(this::moDialogSua);
 
     this.khoiTaoBoLoc();
 
-    this.panel.getClearFilterButton().addActionListener(e -> this.panel.clearFilters());
-    this.panel.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
-    this.panel.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
+    this.pnlDanhSach.getClearFilterButton().addActionListener(e -> this.pnlDanhSach.clearFilters());
+    this.pnlDanhSach.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
+    this.pnlDanhSach.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
 
     this.taiLai(1);
 
-    this.add(this.panel, BorderLayout.CENTER);
+    this.add(this.pnlDanhSach, BorderLayout.CENTER);
     this.revalidate();
     this.repaint();
   }
 
   private void khoiTaoBoLoc() {
-    this.boLocMa = this.panel.addTextFilter("app.phuTung.ma");
-    this.boLocTen = this.panel.addTextFilter("app.phuTung.ten");
-    this.boLocDonGia = this.panel.addRangeFilter("app.phuTung.donGiaTuDen");
-    this.boLocSoLuong = this.panel.addRangeFilter("app.phuTung.soLuongTuDen");
-    this.boLocNhaCungCap = this.panel.addComboBoxFilter("app.phuTung.nhaCungCap", this.mangMaNhaCungCap());
+    this.txtBoLocMa = this.pnlDanhSach.addTextFilter("app.phuTung.ma");
+    this.txtBoLocTen = this.pnlDanhSach.addTextFilter("app.phuTung.ten");
+    this.boLocDonGia = this.pnlDanhSach.addRangeFilter("app.phuTung.donGiaTuDen");
+    this.boLocSoLuong = this.pnlDanhSach.addRangeFilter("app.phuTung.soLuongTuDen");
+    this.boLocNhaCungCap = this.pnlDanhSach.addComboBoxFilter("app.phuTung.nhaCungCap", this.mangMaNhaCungCap());
     this.boLocNhaCungCap.combo().addPopupMenuListener(new PopupMenuListener() {
       @Override
       public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -144,7 +144,7 @@ public class PhuTungPage extends AbstractPage {
       public void popupMenuCanceled(PopupMenuEvent e) {
       }
     });
-    this.panel.setFilterChangeListener(() -> {
+    this.pnlDanhSach.setFilterChangeListener(() -> {
       if (!this.dangLamMoiBoLoc) {
         this.taiLai(1);
       }
@@ -215,9 +215,9 @@ public class PhuTungPage extends AbstractPage {
   private void taiLai(int page) {
     try {
       DanhSachPhuTungCriteria tieuChi = new DanhSachPhuTungCriteria(
-              this.boLocMa.getText(),
-              this.boLocTen.getText(),
-              this.panel.getQuickFilter(),
+              this.txtBoLocMa.getText(),
+              this.txtBoLocTen.getText(),
+              this.pnlDanhSach.getQuickFilter(),
               NumberParseUtil.toDoubleOrNull(this.boLocDonGia.tuText()),
               NumberParseUtil.toDoubleOrNull(this.boLocDonGia.denText()),
               NumberParseUtil.toIntegerOrNull(this.boLocSoLuong.tuText()),
@@ -241,10 +241,10 @@ public class PhuTungPage extends AbstractPage {
         });
       }
 
-      this.panel.setRows(rows);
+      this.pnlDanhSach.setRows(rows);
       this.cauHinhCotAnh();
-      this.panel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
-      this.panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
+      this.pnlDanhSach.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+      this.pnlDanhSach.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
       this.trang = ketQua.page();
 
     } catch (NumberFormatException e) {
@@ -257,7 +257,7 @@ public class PhuTungPage extends AbstractPage {
   }
 
   private void cauHinhCotAnh() {
-    AnhTableCellRenderer.ganVao(this.panel,
+    AnhTableCellRenderer.ganVao(this.pnlDanhSach,
             COT_ANH,
             "app.phuTung.chuaCoAnh",
             "app.phuTung.khongTaiDuocAnh");
@@ -265,19 +265,19 @@ public class PhuTungPage extends AbstractPage {
 
   private PhuTungFormData docDuLieuDong(int row) {
     return new PhuTungFormData(
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_TEN)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MO_TA)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_ANH)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_TEN)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MO_TA)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_ANH)),
             NumberParseUtil.toDoubleOrNull(
-                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_DON_GIA))),
+                    NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_DON_GIA))),
             NumberParseUtil.toIntegerOrNull(
-                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_SO_LUONG))),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_NCC)));
+                    NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_SO_LUONG))),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_NCC)));
   }
 
   private String layMaDong(int row) {
-    return NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA));
+    return NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
   }
 
   // ==================== DIALOG ====================

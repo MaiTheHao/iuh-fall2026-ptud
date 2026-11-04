@@ -54,8 +54,8 @@ public class LoginPage extends AbstractPage {
     private static boolean daTaiAnh;
 
     private final AuthService authService = new AuthService();
-    private final JTextField tenDangNhapField = new JTextField();
-    private final JPasswordField matKhauField = new JPasswordField();
+    private final JTextField txtTenDangNhap = new JTextField();
+    private final JPasswordField txtMatKhau = new JPasswordField();
 
     public LoginPage() {
         this.setLayout(new GridBagLayout());
@@ -74,8 +74,8 @@ public class LoginPage extends AbstractPage {
         rangBuoc.fill = GridBagConstraints.NONE;
         this.add(this.taoTheDangNhap(), rangBuoc);
 
-        this.bindEnter(this.tenDangNhapField);
-        this.bindEnter(this.matKhauField);
+        this.bindEnter(this.txtTenDangNhap);
+        this.bindEnter(this.txtMatKhau);
 
         this.revalidate();
         this.repaint();
@@ -151,15 +151,15 @@ public class LoginPage extends AbstractPage {
         this.addDong(noiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.login.title"),
                 fontCo(20f, Font.BOLD), Theme.palette().INK(), SwingConstants.LEFT), 0, 18);
 
-        this.cauHinhONhap(this.tenDangNhapField, "user", "app.login.username");
+        this.cauHinhONhap(this.txtTenDangNhap, "user", "app.login.username");
         this.addDong(noiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.login.username"),
                 Theme.fieldLabelFont(), Theme.INK, SwingConstants.LEFT), 0, 16);
-        this.addDong(noiDung, rangBuoc, this.tenDangNhapField, 6, 14);
+        this.addDong(noiDung, rangBuoc, this.txtTenDangNhap, 6, 14);
 
-        this.cauHinhONhap(this.matKhauField, "lock", "app.login.password");
+        this.cauHinhONhap(this.txtMatKhau, "lock", "app.login.password");
         this.addDong(noiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.login.password"),
                 Theme.fieldLabelFont(), Theme.INK, SwingConstants.LEFT), 0, 8);
-        this.addDong(noiDung, rangBuoc, this.matKhauField, 6, 20);
+        this.addDong(noiDung, rangBuoc, this.txtMatKhau, 6, 20);
 
         JButton dangNhapButton = new JButton(I18nReaderUtil.get("app.login.submit"));
         Theme.applyPrimary(dangNhapButton);
@@ -234,8 +234,8 @@ public class LoginPage extends AbstractPage {
     }
 
     private void dangNhap() {
-        String tenDangNhap = this.tenDangNhapField.getText();
-        String matKhau = new String(this.matKhauField.getPassword());
+        String tenDangNhap = this.txtTenDangNhap.getText();
+        String matKhau = new String(this.txtMatKhau.getPassword());
         try {
             this.authService.login(new LoginDTO(tenDangNhap, matKhau));
             this.goTo(DashboardPage.class);

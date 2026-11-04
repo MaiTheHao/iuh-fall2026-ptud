@@ -24,11 +24,11 @@ public class ManagementFormPanel extends JPanel {
     private static final Dimension KICH_THUOC_NUT = new Dimension(100, 36);
 
     private final FormFieldPanel noiDungForm = new FormFieldPanel();
-    private final JPanel thanhNut = new JPanel(new GridLayout(2, 2, 10, 10));
-    private final JButton nutThem;
-    private final JButton nutLuu;
-    private final JButton nutXoa;
-    private final JButton nutXoaTrang;
+    private final JPanel pnlThanhNut = new JPanel(new GridLayout(2, 2, 10, 10));
+    private final JButton btnThem;
+    private final JButton btnLuu;
+    private final JButton btnXoa;
+    private final JButton btnXoaTrang;
 
     public ManagementFormPanel(String titleKey) {
         this.setLayout(new BorderLayout(0, 10));
@@ -47,23 +47,23 @@ public class ManagementFormPanel extends JPanel {
         scroll.getViewport().setOpaque(false);
         this.add(scroll, BorderLayout.CENTER);
 
-        this.nutThem = taoNut("app.common.add", "plus", Theme.palette().ON_ACCENT());
-        this.nutLuu = taoNut("app.common.save", "save", Theme.palette().ON_ACCENT());
-        this.nutXoa = taoNut("app.common.delete", "trash-2", Theme.palette().ON_ACCENT());
-        this.nutXoaTrang = taoNut("app.common.clear", "rotate-ccw", Theme.INK);
+        this.btnThem = taoNut("app.common.add", "plus", Theme.palette().ON_ACCENT());
+        this.btnLuu = taoNut("app.common.save", "save", Theme.palette().ON_ACCENT());
+        this.btnXoa = taoNut("app.common.delete", "trash-2", Theme.palette().ON_ACCENT());
+        this.btnXoaTrang = taoNut("app.common.clear", "rotate-ccw", Theme.INK);
 
-        Theme.applyPrimary(this.nutThem);
-        Theme.applyPrimary(this.nutLuu);
-        Theme.applyDanger(this.nutXoa);
-        Theme.applySecondary(this.nutXoaTrang);
+        Theme.applyPrimary(this.btnThem);
+        Theme.applyPrimary(this.btnLuu);
+        Theme.applyDanger(this.btnXoa);
+        Theme.applySecondary(this.btnXoaTrang);
 
-        this.thanhNut.setOpaque(false);
-        this.thanhNut.setPreferredSize(new Dimension(DO_RONG, chieuCaoThanhNut(2)));
-        this.thanhNut.add(this.nutThem);
-        this.thanhNut.add(this.nutLuu);
-        this.thanhNut.add(this.nutXoa);
-        this.thanhNut.add(this.nutXoaTrang);
-        this.add(this.thanhNut, BorderLayout.SOUTH);
+        this.pnlThanhNut.setOpaque(false);
+        this.pnlThanhNut.setPreferredSize(new Dimension(DO_RONG, chieuCaoThanhNut(2)));
+        this.pnlThanhNut.add(this.btnThem);
+        this.pnlThanhNut.add(this.btnLuu);
+        this.pnlThanhNut.add(this.btnXoa);
+        this.pnlThanhNut.add(this.btnXoaTrang);
+        this.add(this.pnlThanhNut, BorderLayout.SOUTH);
     }
 
     private static JButton taoNut(String labelKey, String iconName, Color mauIcon) {
@@ -84,37 +84,37 @@ public class ManagementFormPanel extends JPanel {
     }
 
     public JButton getNutThem() {
-        return this.nutThem;
+        return this.btnThem;
     }
 
     public JButton getNutLuu() {
-        return this.nutLuu;
+        return this.btnLuu;
     }
 
     public JButton getNutXoa() {
-        return this.nutXoa;
+        return this.btnXoa;
     }
 
     public JButton getNutXoaTrang() {
-        return this.nutXoaTrang;
+        return this.btnXoaTrang;
     }
 
     public void thayNut(JButton... buttons) {
-        this.thanhNut.removeAll();
+        this.pnlThanhNut.removeAll();
 
         int soHang = Math.max(1, (buttons.length + 1) / 2);
-        this.thanhNut.setLayout(new GridLayout(soHang, 2, 10, 10));
-        this.thanhNut.setPreferredSize(
+        this.pnlThanhNut.setLayout(new GridLayout(soHang, 2, 10, 10));
+        this.pnlThanhNut.setPreferredSize(
                 new Dimension(DO_RONG, chieuCaoThanhNut(soHang)));
 
         for (JButton button : buttons) {
-            this.thanhNut.add(button);
+            this.pnlThanhNut.add(button);
         }
 
-        this.thanhNut.setVisible(buttons.length > 0);
+        this.pnlThanhNut.setVisible(buttons.length > 0);
 
-        this.thanhNut.revalidate();
-        this.thanhNut.repaint();
+        this.pnlThanhNut.revalidate();
+        this.pnlThanhNut.repaint();
     }
 
     private static int chieuCaoThanhNut(int soHang) {

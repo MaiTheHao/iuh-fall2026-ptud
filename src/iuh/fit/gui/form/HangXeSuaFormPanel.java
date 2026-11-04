@@ -11,7 +11,7 @@ public final class HangXeSuaFormPanel extends HangXeFormPanel {
 
   @Override
   protected void dungBoCuc() {
-    this.addField("app.danhMucXe.ma", this.maField);
-    this.addField("app.danhMucXe.ten", this.tenField);
+    this.addField("app.danhMucXe.ma", this.txtMa);
+    this.addField("app.danhMucXe.ten", this.txtTen);
   }
 }

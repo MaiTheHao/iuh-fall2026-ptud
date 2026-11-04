@@ -40,11 +40,11 @@ public final class NhaCungCapPage extends AbstractPage {
 
   private final NhaCungCapService service = new NhaCungCapService();
 
-  private ManagementPanel panel;
+  private ManagementPanel pnlDanhSach;
 
-  private JTextField boLocMa;
-  private JTextField boLocTen;
-  private JTextField boLocSdt;
+  private JTextField txtBoLocMa;
+  private JTextField txtBoLocTen;
+  private JTextField txtBoLocSdt;
   private ManagementPanel.BoLocChon boLocTrangThai;
   private ManagementPanel.BoLocNgay boLocNgayTao;
 
@@ -60,11 +60,11 @@ public final class NhaCungCapPage extends AbstractPage {
     this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     this.setBackground(Theme.BG);
 
-    this.panel = new ManagementPanel();
-    this.panel.setListTitle("app.nhaCungCap.danhSachTitle");
-    this.panel.enableMultiSelection(true);
+    this.pnlDanhSach = new ManagementPanel();
+    this.pnlDanhSach.setListTitle("app.nhaCungCap.danhSachTitle");
+    this.pnlDanhSach.enableMultiSelection(true);
 
-    this.panel.setHeaders(
+    this.pnlDanhSach.setHeaders(
             I18nReaderUtil.get("app.nhaCungCap.ma"),
             I18nReaderUtil.get("app.nhaCungCap.ten"),
             I18nReaderUtil.get("app.nhaCungCap.soDienThoai"),
@@ -73,7 +73,7 @@ public final class NhaCungCapPage extends AbstractPage {
             I18nReaderUtil.get("app.nhaCungCap.trangThai"),
             I18nReaderUtil.get("app.nhaCungCap.ghiChu"));
 
-    this.panel.addActionColumn("app.common.actions",
+    this.pnlDanhSach.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -83,23 +83,23 @@ public final class NhaCungCapPage extends AbstractPage {
                     ThaoTac.KieuThaoTac.NGUY_HIEM,
                     this::xoa));
 
-    this.panel.setAddAction("app.common.add_new", this::moDialogThem);
-    this.panel.setBatchAction("app.common.batch_delete",
+    this.pnlDanhSach.setAddAction("app.common.add_new", this::moDialogThem);
+    this.pnlDanhSach.setBatchAction("app.common.batch_delete",
             "trash-2",
             ThaoTac.KieuThaoTac.NGUY_HIEM,
             this::xoaNhieu);
-    this.panel.setRowDoubleClickListener(this::moDialogSua);
+    this.pnlDanhSach.setRowDoubleClickListener(this::moDialogSua);
 
     this.khoiTaoBoLoc();
-    this.panel.setFilterChangeListener(() -> this.taiLai(1));
+    this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai(1));
 
-    this.panel.getClearFilterButton().addActionListener(e -> this.panel.clearFilters());
-    this.panel.getPrevButton().addActionListener(e -> this.taiLai(this.trangHienTai - 1));
-    this.panel.getNextButton().addActionListener(e -> this.taiLai(this.trangHienTai + 1));
+    this.pnlDanhSach.getClearFilterButton().addActionListener(e -> this.pnlDanhSach.clearFilters());
+    this.pnlDanhSach.getPrevButton().addActionListener(e -> this.taiLai(this.trangHienTai - 1));
+    this.pnlDanhSach.getNextButton().addActionListener(e -> this.taiLai(this.trangHienTai + 1));
 
     this.taiLai(1);
 
-    this.add(this.panel, BorderLayout.CENTER);
+    this.add(this.pnlDanhSach, BorderLayout.CENTER);
     this.revalidate();
     this.repaint();
   }
@@ -115,20 +115,20 @@ public final class NhaCungCapPage extends AbstractPage {
   }
 
   private void khoiTaoBoLoc() {
-    this.boLocMa = this.panel.addTextFilter("app.nhaCungCap.ma");
-    this.boLocTen = this.panel.addTextFilter("app.nhaCungCap.ten");
-    this.boLocSdt = this.panel.addTextFilter("app.nhaCungCap.soDienThoai");
-    this.boLocTrangThai = this.panel.addComboBoxFilter("app.nhaCungCap.trangThai", TrangThaiNhaCungCap.values());
-    this.boLocNgayTao = this.panel.addDateRangeFilter("app.nhaCungCap.ngayTao");
+    this.txtBoLocMa = this.pnlDanhSach.addTextFilter("app.nhaCungCap.ma");
+    this.txtBoLocTen = this.pnlDanhSach.addTextFilter("app.nhaCungCap.ten");
+    this.txtBoLocSdt = this.pnlDanhSach.addTextFilter("app.nhaCungCap.soDienThoai");
+    this.boLocTrangThai = this.pnlDanhSach.addComboBoxFilter("app.nhaCungCap.trangThai", TrangThaiNhaCungCap.values());
+    this.boLocNgayTao = this.pnlDanhSach.addDateRangeFilter("app.nhaCungCap.ngayTao");
   }
 
   private void taiLai(int page) {
     try {
       DanhSachNhaCungCapCriteria tieuChi = new DanhSachNhaCungCapCriteria(
-              this.boLocMa.getText(),
-              this.boLocTen.getText(),
-              this.boLocSdt.getText(),
-              this.panel.getQuickFilter(),
+              this.txtBoLocMa.getText(),
+              this.txtBoLocTen.getText(),
+              this.txtBoLocSdt.getText(),
+              this.pnlDanhSach.getQuickFilter(),
               this.boLocTrangThai.ma(),
               this.boLocNgayTao.tuNgay(),
               this.boLocNgayTao.denNgay(),
@@ -162,9 +162,9 @@ public final class NhaCungCapPage extends AbstractPage {
           ncc.getGhiChu() == null ? "" : ncc.getGhiChu()
       });
     }
-    this.panel.setRows(rows);
-    this.panel.setCount(kq.fromIndex(), kq.toIndex(), kq.totalItems());
-    this.panel.setPage(kq.page(), Math.max(1, kq.totalPages()));
+    this.pnlDanhSach.setRows(rows);
+    this.pnlDanhSach.setCount(kq.fromIndex(), kq.toIndex(), kq.totalItems());
+    this.pnlDanhSach.setPage(kq.page(), Math.max(1, kq.totalPages()));
     this.trangHienTai = kq.page();
   }
 
@@ -193,7 +193,7 @@ public final class NhaCungCapPage extends AbstractPage {
   }
 
   private void moDialogSua(int row) {
-    String ma = NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA));
+    String ma = NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
     try {
       NhaCungCap ncc = this.service.getById(ma)
               .orElseThrow(() -> new IllegalArgumentException("app.nhaCungCap.khongTimThay"));
@@ -257,7 +257,7 @@ public final class NhaCungCapPage extends AbstractPage {
   }
 
   private void xoa(int row) {
-    String ma = NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA));
+    String ma = NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
     if (ma.isBlank()) {
       ThongBao.canhBao(this, "app.nhaCungCap.chuaChonXoa");
       return;
@@ -284,7 +284,7 @@ public final class NhaCungCapPage extends AbstractPage {
       return;
     }
     for (int row : dong) {
-      String ma = NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA));
+      String ma = NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
       try {
         this.service.delete(ma);
       } catch (IllegalArgumentException | IllegalStateException ex) {

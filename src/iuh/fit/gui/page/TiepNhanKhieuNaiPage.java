@@ -53,7 +53,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     private KhachHang khachHangDangChon;
 
     // Các thành phần UI
-    private final ComboTimKiem<KhachHang> sdtField = new ComboTimKiem<>(
+    private final ComboTimKiem<KhachHang> cmbSdt = new ComboTimKiem<>(
             tuKhoa -> this.khachHangService.search(new DanhSachKhachHangCriteria(
                     null,
                     tuKhoa,
@@ -65,19 +65,19 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
                     SO_GOI_Y)).items(),
             khachHang -> khachHang.getHoTen() + " - " + khachHang.getSdt(),
             KhachHang::getSdt);
-    private final JTextField hoTenField = new JTextField();
+    private final JTextField txtHoTen = new JTextField();
 
-    private final ComboTimKiem<PhieuTiepNhanView> phieuCombo = new ComboTimKiem<>(
+    private final ComboTimKiem<PhieuTiepNhanView> cmbPhieu = new ComboTimKiem<>(
             this::timPhieuTheoKhachHang,
             phieu -> phieu.maPhieuTiepNhan() + " - " + phieu.bienSo(),
             PhieuTiepNhanView::maPhieuTiepNhan);
     private PhieuTiepNhanView phieuDangChon;
-    private final JTextField noiDungBanDauField = new JTextField();
+    private final JTextField txtNoiDungBanDau = new JTextField();
 
-    private final JTextArea noiDungKhieuNaiArea = new JTextArea(8, 30);
+    private final JTextArea txaNoiDungKhieuNai = new JTextArea(8, 30);
 
-    private final JButton lamMoiBtn = new JButton();
-    private final JButton luuBtn = new JButton();
+    private final JButton btnLamMoi = new JButton();
+    private final JButton btnLuu = new JButton();
 
     private boolean dangCapNhat;
 
@@ -92,8 +92,8 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         this.removeAll();
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        this.lamMoiBtn.setText(I18nReaderUtil.get("app.khieuNai.lamMoi"));
-        this.luuBtn.setText(I18nReaderUtil.get("app.khieuNai.luu"));
+        this.btnLamMoi.setText(I18nReaderUtil.get("app.khieuNai.lamMoi"));
+        this.btnLuu.setText(I18nReaderUtil.get("app.khieuNai.luu"));
 
         // Container chính bao bọc toàn bộ Form
         JPanel mainContainer = new JPanel(new BorderLayout(0, 10));
@@ -120,21 +120,21 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.BORDER)); // Đường line mờ phân cách
         buttonPanel.add(Box.createVerticalStrut(24)); // Tạo khoảng cách với đường line
 
-        this.lamMoiBtn.setPreferredSize(new Dimension(140, 40));
-        this.luuBtn.setPreferredSize(new Dimension(180, 40));
-        Theme.applyPrimary(this.luuBtn);
+        this.btnLamMoi.setPreferredSize(new Dimension(140, 40));
+        this.btnLuu.setPreferredSize(new Dimension(180, 40));
+        Theme.applyPrimary(this.btnLuu);
 
-        buttonPanel.add(this.lamMoiBtn);
-        buttonPanel.add(this.luuBtn);
+        buttonPanel.add(this.btnLamMoi);
+        buttonPanel.add(this.btnLuu);
 
         mainContainer.add(buttonPanel, BorderLayout.SOUTH);
 
         // --- Gắn sự kiện (Action Listeners) ---
-        this.clearActionListeners(this.lamMoiBtn, this.luuBtn);
+        this.clearActionListeners(this.btnLamMoi, this.btnLuu);
 
-        this.lamMoiBtn.addActionListener(e -> this.lamMoi());
+        this.btnLamMoi.addActionListener(e -> this.lamMoi());
 
-        this.luuBtn.addActionListener(e -> this.luuKhieuNai());
+        this.btnLuu.addActionListener(e -> this.luuKhieuNai());
 
         this.add(mainContainer, BorderLayout.CENTER);
         this.revalidate();
@@ -142,11 +142,11 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     }
 
     private void dangKySuKienTimKiem() {
-        this.sdtField.datXuLyGo(this::xoaKhachHangKhiSdtThayDoi);
-        this.sdtField.datXuLyChon(this::dienKhachHang);
+        this.cmbSdt.datXuLyGo(this::xoaKhachHangKhiSdtThayDoi);
+        this.cmbSdt.datXuLyChon(this::dienKhachHang);
 
-        this.phieuCombo.datXuLyGo(this::xoaPhieuKhiGo);
-        this.phieuCombo.datXuLyChon(this::dienPhieu);
+        this.cmbPhieu.datXuLyGo(this::xoaPhieuKhiGo);
+        this.cmbPhieu.datXuLyChon(this::dienPhieu);
     }
 
     private List<PhieuTiepNhanView> timPhieuTheoKhachHang(String tuKhoa) throws SQLException {
@@ -191,41 +191,41 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
             return;
         }
         this.khachHangDangChon = null;
-        this.hoTenField.setText("");
+        this.txtHoTen.setText("");
         this.datLaiPhieu();
     }
 
     private void dienKhachHang(KhachHang khachHang) {
         this.khachHangDangChon = khachHang;
-        this.hoTenField.setText(khachHang.getHoTen());
+        this.txtHoTen.setText(khachHang.getHoTen());
         this.datLaiPhieu();
-        this.phieuCombo.napLaiGoiY();
-        this.phieuCombo.requestFocusInWindow();
+        this.cmbPhieu.napLaiGoiY();
+        this.cmbPhieu.requestFocusInWindow();
     }
 
     private void datLaiPhieu() {
         this.phieuDangChon = null;
-        this.phieuCombo.xoa();
-        this.noiDungBanDauField.setText("");
+        this.cmbPhieu.xoa();
+        this.txtNoiDungBanDau.setText("");
     }
 
     private void xoaPhieuKhiGo() {
         this.phieuDangChon = null;
-        this.noiDungBanDauField.setText("");
+        this.txtNoiDungBanDau.setText("");
     }
 
     private void dienPhieu(PhieuTiepNhanView phieu) {
         this.phieuDangChon = phieu;
 
         try {
-            this.noiDungBanDauField.setText(
+            this.txtNoiDungBanDau.setText(
                     this.phieuTiepNhanService.getById(phieu.maPhieuTiepNhan()).getMoTa());
         } catch (IllegalArgumentException ex) {
             LOGGER.log(Level.SEVERE, "Không tìm thấy phiếu tiếp nhận đã chọn", ex);
-            this.noiDungBanDauField.setText("");
+            this.txtNoiDungBanDau.setText("");
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Lỗi khi tải nội dung yêu cầu ban đầu của phiếu tiếp nhận", ex);
-            this.noiDungBanDauField.setText("");
+            this.txtNoiDungBanDau.setText("");
         }
     }
 
@@ -238,7 +238,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
             ThongBao.loi(this, "app.khieuNai.loiPhieu");
             return false;
         }
-        if (this.noiDungKhieuNaiArea.getText().trim().isEmpty()) {
+        if (this.txaNoiDungKhieuNai.getText().trim().isEmpty()) {
             ThongBao.loi(this, "app.khieuNai.loiNoiDung");
             return false;
         }
@@ -253,7 +253,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
             KhieuNai khieuNai = this.khieuNaiService.create(new KhieuNaiFormData(
                     this.khachHangDangChon.getMaKhachHang(),
                     this.phieuDangChon.maPhieuTiepNhan(),
-                    this.noiDungKhieuNaiArea.getText().trim()));
+                    this.txaNoiDungKhieuNai.getText().trim()));
             ThongBao.thongTinDinhDang(this, "app.khieuNai.luuThanhCong", khieuNai.getMaKhieuNai());
             this.lamMoi();
         } catch (IllegalArgumentException ex) {
@@ -267,15 +267,15 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     private void lamMoi() {
         this.dangCapNhat = true;
         try {
-            this.sdtField.xoa();
+            this.cmbSdt.xoa();
         } finally {
             this.dangCapNhat = false;
         }
-        this.hoTenField.setText("");
+        this.txtHoTen.setText("");
         this.khachHangDangChon = null;
         this.datLaiPhieu();
-        this.noiDungKhieuNaiArea.setText("");
-        this.sdtField.requestFocusInWindow();
+        this.txaNoiDungKhieuNai.setText("");
+        this.cmbSdt.requestFocusInWindow();
     }
 
     private JPanel createKhachHangPanel() {
@@ -301,7 +301,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
         // Nhập SĐT có gợi ý khách hàng
         gbc.gridy = 1; gbc.gridwidth = 2;
-        panel.add(this.sdtField, gbc);
+        panel.add(this.cmbSdt, gbc);
 
         // Họ tên khách hàng
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; gbc.weightx = 1.0; gbc.insets = new Insets(10, 0, 5, 0);
@@ -311,8 +311,8 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         panel.add(lblHoTen, gbc);
 
         gbc.gridy = 3; gbc.insets = new Insets(0, 0, 0, 0);
-        Theme.applyReadOnly(this.hoTenField);
-        panel.add(this.hoTenField, gbc);
+        Theme.applyReadOnly(this.txtHoTen);
+        panel.add(this.txtHoTen, gbc);
 
         return panel;
     }
@@ -339,7 +339,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         panel.add(lblPhieu, gbc);
 
         gbc.gridy = 1;
-        panel.add(this.phieuCombo, gbc);
+        panel.add(this.cmbPhieu, gbc);
 
         // Nội dung yêu cầu ban đầu
         gbc.gridy = 2; gbc.insets = new Insets(10, 0, 5, 0);
@@ -349,8 +349,8 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
         panel.add(lblNoiDung, gbc);
 
         gbc.gridy = 3; gbc.insets = new Insets(0, 0, 0, 0);
-        Theme.applyReadOnly(this.noiDungBanDauField);
-        panel.add(this.noiDungBanDauField, gbc);
+        Theme.applyReadOnly(this.txtNoiDungBanDau);
+        panel.add(this.txtNoiDungBanDau, gbc);
 
         return panel;
     }
@@ -364,9 +364,9 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
                 BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
         ));
 
-        this.noiDungKhieuNaiArea.setLineWrap(true);
-        this.noiDungKhieuNaiArea.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(this.noiDungKhieuNaiArea);
+        this.txaNoiDungKhieuNai.setLineWrap(true);
+        this.txaNoiDungKhieuNai.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(this.txaNoiDungKhieuNai);
 
         panel.add(scrollPane, BorderLayout.CENTER);
 

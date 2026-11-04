@@ -59,11 +59,11 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
    */
   protected static final int PAGE_SIZE_TAI_TOAN_BO = PaginatedResult.PAGE_SIZE_TAI_TOAN_BO;
 
-  private final JTextField timKiemField = new JTextField();
-  private final JLabel trangThaiLabel = new JLabel();
+  private final JTextField txtTimKiem = new JTextField();
+  private final JLabel lblTrangThai = new JLabel();
   private final JSpinner soLuongSpinner =
           new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-  private final JPanel khungBoLoc = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+  private final JPanel pnlBoLoc = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
   private final DefaultTableModel model = new DefaultTableModel(new Object[0], 0) {
     private static final long serialVersionUID = 1L;
 
@@ -72,7 +72,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
       return false;
     }
   };
-  private final JTable table = new JTable(this.model);
+  private final JTable tblKetQua = new JTable(this.model);
   private final Timer boDemLoc;
   private final List<T> dangHienThi = new ArrayList<>();
   private SwingWorker<KetQuaTai<T>, Void> workerHienTai;
@@ -98,19 +98,19 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     this.setLocationRelativeTo(owner);
     this.getContentPane().setBackground(Theme.BG);
 
-    this.khungBoLoc.setOpaque(false);
-    this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    this.table.setRowHeight(34);
-    this.table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-    Theme.styleTable(this.table);
+    this.pnlBoLoc.setOpaque(false);
+    this.tblKetQua.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    this.tblKetQua.setRowHeight(34);
+    this.tblKetQua.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+    Theme.styleTable(this.tblKetQua);
 
-    this.timKiemField.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON,
+    this.txtTimKiem.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON,
             new LucideIcon("search", 16, Theme.palette().INK_MUTED()));
 
     this.boDemLoc = new Timer(THOI_GIAN_CHO_LOC, e -> this.taiLai());
     this.boDemLoc.setRepeats(false);
 
-    this.timKiemField.getDocument().addDocumentListener(new DocumentListener() {
+    this.txtTimKiem.getDocument().addDocumentListener(new DocumentListener() {
       @Override
       public void insertUpdate(DocumentEvent e) {
         ChonSanPhamDialog.this.boDemLoc.restart();
@@ -127,7 +127,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
       }
     });
 
-    this.table.addMouseListener(new MouseAdapter() {
+    this.tblKetQua.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
@@ -138,7 +138,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
 
     JPanel noiDung = Theme.contentPanel(12);
     noiDung.add(this.taoPanelTimKiem(), BorderLayout.NORTH);
-    noiDung.add(new JScrollPane(this.table), BorderLayout.CENTER);
+    noiDung.add(new JScrollPane(this.tblKetQua), BorderLayout.CENTER);
     noiDung.add(this.taoPanelDuoi(), BorderLayout.SOUTH);
     this.add(noiDung, BorderLayout.CENTER);
 
@@ -150,7 +150,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     this.addWindowListener(new WindowAdapter() {
       @Override
       public void windowOpened(WindowEvent e) {
-        ChonSanPhamDialog.this.timKiemField.requestFocusInWindow();
+        ChonSanPhamDialog.this.txtTimKiem.requestFocusInWindow();
       }
     });
   }
@@ -180,7 +180,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     if (boLoc == null) {
       return;
     }
-    this.khungBoLoc.add(boLoc);
+    this.pnlBoLoc.add(boLoc);
   }
 
   /** Đặt lại bộ đếm debounce để tải lại danh sách sau 250 ms. */
@@ -199,7 +199,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
 
     if (!this.daTaiLanDau) {
       this.daTaiLanDau = true;
-      this.timKiemField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
+      this.txtTimKiem.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
               I18nReaderUtil.get(this.placeholderTimKiem()));
       this.model.setColumnIdentifiers(this.tenCot());
     }
@@ -214,8 +214,8 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
   private JPanel taoPanelTimKiem() {
     JPanel panel = new JPanel(new BorderLayout(12, 0));
     panel.setOpaque(false);
-    panel.add(this.timKiemField, BorderLayout.CENTER);
-    panel.add(this.khungBoLoc, BorderLayout.EAST);
+    panel.add(this.txtTimKiem, BorderLayout.CENTER);
+    panel.add(this.pnlBoLoc, BorderLayout.EAST);
     return panel;
   }
 
@@ -242,11 +242,11 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     controls.add(btnChon);
     controls.add(btnHuy);
 
-    this.trangThaiLabel.setForeground(Theme.palette().INK_MUTED());
+    this.lblTrangThai.setForeground(Theme.palette().INK_MUTED());
 
     JPanel panel = new JPanel(new BorderLayout(8, 0));
     panel.setOpaque(false);
-    panel.add(this.trangThaiLabel, BorderLayout.WEST);
+    panel.add(this.lblTrangThai, BorderLayout.WEST);
     panel.add(controls, BorderLayout.EAST);
     return panel;
   }
@@ -259,7 +259,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     this.chuanBiTaiLieu();
 
     final int theHe = ++this.theHeTai;
-    final String tuKhoa = this.timKiemField.getText();
+    final String tuKhoa = this.txtTimKiem.getText();
 
     SwingWorker<KetQuaTai<T>, Void> worker = new SwingWorker<KetQuaTai<T>, Void>() {
       private Exception loiTai;
@@ -327,25 +327,25 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
   private void capNhatTrangThai(int soKetQua, int tongSoKetQua) {
     if (tongSoKetQua > soKetQua) {
       String mau = I18nReaderUtil.get("app.common.resultCountLimited");
-      this.trangThaiLabel.setText(
+      this.lblTrangThai.setText(
               MessageFormat.format(mau == null ? "{0}/{1}" : mau, soKetQua, tongSoKetQua));
       return;
     }
 
     if (soKetQua == 0) {
-      this.trangThaiLabel.setText(I18nReaderUtil.get(this.keyKhongTimThay()));
+      this.lblTrangThai.setText(I18nReaderUtil.get(this.keyKhongTimThay()));
       return;
     }
 
     String mau = I18nReaderUtil.get("app.common.resultCount");
-    this.trangThaiLabel.setText(MessageFormat.format(mau == null ? "{0}" : mau, soKetQua));
+    this.lblTrangThai.setText(MessageFormat.format(mau == null ? "{0}" : mau, soKetQua));
   }
 
   /** Xóa kết quả cũ và báo lỗi tải để người dùng không chọn nhầm dòng của từ khoá trước. */
   private void baoKhongTaiDuoc() {
     this.dangHienThi.clear();
     this.model.setDataVector(new Object[0][], this.tenCot());
-    this.trangThaiLabel.setText(I18nReaderUtil.get("app.common.loiKhongXacDinh"));
+    this.lblTrangThai.setText(I18nReaderUtil.get("app.common.loiKhongXacDinh"));
     ThongBao.loi(this, "app.common.loiKhongXacDinh");
   }
 
@@ -384,13 +384,13 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
       }
     }
 
-    int dong = this.table.getSelectedRow();
+    int dong = this.tblKetQua.getSelectedRow();
     if (dong < 0) {
       ThongBao.canhBao(this, this.keyChuaChon());
       return;
     }
 
-    int index = this.table.convertRowIndexToModel(dong);
+    int index = this.tblKetQua.convertRowIndexToModel(dong);
     if (index < 0 || index >= this.dangHienThi.size()) {
       ThongBao.canhBao(this, this.keyChuaChon());
       return;

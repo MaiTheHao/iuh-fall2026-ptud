@@ -38,7 +38,7 @@ public class XemChanDoanPage extends AbstractPage {
 
     private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
 
-    private ManagementPanel managementPanel;
+    private ManagementPanel pnlDanhSach;
     private List<VanDeKyThuat> danhSachHienTai = List.of();
     private JLabel lblMaPhieu;
     private JLabel lblBienSo;
@@ -54,9 +54,9 @@ public class XemChanDoanPage extends AbstractPage {
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setBackground(Theme.BG);
 
-        this.managementPanel = new ManagementPanel();
-        this.managementPanel.setListTitle("app.chanDoan.danhSachChanDoanTitle");
-        this.managementPanel.setHeaders(
+        this.pnlDanhSach = new ManagementPanel();
+        this.pnlDanhSach.setListTitle("app.chanDoan.danhSachChanDoanTitle");
+        this.pnlDanhSach.setHeaders(
                 I18nReaderUtil.get("app.chanDoan.maVanDe"),
                 I18nReaderUtil.get("app.chanDoan.tieuDe"),
                 I18nReaderUtil.get("app.chanDoan.moTa"),
@@ -66,18 +66,18 @@ public class XemChanDoanPage extends AbstractPage {
                 I18nReaderUtil.get("app.chanDoan.ngayTao")
         );
 
-        this.managementPanel.addActionColumn("app.common.actions",
+        this.pnlDanhSach.addActionColumn("app.common.actions",
                 new ThaoTac("check", "app.chanDoan.datCo", ThaoTac.KieuThaoTac.THUONG,
                         row -> this.capNhatTrangThai(row, TrangThaiVanDeKyThuat.CO)),
                 new ThaoTac("ban", "app.chanDoan.datKhong", ThaoTac.KieuThaoTac.THUONG,
                         row -> this.capNhatTrangThai(row, TrangThaiVanDeKyThuat.KHONG)));
 
-        this.managementPanel.setFilterChangeListener(() -> this.taiLai());
-        this.managementPanel.getClearFilterButton().addActionListener(
-                e -> this.managementPanel.clearFilters());
+        this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai());
+        this.pnlDanhSach.getClearFilterButton().addActionListener(
+                e -> this.pnlDanhSach.clearFilters());
 
         this.add(this.taoThanhThongTin(), BorderLayout.NORTH);
-        this.add(this.managementPanel, BorderLayout.CENTER);
+        this.add(this.pnlDanhSach, BorderLayout.CENTER);
 
         this.taiLai();
         this.revalidate();
@@ -124,9 +124,9 @@ public class XemChanDoanPage extends AbstractPage {
                 this.lblMaPhieu.setText("");
                 this.lblBienSo.setText("");
                 this.danhSachHienTai = List.of();
-                this.managementPanel.setRows(List.of());
-                this.managementPanel.setCount(0, 0, 0);
-                this.managementPanel.setPage(1, 1);
+                this.pnlDanhSach.setRows(List.of());
+                this.pnlDanhSach.setCount(0, 0, 0);
+                this.pnlDanhSach.setPage(1, 1);
                 return;
             }
 
@@ -134,7 +134,7 @@ public class XemChanDoanPage extends AbstractPage {
             this.lblBienSo.setText(phieu.bienSo() == null ? "" : phieu.bienSo());
 
             List<VanDeKyThuat> ds = this.vanDeKyThuatService.layDanhSachTheoPhieu(
-                    phieu.maPhieuTiepNhan(), this.managementPanel.getQuickFilter());
+                    phieu.maPhieuTiepNhan(), this.pnlDanhSach.getQuickFilter());
             this.danhSachHienTai = ds;
 
             List<Object[]> rows = new ArrayList<>();
@@ -150,9 +150,9 @@ public class XemChanDoanPage extends AbstractPage {
                 });
             }
 
-            this.managementPanel.setRows(rows);
-            this.managementPanel.setCount(rows.isEmpty() ? 0 : 1, rows.size(), rows.size());
-            this.managementPanel.setPage(1, 1);
+            this.pnlDanhSach.setRows(rows);
+            this.pnlDanhSach.setCount(rows.isEmpty() ? 0 : 1, rows.size(), rows.size());
+            this.pnlDanhSach.setPage(1, 1);
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Khong the tai danh sach chan doan", ex);
             ThongBao.loi(this, "app.chanDoan.loiTaiDanhSach");

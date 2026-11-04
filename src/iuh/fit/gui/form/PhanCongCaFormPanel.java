@@ -29,18 +29,18 @@ public abstract class PhanCongCaFormPanel extends FormFieldPanel {
 
   private static final long serialVersionUID = 1L;
 
-  protected final JTextField maField = new JTextField(14);
-  protected final JComboBox<NhanVien> nhanVienCombo = new JComboBox<>();
+  protected final JTextField txtMa = new JTextField(14);
+  protected final JComboBox<NhanVien> cmbNhanVien = new JComboBox<>();
   protected final DatePicker ngayLamPicker = BoChonNgayGio.taoBoChonNgay();
-  protected final JComboBox<CaLamViec> caLamCombo = new JComboBox<>(CaLamViec.values());
-  protected final JTextField ghiChuField = new JTextField(14);
+  protected final JComboBox<CaLamViec> cmbCaLam = new JComboBox<>(CaLamViec.values());
+  protected final JTextField txtGhiChu = new JTextField(14);
 
   protected PhanCongCaFormPanel(List<NhanVien> danhSachNhanVien) {
-    Theme.applyReadOnly(this.maField);
-    this.maField.setFocusable(false);
+    Theme.applyReadOnly(this.txtMa);
+    this.txtMa.setFocusable(false);
     this.ngayLamPicker.getSettings().setFormatForDatesCommonEra("dd/MM/yyyy");
-    this.caLamCombo.setRenderer(BoHienThiI18n.tao());
-    this.nhanVienCombo.setRenderer(new DefaultListCellRenderer() {
+    this.cmbCaLam.setRenderer(BoHienThiI18n.tao());
+    this.cmbNhanVien.setRenderer(new DefaultListCellRenderer() {
       private static final long serialVersionUID = 1L;
 
       @Override
@@ -54,44 +54,44 @@ public abstract class PhanCongCaFormPanel extends FormFieldPanel {
     });
 
     for (NhanVien nhanVien : danhSachNhanVien) {
-      this.nhanVienCombo.addItem(nhanVien);
+      this.cmbNhanVien.addItem(nhanVien);
     }
 
-    FormValidationHelper.autoClearOnInput(this.ghiChuField);
+    FormValidationHelper.autoClearOnInput(this.txtGhiChu);
   }
 
   /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(PhanCong phanCong) {
-    this.maField.setText(phanCong.getMaPhanCong() == null ? "" : phanCong.getMaPhanCong());
+    this.txtMa.setText(phanCong.getMaPhanCong() == null ? "" : phanCong.getMaPhanCong());
     this.ngayLamPicker.setDate(LocalDate.of(
             phanCong.getNam(), phanCong.getThang(), phanCong.getNgay()));
-    this.caLamCombo.setSelectedItem(phanCong.getCaLamViec());
-    this.ghiChuField.setText(phanCong.getGhiChu() == null ? "" : phanCong.getGhiChu());
+    this.cmbCaLam.setSelectedItem(phanCong.getCaLamViec());
+    this.txtGhiChu.setText(phanCong.getGhiChu() == null ? "" : phanCong.getGhiChu());
     this.chonNhanVien(phanCong.getNhanVien() == null ? null : phanCong.getNhanVien().getMaNhanVien());
   }
 
   public DuLieu layDuLieu() {
-    NhanVien nhanVien = (NhanVien) this.nhanVienCombo.getSelectedItem();
+    NhanVien nhanVien = (NhanVien) this.cmbNhanVien.getSelectedItem();
 
     return new DuLieu(
-            this.maField.getText().trim(),
+            this.txtMa.getText().trim(),
             nhanVien == null ? null : nhanVien.getMaNhanVien(),
             this.ngayLamPicker.getDate(),
-            (CaLamViec) this.caLamCombo.getSelectedItem(),
-            this.ghiChuField.getText().trim());
+            (CaLamViec) this.cmbCaLam.getSelectedItem(),
+            this.txtGhiChu.getText().trim());
   }
 
   public boolean validateInput() {
     JComponent loiDauTien = null;
 
-    if (this.nhanVienCombo.getSelectedItem() == null) {
-      FormValidationHelper.markError(this.nhanVienCombo,
+    if (this.cmbNhanVien.getSelectedItem() == null) {
+      FormValidationHelper.markError(this.cmbNhanVien,
               I18nReaderUtil.get("app.schedule.employeeRequired"));
-      loiDauTien = this.nhanVienCombo;
+      loiDauTien = this.cmbNhanVien;
     } else {
-      FormValidationHelper.clearError(this.nhanVienCombo);
+      FormValidationHelper.clearError(this.cmbNhanVien);
     }
 
     if (this.ngayLamPicker.getDate() == null) {
@@ -104,14 +104,14 @@ public abstract class PhanCongCaFormPanel extends FormFieldPanel {
       FormValidationHelper.clearError(this.ngayLamPicker);
     }
 
-    if (this.caLamCombo.getSelectedItem() == null) {
-      FormValidationHelper.markError(this.caLamCombo,
+    if (this.cmbCaLam.getSelectedItem() == null) {
+      FormValidationHelper.markError(this.cmbCaLam,
               I18nReaderUtil.get("app.schedule.shiftRequired"));
       if (loiDauTien == null) {
-        loiDauTien = this.caLamCombo;
+        loiDauTien = this.cmbCaLam;
       }
     } else {
-      FormValidationHelper.clearError(this.caLamCombo);
+      FormValidationHelper.clearError(this.cmbCaLam);
     }
 
     if (loiDauTien != null) {
@@ -123,12 +123,12 @@ public abstract class PhanCongCaFormPanel extends FormFieldPanel {
   }
 
   private void chonNhanVien(String maNhanVien) {
-    for (int i = 0; i < this.nhanVienCombo.getItemCount(); i++) {
-      NhanVien nhanVien = this.nhanVienCombo.getItemAt(i);
+    for (int i = 0; i < this.cmbNhanVien.getItemCount(); i++) {
+      NhanVien nhanVien = this.cmbNhanVien.getItemAt(i);
 
       if (nhanVien != null && nhanVien.getMaNhanVien() != null
               && nhanVien.getMaNhanVien().equals(maNhanVien)) {
-        this.nhanVienCombo.setSelectedIndex(i);
+        this.cmbNhanVien.setSelectedIndex(i);
         return;
       }
     }

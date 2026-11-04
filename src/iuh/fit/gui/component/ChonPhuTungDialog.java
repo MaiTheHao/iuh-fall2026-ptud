@@ -24,7 +24,7 @@ public final class ChonPhuTungDialog extends ChonSanPhamDialog<PhuTung> {
   private final PhuTungService phuTungService;
   private final DanhSachPhuTungCriteria boLocGoc;
   private final Function<PhuTung, PhuTung> hienThi;
-  private final JCheckBox chiConTon;
+  private final JCheckBox chkChiConTon;
   private boolean chiConTonDangChon;
 
   public ChonPhuTungDialog(Window owner, PhuTungService phuTungService,
@@ -41,16 +41,16 @@ public final class ChonPhuTungDialog extends ChonSanPhamDialog<PhuTung> {
     this.boLocGoc = boLocGoc == null ? DanhSachPhuTungCriteria.macDinh() : boLocGoc;
     this.hienThi = hienThi == null ? Function.identity() : hienThi;
 
-    this.chiConTon = new JCheckBox(I18nReaderUtil.get("app.phieuNhap.chiConTon"));
-    this.chiConTon.setOpaque(false);
-    this.chiConTon.setSelected(chiConTonMacDinh);
-    this.chiConTon.addActionListener(e -> this.locLai());
-    this.datBoLoc(this.chiConTon);
+    this.chkChiConTon = new JCheckBox(I18nReaderUtil.get("app.phieuNhap.chiConTon"));
+    this.chkChiConTon.setOpaque(false);
+    this.chkChiConTon.setSelected(chiConTonMacDinh);
+    this.chkChiConTon.addActionListener(e -> this.locLai());
+    this.datBoLoc(this.chkChiConTon);
   }
 
   @Override
   protected void chuanBiTaiLieu() {
-    this.chiConTonDangChon = this.chiConTon.isSelected();
+    this.chiConTonDangChon = this.chkChiConTon.isSelected();
   }
 
   @Override

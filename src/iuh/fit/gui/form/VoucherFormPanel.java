@@ -29,35 +29,35 @@ public abstract class VoucherFormPanel extends FormFieldPanel {
   private static final int DO_DAI_TEN_TOI_DA = 100;
   private static final int DO_DAI_MO_TA_TOI_DA = 500;
 
-  protected final JTextField maField = new JTextField(14);
-  protected final JTextField tenChuongTrinhField = new JTextField(14);
-  protected final JTextArea moTaArea = new JTextArea(4, 20);
-  protected final JScrollPane moTaScroll = FormFieldPanel.taoKhungMoTa(this.moTaArea);
-  protected final JTextField mucGiamField = new JTextField(14);
+  protected final JTextField txtMa = new JTextField(14);
+  protected final JTextField txtTenChuongTrinh = new JTextField(14);
+  protected final JTextArea txaMoTa = new JTextArea(4, 20);
+  protected final JScrollPane moTaScroll = FormFieldPanel.taoKhungMoTa(this.txaMoTa);
+  protected final JTextField txtMucGiam = new JTextField(14);
   protected final DateTimePicker thoiHanPicker = BoChonNgayGio.taoBoChonNgayGio();
-  protected final JCheckBox trangThaiField = new JCheckBox();
+  protected final JCheckBox chkTrangThai = new JCheckBox();
 
   protected VoucherFormPanel() {
-    this.mucGiamField.setHorizontalAlignment(SwingConstants.RIGHT);
-    Theme.applyReadOnly(this.maField);
+    this.txtMucGiam.setHorizontalAlignment(SwingConstants.RIGHT);
+    Theme.applyReadOnly(this.txtMa);
 
     BoChonNgayGio.apDungMau(this.thoiHanPicker);
 
-    this.trangThaiField.setOpaque(false);
-    this.trangThaiField.setSelected(true);
+    this.chkTrangThai.setOpaque(false);
+    this.chkTrangThai.setSelected(true);
 
-    FormValidationHelper.autoClearOnInput(this.tenChuongTrinhField);
-    FormValidationHelper.autoClearOnInput(this.mucGiamField);
+    FormValidationHelper.autoClearOnInput(this.txtTenChuongTrinh);
+    FormValidationHelper.autoClearOnInput(this.txtMucGiam);
   }
 
   /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(VoucherFormData data) {
-    this.maField.setText(data.maVoucher() == null ? "" : data.maVoucher());
-    this.tenChuongTrinhField.setText(data.tenChuongTrinh() == null ? "" : data.tenChuongTrinh());
-    this.moTaArea.setText(data.moTa() == null ? "" : data.moTa());
-    this.mucGiamField.setText(data.mucGiam() == null ? "" : String.valueOf(data.mucGiam()));
+    this.txtMa.setText(data.maVoucher() == null ? "" : data.maVoucher());
+    this.txtTenChuongTrinh.setText(data.tenChuongTrinh() == null ? "" : data.tenChuongTrinh());
+    this.txaMoTa.setText(data.moTa() == null ? "" : data.moTa());
+    this.txtMucGiam.setText(data.mucGiam() == null ? "" : String.valueOf(data.mucGiam()));
 
     if (data.thoiHanApDung() == null) {
       this.thoiHanPicker.clear();
@@ -65,20 +65,20 @@ public abstract class VoucherFormPanel extends FormFieldPanel {
       this.thoiHanPicker.setDateTimeStrict(data.thoiHanApDung());
     }
 
-    this.trangThaiField.setSelected(Boolean.TRUE.equals(data.trangThaiKichHoat()));
+    this.chkTrangThai.setSelected(Boolean.TRUE.equals(data.trangThaiKichHoat()));
   }
 
   public VoucherFormData layDuLieu() {
-    String ma = this.maField.getText().trim();
-    String moTa = this.moTaArea.getText().trim();
+    String ma = this.txtMa.getText().trim();
+    String moTa = this.txaMoTa.getText().trim();
 
     return new VoucherFormData(
             ma.isBlank() ? null : ma,
-            this.tenChuongTrinhField.getText().trim(),
+            this.txtTenChuongTrinh.getText().trim(),
             moTa.isEmpty() ? null : moTa,
-            NumberParseUtil.toDoubleOrNull(this.mucGiamField.getText()),
+            NumberParseUtil.toDoubleOrNull(this.txtMucGiam.getText()),
             this.thoiHanPicker.getDateTimeStrict(),
-            this.trangThaiField.isSelected());
+            this.chkTrangThai.isSelected());
   }
 
   public final boolean validateInput() {
@@ -102,40 +102,40 @@ public abstract class VoucherFormPanel extends FormFieldPanel {
   protected JComponent kiemTraChung() {
     JComponent loiDauTien = null;
 
-    String ten = this.tenChuongTrinhField.getText().trim();
+    String ten = this.txtTenChuongTrinh.getText().trim();
 
     if (ten.isEmpty()) {
-      FormValidationHelper.markError(this.tenChuongTrinhField,
+      FormValidationHelper.markError(this.txtTenChuongTrinh,
               I18nReaderUtil.get("app.voucher.loiTen"));
-      loiDauTien = this.tenChuongTrinhField;
+      loiDauTien = this.txtTenChuongTrinh;
     } else if (ten.length() > DO_DAI_TEN_TOI_DA) {
-      FormValidationHelper.markError(this.tenChuongTrinhField,
+      FormValidationHelper.markError(this.txtTenChuongTrinh,
               I18nReaderUtil.get("app.voucher.tenQuaDai"));
-      loiDauTien = this.tenChuongTrinhField;
+      loiDauTien = this.txtTenChuongTrinh;
     } else {
-      FormValidationHelper.clearError(this.tenChuongTrinhField);
+      FormValidationHelper.clearError(this.txtTenChuongTrinh);
     }
 
-    if (this.moTaArea.getText().trim().length() > DO_DAI_MO_TA_TOI_DA) {
-      FormValidationHelper.markError(this.moTaArea,
+    if (this.txaMoTa.getText().trim().length() > DO_DAI_MO_TA_TOI_DA) {
+      FormValidationHelper.markError(this.txaMoTa,
               I18nReaderUtil.get("app.voucher.moTaQuaDai"));
       if (loiDauTien == null) {
-        loiDauTien = this.moTaArea;
+        loiDauTien = this.txaMoTa;
       }
     } else {
-      FormValidationHelper.clearError(this.moTaArea);
+      FormValidationHelper.clearError(this.txaMoTa);
     }
 
-    Double mucGiam = NumberParseUtil.toDoubleOrNull(this.mucGiamField.getText());
+    Double mucGiam = NumberParseUtil.toDoubleOrNull(this.txtMucGiam.getText());
 
     if (mucGiam == null || !Double.isFinite(mucGiam) || mucGiam < 0 || mucGiam > 1) {
-      FormValidationHelper.markError(this.mucGiamField,
+      FormValidationHelper.markError(this.txtMucGiam,
               I18nReaderUtil.get("app.voucher.loiMucGiam"));
       if (loiDauTien == null) {
-        loiDauTien = this.mucGiamField;
+        loiDauTien = this.txtMucGiam;
       }
     } else {
-      FormValidationHelper.clearError(this.mucGiamField);
+      FormValidationHelper.clearError(this.txtMucGiam);
     }
 
     LocalDateTime thoiHan = this.thoiHanPicker.getDateTimeStrict();

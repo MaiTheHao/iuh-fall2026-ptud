@@ -44,7 +44,7 @@ public class TieuThuDichVuPage extends AbstractPage {
 
 	private final TieuThuDichVuService tieuThuDichVuService = new TieuThuDichVuService();
 
-	private final JComboBox<String> cboThang = new JComboBox<>();
+	private final JComboBox<String> cmbThang = new JComboBox<>();
 
 	private final JLabel lblTongLuot = new JLabel("0");
 	private final JLabel lblDoanhThu = new JLabel("0");
@@ -87,8 +87,8 @@ public class TieuThuDichVuPage extends AbstractPage {
 		this.add(this.taoNoiDung(), BorderLayout.CENTER);
 		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);
 
-		this.clearActionListeners(this.cboThang);
-		this.cboThang.addActionListener(e -> this.taiBaoCao());
+		this.clearActionListeners(this.cmbThang);
+		this.cmbThang.addActionListener(e -> this.taiBaoCao());
 
 		this.revalidate();
 		this.repaint();
@@ -97,22 +97,22 @@ public class TieuThuDichVuPage extends AbstractPage {
 	}
 
 	private void khoiTaoThang() {
-		if (this.cboThang.getItemCount() > 0) {
+		if (this.cmbThang.getItemCount() > 0) {
 			return;
 		}
 
 		YearMonth thangHienTai = YearMonth.now();
 
 		for (int i = 0; i < 12; i++) {
-			this.cboThang.addItem(thangHienTai.minusMonths(i).format(this.dinhDangThang));
+			this.cmbThang.addItem(thangHienTai.minusMonths(i).format(this.dinhDangThang));
 		}
 
-		this.cboThang.setSelectedIndex(0);
-		this.cboThang.setPreferredSize(new Dimension(150, 28));
+		this.cmbThang.setSelectedIndex(0);
+		this.cmbThang.setPreferredSize(new Dimension(150, 28));
 	}
 
 	private YearMonth layThangDuocChon() {
-		String thang = (String) this.cboThang.getSelectedItem();
+		String thang = (String) this.cmbThang.getSelectedItem();
 
 		if (thang == null || thang.trim().isEmpty()) {
 			throw new IllegalArgumentException("Chưa chọn tháng báo cáo.");
@@ -164,7 +164,7 @@ public class TieuThuDichVuPage extends AbstractPage {
 		JPanel pnlThang = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
 
 		pnlThang.add(new JLabel(I18nReaderUtil.get("app.report.service.month")));
-		pnlThang.add(this.cboThang);
+		pnlThang.add(this.cmbThang);
 
 		pnl.add(pnlThang, BorderLayout.WEST);
 

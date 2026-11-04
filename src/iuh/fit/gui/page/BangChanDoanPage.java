@@ -49,7 +49,7 @@ public class BangChanDoanPage extends AbstractPage {
     private final List<String> maDaXoa = new ArrayList<>();
     private final Map<String, TrangThaiVanDeKyThuat> trangThaiDongYTheoMa = new HashMap<>();
 
-    private ManagementPanel bang;
+    private ManagementPanel pnlDanhSach;
     private JLabel lblMaPhieu;
     private JLabel lblBienSo;
     private JLabel lblKhachHang;
@@ -73,16 +73,16 @@ public class BangChanDoanPage extends AbstractPage {
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setBackground(Theme.BG);
 
-        this.bang = new ManagementPanel();
-        this.bang.setListTitle("app.chanDoan.bangTitle");
-        this.bang.setHeaders(
+        this.pnlDanhSach = new ManagementPanel();
+        this.pnlDanhSach.setListTitle("app.chanDoan.bangTitle");
+        this.pnlDanhSach.setHeaders(
                 I18nReaderUtil.get("app.chanDoan.tieuDeCot"),
                 I18nReaderUtil.get("app.chanDoan.mucDoUuTien"),
                 I18nReaderUtil.get("app.chanDoan.moTa"),
                 I18nReaderUtil.get("app.chanDoan.giaiPhap"),
                 I18nReaderUtil.get("app.chanDoan.trangThaiDongY"));
 
-        this.bang.addActionColumn("app.common.actions",
+        this.pnlDanhSach.addActionColumn("app.common.actions",
                 new ThaoTac("pencil", "app.chanDoan.suaDong", ThaoTac.KieuThaoTac.THUONG,
                         this::suaDong, row -> this.choPhepSua()),
                 new ThaoTac("trash-2", "app.chanDoan.xoaDongDaChon", ThaoTac.KieuThaoTac.NGUY_HIEM,
@@ -107,7 +107,7 @@ public class BangChanDoanPage extends AbstractPage {
         thanhNut.add(this.btnLuu);
 
         this.add(this.taoThanhThongTin(), BorderLayout.NORTH);
-        this.add(this.bang, BorderLayout.CENTER);
+        this.add(this.pnlDanhSach, BorderLayout.CENTER);
         this.add(thanhNut, BorderLayout.SOUTH);
 
         this.napDuLieuBanDau();
@@ -244,9 +244,9 @@ public class BangChanDoanPage extends AbstractPage {
         }
 
         int dongDau = rows.isEmpty() ? 0 : 1;
-        this.bang.setRows(rows);
-        this.bang.setCount(dongDau, rows.size(), rows.size());
-        this.bang.setPage(1, 1);
+        this.pnlDanhSach.setRows(rows);
+        this.pnlDanhSach.setCount(dongDau, rows.size(), rows.size());
+        this.pnlDanhSach.setPage(1, 1);
     }
 
     private boolean choPhepSua() {

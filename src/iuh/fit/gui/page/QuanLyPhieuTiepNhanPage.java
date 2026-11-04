@@ -57,13 +57,13 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
     private final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
     private final HoaDonService hoaDonService = new HoaDonService();
 
-    private ManagementPanel managementPanel;
+    private ManagementPanel pnlDanhSach;
 
-    private JTextField boLocMa;
-    private JTextField boLocBienSo;
-    private JTextField boLocHoTen;
-    private JTextField boLocSdt;
-    private JTextField boLocNoiDung;
+    private JTextField txtBoLocMa;
+    private JTextField txtBoLocBienSo;
+    private JTextField txtBoLocHoTen;
+    private JTextField txtBoLocSdt;
+    private JTextField txtBoLocNoiDung;
     private ManagementPanel.BoLocNgay boLocThoiGianVao;
     private ManagementPanel.BoLocChon boLocTrangThai;
     private List<PhieuTiepNhanView> danhSachHienTai = new ArrayList<>();
@@ -80,10 +80,10 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setBackground(Theme.BG);
 
-        this.managementPanel = new ManagementPanel();
-        this.managementPanel.setListTitle("app.phieuTiepNhan.danhSachTitle");
+        this.pnlDanhSach = new ManagementPanel();
+        this.pnlDanhSach.setListTitle("app.phieuTiepNhan.danhSachTitle");
 
-        this.managementPanel.setHeaders(
+        this.pnlDanhSach.setHeaders(
                 I18nReaderUtil.get("app.phieuTiepNhan.ma"),
                 I18nReaderUtil.get("app.xe.bienSo"),
                 I18nReaderUtil.get("app.khachHang.hoTen"),
@@ -93,7 +93,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                 I18nReaderUtil.get("app.phieuTiepNhan.trangThai")
         );
 
-        this.managementPanel.addActionColumn("app.common.actions",
+        this.pnlDanhSach.addActionColumn("app.common.actions",
                 new ThaoTac("rotate-ccw", "app.phieuTiepNhan.chuyenTrangThai",
                         ThaoTac.KieuThaoTac.THUONG, row -> this.moMenuTrangThai(row),
                         row -> this.danhSachHienTai.size() > row && row >= 0
@@ -110,26 +110,26 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                 new ThaoTac("clipboard-list", "app.chanDoan.xemChanDoanTitle", ThaoTac.KieuThaoTac.THUONG,
                         row -> this.xemChanDoan(row)));
 
-        this.boLocMa = this.managementPanel.addTextFilter("app.phieuTiepNhan.ma");
-        this.boLocBienSo = this.managementPanel.addTextFilter("app.xe.bienSo");
-        this.boLocHoTen = this.managementPanel.addTextFilter("app.khachHang.hoTen");
-        this.boLocSdt = this.managementPanel.addTextFilter("app.khachHang.sdt");
-        this.boLocThoiGianVao = this.managementPanel.addDateRangeFilter("app.phieuTiepNhan.thoiGianVao");
-        this.boLocNoiDung = this.managementPanel.addTextFilter("app.phieuTiepNhan.noiDung");
-        this.boLocTrangThai = this.managementPanel.addComboBoxFilter("app.phieuTiepNhan.trangThai",
+        this.txtBoLocMa = this.pnlDanhSach.addTextFilter("app.phieuTiepNhan.ma");
+        this.txtBoLocBienSo = this.pnlDanhSach.addTextFilter("app.xe.bienSo");
+        this.txtBoLocHoTen = this.pnlDanhSach.addTextFilter("app.khachHang.hoTen");
+        this.txtBoLocSdt = this.pnlDanhSach.addTextFilter("app.khachHang.sdt");
+        this.boLocThoiGianVao = this.pnlDanhSach.addDateRangeFilter("app.phieuTiepNhan.thoiGianVao");
+        this.txtBoLocNoiDung = this.pnlDanhSach.addTextFilter("app.phieuTiepNhan.noiDung");
+        this.boLocTrangThai = this.pnlDanhSach.addComboBoxFilter("app.phieuTiepNhan.trangThai",
                 TrangThaiPhieuTiepNhan.values());
 
-        this.managementPanel.setFilterChangeListener(() -> this.taiLaiData(1));
+        this.pnlDanhSach.setFilterChangeListener(() -> this.taiLaiData(1));
 
-        this.managementPanel.setAddAction("app.common.add_new",
+        this.pnlDanhSach.setAddAction("app.common.add_new",
                 () -> this.goTo(TiepNhanKhachHangPage.class));
-        this.managementPanel.setRowDoubleClickListener(this::xemChiTiet);
+        this.pnlDanhSach.setRowDoubleClickListener(this::xemChiTiet);
 
-        this.managementPanel.getClearFilterButton().addActionListener(e -> this.managementPanel.clearFilters());
-        this.managementPanel.getPrevButton().addActionListener(e -> this.taiLaiData(this.trang - 1));
-        this.managementPanel.getNextButton().addActionListener(e -> this.taiLaiData(this.trang + 1));
+        this.pnlDanhSach.getClearFilterButton().addActionListener(e -> this.pnlDanhSach.clearFilters());
+        this.pnlDanhSach.getPrevButton().addActionListener(e -> this.taiLaiData(this.trang - 1));
+        this.pnlDanhSach.getNextButton().addActionListener(e -> this.taiLaiData(this.trang + 1));
 
-        this.add(this.managementPanel, BorderLayout.CENTER);
+        this.add(this.pnlDanhSach, BorderLayout.CENTER);
 
         this.taiLaiData(1);
         this.revalidate();
@@ -142,15 +142,15 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
                     instanceof TrangThaiPhieuTiepNhan value ? value : null;
 
             DanhSachPhieuTiepNhanCriteria tieuChi = new DanhSachPhieuTiepNhanCriteria(
-                    this.boLocMa.getText(),
-                    this.boLocBienSo.getText(),
-                    this.boLocHoTen.getText(),
-                    this.boLocSdt.getText(),
-                    this.boLocNoiDung.getText(),
+                    this.txtBoLocMa.getText(),
+                    this.txtBoLocBienSo.getText(),
+                    this.txtBoLocHoTen.getText(),
+                    this.txtBoLocSdt.getText(),
+                    this.txtBoLocNoiDung.getText(),
                     trangThai,
                     this.boLocThoiGianVao.tuNgay(),
                     this.boLocThoiGianVao.denNgay(),
-                    this.managementPanel.getQuickFilter(),
+                    this.pnlDanhSach.getQuickFilter(),
                     Math.max(page, 1),
                     SO_DONG_MOI_TRANG
             );
@@ -172,9 +172,9 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
 
             this.danhSachHienTai = ketQua.items();
 
-            this.managementPanel.setRows(rows);
-            this.managementPanel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
-            this.managementPanel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
+            this.pnlDanhSach.setRows(rows);
+            this.pnlDanhSach.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+            this.pnlDanhSach.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
             this.trang = ketQua.page();
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Khong the tai danh sach phieu tiep nhan", e);

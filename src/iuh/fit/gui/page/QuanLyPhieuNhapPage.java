@@ -37,13 +37,13 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 	private final DateTimeFormatter dateFormatter = DateTimeFormatter
 			.ofPattern(I18nReaderUtil.get("app.date.format") + " HH:mm");
 
-	private ManagementPanel managementPanel;
+	private ManagementPanel pnlDanhSach;
 	private List<PhieuNhapPhuTung> danhSachHienTai = new ArrayList<>();
 	private int trang = 1;
 
-	private JTextField boLocMaPhieuNhap;
-	private JTextField boLocMoTa;
-	private JTextField boLocThuKho;
+	private JTextField txtBoLocMaPhieuNhap;
+	private JTextField txtBoLocMoTa;
+	private JTextField txtBoLocThuKho;
 	private ManagementPanel.BoLocNgay boLocNgayTao;
 	private ManagementPanel.BoLocKhoang boLocTongChiPhi;
 
@@ -57,10 +57,10 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 		this.setBackground(Theme.BG);
 
-		this.managementPanel = new ManagementPanel();
-		this.managementPanel.setListTitle("app.phieuNhap.danhSachTitle");
+		this.pnlDanhSach = new ManagementPanel();
+		this.pnlDanhSach.setListTitle("app.phieuNhap.danhSachTitle");
 
-		this.managementPanel.setHeaders(
+		this.pnlDanhSach.setHeaders(
 				"#",
 				I18nReaderUtil.get("app.phieuNhap.maPhieuNhap"),
 				I18nReaderUtil.get("app.phieuNhap.moTa"),
@@ -70,29 +70,29 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 		);
 
 		// Phiếu nhập đã tạo là chứng từ kho: chỉ xem chi tiết, không sửa/xóa.
-		this.managementPanel.addActionColumn("app.common.actions",
+		this.pnlDanhSach.addActionColumn("app.common.actions",
 				new ThaoTac("eye", "app.common.view", ThaoTac.KieuThaoTac.THUONG,
 						this::xemChiTiet));
 
-		this.managementPanel.setAddAction("app.phieuNhap.taoPhieuMoi",
+		this.pnlDanhSach.setAddAction("app.phieuNhap.taoPhieuMoi",
 				() -> this.goTo(LapPhieuNhapPage.class));
-		this.managementPanel.setRowDoubleClickListener(this::xemChiTiet);
+		this.pnlDanhSach.setRowDoubleClickListener(this::xemChiTiet);
 
-		this.boLocMaPhieuNhap = this.managementPanel.addTextFilter("app.phieuNhap.maPhieuNhap");
-		this.boLocMoTa = this.managementPanel.addTextFilter("app.phieuNhap.moTa");
-		this.boLocThuKho = this.managementPanel.addTextFilter("app.phieuNhap.thuKho");
-		this.boLocNgayTao = this.managementPanel.addDateRangeFilter("app.phieuNhap.ngayTao");
-		this.boLocTongChiPhi = this.managementPanel.addRangeFilter("app.phieuNhap.tongChiPhi");
+		this.txtBoLocMaPhieuNhap = this.pnlDanhSach.addTextFilter("app.phieuNhap.maPhieuNhap");
+		this.txtBoLocMoTa = this.pnlDanhSach.addTextFilter("app.phieuNhap.moTa");
+		this.txtBoLocThuKho = this.pnlDanhSach.addTextFilter("app.phieuNhap.thuKho");
+		this.boLocNgayTao = this.pnlDanhSach.addDateRangeFilter("app.phieuNhap.ngayTao");
+		this.boLocTongChiPhi = this.pnlDanhSach.addRangeFilter("app.phieuNhap.tongChiPhi");
 
-		this.managementPanel.setFilterChangeListener(() -> this.taiLai(1));
-		this.managementPanel.getClearFilterButton().addActionListener(
-				e -> this.managementPanel.clearFilters());
-		this.managementPanel.getPrevButton().addActionListener(
+		this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai(1));
+		this.pnlDanhSach.getClearFilterButton().addActionListener(
+				e -> this.pnlDanhSach.clearFilters());
+		this.pnlDanhSach.getPrevButton().addActionListener(
 				e -> this.taiLai(this.trang - 1));
-		this.managementPanel.getNextButton().addActionListener(
+		this.pnlDanhSach.getNextButton().addActionListener(
 				e -> this.taiLai(this.trang + 1));
 
-		JTable table = this.managementPanel.getTable();
+		JTable table = this.pnlDanhSach.getTable();
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		table.getColumnModel().getColumn(0).setPreferredWidth(50);
 		table.getColumnModel().getColumn(1).setPreferredWidth(200);
@@ -102,7 +102,7 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 		table.getColumnModel().getColumn(5).setPreferredWidth(160);
 		table.setRowHeight(44);
 
-		this.add(this.managementPanel, BorderLayout.CENTER);
+		this.add(this.pnlDanhSach, BorderLayout.CENTER);
 
 		this.taiLai(1);
 
@@ -138,10 +138,10 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
 			PaginatedResult<PhieuNhapPhuTung> res = this.phieuNhapService.search(
 					criteria,
-					this.managementPanel.getQuickFilter(),
-					this.boLocMaPhieuNhap.getText(),
-					this.boLocThuKho.getText(),
-					this.boLocMoTa.getText(),
+					this.pnlDanhSach.getQuickFilter(),
+					this.txtBoLocMaPhieuNhap.getText(),
+					this.txtBoLocThuKho.getText(),
+					this.txtBoLocMoTa.getText(),
 					this.boLocNgayTao.tuNgay(),
 					this.boLocNgayTao.denNgay(),
 					minCost,
@@ -164,9 +164,9 @@ public class QuanLyPhieuNhapPage extends AbstractPage {
 
 			this.danhSachHienTai = res.items();
 
-			this.managementPanel.setRows(rows);
-			this.managementPanel.setCount(res.fromIndex(), res.toIndex(), res.totalItems());
-			this.managementPanel.setPage(res.page(), Math.max(res.totalPages(), 1));
+			this.pnlDanhSach.setRows(rows);
+			this.pnlDanhSach.setCount(res.fromIndex(), res.toIndex(), res.totalItems());
+			this.pnlDanhSach.setPage(res.page(), Math.max(res.totalPages(), 1));
 			this.trang = res.page();
 		} catch (SQLException e) {
 			ThongBao.loi(this, "app.login.errorSystem");

@@ -40,9 +40,9 @@ public final class ThanhDieuHuongTuan extends JPanel {
 	private final JLabel lblThang = this.taoNhan("app.schedule.month");
 	private final JLabel lblNam = this.taoNhan("app.schedule.year");
 
-	private final JComboBox<Integer> cbThang = new JComboBox<>();
+	private final JComboBox<Integer> cmbThang = new JComboBox<>();
 	private final DefaultComboBoxModel<Integer> moHinhNam = new DefaultComboBoxModel<>();
-	private final JComboBox<Integer> cbNam = new JComboBox<>(this.moHinhNam);
+	private final JComboBox<Integer> cmbNam = new JComboBox<>(this.moHinhNam);
 
 	private LocalDate ngayDauTuan;
 	private Consumer<LocalDate> xuLyDoiTuan;
@@ -58,7 +58,7 @@ public final class ThanhDieuHuongTuan extends JPanel {
 		this.lblKhoangTuan.setForeground(Theme.INK);
 
 		for (int thang = 1; thang <= 12; thang++) {
-			this.cbThang.addItem(thang);
+			this.cmbThang.addItem(thang);
 		}
 
 		for (int nam = NAM_HIEN_TAI - BAN_KINH_NAM; nam <= NAM_HIEN_TAI + BAN_KINH_NAM; nam++) {
@@ -70,9 +70,9 @@ public final class ThanhDieuHuongTuan extends JPanel {
 		this.add(this.btnSau);
 		this.add(this.btnTuanNay);
 		this.add(this.lblThang);
-		this.add(this.cbThang);
+		this.add(this.cmbThang);
 		this.add(this.lblNam);
-		this.add(this.cbNam);
+		this.add(this.cmbNam);
 
 		this.ganSuKien();
 		this.datNgayDauTuan(LocalDate.now());
@@ -101,13 +101,13 @@ public final class ThanhDieuHuongTuan extends JPanel {
 			this.phat();
 		});
 
-		this.cbThang.addItemListener(e -> {
+		this.cmbThang.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
 				this.xuLyChonThangNam();
 			}
 		});
 
-		this.cbNam.addItemListener(e -> {
+		this.cmbNam.addItemListener(e -> {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
 				this.xuLyChonThangNam();
 			}
@@ -119,8 +119,8 @@ public final class ThanhDieuHuongTuan extends JPanel {
 			return;
 		}
 
-		Integer thang = (Integer) this.cbThang.getSelectedItem();
-		Integer nam = (Integer) this.cbNam.getSelectedItem();
+		Integer thang = (Integer) this.cmbThang.getSelectedItem();
+		Integer nam = (Integer) this.cmbNam.getSelectedItem();
 
 		if (thang == null || nam == null) {
 			return;
@@ -166,8 +166,8 @@ public final class ThanhDieuHuongTuan extends JPanel {
 					+ this.ngayDauTuan.plusDays(6).format(this.dinhDangNgay));
 
 			this.boSungNam(this.ngayDauTuan.getYear());
-			this.cbThang.setSelectedItem(this.ngayDauTuan.getMonthValue());
-			this.cbNam.setSelectedItem(this.ngayDauTuan.getYear());
+			this.cmbThang.setSelectedItem(this.ngayDauTuan.getMonthValue());
+			this.cmbNam.setSelectedItem(this.ngayDauTuan.getYear());
 		} finally {
 			this.dangDongBo = false;
 		}

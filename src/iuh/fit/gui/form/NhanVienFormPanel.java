@@ -31,7 +31,7 @@ public abstract class NhanVienFormPanel extends FormFieldPanel {
   private static final int DO_DAI_TEN_DANG_NHAP_TOI_DA = 30;
   private static final int DO_DAI_MAT_KHAU_TOI_DA = 255;
 
-  protected final AnhField anhField = new AnhField(new AnhField.KhoaAnh(
+  protected final AnhField pnlAnh = new AnhField(new AnhField.KhoaAnh(
           "app.nhanVien.anhUrl",
           "app.nhanVien.chonAnh",
           "app.nhanVien.goAnh",
@@ -40,63 +40,63 @@ public abstract class NhanVienFormPanel extends FormFieldPanel {
           "app.nhanVien.loaiTepAnh",
           "app.nhanVien.duLieuKhongPhaiAnh"));
 
-  protected final JTextField maField = new JTextField(14);
-  protected final JTextField tenDangNhapField = new JTextField(14);
-  protected final JPasswordField matKhauField = new JPasswordField(14);
-  protected final JTextField hoTenField = new JTextField(14);
-  protected final JTextField soDienThoaiField = new JTextField(14);
-  protected final JTextField ngayTaoField = new JTextField(14);
-  protected final JComboBox<VaiTro> vaiTroCombo = new JComboBox<>(VaiTro.values());
-  protected final JComboBox<TrangThaiNhanVien> trangThaiCombo =
+  protected final JTextField txtMa = new JTextField(14);
+  protected final JTextField txtTenDangNhap = new JTextField(14);
+  protected final JPasswordField txtMatKhau = new JPasswordField(14);
+  protected final JTextField txtHoTen = new JTextField(14);
+  protected final JTextField txtSoDienThoai = new JTextField(14);
+  protected final JTextField txtNgayTao = new JTextField(14);
+  protected final JComboBox<VaiTro> cmbVaiTro = new JComboBox<>(VaiTro.values());
+  protected final JComboBox<TrangThaiNhanVien> cmbTrangThai =
           new JComboBox<>(TrangThaiNhanVien.values());
 
   protected NhanVienFormPanel() {
-    Theme.applyReadOnly(this.maField);
-    this.maField.setFocusable(false);
-    Theme.applyReadOnly(this.ngayTaoField);
-    Theme.applyEditable(this.matKhauField);
+    Theme.applyReadOnly(this.txtMa);
+    this.txtMa.setFocusable(false);
+    Theme.applyReadOnly(this.txtNgayTao);
+    Theme.applyEditable(this.txtMatKhau);
 
-    this.vaiTroCombo.setRenderer(BoHienThiI18n.tao());
-    this.trangThaiCombo.setRenderer(BoHienThiI18n.tao());
+    this.cmbVaiTro.setRenderer(BoHienThiI18n.tao());
+    this.cmbTrangThai.setRenderer(BoHienThiI18n.tao());
 
-    this.vaiTroCombo.setSelectedItem(VaiTro.NHAN_VIEN_TIEP_NHAN);
-    this.trangThaiCombo.setSelectedItem(TrangThaiNhanVien.HOAT_DONG);
+    this.cmbVaiTro.setSelectedItem(VaiTro.NHAN_VIEN_TIEP_NHAN);
+    this.cmbTrangThai.setSelectedItem(TrangThaiNhanVien.HOAT_DONG);
 
-    FormValidationHelper.autoClearOnInput(this.tenDangNhapField);
-    FormValidationHelper.autoClearOnInput(this.matKhauField);
-    FormValidationHelper.autoClearOnInput(this.hoTenField);
-    FormValidationHelper.autoClearOnInput(this.soDienThoaiField);
+    FormValidationHelper.autoClearOnInput(this.txtTenDangNhap);
+    FormValidationHelper.autoClearOnInput(this.txtMatKhau);
+    FormValidationHelper.autoClearOnInput(this.txtHoTen);
+    FormValidationHelper.autoClearOnInput(this.txtSoDienThoai);
   }
 
   /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(NhanVien nhanVien) {
-    this.maField.setText(nhanVien.getMaNhanVien() == null ? "" : nhanVien.getMaNhanVien());
-    this.tenDangNhapField.setText(nhanVien.getTenDangNhap() == null ? "" : nhanVien.getTenDangNhap());
-    this.matKhauField.setText("");
-    this.hoTenField.setText(nhanVien.getHoTen() == null ? "" : nhanVien.getHoTen());
-    this.soDienThoaiField.setText(nhanVien.getSoDienThoai() == null ? "" : nhanVien.getSoDienThoai());
-    this.ngayTaoField.setText(nhanVien.getNgayTao() == null ? ""
+    this.txtMa.setText(nhanVien.getMaNhanVien() == null ? "" : nhanVien.getMaNhanVien());
+    this.txtTenDangNhap.setText(nhanVien.getTenDangNhap() == null ? "" : nhanVien.getTenDangNhap());
+    this.txtMatKhau.setText("");
+    this.txtHoTen.setText(nhanVien.getHoTen() == null ? "" : nhanVien.getHoTen());
+    this.txtSoDienThoai.setText(nhanVien.getSoDienThoai() == null ? "" : nhanVien.getSoDienThoai());
+    this.txtNgayTao.setText(nhanVien.getNgayTao() == null ? ""
             : nhanVien.getNgayTao().format(DateTimeFormatter.ofPattern(I18nReaderUtil.get("app.date.format"))));
-    this.anhField.setDuongDan(nhanVien.getAnhDaiDien());
-    this.vaiTroCombo.setSelectedItem(nhanVien.getVaiTro());
-    this.trangThaiCombo.setSelectedItem(nhanVien.getTrangThai());
+    this.pnlAnh.setDuongDan(nhanVien.getAnhDaiDien());
+    this.cmbVaiTro.setSelectedItem(nhanVien.getVaiTro());
+    this.cmbTrangThai.setSelectedItem(nhanVien.getTrangThai());
   }
 
   public NhanVienFormData layDuLieu() {
-    String soDienThoai = this.soDienThoaiField.getText().trim();
+    String soDienThoai = this.txtSoDienThoai.getText().trim();
 
     return new NhanVienFormData(
-            this.maField.getText().trim(),
-            this.tenDangNhapField.getText().trim(),
-            new String(this.matKhauField.getPassword()),
-            this.hoTenField.getText().trim(),
+            this.txtMa.getText().trim(),
+            this.txtTenDangNhap.getText().trim(),
+            new String(this.txtMatKhau.getPassword()),
+            this.txtHoTen.getText().trim(),
             soDienThoai,
-            this.anhField.getDuongDan(),
-            (VaiTro) this.vaiTroCombo.getSelectedItem(),
-            (TrangThaiNhanVien) this.trangThaiCombo.getSelectedItem(),
-            this.ngayTaoField.getText().trim());
+            this.pnlAnh.getDuongDan(),
+            (VaiTro) this.cmbVaiTro.getSelectedItem(),
+            (TrangThaiNhanVien) this.cmbTrangThai.getSelectedItem(),
+            this.txtNgayTao.getText().trim());
   }
 
   public final boolean validateInput() {
@@ -120,62 +120,62 @@ public abstract class NhanVienFormPanel extends FormFieldPanel {
   protected JComponent kiemTraChung() {
     JComponent loiDauTien = null;
 
-    String tenDangNhap = this.tenDangNhapField.getText().trim();
-    String matKhau = new String(this.matKhauField.getPassword());
-    String hoTen = this.hoTenField.getText().trim();
+    String tenDangNhap = this.txtTenDangNhap.getText().trim();
+    String matKhau = new String(this.txtMatKhau.getPassword());
+    String hoTen = this.txtHoTen.getText().trim();
 
     if (tenDangNhap.length() > DO_DAI_TEN_DANG_NHAP_TOI_DA) {
-      FormValidationHelper.markError(this.tenDangNhapField,
+      FormValidationHelper.markError(this.txtTenDangNhap,
               I18nReaderUtil.get("app.nhanVien.loiTenDangNhap"));
-      loiDauTien = this.tenDangNhapField;
+      loiDauTien = this.txtTenDangNhap;
     } else {
-      FormValidationHelper.clearError(this.tenDangNhapField);
+      FormValidationHelper.clearError(this.txtTenDangNhap);
     }
 
     if (matKhau.length() > DO_DAI_MAT_KHAU_TOI_DA) {
-      FormValidationHelper.markError(this.matKhauField,
+      FormValidationHelper.markError(this.txtMatKhau,
               I18nReaderUtil.get("app.nhanVien.loiMatKhau"));
       if (loiDauTien == null) {
-        loiDauTien = this.matKhauField;
+        loiDauTien = this.txtMatKhau;
       }
     } else {
-      FormValidationHelper.clearError(this.matKhauField);
+      FormValidationHelper.clearError(this.txtMatKhau);
     }
 
     if (hoTen.isEmpty() || hoTen.length() > DO_DAI_HO_TEN_TOI_DA) {
-      FormValidationHelper.markError(this.hoTenField,
+      FormValidationHelper.markError(this.txtHoTen,
               I18nReaderUtil.get("app.nhanVien.loiHoTen"));
       if (loiDauTien == null) {
-        loiDauTien = this.hoTenField;
+        loiDauTien = this.txtHoTen;
       }
     } else {
-      FormValidationHelper.clearError(this.hoTenField);
+      FormValidationHelper.clearError(this.txtHoTen);
     }
 
-    if (!FormValidationHelper.kiemTra(this.soDienThoaiField,
-            this.soDienThoaiField.getText().trim().matches(SDT_REGEX),
+    if (!FormValidationHelper.kiemTra(this.txtSoDienThoai,
+            this.txtSoDienThoai.getText().trim().matches(SDT_REGEX),
             "app.nhanVien.loiSoDienThoai") && loiDauTien == null) {
-      loiDauTien = this.soDienThoaiField;
+      loiDauTien = this.txtSoDienThoai;
     }
 
-    if (this.vaiTroCombo.getSelectedItem() == null) {
-      FormValidationHelper.markError(this.vaiTroCombo,
+    if (this.cmbVaiTro.getSelectedItem() == null) {
+      FormValidationHelper.markError(this.cmbVaiTro,
               I18nReaderUtil.get("app.nhanVien.loiVaiTro"));
       if (loiDauTien == null) {
-        loiDauTien = this.vaiTroCombo;
+        loiDauTien = this.cmbVaiTro;
       }
     } else {
-      FormValidationHelper.clearError(this.vaiTroCombo);
+      FormValidationHelper.clearError(this.cmbVaiTro);
     }
 
-    if (this.trangThaiCombo.getSelectedItem() == null) {
-      FormValidationHelper.markError(this.trangThaiCombo,
+    if (this.cmbTrangThai.getSelectedItem() == null) {
+      FormValidationHelper.markError(this.cmbTrangThai,
               I18nReaderUtil.get("app.nhanVien.loiTrangThai"));
       if (loiDauTien == null) {
-        loiDauTien = this.trangThaiCombo;
+        loiDauTien = this.cmbTrangThai;
       }
     } else {
-      FormValidationHelper.clearError(this.trangThaiCombo);
+      FormValidationHelper.clearError(this.cmbTrangThai);
     }
 
     return loiDauTien;

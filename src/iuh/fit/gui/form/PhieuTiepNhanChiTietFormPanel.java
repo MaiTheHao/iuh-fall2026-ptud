@@ -18,34 +18,34 @@ public final class PhieuTiepNhanChiTietFormPanel extends FormFieldPanel {
     private static final DateTimeFormatter NGAY_GIO =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private final JTextField maPhieuField = new JTextField(14);
-    private final JTextField bienSoField = new JTextField(14);
-    private final JTextField khachHangField = new JTextField(14);
-    private final JTextField sdtField = new JTextField(14);
-    private final JTextArea moTaArea = new JTextArea(4, 20);
-    private final JTextField trangThaiField = new JTextField(14);
-    private final JTextField ngayTaoField = new JTextField(14);
+    private final JTextField txtMaPhieu = new JTextField(14);
+    private final JTextField txtBienSo = new JTextField(14);
+    private final JTextField txtKhachHang = new JTextField(14);
+    private final JTextField txtSdt = new JTextField(14);
+    private final JTextArea txaMoTa = new JTextArea(4, 20);
+    private final JTextField txtTrangThai = new JTextField(14);
+    private final JTextField txtNgayTao = new JTextField(14);
 
     public PhieuTiepNhanChiTietFormPanel() {
         for (JTextField field : new JTextField[]{
-            this.maPhieuField, this.bienSoField, this.khachHangField,
-            this.sdtField, this.trangThaiField, this.ngayTaoField}) {
+            this.txtMaPhieu, this.txtBienSo, this.txtKhachHang,
+            this.txtSdt, this.txtTrangThai, this.txtNgayTao}) {
             Theme.applyReadOnly(field);
             field.setFocusable(false);
         }
 
-        this.moTaArea.setEditable(false);
-        this.moTaArea.setFocusable(false);
-        this.moTaArea.setBackground(Theme.palette().ACCENT_SOFT());
-        this.moTaArea.setForeground(Theme.INK);
+        this.txaMoTa.setEditable(false);
+        this.txaMoTa.setFocusable(false);
+        this.txaMoTa.setBackground(Theme.palette().ACCENT_SOFT());
+        this.txaMoTa.setForeground(Theme.INK);
 
-        this.addField("app.phieuTiepNhan.maPhieu", this.maPhieuField);
-        this.addField("app.phieuTiepNhan.bienSo", this.bienSoField);
-        this.addField("app.phieuTiepNhan.khachHang", this.khachHangField);
-        this.addField("app.phieuTiepNhan.dienThoai", this.sdtField);
-        this.addField("app.phieuTiepNhan.noiDungYeuCau", taoKhungMoTa(this.moTaArea));
-        this.addField("app.phieuTiepNhan.trangThaiTienDo", this.trangThaiField);
-        this.addField("app.phieuTiepNhan.thoiGianVao", this.ngayTaoField);
+        this.addField("app.phieuTiepNhan.maPhieu", this.txtMaPhieu);
+        this.addField("app.phieuTiepNhan.bienSo", this.txtBienSo);
+        this.addField("app.phieuTiepNhan.khachHang", this.txtKhachHang);
+        this.addField("app.phieuTiepNhan.dienThoai", this.txtSdt);
+        this.addField("app.phieuTiepNhan.noiDungYeuCau", taoKhungMoTa(this.txaMoTa));
+        this.addField("app.phieuTiepNhan.trangThaiTienDo", this.txtTrangThai);
+        this.addField("app.phieuTiepNhan.thoiGianVao", this.txtNgayTao);
     }
 
     public void napDuLieu(PhieuTiepNhanView view) {
@@ -53,13 +53,13 @@ public final class PhieuTiepNhanChiTietFormPanel extends FormFieldPanel {
             return;
         }
 
-        this.maPhieuField.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
-        this.bienSoField.setText(view.bienSo() == null ? "" : view.bienSo());
-        this.khachHangField.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
-        this.sdtField.setText(view.sdt() == null ? "" : view.sdt());
-        this.moTaArea.setText(view.moTa() == null ? "" : view.moTa());
-        this.trangThaiField.setText(
+        this.txtMaPhieu.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
+        this.txtBienSo.setText(view.bienSo() == null ? "" : view.bienSo());
+        this.txtKhachHang.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
+        this.txtSdt.setText(view.sdt() == null ? "" : view.sdt());
+        this.txaMoTa.setText(view.moTa() == null ? "" : view.moTa());
+        this.txtTrangThai.setText(
                 view.trangThai() == null ? "" : view.trangThai().getI18NBusinessName());
-        this.ngayTaoField.setText(view.ngayTao() == null ? "" : view.ngayTao().format(NGAY_GIO));
+        this.txtNgayTao.setText(view.ngayTao() == null ? "" : view.ngayTao().format(NGAY_GIO));
     }
 }

@@ -11,7 +11,7 @@ public final class DongXeTaoFormPanel extends DongXeFormPanel {
 
   @Override
   protected void dungBoCuc() {
-    this.addField("app.danhMucXe.hang", this.hangXeCombo);
-    this.addField("app.danhMucXe.ten", this.tenField);
+    this.addField("app.danhMucXe.hang", this.cmbHangXe);
+    this.addField("app.danhMucXe.ten", this.txtTen);
   }
 }

@@ -48,8 +48,8 @@ public class AnhField extends JPanel {
     private final String keyKhongTaiDuocAnh;
     private final String keyDuLieuKhongPhaiAnh;
 
-    private final JTextField duongDanField = new JTextField(20);
-    private final JLabel previewLabel = new JLabel("", SwingConstants.CENTER);
+    private final JTextField txtDuongDan = new JTextField(20);
+    private final JLabel lblPreview = new JLabel("", SwingConstants.CENTER);
 
     public AnhField(KhoaAnh khoa) {
         this.keyChonAnh = khoa.chonAnh();
@@ -68,11 +68,11 @@ public class AnhField extends JPanel {
         nhanLabel.setFont(nhanLabel.getFont().deriveFont(Font.BOLD));
         nhanLabel.setForeground(Theme.INK);
         duongDanRow.add(nhanLabel);
-        duongDanRow.add(this.duongDanField);
+        duongDanRow.add(this.txtDuongDan);
         this.add(duongDanRow);
 
-        this.duongDanField.addActionListener(
-                e -> this.setDuongDan(this.duongDanField.getText().trim())
+        this.txtDuongDan.addActionListener(
+                e -> this.setDuongDan(this.txtDuongDan.getText().trim())
         );
 
         JPanel nutRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
@@ -95,32 +95,32 @@ public class AnhField extends JPanel {
         nutRow.add(goAnhButton);
         this.add(nutRow);
 
-        this.previewLabel.setPreferredSize(new Dimension(240, 160));
-        this.previewLabel.setForeground(Theme.INK);
-        this.previewLabel.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
-        this.previewLabel.setIcon(null);
-        this.previewLabel.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
+        this.lblPreview.setPreferredSize(new Dimension(240, 160));
+        this.lblPreview.setForeground(Theme.INK);
+        this.lblPreview.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
+        this.lblPreview.setIcon(null);
+        this.lblPreview.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
 
         JPanel previewRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
         previewRow.setOpaque(false);
-        previewRow.add(this.previewLabel);
+        previewRow.add(this.lblPreview);
         this.add(previewRow);
     }
 
     public String getDuongDan() {
-        return this.duongDanField.getText().trim();
+        return this.txtDuongDan.getText().trim();
     }
 
     public void setDuongDan(String duongDan) {
-        this.duongDanField.setText(duongDan == null ? "" : duongDan);
+        this.txtDuongDan.setText(duongDan == null ? "" : duongDan);
 
         this.hienThiAnh(duongDan);
     }
 
     public void clear() {
-        this.duongDanField.setText("");
-        this.previewLabel.setIcon(null);
-        this.previewLabel.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
+        this.txtDuongDan.setText("");
+        this.lblPreview.setIcon(null);
+        this.lblPreview.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
     }
 
     private void chonAnh() {
@@ -151,7 +151,7 @@ public class AnhField extends JPanel {
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 null,
-                this.duongDanField.getText());
+                this.txtDuongDan.getText());
 
         if (ketQua != null) {
             this.setDuongDan(ketQua.trim());
@@ -166,8 +166,8 @@ public class AnhField extends JPanel {
 
         String dia = duongDan.trim();
 
-        this.previewLabel.setIcon(null);
-        this.previewLabel.setText("");
+        this.lblPreview.setIcon(null);
+        this.lblPreview.setText("");
 
         SwingWorker<KetQuaTaiAnh, Void> worker = new SwingWorker<>() {
             @Override
@@ -186,11 +186,11 @@ public class AnhField extends JPanel {
                 }
 
                 if (ketQua.icon() != null) {
-                    previewLabel.setText("");
-                    previewLabel.setIcon(ketQua.icon());
+                    lblPreview.setText("");
+                    lblPreview.setIcon(ketQua.icon());
                 } else {
-                    previewLabel.setIcon(null);
-                    previewLabel.setText(
+                    lblPreview.setIcon(null);
+                    lblPreview.setText(
                             I18nReaderUtil.get(
                                     ketQua.duLieuKhongPhaiAnh()
                                             ? keyDuLieuKhongPhaiAnh

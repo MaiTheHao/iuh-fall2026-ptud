@@ -45,10 +45,10 @@ public class DichVuPage extends AbstractPage {
 
   private final DichVuService dichVuService = new DichVuService();
 
-  private ManagementPanel panel;
+  private ManagementPanel pnlDanhSach;
 
-  private JTextField boLocMa;
-  private JTextField boLocTen;
+  private JTextField txtBoLocMa;
+  private JTextField txtBoLocTen;
   private ManagementPanel.BoLocKhoang boLocDonGia;
 
   private int trang = 1;
@@ -63,18 +63,18 @@ public class DichVuPage extends AbstractPage {
     this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     this.setBackground(Theme.BG);
 
-    this.panel = new ManagementPanel();
-    this.panel.setListTitle("app.dichVu.danhSachTitle");
-    this.panel.enableMultiSelection(true);
+    this.pnlDanhSach = new ManagementPanel();
+    this.pnlDanhSach.setListTitle("app.dichVu.danhSachTitle");
+    this.pnlDanhSach.enableMultiSelection(true);
 
-    this.panel.setHeaders(
+    this.pnlDanhSach.setHeaders(
             I18nReaderUtil.get("app.dichVu.hinhAnh"),
             I18nReaderUtil.get("app.dichVu.ma"),
             I18nReaderUtil.get("app.dichVu.ten"),
             I18nReaderUtil.get("app.dichVu.moTa"),
             I18nReaderUtil.get("app.dichVu.donGia"));
 
-    this.panel.addActionColumn("app.common.actions",
+    this.pnlDanhSach.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -84,31 +84,31 @@ public class DichVuPage extends AbstractPage {
                     ThaoTac.KieuThaoTac.NGUY_HIEM,
                     this::xoa));
 
-    this.panel.setAddAction("app.common.add_new", this::moDialogThem);
-    this.panel.setBatchAction("app.common.batch_delete",
+    this.pnlDanhSach.setAddAction("app.common.add_new", this::moDialogThem);
+    this.pnlDanhSach.setBatchAction("app.common.batch_delete",
             "trash-2",
             ThaoTac.KieuThaoTac.NGUY_HIEM,
             this::xoaNhieu);
-    this.panel.setRowDoubleClickListener(this::moDialogSua);
+    this.pnlDanhSach.setRowDoubleClickListener(this::moDialogSua);
 
     this.khoiTaoBoLoc();
 
-    this.panel.getClearFilterButton().addActionListener(e -> this.panel.clearFilters());
-    this.panel.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
-    this.panel.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
+    this.pnlDanhSach.getClearFilterButton().addActionListener(e -> this.pnlDanhSach.clearFilters());
+    this.pnlDanhSach.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
+    this.pnlDanhSach.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
 
     this.taiLai(1);
 
-    this.add(this.panel, BorderLayout.CENTER);
+    this.add(this.pnlDanhSach, BorderLayout.CENTER);
     this.revalidate();
     this.repaint();
   }
 
   private void khoiTaoBoLoc() {
-    this.boLocMa = this.panel.addTextFilter("app.dichVu.ma");
-    this.boLocTen = this.panel.addTextFilter("app.dichVu.ten");
-    this.boLocDonGia = this.panel.addRangeFilter("app.dichVu.donGiaTuDen");
-    this.panel.setFilterChangeListener(() -> this.taiLai(1));
+    this.txtBoLocMa = this.pnlDanhSach.addTextFilter("app.dichVu.ma");
+    this.txtBoLocTen = this.pnlDanhSach.addTextFilter("app.dichVu.ten");
+    this.boLocDonGia = this.pnlDanhSach.addRangeFilter("app.dichVu.donGiaTuDen");
+    this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai(1));
   }
 
   // ==================== TẢI DANH SÁCH ====================
@@ -116,9 +116,9 @@ public class DichVuPage extends AbstractPage {
   private void taiLai(int page) {
     try {
       DanhSachDichVuCriteria tieuChi = new DanhSachDichVuCriteria(
-              this.boLocMa.getText(),
-              this.boLocTen.getText(),
-              this.panel.getQuickFilter(),
+              this.txtBoLocMa.getText(),
+              this.txtBoLocTen.getText(),
+              this.pnlDanhSach.getQuickFilter(),
               NumberParseUtil.toDoubleOrNull(this.boLocDonGia.tuText()),
               NumberParseUtil.toDoubleOrNull(this.boLocDonGia.denText()),
               Math.max(page, 1),
@@ -137,10 +137,10 @@ public class DichVuPage extends AbstractPage {
         });
       }
 
-      this.panel.setRows(rows);
+      this.pnlDanhSach.setRows(rows);
       this.cauHinhCotAnh();
-      this.panel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
-      this.panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
+      this.pnlDanhSach.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+      this.pnlDanhSach.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
       this.trang = ketQua.page();
 
     } catch (NumberFormatException e) {
@@ -153,7 +153,7 @@ public class DichVuPage extends AbstractPage {
   }
 
   private void cauHinhCotAnh() {
-    AnhTableCellRenderer.ganVao(this.panel,
+    AnhTableCellRenderer.ganVao(this.pnlDanhSach,
             COT_ANH,
             "app.dichVu.chuaCoAnh",
             "app.dichVu.khongTaiDuocAnh");
@@ -161,16 +161,16 @@ public class DichVuPage extends AbstractPage {
 
   private DichVuFormData docDuLieuDong(int row) {
     return new DichVuFormData(
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_TEN)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MO_TA)),
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_ANH)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_TEN)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MO_TA)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_ANH)),
             NumberParseUtil.toDoubleOrNull(
-                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_DON_GIA))));
+                    NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_DON_GIA))));
   }
 
   private String layMaDong(int row) {
-    return NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_MA));
+    return NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_MA));
   }
 
   // ==================== DIALOG ====================

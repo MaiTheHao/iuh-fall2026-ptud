@@ -49,9 +49,9 @@ public class XePage extends AbstractPage {
   private final XeService xeService = new XeService();
   private final DanhMucXeService danhMucXeService = new DanhMucXeService();
 
-  private ManagementPanel panel;
+  private ManagementPanel pnlDanhSach;
 
-  private JTextField boLocBienSo;
+  private JTextField txtBoLocBienSo;
   private ManagementPanel.BoLocChon boLocHangXe;
   private ManagementPanel.BoLocChon boLocDongXe;
   private ManagementPanel.BoLocKhoang boLocDoiXe;
@@ -69,18 +69,18 @@ public class XePage extends AbstractPage {
     this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
     this.setBackground(Theme.BG);
 
-    this.panel = new ManagementPanel();
-    this.panel.setListTitle("app.xe.danhSachTitle");
-    this.panel.enableMultiSelection(true);
+    this.pnlDanhSach = new ManagementPanel();
+    this.pnlDanhSach.setListTitle("app.xe.danhSachTitle");
+    this.pnlDanhSach.enableMultiSelection(true);
 
-    this.panel.setHeaders(
+    this.pnlDanhSach.setHeaders(
             I18nReaderUtil.get("app.xe.bienSo"),
             I18nReaderUtil.get("app.xe.hangXe"),
             I18nReaderUtil.get("app.xe.dongXe"),
             I18nReaderUtil.get("app.xe.doiXe"),
             I18nReaderUtil.get("app.xe.odo"));
 
-    this.panel.addActionColumn("app.common.actions",
+    this.pnlDanhSach.addActionColumn("app.common.actions",
             new ThaoTac("pencil",
                     "app.common.edit",
                     ThaoTac.KieuThaoTac.THUONG,
@@ -90,33 +90,33 @@ public class XePage extends AbstractPage {
                     ThaoTac.KieuThaoTac.NGUY_HIEM,
                     this::xoa));
 
-    this.panel.setAddAction("app.common.add_new", this::moDialogThem);
-    this.panel.setBatchAction("app.common.batch_delete",
+    this.pnlDanhSach.setAddAction("app.common.add_new", this::moDialogThem);
+    this.pnlDanhSach.setBatchAction("app.common.batch_delete",
             "trash-2",
             ThaoTac.KieuThaoTac.NGUY_HIEM,
             this::xoaNhieu);
-    this.panel.setRowDoubleClickListener(this::moDialogSua);
+    this.pnlDanhSach.setRowDoubleClickListener(this::moDialogSua);
 
     this.khoiTaoBoLoc();
 
-    this.panel.getClearFilterButton().addActionListener(e -> this.panel.clearFilters());
-    this.panel.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
-    this.panel.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
+    this.pnlDanhSach.getClearFilterButton().addActionListener(e -> this.pnlDanhSach.clearFilters());
+    this.pnlDanhSach.getPrevButton().addActionListener(e -> this.taiLai(this.trang - 1));
+    this.pnlDanhSach.getNextButton().addActionListener(e -> this.taiLai(this.trang + 1));
 
     this.taiLai(1);
 
-    this.add(this.panel, BorderLayout.CENTER);
+    this.add(this.pnlDanhSach, BorderLayout.CENTER);
     this.revalidate();
     this.repaint();
   }
 
   private void khoiTaoBoLoc() {
-    this.boLocBienSo = this.panel.addTextFilter("app.xe.bienSo");
-    this.boLocHangXe = this.panel.addComboBoxFilter("app.xe.hangXe", this.tenHangXeArraySafe());
-    this.boLocDongXe = this.panel.addComboBoxFilter("app.xe.dongXe", this.tenDongXeArraySafe(null));
-    this.boLocDoiXe = this.panel.addRangeFilter("app.xe.doiXeTuDen");
-    this.boLocOdo = this.panel.addRangeFilter("app.xe.odoTuDen");
-    this.panel.setFilterChangeListener(() -> this.taiLai(1));
+    this.txtBoLocBienSo = this.pnlDanhSach.addTextFilter("app.xe.bienSo");
+    this.boLocHangXe = this.pnlDanhSach.addComboBoxFilter("app.xe.hangXe", this.tenHangXeArraySafe());
+    this.boLocDongXe = this.pnlDanhSach.addComboBoxFilter("app.xe.dongXe", this.tenDongXeArraySafe(null));
+    this.boLocDoiXe = this.pnlDanhSach.addRangeFilter("app.xe.doiXeTuDen");
+    this.boLocOdo = this.pnlDanhSach.addRangeFilter("app.xe.odoTuDen");
+    this.pnlDanhSach.setFilterChangeListener(() -> this.taiLai(1));
   }
 
   // ==================== TẢI DANH SÁCH ====================
@@ -124,14 +124,14 @@ public class XePage extends AbstractPage {
   private void taiLai(int page) {
     try {
       DanhSachXeCriteria tieuChi = new DanhSachXeCriteria(
-              this.boLocBienSo.getText(),
+              this.txtBoLocBienSo.getText(),
               this.maHangTuBoLoc(),
               this.maDongTuBoLoc(),
               NumberParseUtil.toIntegerOrNull(this.boLocDoiXe.tuText()),
               NumberParseUtil.toIntegerOrNull(this.boLocDoiXe.denText()),
               NumberParseUtil.toIntegerOrNull(this.boLocOdo.tuText()),
               NumberParseUtil.toIntegerOrNull(this.boLocOdo.denText()),
-              this.panel.getQuickFilter(),
+              this.pnlDanhSach.getQuickFilter(),
               Math.max(page, 1),
               SO_DONG_MOI_TRANG);
 
@@ -148,9 +148,9 @@ public class XePage extends AbstractPage {
         });
       }
 
-      this.panel.setRows(rows);
-      this.panel.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
-      this.panel.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
+      this.pnlDanhSach.setRows(rows);
+      this.pnlDanhSach.setCount(ketQua.fromIndex(), ketQua.toIndex(), ketQua.totalItems());
+      this.pnlDanhSach.setPage(ketQua.page(), Math.max(ketQua.totalPages(), 1));
       this.trang = ketQua.page();
 
     } catch (NumberFormatException e) {
@@ -162,12 +162,12 @@ public class XePage extends AbstractPage {
 
   private XeFormData docDuLieuDong(int row) {
     return new XeFormData(
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_BIEN_SO)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_BIEN_SO)),
             null,
             null,
-            NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_DOI_XE)),
+            NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_DOI_XE)),
             NumberParseUtil.toIntegerOrNull(
-                    NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_ODO))));
+                    NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_ODO))));
   }
 
   private XeFormData taoFormData(Xe xe) {
@@ -179,7 +179,7 @@ public class XePage extends AbstractPage {
   }
 
   private String layBienSoDong(int row) {
-    return NumberParseUtil.textOf(this.panel.getModel().getValueAt(row, COT_BIEN_SO));
+    return NumberParseUtil.textOf(this.pnlDanhSach.getModel().getValueAt(row, COT_BIEN_SO));
   }
 
   // ==================== GỢI Ý HÃNG / DÒNG XE ====================

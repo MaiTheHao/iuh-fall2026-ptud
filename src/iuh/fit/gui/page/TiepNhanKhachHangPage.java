@@ -52,7 +52,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   private final DanhMucXeService danhMucXeService = new DanhMucXeService();
   private final TiepNhanService tiepNhanService = new TiepNhanService();
 
-  private final ComboTimKiem<KhachHang> sdtField = new ComboTimKiem<>(
+  private final ComboTimKiem<KhachHang> cmbSdt = new ComboTimKiem<>(
           tuKhoa -> this.khachHangService.search(new DanhSachKhachHangCriteria(
                   null,
                   tuKhoa,
@@ -65,8 +65,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
           kh -> kh.getHoTen() + " - " + kh.getSdt(),
           KhachHang::getSdt);
 
-  private final JTextField hoTenField = new JTextField();
-  private final ComboTimKiem<Xe> bienSoField = new ComboTimKiem<>(
+  private final JTextField txtHoTen = new JTextField();
+  private final ComboTimKiem<Xe> cmbBienSo = new ComboTimKiem<>(
           tuKhoa -> this.xeService.search(new DanhSachXeCriteria(
                   tuKhoa,
                   null,
@@ -81,14 +81,14 @@ public class TiepNhanKhachHangPage extends AbstractPage {
           xe -> xe.getBienSo() + " - " + xe.getTenHangXe() + " - " + xe.getTenDongXe() + " - " + xe.getNamSX(),
           Xe::getBienSo);
 
-  private final JComboBox<HangXe> hangXeCombo = new JComboBox<>();
-  private final JComboBox<DongXe> dongXeCombo = new JComboBox<>();
-  private final JComboBox<DoiXe> doiXeCombo = new JComboBox<>();
-  private final JTextField odoField = new JTextField();
-  private final JTextArea moTaArea = new JTextArea(6, 60);
+  private final JComboBox<HangXe> cmbHangXe = new JComboBox<>();
+  private final JComboBox<DongXe> cmbDongXe = new JComboBox<>();
+  private final JComboBox<DoiXe> cmbDoiXe = new JComboBox<>();
+  private final JTextField txtOdo = new JTextField();
+  private final JTextArea txaMoTa = new JTextArea(6, 60);
 
-  private final JButton lamMoiButton = new JButton();
-  private final JButton luuButton = new JButton();
+  private final JButton btnLamMoi = new JButton();
+  private final JButton btnLuu = new JButton();
 
   private boolean dangCapNhat;
   private boolean dangNapDanhSach = false;
@@ -107,8 +107,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     this.setBackground(Theme.BG);
     this.setLayout(new BorderLayout(16, 16));
 
-    this.lamMoiButton.setText(I18nReaderUtil.get("app.tiepNhan.lamMoi"));
-    this.luuButton.setText(I18nReaderUtil.get("app.tiepNhan.luu"));
+    this.btnLamMoi.setText(I18nReaderUtil.get("app.tiepNhan.lamMoi"));
+    this.btnLuu.setText(I18nReaderUtil.get("app.tiepNhan.luu"));
 
     JPanel contentPanel = new JPanel(new BorderLayout(16, 16));
     contentPanel.setOpaque(false);
@@ -122,8 +122,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     pnlKhachHang.setLayout(new GridBagLayout());
     GridBagConstraints gbcKH = this.createGbc();
 
-    this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.sdt"), this.sdtField, gbcKH, 0);
-    this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.hoTen"), this.hoTenField, gbcKH, 1);
+    this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.sdt"), this.cmbSdt, gbcKH, 0);
+    this.addFormField(pnlKhachHang, I18nReaderUtil.get("app.tiepNhan.hoTen"), this.txtHoTen, gbcKH, 1);
     pnlTop.add(pnlKhachHang);
 
     // 2. Thông tin Phương Tiện (Xe)
@@ -131,14 +131,14 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     pnlPhuongTien.setLayout(new GridBagLayout());
     GridBagConstraints gbcXe = this.createGbc();
 
-    this.addFormField(pnlPhuongTien, I18nReaderUtil.get("app.tiepNhan.bienSo"), this.bienSoField, gbcXe, 0);
+    this.addFormField(pnlPhuongTien, I18nReaderUtil.get("app.tiepNhan.bienSo"), this.cmbBienSo, gbcXe, 0);
 
     JPanel pnlChiTietXe = new JPanel(new GridLayout(1, 4, 16, 0));
     pnlChiTietXe.setOpaque(false);
-    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.hangXe") + ":", this.hangXeCombo));
-    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.dongXe") + ":", this.dongXeCombo));
-    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.doiXe") + " (*):", this.doiXeCombo));
-    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.tiepNhan.odo"), this.odoField));
+    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.hangXe") + ":", this.cmbHangXe));
+    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.dongXe") + ":", this.cmbDongXe));
+    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.xe.doiXe") + " (*):", this.cmbDoiXe));
+    pnlChiTietXe.add(this.createFieldWithLabel(I18nReaderUtil.get("app.tiepNhan.odo"), this.txtOdo));
 
     gbcXe.gridx = 0;
     gbcXe.gridy = 1;
@@ -155,22 +155,22 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     lblMoTa.setFont(Theme.fieldLabelFont());
     lblMoTa.setForeground(Theme.INK);
 
-    this.moTaArea.setLineWrap(true);
-    this.moTaArea.setWrapStyleWord(true);
+    this.txaMoTa.setLineWrap(true);
+    this.txaMoTa.setWrapStyleWord(true);
     pnlMoTa.add(lblMoTa, BorderLayout.NORTH);
-    pnlMoTa.add(new JScrollPane(this.moTaArea), BorderLayout.CENTER);
+    pnlMoTa.add(new JScrollPane(this.txaMoTa), BorderLayout.CENTER);
 
     // Bottom Panel: Buttons
     JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
     pnlButtons.setOpaque(false);
 
-    Theme.applyPrimary(this.luuButton);
+    Theme.applyPrimary(this.btnLuu);
 
-    this.lamMoiButton.setPreferredSize(new Dimension(160, 40));
-    this.luuButton.setPreferredSize(new Dimension(160, 40));
+    this.btnLamMoi.setPreferredSize(new Dimension(160, 40));
+    this.btnLuu.setPreferredSize(new Dimension(160, 40));
 
-    pnlButtons.add(this.lamMoiButton);
-    pnlButtons.add(this.luuButton);
+    pnlButtons.add(this.btnLamMoi);
+    pnlButtons.add(this.btnLuu);
 
     contentPanel.add(pnlTop, BorderLayout.NORTH);
     contentPanel.add(pnlMoTa, BorderLayout.CENTER);
@@ -184,39 +184,39 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     this.taiGoiYDoiXe();
 
     // Xóa hết Listener cũ tránh lặp sự kiện
-    this.clearActionListeners(this.lamMoiButton, this.luuButton);
-    this.clearActionListeners(this.hangXeCombo, this.dongXeCombo);
+    this.clearActionListeners(this.btnLamMoi, this.btnLuu);
+    this.clearActionListeners(this.cmbHangXe, this.cmbDongXe);
 
     // Đăng ký đúng Action Listeners
-    this.lamMoiButton.addActionListener(e -> this.lamMoiForm());
-    this.luuButton.addActionListener(e -> this.luuPhieuTiepNhan());
-    this.hangXeCombo.addActionListener(e -> this.hangXeThayDoi());
-    this.dongXeCombo.addActionListener(e -> this.dongXeThayDoi());
+    this.btnLamMoi.addActionListener(e -> this.lamMoiForm());
+    this.btnLuu.addActionListener(e -> this.luuPhieuTiepNhan());
+    this.cmbHangXe.addActionListener(e -> this.hangXeThayDoi());
+    this.cmbDongXe.addActionListener(e -> this.dongXeThayDoi());
 
     this.revalidate();
     this.repaint();
   }
 
   private void dangKyDocumentListener() {
-    this.sdtField.datXuLyGo(() -> {
+    this.cmbSdt.datXuLyGo(() -> {
       if (!this.dangCapNhat) {
-        this.hoTenField.setText("");
+        this.txtHoTen.setText("");
       }
     });
-    this.sdtField.datXuLyChon(this::dienKhachHang);
+    this.cmbSdt.datXuLyChon(this::dienKhachHang);
 
-    this.bienSoField.datXuLyGo(this::xoaThongTinXeKhiBienSoThayDoi);
-    this.bienSoField.datXuLyChon(this::dienThongTinXe);
+    this.cmbBienSo.datXuLyGo(this::xoaThongTinXeKhiBienSoThayDoi);
+    this.cmbBienSo.datXuLyChon(this::dienThongTinXe);
   }
 
   private void dienKhachHang(KhachHang kh) {
     this.dangCapNhat = true;
     try {
-      this.hoTenField.setText(kh.getHoTen());
+      this.txtHoTen.setText(kh.getHoTen());
     } finally {
       this.dangCapNhat = false;
     }
-    this.bienSoField.requestFocusInWindow();
+    this.cmbBienSo.requestFocusInWindow();
   }
 
   private void dienThongTinXe(Xe xe) {
@@ -229,11 +229,11 @@ public class TiepNhanKhachHangPage extends AbstractPage {
       this.taiGoiYDoiXe();
       this.chonDoiXe(xe.getMaDoiXe());
       this.hangXeDaNap = this.maHangDaChon();
-      this.odoField.setText(String.valueOf(xe.getOdo()));
+      this.txtOdo.setText(String.valueOf(xe.getOdo()));
     } finally {
       this.dangCapNhat = false;
     }
-    this.odoField.requestFocusInWindow();
+    this.txtOdo.requestFocusInWindow();
   }
 
   private void xoaThongTinXeKhiBienSoThayDoi() {
@@ -245,17 +245,17 @@ public class TiepNhanKhachHangPage extends AbstractPage {
       boolean cu = this.dangNapDanhSach;
       this.dangNapDanhSach = true;
       try {
-        this.hangXeCombo.setSelectedIndex(-1);
+        this.cmbHangXe.setSelectedIndex(-1);
       } finally {
         this.dangNapDanhSach = cu;
       }
-      this.dongXeCombo.removeAllItems();
-      this.doiXeCombo.removeAllItems();
+      this.cmbDongXe.removeAllItems();
+      this.cmbDoiXe.removeAllItems();
     } finally {
       this.dangCapNhat = false;
     }
     this.hangXeDaNap = "";
-    this.odoField.setText("");
+    this.txtOdo.setText("");
   }
 
   private void hangXeThayDoi() {
@@ -270,8 +270,8 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
     this.dangCapNhat = true;
     try {
-      this.dongXeCombo.removeAllItems();
-      this.doiXeCombo.removeAllItems();
+      this.cmbDongXe.removeAllItems();
+      this.cmbDoiXe.removeAllItems();
     } finally {
       this.dangCapNhat = false;
     }
@@ -282,22 +282,22 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     if (this.dangCapNhat || this.dangNapDanhSach) {
       return;
     }
-    this.doiXeCombo.removeAllItems();
+    this.cmbDoiXe.removeAllItems();
     this.taiGoiYDoiXe();
   }
 
   private String maHangDaChon() {
-    Object sel = this.hangXeCombo.getSelectedItem();
+    Object sel = this.cmbHangXe.getSelectedItem();
     return sel instanceof HangXe ? ((HangXe) sel).getMaHangXe() : null;
   }
 
   private String maDongDaChon() {
-    Object sel = this.dongXeCombo.getSelectedItem();
+    Object sel = this.cmbDongXe.getSelectedItem();
     return sel instanceof DongXe ? ((DongXe) sel).getMaDongXe() : null;
   }
 
   private String maDoiDaChon() {
-    Object sel = this.doiXeCombo.getSelectedItem();
+    Object sel = this.cmbDoiXe.getSelectedItem();
     return sel instanceof DoiXe ? ((DoiXe) sel).getMaDoiXe() : null;
   }
 
@@ -305,10 +305,10 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     if (maHangXe == null) {
       return;
     }
-    for (int i = 0; i < this.hangXeCombo.getItemCount(); i++) {
-      HangXe item = this.hangXeCombo.getItemAt(i);
+    for (int i = 0; i < this.cmbHangXe.getItemCount(); i++) {
+      HangXe item = this.cmbHangXe.getItemAt(i);
       if (item != null && maHangXe.equals(item.getMaHangXe())) {
-        this.hangXeCombo.setSelectedIndex(i);
+        this.cmbHangXe.setSelectedIndex(i);
         return;
       }
     }
@@ -318,10 +318,10 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     if (maDongXe == null) {
       return;
     }
-    for (int i = 0; i < this.dongXeCombo.getItemCount(); i++) {
-      DongXe item = this.dongXeCombo.getItemAt(i);
+    for (int i = 0; i < this.cmbDongXe.getItemCount(); i++) {
+      DongXe item = this.cmbDongXe.getItemAt(i);
       if (item != null && maDongXe.equals(item.getMaDongXe())) {
-        this.dongXeCombo.setSelectedIndex(i);
+        this.cmbDongXe.setSelectedIndex(i);
         return;
       }
     }
@@ -331,10 +331,10 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     if (maDoiXe == null) {
       return;
     }
-    for (int i = 0; i < this.doiXeCombo.getItemCount(); i++) {
-      DoiXe item = this.doiXeCombo.getItemAt(i);
+    for (int i = 0; i < this.cmbDoiXe.getItemCount(); i++) {
+      DoiXe item = this.cmbDoiXe.getItemAt(i);
       if (item != null && maDoiXe.equals(item.getMaDoiXe())) {
-        this.doiXeCombo.setSelectedIndex(i);
+        this.cmbDoiXe.setSelectedIndex(i);
         return;
       }
     }
@@ -345,11 +345,11 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     this.dangNapDanhSach = true;
     try {
       try {
-        this.hangXeCombo.removeAllItems();
+        this.cmbHangXe.removeAllItems();
         for (HangXe hangXe : this.danhMucXeService.getDanhSachHangXe()) {
-          this.hangXeCombo.addItem(hangXe);
+          this.cmbHangXe.addItem(hangXe);
         }
-        this.hangXeCombo.setSelectedIndex(-1);
+        this.cmbHangXe.setSelectedIndex(-1);
         this.hangXeDaNap = this.maHangDaChon() == null ? "" : this.maHangDaChon();
       } catch (SQLException ex) {
         LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý hãng xe", ex);
@@ -365,11 +365,11 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     this.dangNapDanhSach = true;
     try {
       try {
-        this.dongXeCombo.removeAllItems();
+        this.cmbDongXe.removeAllItems();
         for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(this.maHangDaChon())) {
-          this.dongXeCombo.addItem(dongXe);
+          this.cmbDongXe.addItem(dongXe);
         }
-        this.dongXeCombo.setSelectedIndex(-1);
+        this.cmbDongXe.setSelectedIndex(-1);
       } catch (SQLException ex) {
         LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý dòng xe", ex);
         ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
@@ -384,11 +384,11 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     this.dangNapDanhSach = true;
     try {
       try {
-        this.doiXeCombo.removeAllItems();
+        this.cmbDoiXe.removeAllItems();
         for (DoiXe doiXe : this.danhMucXeService.getDanhSachDoiXe(this.maDongDaChon())) {
-          this.doiXeCombo.addItem(doiXe);
+          this.cmbDoiXe.addItem(doiXe);
         }
-        this.doiXeCombo.setSelectedIndex(-1);
+        this.cmbDoiXe.setSelectedIndex(-1);
       } catch (SQLException ex) {
         LOGGER.log(Level.SEVERE, "Lỗi nạp gợi ý đời xe", ex);
         ThongBao.loi(this, "app.tiepNhan.loiKetNoiXe");
@@ -461,68 +461,68 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   private void lamMoiForm() {
     this.dangCapNhat = true;
     try {
-      this.sdtField.xoa();
-      this.hoTenField.setText("");
-      this.bienSoField.xoa();
-      this.hangXeCombo.removeAllItems();
-      this.dongXeCombo.removeAllItems();
-      this.doiXeCombo.removeAllItems();
+      this.cmbSdt.xoa();
+      this.txtHoTen.setText("");
+      this.cmbBienSo.xoa();
+      this.cmbHangXe.removeAllItems();
+      this.cmbDongXe.removeAllItems();
+      this.cmbDoiXe.removeAllItems();
       this.hangXeDaNap = "";
-      this.odoField.setText("");
-      this.moTaArea.setText("");
+      this.txtOdo.setText("");
+      this.txaMoTa.setText("");
     } finally {
       this.dangCapNhat = false;
     }
-    this.sdtField.requestFocusInWindow();
+    this.cmbSdt.requestFocusInWindow();
   }
 
   private TiepNhanFormData getFormData() {
     return new TiepNhanFormData(
-            this.sdtField.getTuKhoa().trim(),
-            this.hoTenField.getText().trim(),
-            this.bienSoField.getTuKhoa().trim(),
+            this.cmbSdt.getTuKhoa().trim(),
+            this.txtHoTen.getText().trim(),
+            this.cmbBienSo.getTuKhoa().trim(),
             this.maHangDaChon(),
             this.maDongDaChon(),
             this.maDoiDaChon(),
-            NumberParseUtil.toIntegerOrNull(this.odoField.getText()),
-            this.moTaArea.getText().trim());
+            NumberParseUtil.toIntegerOrNull(this.txtOdo.getText()),
+            this.txaMoTa.getText().trim());
   }
 
   private boolean kiemTraForm() {
-    if (this.sdtField.getTuKhoa().trim().isEmpty()) {
+    if (this.cmbSdt.getTuKhoa().trim().isEmpty()) {
       ThongBao.thongTin(this, "app.tiepNhan.loiSdtTrong");
-      this.sdtField.requestFocusInWindow();
+      this.cmbSdt.requestFocusInWindow();
       return false;
     }
-    if (this.hoTenField.getText().trim().isEmpty()) {
+    if (this.txtHoTen.getText().trim().isEmpty()) {
       ThongBao.thongTin(this, "app.tiepNhan.loiHoTenTrong");
-      this.hoTenField.requestFocusInWindow();
+      this.txtHoTen.requestFocusInWindow();
       return false;
     }
-    if (this.bienSoField.getTuKhoa().trim().isEmpty()) {
+    if (this.cmbBienSo.getTuKhoa().trim().isEmpty()) {
       ThongBao.thongTin(this, "app.tiepNhan.loiBienSoTrong");
-      this.bienSoField.requestFocusInWindow();
+      this.cmbBienSo.requestFocusInWindow();
       return false;
     }
     if (this.maDoiDaChon() == null) {
       ThongBao.thongTin(this, "app.danhMucXe.chuaChonDoi");
-      this.doiXeCombo.requestFocusInWindow();
+      this.cmbDoiXe.requestFocusInWindow();
       return false;
     }
-    if (!this.odoField.getText().trim().isEmpty()) {
+    if (!this.txtOdo.getText().trim().isEmpty()) {
       try {
-        long odo = Long.parseLong(this.odoField.getText().trim());
+        long odo = Long.parseLong(this.txtOdo.getText().trim());
         if (odo < 0)
           throw new NumberFormatException();
       } catch (NumberFormatException e) {
         ThongBao.thongTin(this, "app.tiepNhan.loiOdo");
-        this.odoField.requestFocusInWindow();
+        this.txtOdo.requestFocusInWindow();
         return false;
       }
     }
-    if (this.moTaArea.getText().trim().isEmpty()) {
+    if (this.txaMoTa.getText().trim().isEmpty()) {
       ThongBao.thongTin(this, "app.tiepNhan.loiMoTa");
-      this.moTaArea.requestFocusInWindow();
+      this.txaMoTa.requestFocusInWindow();
       return false;
     }
     return true;

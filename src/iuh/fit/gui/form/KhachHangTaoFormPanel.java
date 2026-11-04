@@ -13,7 +13,7 @@ public final class KhachHangTaoFormPanel extends KhachHangFormPanel {
 
   @Override
   protected void dungBoCuc() {
-    this.addField("app.khachHang.sdt", this.sdtField);
-    this.addField("app.khachHang.hoTen", this.hoTenField);
+    this.addField("app.khachHang.sdt", this.txtSdt);
+    this.addField("app.khachHang.hoTen", this.txtHoTen);
   }
 }

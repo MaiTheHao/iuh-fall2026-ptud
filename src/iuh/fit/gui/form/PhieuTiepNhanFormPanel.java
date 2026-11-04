@@ -19,59 +19,59 @@ public class PhieuTiepNhanFormPanel extends FormFieldPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private final JTextField maPhieuField = new JTextField();
-    private final JTextField bienSoField = new JTextField();
-    private final JTextField khachHangField = new JTextField();
-    private final JTextField sdtField = new JTextField();
-    private final JTextArea moTaArea = new JTextArea(4, 20);
+    private final JTextField txtMaPhieu = new JTextField();
+    private final JTextField txtBienSo = new JTextField();
+    private final JTextField txtKhachHang = new JTextField();
+    private final JTextField txtSdt = new JTextField();
+    private final JTextArea txaMoTa = new JTextArea(4, 20);
     private TrangThaiPhieuTiepNhan trangThai;
 
     public PhieuTiepNhanFormPanel() {
-        Theme.applyReadOnly(this.maPhieuField);
-        Theme.applyReadOnly(this.bienSoField);
-        Theme.applyReadOnly(this.khachHangField);
-        Theme.applyReadOnly(this.sdtField);
+        Theme.applyReadOnly(this.txtMaPhieu);
+        Theme.applyReadOnly(this.txtBienSo);
+        Theme.applyReadOnly(this.txtKhachHang);
+        Theme.applyReadOnly(this.txtSdt);
 
-        this.addField("app.phieuTiepNhan.maPhieu", this.maPhieuField);
-        this.addField("app.phieuTiepNhan.bienSo", this.bienSoField);
-        this.addField("app.phieuTiepNhan.khachHang", this.khachHangField);
-        this.addField("app.phieuTiepNhan.dienThoai", this.sdtField);
+        this.addField("app.phieuTiepNhan.maPhieu", this.txtMaPhieu);
+        this.addField("app.phieuTiepNhan.bienSo", this.txtBienSo);
+        this.addField("app.phieuTiepNhan.khachHang", this.txtKhachHang);
+        this.addField("app.phieuTiepNhan.dienThoai", this.txtSdt);
 
-        this.moTaArea.setLineWrap(true);
-        this.moTaArea.setWrapStyleWord(true);
-        JScrollPane scrollMoTa = new JScrollPane(this.moTaArea);
+        this.txaMoTa.setLineWrap(true);
+        this.txaMoTa.setWrapStyleWord(true);
+        JScrollPane scrollMoTa = new JScrollPane(this.txaMoTa);
         scrollMoTa.setPreferredSize(new Dimension(200, 100));
         this.addField("app.phieuTiepNhan.noiDungYeuCau", scrollMoTa);
     }
 
     public void napDuLieu(PhieuTiepNhanView view) {
-        this.maPhieuField.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
-        this.bienSoField.setText(view.bienSo() == null ? "" : view.bienSo());
-        this.khachHangField.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
-        this.sdtField.setText(view.sdt() == null ? "" : view.sdt());
-        this.moTaArea.setText(view.moTa() == null ? "" : view.moTa());
+        this.txtMaPhieu.setText(view.maPhieuTiepNhan() == null ? "" : view.maPhieuTiepNhan());
+        this.txtBienSo.setText(view.bienSo() == null ? "" : view.bienSo());
+        this.txtKhachHang.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
+        this.txtSdt.setText(view.sdt() == null ? "" : view.sdt());
+        this.txaMoTa.setText(view.moTa() == null ? "" : view.moTa());
         this.trangThai = view.trangThai();
     }
 
     public PhieuTiepNhan layDuLieu() {
         PhieuTiepNhan phieu = new PhieuTiepNhan();
-        phieu.setMaPhieuTiepNhan(this.maPhieuField.getText().trim());
-        phieu.setMoTa(this.moTaArea.getText().trim());
+        phieu.setMaPhieuTiepNhan(this.txtMaPhieu.getText().trim());
+        phieu.setMoTa(this.txaMoTa.getText().trim());
         phieu.setTrangThai(this.trangThai);
         return phieu;
     }
 
     public void lamMoi() {
-        this.maPhieuField.setText("");
-        this.bienSoField.setText("");
-        this.khachHangField.setText("");
-        this.sdtField.setText("");
-        this.moTaArea.setText("");
+        this.txtMaPhieu.setText("");
+        this.txtBienSo.setText("");
+        this.txtKhachHang.setText("");
+        this.txtSdt.setText("");
+        this.txaMoTa.setText("");
         this.trangThai = null;
         this.focus();
     }
 
     public void focus() {
-        this.moTaArea.requestFocusInWindow();
+        this.txaMoTa.requestFocusInWindow();
     }
 }

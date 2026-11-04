@@ -27,17 +27,17 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
 
   private static final long serialVersionUID = 1L;
 
-  protected final JTextField maField = new JTextField(14);
-  protected final JTextField tenField = new JTextField(14);
-  protected final JTextArea moTaArea = new JTextArea(4, 20);
-  protected final JScrollPane moTaScroll = FormFieldPanel.taoKhungMoTa(this.moTaArea);
-  protected final JTextField donGiaField = new JTextField(14);
-  protected final JTextField soLuongTonField = new JTextField(14);
-  private final JTextField nhaCungCapField = new JTextField(14);
-  private final JButton chonNhaCungCapButton = new JButton("...");
-  private final JPanel hangNhaCungCap = new JPanel(new BorderLayout(4, 0));
+  protected final JTextField txtMa = new JTextField(14);
+  protected final JTextField txtTen = new JTextField(14);
+  protected final JTextArea txaMoTa = new JTextArea(4, 20);
+  protected final JScrollPane moTaScroll = FormFieldPanel.taoKhungMoTa(this.txaMoTa);
+  protected final JTextField txtDonGia = new JTextField(14);
+  protected final JTextField txtSoLuongTon = new JTextField(14);
+  private final JTextField txtNhaCungCap = new JTextField(14);
+  private final JButton btnChonNhaCungCap = new JButton("...");
+  private final JPanel pnlHangNhaCungCap = new JPanel(new BorderLayout(4, 0));
 
-  protected final AnhField anhField = new AnhField(new AnhField.KhoaAnh(
+  protected final AnhField pnlAnh = new AnhField(new AnhField.KhoaAnh(
           "app.phuTung.anhUrl",
           "app.phuTung.chonAnh",
           "app.phuTung.goAnh",
@@ -47,63 +47,63 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
           "app.phuTung.duLieuKhongPhaiAnh"));
 
   protected PhuTungFormPanel() {
-    this.donGiaField.setHorizontalAlignment(SwingConstants.RIGHT);
-    this.soLuongTonField.setHorizontalAlignment(SwingConstants.RIGHT);
+    this.txtDonGia.setHorizontalAlignment(SwingConstants.RIGHT);
+    this.txtSoLuongTon.setHorizontalAlignment(SwingConstants.RIGHT);
 
-    Theme.applyReadOnly(this.maField);
+    Theme.applyReadOnly(this.txtMa);
     // Tồn kho chỉ thay đổi qua phiếu nhập / nghiệp vụ kho nên luôn chỉ đọc.
-    Theme.applyReadOnly(this.soLuongTonField);
-    this.soLuongTonField.setText("0");
-    Theme.applyReadOnly(this.nhaCungCapField);
-    this.hangNhaCungCap.add(this.nhaCungCapField, BorderLayout.CENTER);
-    this.hangNhaCungCap.add(this.chonNhaCungCapButton, BorderLayout.EAST);
+    Theme.applyReadOnly(this.txtSoLuongTon);
+    this.txtSoLuongTon.setText("0");
+    Theme.applyReadOnly(this.txtNhaCungCap);
+    this.pnlHangNhaCungCap.add(this.txtNhaCungCap, BorderLayout.CENTER);
+    this.pnlHangNhaCungCap.add(this.btnChonNhaCungCap, BorderLayout.EAST);
 
-    FormValidationHelper.autoClearOnInput(this.tenField);
-    FormValidationHelper.autoClearOnInput(this.donGiaField);
+    FormValidationHelper.autoClearOnInput(this.txtTen);
+    FormValidationHelper.autoClearOnInput(this.txtDonGia);
   }
 
   public JButton getChonNhaCungCapButton() {
-    return this.chonNhaCungCapButton;
+    return this.btnChonNhaCungCap;
   }
 
   public void setNhaCungCap(String ma) {
-    this.nhaCungCapField.setText(ma == null ? "" : ma);
-    FormValidationHelper.clearError(this.nhaCungCapField);
+    this.txtNhaCungCap.setText(ma == null ? "" : ma);
+    FormValidationHelper.clearError(this.txtNhaCungCap);
   }
 
   public String getMaNhaCungCap() {
-    return this.nhaCungCapField.getText().trim();
+    return this.txtNhaCungCap.getText().trim();
   }
 
   public JComponent thanhNhaCungCap() {
-    return this.hangNhaCungCap;
+    return this.pnlHangNhaCungCap;
   }
 
   /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(PhuTungFormData data) {
-    this.maField.setText(data.maPhuTung() == null ? "" : data.maPhuTung());
-    this.tenField.setText(data.tenPhuTung() == null ? "" : data.tenPhuTung());
-    this.moTaArea.setText(data.moTa() == null ? "" : data.moTa());
-    this.anhField.setDuongDan(data.anhUrl());
-    this.donGiaField.setText(data.donGiaNhap() == null ? "" : String.valueOf(data.donGiaNhap()));
-    this.soLuongTonField.setText(data.soLuongTon() == null ? "0" : String.valueOf(data.soLuongTon()));
+    this.txtMa.setText(data.maPhuTung() == null ? "" : data.maPhuTung());
+    this.txtTen.setText(data.tenPhuTung() == null ? "" : data.tenPhuTung());
+    this.txaMoTa.setText(data.moTa() == null ? "" : data.moTa());
+    this.pnlAnh.setDuongDan(data.anhUrl());
+    this.txtDonGia.setText(data.donGiaNhap() == null ? "" : String.valueOf(data.donGiaNhap()));
+    this.txtSoLuongTon.setText(data.soLuongTon() == null ? "0" : String.valueOf(data.soLuongTon()));
     this.setNhaCungCap(data.maNhaCungCap());
   }
 
   public PhuTungFormData layDuLieu() {
-    String ma = this.maField.getText().trim();
-    String moTa = this.moTaArea.getText().trim();
-    String anhUrl = this.anhField.getDuongDan();
-    Integer soLuongTon = NumberParseUtil.toIntegerOrNull(this.soLuongTonField.getText());
+    String ma = this.txtMa.getText().trim();
+    String moTa = this.txaMoTa.getText().trim();
+    String anhUrl = this.pnlAnh.getDuongDan();
+    Integer soLuongTon = NumberParseUtil.toIntegerOrNull(this.txtSoLuongTon.getText());
 
     return new PhuTungFormData(
             ma.isBlank() ? null : ma,
-            this.tenField.getText().trim(),
+            this.txtTen.getText().trim(),
             moTa.isBlank() ? null : moTa,
             anhUrl.isBlank() ? null : anhUrl,
-            NumberParseUtil.toDoubleOrNull(this.donGiaField.getText()),
+            NumberParseUtil.toDoubleOrNull(this.txtDonGia.getText()),
             soLuongTon == null ? 0 : soLuongTon,
             this.getMaNhaCungCap());
   }
@@ -129,34 +129,34 @@ public abstract class PhuTungFormPanel extends FormFieldPanel {
   protected JComponent kiemTraChung() {
     JComponent loiDauTien = null;
 
-    if (this.tenField.getText().trim().isEmpty()) {
-      FormValidationHelper.markError(this.tenField,
+    if (this.txtTen.getText().trim().isEmpty()) {
+      FormValidationHelper.markError(this.txtTen,
               I18nReaderUtil.get("app.phuTung.loiTen"));
-      loiDauTien = this.tenField;
+      loiDauTien = this.txtTen;
     } else {
-      FormValidationHelper.clearError(this.tenField);
+      FormValidationHelper.clearError(this.txtTen);
     }
 
-    Double donGia = NumberParseUtil.toDoubleOrNull(this.donGiaField.getText());
+    Double donGia = NumberParseUtil.toDoubleOrNull(this.txtDonGia.getText());
 
     if (donGia == null || !Double.isFinite(donGia) || donGia < 0) {
-      FormValidationHelper.markError(this.donGiaField,
+      FormValidationHelper.markError(this.txtDonGia,
               I18nReaderUtil.get("app.phuTung.loiDonGia"));
       if (loiDauTien == null) {
-        loiDauTien = this.donGiaField;
+        loiDauTien = this.txtDonGia;
       }
     } else {
-      FormValidationHelper.clearError(this.donGiaField);
+      FormValidationHelper.clearError(this.txtDonGia);
     }
 
     if (this.getMaNhaCungCap().isEmpty()) {
-      FormValidationHelper.markError(this.nhaCungCapField,
+      FormValidationHelper.markError(this.txtNhaCungCap,
               I18nReaderUtil.get("app.phuTung.loiNhaCungCap"));
       if (loiDauTien == null) {
-        loiDauTien = this.nhaCungCapField;
+        loiDauTien = this.txtNhaCungCap;
       }
     } else {
-      FormValidationHelper.clearError(this.nhaCungCapField);
+      FormValidationHelper.clearError(this.txtNhaCungCap);
     }
 
     return loiDauTien;

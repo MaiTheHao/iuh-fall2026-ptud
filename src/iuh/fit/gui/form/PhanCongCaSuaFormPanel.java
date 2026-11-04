@@ -18,10 +18,10 @@ public final class PhanCongCaSuaFormPanel extends PhanCongCaFormPanel {
 
   @Override
   protected void dungBoCuc() {
-    this.addField("app.schedule.assignmentId", this.maField);
-    this.addField("app.schedule.employee", this.nhanVienCombo);
+    this.addField("app.schedule.assignmentId", this.txtMa);
+    this.addField("app.schedule.employee", this.cmbNhanVien);
     this.addField("app.schedule.date", this.ngayLamPicker);
-    this.addField("app.schedule.shift", this.caLamCombo);
-    this.addField("app.schedule.note", this.ghiChuField);
+    this.addField("app.schedule.shift", this.cmbCaLam);
+    this.addField("app.schedule.note", this.txtGhiChu);
   }
 }

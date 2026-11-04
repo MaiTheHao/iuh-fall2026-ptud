@@ -23,37 +23,37 @@ public abstract class DongXeFormPanel extends FormFieldPanel {
 
   private static final int DO_DAI_TEN_TOI_DA = 100;
 
-  protected final JTextField maField = new JTextField(14);
-  protected final JTextField tenField = new JTextField(14);
-  protected final JComboBox<HangXe> hangXeCombo = new JComboBox<>();
+  protected final JTextField txtMa = new JTextField(14);
+  protected final JTextField txtTen = new JTextField(14);
+  protected final JComboBox<HangXe> cmbHangXe = new JComboBox<>();
 
   protected DongXeFormPanel() {
-    Theme.applyReadOnly(this.maField);
-    FormValidationHelper.autoClearOnInput(this.tenField);
+    Theme.applyReadOnly(this.txtMa);
+    FormValidationHelper.autoClearOnInput(this.txtTen);
   }
 
   /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public JComboBox<HangXe> getHangXeCombo() {
-    return this.hangXeCombo;
+    return this.cmbHangXe;
   }
 
   public void napDanhSachHang(List<HangXe> danhSach) {
-    this.hangXeCombo.removeAllItems();
+    this.cmbHangXe.removeAllItems();
     for (HangXe hangXe : danhSach) {
-      this.hangXeCombo.addItem(hangXe);
+      this.cmbHangXe.addItem(hangXe);
     }
   }
 
   public void napDuLieu(DongXe dongXe) {
-    this.maField.setText(dongXe == null || dongXe.getMaDongXe() == null ? "" : dongXe.getMaDongXe());
-    this.tenField.setText(dongXe == null || dongXe.getTen() == null ? "" : dongXe.getTen());
+    this.txtMa.setText(dongXe == null || dongXe.getMaDongXe() == null ? "" : dongXe.getMaDongXe());
+    this.txtTen.setText(dongXe == null || dongXe.getTen() == null ? "" : dongXe.getTen());
     this.chonHangXe(dongXe == null ? null : dongXe.getMaHangXe());
   }
 
   public DongXe layDuLieu() {
-    String ma = this.maField.getText().trim();
+    String ma = this.txtMa.getText().trim();
     return new DongXe(ma.isBlank() ? null : ma, this.layMaHangXe(), this.layTen(), null);
   }
 
@@ -77,57 +77,57 @@ public abstract class DongXeFormPanel extends FormFieldPanel {
 
   protected JComponent kiemTraChung() {
     if (this.layMaHangXe() == null) {
-      FormValidationHelper.markError(this.hangXeCombo,
+      FormValidationHelper.markError(this.cmbHangXe,
               I18nReaderUtil.get("app.danhMucXe.chuaChonHang"));
-      return this.hangXeCombo;
+      return this.cmbHangXe;
     }
-    FormValidationHelper.clearError(this.hangXeCombo);
+    FormValidationHelper.clearError(this.cmbHangXe);
 
     String ten = this.layTen();
     if (ten.isEmpty()) {
-      FormValidationHelper.markError(this.tenField, I18nReaderUtil.get("app.danhMucXe.loiTen"));
-      return this.tenField;
+      FormValidationHelper.markError(this.txtTen, I18nReaderUtil.get("app.danhMucXe.loiTen"));
+      return this.txtTen;
     }
 
     if (ten.length() > DO_DAI_TEN_TOI_DA) {
-      FormValidationHelper.markError(this.tenField,
+      FormValidationHelper.markError(this.txtTen,
               I18nReaderUtil.get("app.danhMucXe.loiTenQuaDai"));
-      return this.tenField;
+      return this.txtTen;
     }
 
-    FormValidationHelper.clearError(this.tenField);
+    FormValidationHelper.clearError(this.txtTen);
     return null;
   }
 
   /** Đánh dấu lỗi nghiệp vụ do service trả về lên đúng ô tên. */
   public void hienThiLoiTen(String thongDiep) {
-    FormValidationHelper.markError(this.tenField, thongDiep);
-    this.tenField.requestFocusInWindow();
+    FormValidationHelper.markError(this.txtTen, thongDiep);
+    this.txtTen.requestFocusInWindow();
   }
 
   private void chonHangXe(String maHangXe) {
-    this.hangXeCombo.setSelectedIndex(-1);
+    this.cmbHangXe.setSelectedIndex(-1);
 
     if (maHangXe == null || maHangXe.isBlank()) {
       return;
     }
 
-    for (int i = 0; i < this.hangXeCombo.getItemCount(); i++) {
-      HangXe item = this.hangXeCombo.getItemAt(i);
+    for (int i = 0; i < this.cmbHangXe.getItemCount(); i++) {
+      HangXe item = this.cmbHangXe.getItemAt(i);
       if (item != null && maHangXe.equals(item.getMaHangXe())) {
-        this.hangXeCombo.setSelectedIndex(i);
+        this.cmbHangXe.setSelectedIndex(i);
         return;
       }
     }
   }
 
   private String layMaHangXe() {
-    Object sel = this.hangXeCombo.getSelectedItem();
+    Object sel = this.cmbHangXe.getSelectedItem();
     HangXe item = sel instanceof HangXe ? (HangXe) sel : null;
     return item == null ? null : item.getMaHangXe();
   }
 
   private String layTen() {
-    return this.tenField.getText().trim();
+    return this.txtTen.getText().trim();
   }
 }

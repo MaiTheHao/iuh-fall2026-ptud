@@ -13,9 +13,9 @@ public final class DichVuTaoFormPanel extends DichVuFormPanel {
 
   @Override
   protected void dungBoCuc() {
-    this.addField("app.dichVu.ten", this.tenField);
+    this.addField("app.dichVu.ten", this.txtTen);
     this.addField("app.dichVu.moTa", this.moTaScroll);
-    this.addBlock(this.anhField);
-    this.addField("app.dichVu.donGia", this.donGiaField);
+    this.addBlock(this.pnlAnh);
+    this.addField("app.dichVu.donGia", this.txtDonGia);
   }
 }

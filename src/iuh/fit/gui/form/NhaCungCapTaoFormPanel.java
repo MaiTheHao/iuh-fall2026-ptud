@@ -13,12 +13,12 @@ public final class NhaCungCapTaoFormPanel extends NhaCungCapFormPanel {
 
   @Override
   protected void dungBoCuc() {
-    this.addField("app.nhaCungCap.ten", this.tenField);
-    this.addField("app.nhaCungCap.soDienThoai", this.sdtField);
-    this.addField("app.nhaCungCap.email", this.emailField);
-    this.addField("app.nhaCungCap.diaChi", this.diaChiField);
-    this.addField("app.nhaCungCap.trangThai", this.trangThaiCombo);
-    this.addBlock(taoKhungMoTa(this.ghiChuArea));
+    this.addField("app.nhaCungCap.ten", this.txtTen);
+    this.addField("app.nhaCungCap.soDienThoai", this.txtSdt);
+    this.addField("app.nhaCungCap.email", this.txtEmail);
+    this.addField("app.nhaCungCap.diaChi", this.txtDiaChi);
+    this.addField("app.nhaCungCap.trangThai", this.cmbTrangThai);
+    this.addBlock(taoKhungMoTa(this.txaGhiChu));
   }
 
   @Override

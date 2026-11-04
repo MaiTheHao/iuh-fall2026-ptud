@@ -20,9 +20,9 @@ public class DoiMatKhauPage extends AbstractPage {
 
 	private final AuthService authService = new AuthService();
 
-	private final JPasswordField matKhauHienTaiField = new JPasswordField();
-	private final JPasswordField matKhauMoiField = new JPasswordField();
-	private final JPasswordField xacNhanField = new JPasswordField();
+	private final JPasswordField txtMatKhauHienTai = new JPasswordField();
+	private final JPasswordField txtMatKhauMoi = new JPasswordField();
+	private final JPasswordField txtXacNhan = new JPasswordField();
 
 	public DoiMatKhauPage() {
 		this.setLayout(new BorderLayout());
@@ -37,9 +37,9 @@ public class DoiMatKhauPage extends AbstractPage {
 		this.xoaTrang();
 
 		ManagementFormPanel form = new ManagementFormPanel("app.doiMatKhau.title");
-		form.addField("app.doiMatKhau.matKhauHienTai", this.matKhauHienTaiField);
-		form.addField("app.doiMatKhau.matKhauMoi", this.matKhauMoiField);
-		form.addField("app.doiMatKhau.xacNhan", this.xacNhanField);
+		form.addField("app.doiMatKhau.matKhauHienTai", this.txtMatKhauHienTai);
+		form.addField("app.doiMatKhau.matKhauMoi", this.txtMatKhauMoi);
+		form.addField("app.doiMatKhau.xacNhan", this.txtXacNhan);
 
 		JButton luu = form.getNutLuu();
 		JButton xoaTrang = form.getNutXoaTrang();
@@ -62,9 +62,9 @@ public class DoiMatKhauPage extends AbstractPage {
 	private void doiMatKhau() {
 		try {
 			this.authService.updatePassword(
-					new String(this.matKhauHienTaiField.getPassword()),
-					new String(this.matKhauMoiField.getPassword()),
-					new String(this.xacNhanField.getPassword()));
+					new String(this.txtMatKhauHienTai.getPassword()),
+					new String(this.txtMatKhauMoi.getPassword()),
+					new String(this.txtXacNhan.getPassword()));
 			ThongBao.thongTin(this, "app.doiMatKhau.thanhCong");
 			this.xoaTrang();
 		} catch (AuthException e) {
@@ -75,9 +75,9 @@ public class DoiMatKhauPage extends AbstractPage {
 	}
 
 	private void xoaTrang() {
-		this.matKhauHienTaiField.setText("");
-		this.matKhauMoiField.setText("");
-		this.xacNhanField.setText("");
+		this.txtMatKhauHienTai.setText("");
+		this.txtMatKhauMoi.setText("");
+		this.txtXacNhan.setText("");
 	}
 
 	@Override

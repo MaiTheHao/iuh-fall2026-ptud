@@ -46,14 +46,14 @@ public class LapPhieuNhapPage extends AbstractPage {
 
 	private final DecimalFormat currencyFormat = new DecimalFormat("#,##0");
 
-	private final JTextField moTaField = new JTextField();
+	private final JTextField txtMoTa = new JTextField();
 
 	private DefaultTableModel modelDetails;
-	private JTable tableDetails;
-	private JLabel totalCostLabel;
+	private JTable tblChiTiet;
+	private JLabel lblTotalCost;
 	private JButton btnSave;
 	private JButton btnAddRow;
-	private JButton nutXoaDaChon;
+	private JButton btnXoaDaChon;
 
 	public LapPhieuNhapPage() {
 		this.setLayout(new BorderLayout(8, 8));
@@ -66,7 +66,7 @@ public class LapPhieuNhapPage extends AbstractPage {
 		this.setBackground(Theme.BG);
 
 		ManagementFormPanel form = new ManagementFormPanel("app.phieuNhap.thongTinPhieuNhap");
-		form.addField("app.phieuNhap.moTa", this.moTaField);
+		form.addField("app.phieuNhap.moTa", this.txtMoTa);
 
 		JButton btnReset = form.getNutXoaTrang();
 		this.btnSave = form.getNutLuu();
@@ -86,11 +86,11 @@ public class LapPhieuNhapPage extends AbstractPage {
 		Theme.applyPrimary(this.btnAddRow);
 		this.btnAddRow.addActionListener(e -> this.themDong());
 		topBar.add(this.btnAddRow);
-		this.nutXoaDaChon = new JButton(I18nReaderUtil.get("app.common.batch_delete"));
-		Theme.applyDanger(this.nutXoaDaChon);
-		this.nutXoaDaChon.setEnabled(false);
-		this.nutXoaDaChon.addActionListener(e -> this.xoaDongDaChon());
-		topBar.add(this.nutXoaDaChon);
+		this.btnXoaDaChon = new JButton(I18nReaderUtil.get("app.common.batch_delete"));
+		Theme.applyDanger(this.btnXoaDaChon);
+		this.btnXoaDaChon.setEnabled(false);
+		this.btnXoaDaChon.addActionListener(e -> this.xoaDongDaChon());
+		topBar.add(this.btnXoaDaChon);
 		right.add(topBar, BorderLayout.NORTH);
 
 		String[] headers = { "", "#", I18nReaderUtil.get("app.phuTung.ma"), I18nReaderUtil.get("app.phuTung.ten"),
@@ -110,31 +110,31 @@ public class LapPhieuNhapPage extends AbstractPage {
 			}
 		};
 
-		this.tableDetails = new JTable(this.modelDetails);
-		Theme.styleTable(this.tableDetails);
-		this.tableDetails.getColumnModel().getColumn(0).setMinWidth(44);
-		this.tableDetails.getColumnModel().getColumn(0).setMaxWidth(44);
-		this.tableDetails.getColumnModel().getColumn(0).setPreferredWidth(44);
-		this.tableDetails.getColumnModel().getColumn(4)
+		this.tblChiTiet = new JTable(this.modelDetails);
+		Theme.styleTable(this.tblChiTiet);
+		this.tblChiTiet.getColumnModel().getColumn(0).setMinWidth(44);
+		this.tblChiTiet.getColumnModel().getColumn(0).setMaxWidth(44);
+		this.tblChiTiet.getColumnModel().getColumn(0).setPreferredWidth(44);
+		this.tblChiTiet.getColumnModel().getColumn(4)
 				.setCellEditor(new SoNguyenCellEditor("app.phieuNhap.loiSoLuong", true));
-		this.tableDetails.getColumnModel().getColumn(5)
+		this.tblChiTiet.getColumnModel().getColumn(5)
 				.setCellEditor(new SoNguyenCellEditor("app.phieuNhap.loiDonGia", false));
-		ThaoTacTableCellRenderer.ganVao(this.tableDetails, 7, List.of(
+		ThaoTacTableCellRenderer.ganVao(this.tblChiTiet, 7, List.of(
 				new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM,
 						row -> this.xoaDong(row))));
 		this.modelDetails.addTableModelListener(e -> this.tinhThanhTienDong(e.getFirstRow(), e.getColumn()));
 		this.modelDetails.addTableModelListener(e -> this.capNhatNutXoaDaChon());
 
-		right.add(new JScrollPane(this.tableDetails), BorderLayout.CENTER);
+		right.add(new JScrollPane(this.tblChiTiet), BorderLayout.CENTER);
 
 		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6));
 		bottomPanel.setOpaque(false);
 		JLabel lblTitle = new JLabel(I18nReaderUtil.get("app.phieuNhap.tongChiPhi") + ":");
 		lblTitle.setForeground(Theme.palette().INK_SECONDARY());
-		this.totalCostLabel = new JLabel(this.currencyFormat.format(0));
-		this.totalCostLabel.setForeground(Theme.INK);
+		this.lblTotalCost = new JLabel(this.currencyFormat.format(0));
+		this.lblTotalCost.setForeground(Theme.INK);
 		bottomPanel.add(lblTitle);
-		bottomPanel.add(this.totalCostLabel);
+		bottomPanel.add(this.lblTotalCost);
 		right.add(bottomPanel, BorderLayout.SOUTH);
 
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, form, right);
@@ -157,7 +157,7 @@ public class LapPhieuNhapPage extends AbstractPage {
 	}
 
 	private boolean isDirty() {
-		return !this.moTaField.getText().isBlank() || this.modelDetails.getRowCount() > 0;
+		return !this.txtMoTa.getText().isBlank() || this.modelDetails.getRowCount() > 0;
 	}
 
 	private void themDong() {
@@ -230,7 +230,7 @@ public class LapPhieuNhapPage extends AbstractPage {
 	}
 
 	private void capNhatNutXoaDaChon() {
-		if (this.nutXoaDaChon == null) {
+		if (this.btnXoaDaChon == null) {
 			return;
 		}
 
@@ -240,8 +240,8 @@ public class LapPhieuNhapPage extends AbstractPage {
 				soDong++;
 			}
 		}
-		this.nutXoaDaChon.setText(I18nReaderUtil.get("app.common.batch_delete") + " (" + soDong + ")");
-		this.nutXoaDaChon.setEnabled(soDong > 0);
+		this.btnXoaDaChon.setText(I18nReaderUtil.get("app.common.batch_delete") + " (" + soDong + ")");
+		this.btnXoaDaChon.setEnabled(soDong > 0);
 	}
 
 	private void tinhThanhTienDong(int row, int col) {
@@ -261,31 +261,31 @@ public class LapPhieuNhapPage extends AbstractPage {
 		for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
 			total += (this.getSoLuongRow(i) * this.getDonGiaRow(i));
 		}
-		this.totalCostLabel.setText(this.currencyFormat.format(total));
+		this.lblTotalCost.setText(this.currencyFormat.format(total));
 	}
 
 	private void lamMoi() {
-		this.moTaField.setText("");
-		this.moTaField.setEditable(true);
+		this.txtMoTa.setText("");
+		this.txtMoTa.setEditable(true);
 
 		if (this.modelDetails != null) {
 			this.modelDetails.setRowCount(0);
 		}
-		if (this.totalCostLabel != null) {
-			this.totalCostLabel.setText(this.currencyFormat.format(0));
+		if (this.lblTotalCost != null) {
+			this.lblTotalCost.setText(this.currencyFormat.format(0));
 		}
-		this.moTaField.requestFocusInWindow();
+		this.txtMoTa.requestFocusInWindow();
 	}
 
 	private void luu() {
-		if (this.tableDetails.isEditing() && !this.tableDetails.getCellEditor().stopCellEditing()) {
+		if (this.tblChiTiet.isEditing() && !this.tblChiTiet.getCellEditor().stopCellEditing()) {
 			return;
 		}
 
-		String moTa = this.moTaField.getText().trim();
+		String moTa = this.txtMoTa.getText().trim();
 		if (moTa.isBlank()) {
 			ThongBao.canhBao(this, "app.phieuNhap.loiMoTa");
-			this.moTaField.requestFocusInWindow();
+			this.txtMoTa.requestFocusInWindow();
 			return;
 		}
 
@@ -398,8 +398,8 @@ public class LapPhieuNhapPage extends AbstractPage {
 			if (text.isEmpty() || !text.matches("\\d+")) {
 				ThongBao.canhBao(LapPhieuNhapPage.this, "app.phieuNhap.loiDinhDangSo");
 				field.setText(NumberParseUtil.textOf(LapPhieuNhapPage.this.modelDetails.getValueAt(
-						LapPhieuNhapPage.this.tableDetails.getEditingRow(),
-						LapPhieuNhapPage.this.tableDetails.getEditingColumn())));
+						LapPhieuNhapPage.this.tblChiTiet.getEditingRow(),
+						LapPhieuNhapPage.this.tblChiTiet.getEditingColumn())));
 				return super.stopCellEditing();
 			}
 
@@ -408,22 +408,22 @@ public class LapPhieuNhapPage extends AbstractPage {
 					if (Integer.parseInt(text) == 0) {
 						ThongBao.canhBao(LapPhieuNhapPage.this, this.errorKey);
 						field.setText(NumberParseUtil.textOf(LapPhieuNhapPage.this.modelDetails.getValueAt(
-								LapPhieuNhapPage.this.tableDetails.getEditingRow(),
-								LapPhieuNhapPage.this.tableDetails.getEditingColumn())));
+								LapPhieuNhapPage.this.tblChiTiet.getEditingRow(),
+								LapPhieuNhapPage.this.tblChiTiet.getEditingColumn())));
 						return super.stopCellEditing();
 					}
 				} else if (!Double.isFinite(Double.parseDouble(text))) {
 					ThongBao.canhBao(LapPhieuNhapPage.this, this.errorKey);
 					field.setText(NumberParseUtil.textOf(LapPhieuNhapPage.this.modelDetails.getValueAt(
-							LapPhieuNhapPage.this.tableDetails.getEditingRow(),
-							LapPhieuNhapPage.this.tableDetails.getEditingColumn())));
+							LapPhieuNhapPage.this.tblChiTiet.getEditingRow(),
+							LapPhieuNhapPage.this.tblChiTiet.getEditingColumn())));
 					return super.stopCellEditing();
 				}
 			} catch (NumberFormatException e) {
 				ThongBao.canhBao(LapPhieuNhapPage.this, this.errorKey);
 				field.setText(NumberParseUtil.textOf(LapPhieuNhapPage.this.modelDetails.getValueAt(
-						LapPhieuNhapPage.this.tableDetails.getEditingRow(),
-						LapPhieuNhapPage.this.tableDetails.getEditingColumn())));
+						LapPhieuNhapPage.this.tblChiTiet.getEditingRow(),
+						LapPhieuNhapPage.this.tblChiTiet.getEditingColumn())));
 				return super.stopCellEditing();
 			}
 

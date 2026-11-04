@@ -11,7 +11,7 @@ import javax.swing.SwingUtilities;
 
 public class GUI {
 
-    private JFrame frame;
+    private JFrame frmChinh;
 
     public void start() {
         System.setProperty("awt.useSystemAAFontSettings", "on");
@@ -21,8 +21,8 @@ public class GUI {
 
     public void restart() {
         SwingUtilities.invokeLater(() -> {
-            if (frame != null) {
-                frame.dispose();
+            if (frmChinh != null) {
+                frmChinh.dispose();
             }
             buildWindow();
         });
@@ -32,21 +32,21 @@ public class GUI {
         Layout layout = new Layout();
         AppContext.getInstance().setCurrentPage(LoginPage.class);
 
-        frame = new JFrame(I18nReaderUtil.get("app.title"));
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frmChinh = new JFrame(I18nReaderUtil.get("app.title"));
+        frmChinh.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame.setContentPane(layout);
+        frmChinh.setContentPane(layout);
 
-        frame.setSize(1280, 800);
-        frame.setResizable(true);
-        frame.setLocationRelativeTo(null);
+        frmChinh.setSize(1280, 800);
+        frmChinh.setResizable(true);
+        frmChinh.setLocationRelativeTo(null);
 
         layout.render();
-        frame.setVisible(true);
+        frmChinh.setVisible(true);
 
         SwingUtilities.invokeLater(() -> {
-            frame.revalidate();
-            frame.repaint();
+            frmChinh.revalidate();
+            frmChinh.repaint();
         });
     }
 }

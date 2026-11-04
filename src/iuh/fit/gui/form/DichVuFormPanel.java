@@ -25,13 +25,13 @@ public abstract class DichVuFormPanel extends FormFieldPanel {
   private static final int DO_DAI_TEN_TOI_DA = 100;
   private static final int DO_DAI_MO_TA_TOI_DA = 500;
 
-  protected final JTextField maField = new JTextField(14);
-  protected final JTextField tenField = new JTextField(14);
-  protected final JTextArea moTaArea = new JTextArea(4, 20);
-  protected final JScrollPane moTaScroll = FormFieldPanel.taoKhungMoTa(this.moTaArea);
-  protected final JTextField donGiaField = new JTextField(14);
+  protected final JTextField txtMa = new JTextField(14);
+  protected final JTextField txtTen = new JTextField(14);
+  protected final JTextArea txaMoTa = new JTextArea(4, 20);
+  protected final JScrollPane moTaScroll = FormFieldPanel.taoKhungMoTa(this.txaMoTa);
+  protected final JTextField txtDonGia = new JTextField(14);
 
-  protected final AnhField anhField = new AnhField(new AnhField.KhoaAnh(
+  protected final AnhField pnlAnh = new AnhField(new AnhField.KhoaAnh(
           "app.dichVu.anhUrl",
           "app.dichVu.chonAnh",
           "app.dichVu.goAnh",
@@ -41,35 +41,35 @@ public abstract class DichVuFormPanel extends FormFieldPanel {
           "app.dichVu.duLieuKhongPhaiAnh"));
 
   protected DichVuFormPanel() {
-    this.donGiaField.setHorizontalAlignment(SwingConstants.RIGHT);
-    Theme.applyReadOnly(this.maField);
+    this.txtDonGia.setHorizontalAlignment(SwingConstants.RIGHT);
+    Theme.applyReadOnly(this.txtMa);
 
-    FormValidationHelper.autoClearOnInput(this.tenField);
-    FormValidationHelper.autoClearOnInput(this.donGiaField);
+    FormValidationHelper.autoClearOnInput(this.txtTen);
+    FormValidationHelper.autoClearOnInput(this.txtDonGia);
   }
 
   /** Lớp con dựng bố cục trong constructor của chính nó. */
   protected abstract void dungBoCuc();
 
   public void napDuLieu(DichVuFormData data) {
-    this.maField.setText(data.maDichVu() == null ? "" : data.maDichVu());
-    this.tenField.setText(data.tenDichVu() == null ? "" : data.tenDichVu());
-    this.moTaArea.setText(data.moTa() == null ? "" : data.moTa());
-    this.anhField.setDuongDan(data.anhUrl());
-    this.donGiaField.setText(data.donGia() == null ? "" : String.valueOf(data.donGia()));
+    this.txtMa.setText(data.maDichVu() == null ? "" : data.maDichVu());
+    this.txtTen.setText(data.tenDichVu() == null ? "" : data.tenDichVu());
+    this.txaMoTa.setText(data.moTa() == null ? "" : data.moTa());
+    this.pnlAnh.setDuongDan(data.anhUrl());
+    this.txtDonGia.setText(data.donGia() == null ? "" : String.valueOf(data.donGia()));
   }
 
   public DichVuFormData layDuLieu() {
-    String ma = this.maField.getText().trim();
-    String moTa = this.moTaArea.getText().trim();
-    String anhUrl = this.anhField.getDuongDan();
+    String ma = this.txtMa.getText().trim();
+    String moTa = this.txaMoTa.getText().trim();
+    String anhUrl = this.pnlAnh.getDuongDan();
 
     return new DichVuFormData(
             ma.isBlank() ? null : ma,
-            this.tenField.getText().trim(),
+            this.txtTen.getText().trim(),
             moTa.isBlank() ? null : moTa,
             anhUrl.isBlank() ? null : anhUrl,
-            NumberParseUtil.toDoubleOrNull(this.donGiaField.getText()));
+            NumberParseUtil.toDoubleOrNull(this.txtDonGia.getText()));
   }
 
   public final boolean validateInput() {
@@ -93,40 +93,40 @@ public abstract class DichVuFormPanel extends FormFieldPanel {
   protected JComponent kiemTraChung() {
     JComponent loiDauTien = null;
 
-    String ten = this.tenField.getText().trim();
+    String ten = this.txtTen.getText().trim();
 
     if (ten.isEmpty()) {
-      FormValidationHelper.markError(this.tenField,
+      FormValidationHelper.markError(this.txtTen,
               I18nReaderUtil.get("app.dichVu.loiTen"));
-      loiDauTien = this.tenField;
+      loiDauTien = this.txtTen;
     } else if (ten.length() > DO_DAI_TEN_TOI_DA) {
-      FormValidationHelper.markError(this.tenField,
+      FormValidationHelper.markError(this.txtTen,
               I18nReaderUtil.get("app.dichVu.loiTenQuaDai"));
-      loiDauTien = this.tenField;
+      loiDauTien = this.txtTen;
     } else {
-      FormValidationHelper.clearError(this.tenField);
+      FormValidationHelper.clearError(this.txtTen);
     }
 
-    if (this.moTaArea.getText().trim().length() > DO_DAI_MO_TA_TOI_DA) {
-      FormValidationHelper.markError(this.moTaArea,
+    if (this.txaMoTa.getText().trim().length() > DO_DAI_MO_TA_TOI_DA) {
+      FormValidationHelper.markError(this.txaMoTa,
               I18nReaderUtil.get("app.dichVu.loiMoTa"));
       if (loiDauTien == null) {
-        loiDauTien = this.moTaArea;
+        loiDauTien = this.txaMoTa;
       }
     } else {
-      FormValidationHelper.clearError(this.moTaArea);
+      FormValidationHelper.clearError(this.txaMoTa);
     }
 
-    Double donGia = NumberParseUtil.toDoubleOrNull(this.donGiaField.getText());
+    Double donGia = NumberParseUtil.toDoubleOrNull(this.txtDonGia.getText());
 
     if (donGia == null || !Double.isFinite(donGia) || donGia < 0) {
-      FormValidationHelper.markError(this.donGiaField,
+      FormValidationHelper.markError(this.txtDonGia,
               I18nReaderUtil.get("app.dichVu.loiDonGia"));
       if (loiDauTien == null) {
-        loiDauTien = this.donGiaField;
+        loiDauTien = this.txtDonGia;
       }
     } else {
-      FormValidationHelper.clearError(this.donGiaField);
+      FormValidationHelper.clearError(this.txtDonGia);
     }
 
     return loiDauTien;
