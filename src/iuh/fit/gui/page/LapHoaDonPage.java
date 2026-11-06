@@ -168,7 +168,7 @@ public class LapHoaDonPage extends AbstractPage {
 		this.btnXoaTrang.addActionListener(e -> this.xoaTrang());
 		this.btnHuy.addActionListener(e -> this.huyHoaDon());
 		this.btnLuu.addActionListener(e -> this.luuHoaDon());
-		this.btnThanhToan.addActionListener(e -> this.xacNhanThanhToan());
+		this.btnThanhToan.addActionListener(e -> this.thanhToan());
 
 		form.thayNut(this.btnXoaTrang, this.btnHuy, this.btnLuu, this.btnThanhToan);
 
@@ -740,7 +740,7 @@ public class LapHoaDonPage extends AbstractPage {
 		}
 	}
 
-	private void xacNhanThanhToan() {
+	private void thanhToan() {
 		if (this.maHoaDonHienTai == null) {
 			if (!this.luuHoaDon()) {
 				return;
@@ -752,7 +752,7 @@ public class LapHoaDonPage extends AbstractPage {
 			return;
 		}
 		try {
-			HoaDon hoaDon = this.hoaDonService.xacNhanThanhToan(this.maHoaDonHienTai);
+			HoaDon hoaDon = this.hoaDonService.thanhToan(this.maHoaDonHienTai);
 			this.trangThaiHienTai = hoaDon.getTrangThaiHoaDon();
 			this.capNhatQuyen();
 			ThongBao.thongTin(this, "app.common.update_succeed");

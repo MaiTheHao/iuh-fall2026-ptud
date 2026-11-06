@@ -16,6 +16,7 @@ import iuh.fit.entity.PhuTung;
 import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.LoaiSanPham;
+import iuh.fit.enumeration.PhuongThucThanhToan;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.util.TextNormalizerUtil;
 
@@ -143,29 +144,9 @@ public class HoaDonService {
         return this.getById(maHoaDon);
     }
 
-    public HoaDon xacNhanThanhToan(String maHoaDon) throws SQLException {
-        HoaDon hoaDon = this.getById(maHoaDon);
-        if (hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.CHO_THANH_TOAN) {
-            throw new IllegalStateException(ERROR_TRANG_THAI);
-        }
-
-        LocalDateTime now = LocalDateTime.now();
-        Double mucGiamChot = hoaDon.getMucGiamApDung();
-        if (mucGiamChot == null && hoaDon.getVoucher() != null) {
-            mucGiamChot = this.tinhMucGiam(hoaDon);
-        }
-
-        try (TransactionScope scope = TransactionScope.begin()) {
-            if (!this.hoaDonDAO.capNhatThanhToan(scope, maHoaDon, now, mucGiamChot)) {
-                throw new IllegalStateException(ERROR_TRANG_THAI);
-            }
-            scope.commit();
-        }
-
-        hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.DA_THANH_TOAN);
-        hoaDon.setThoiGianThanhToan(now);
-        hoaDon.setMucGiamApDung(mucGiamChot);
-        return hoaDon;
+    public HoaDon thanhToan(String maHoaDon) throws SQLException {
+        new ThanhToanService().thanhToan(maHoaDon, PhuongThucThanhToan.TIEN_MAT, null);
+        return this.getById(maHoaDon);
     }
 
     public HoaDon huy(String maHoaDon, String lyDoHuy) throws SQLException {

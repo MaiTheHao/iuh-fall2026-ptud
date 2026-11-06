@@ -14,6 +14,7 @@ public enum LoaiMa {
   KN("KN"),
   NCC("NCC"),
   HX("HX"),
+  TT("TT"),
   DX("DX"),
   DO("DO");
 

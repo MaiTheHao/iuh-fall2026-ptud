@@ -338,7 +338,21 @@ INSERT INTO ChiTietHoaDon (maHoaDon, loaiSanPham, maSanPham, soLuong, donGia) VA
 ('HD-20261230-000001', 'DICH_VU', 'DV-20261020-000005', 1, 350000.00);
 
 -- ============================================================
--- 14. TABLE: VanDeKyThuat (15)
+-- 14. TABLE: ThanhToan (6)
+-- Format: TT-yyyyMMdd-NNNNNN
+-- soTien = tong dong hang sau giam gia; thoiGian = thoiGianThanhToan cua hoa don
+-- 4 CHUYEN_KHOAN, 2 TIEN_MAT; chi tro toi hoa don DA_THANH_TOAN
+-- ============================================================
+INSERT INTO ThanhToan (maThanhToan, maHoaDon, phuongThuc, soTien, thoiGian, maNhanVien, ghiChu) VALUES
+('TT-20261022-000001', 'HD-20261022-000001', 'TIEN_MAT', 783000.00, '2026-10-22T10:10:00', 'NV-20261020-000002', NULL),
+('TT-20261025-000001', 'HD-20261025-000001', 'CHUYEN_KHOAN', 501600.00, '2026-10-25T11:30:00', 'NV-20261020-000002', NULL),
+('TT-20261102-000001', 'HD-20261102-000001', 'CHUYEN_KHOAN', 665000.00, '2026-11-02T11:00:00', 'NV-20261020-000006', NULL),
+('TT-20261114-000001', 'HD-20261114-000001', 'TIEN_MAT', 503500.00, '2026-11-14T14:10:00', 'NV-20261020-000006', NULL),
+('TT-20261125-000001', 'HD-20261125-000001', 'CHUYEN_KHOAN', 1720000.00, '2026-11-25T11:00:00', 'NV-20261020-000006', NULL),
+('TT-20261210-000001', 'HD-20261210-000001', 'CHUYEN_KHOAN', 268400.00, '2026-12-10T10:50:00', 'NV-20261020-000002', NULL);
+
+-- ============================================================
+-- 15. TABLE: VanDeKyThuat (15)
 -- Format: VD-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO VanDeKyThuat (maVanDe, maPhieuTiepNhan, tieuDe, moTa, mucDoUuTien, giaiPhap, khachHangDongY, ngayTao) VALUES
@@ -359,7 +373,7 @@ INSERT INTO VanDeKyThuat (maVanDe, maPhieuTiepNhan, tieuDe, moTa, mucDoUuTien, g
 ('VD-20261230-000001', 'PTN-20261230-000001', N'Kiểm tra trước chuyến đi', N'Khách hàng muốn rà soát các hạng mục an toàn', 25, N'Kiểm tra lốp, phanh, đèn, nước làm mát và ắc quy', 'CHUA_XAC_NHAN', '2026-12-30T08:20:00');
 
 -- ============================================================
--- 15. TABLE: KhieuNai (15)
+-- 16. TABLE: KhieuNai (15)
 -- Format: KN-yyyyMMdd-NNNNNN
 -- ============================================================
 INSERT INTO KhieuNai (maKhieuNai, maKhachHang, maPhieuTiepNhan, noiDung, trangThai, ngayTao) VALUES
@@ -380,7 +394,7 @@ INSERT INTO KhieuNai (maKhieuNai, maKhachHang, maPhieuTiepNhan, noiDung, trangTh
 ('KN-20261230-000001', 'KH-20261115-000003', 'PTN-20261230-000001', N'Chưa nhận được báo giá trước khi thực hiện dịch vụ', 'DANG_XU_LY', '2026-12-30T11:35:00');
 
 -- ============================================================
--- 16. TABLE: DayMetric
+-- 17. TABLE: DayMetric
 -- ============================================================
 INSERT INTO DayMetric (ngay, target, amount) VALUES
 ('2026-10-20', 'DV',  15),
@@ -394,12 +408,14 @@ INSERT INTO DayMetric (ngay, target, amount) VALUES
 ('2026-10-22', 'PTN',  1),
 ('2026-10-22', 'VD',   1),
 ('2026-10-22', 'HD',   1),
+('2026-10-22', 'TT',   1),
 ('2026-10-22', 'PC',   1),
 ('2026-10-23', 'KN',   1),
 ('2026-10-25', 'KH',   2),
 ('2026-10-25', 'PTN',  1),
 ('2026-10-25', 'VD',   1),
 ('2026-10-25', 'HD',   1),
+('2026-10-25', 'TT',   1),
 ('2026-10-25', 'PC',   1),
 ('2026-10-26', 'KN',   1),
 ('2026-10-28', 'PN',   1),
@@ -407,6 +423,7 @@ INSERT INTO DayMetric (ngay, target, amount) VALUES
 ('2026-11-02', 'PTN',  1),
 ('2026-11-02', 'VD',   1),
 ('2026-11-02', 'HD',   1),
+('2026-11-02', 'TT',   1),
 ('2026-11-02', 'PC',   1),
 ('2026-11-03', 'PN',   1),
 ('2026-11-03', 'KN',   1),
@@ -421,6 +438,7 @@ INSERT INTO DayMetric (ngay, target, amount) VALUES
 ('2026-11-14', 'PTN',  1),
 ('2026-11-14', 'VD',   1),
 ('2026-11-14', 'HD',   1),
+('2026-11-14', 'TT',   1),
 ('2026-11-14', 'PC',   1),
 ('2026-11-15', 'KH',   3),
 ('2026-11-15', 'KN',   1),
@@ -433,6 +451,7 @@ INSERT INTO DayMetric (ngay, target, amount) VALUES
 ('2026-11-25', 'PTN',  1),
 ('2026-11-25', 'VD',   1),
 ('2026-11-25', 'HD',   1),
+('2026-11-25', 'TT',   1),
 ('2026-11-25', 'PC',   1),
 ('2026-11-26', 'KN',   1),
 ('2026-12-01', 'PN',   1),
@@ -450,6 +469,7 @@ INSERT INTO DayMetric (ngay, target, amount) VALUES
 ('2026-12-10', 'PTN',  1),
 ('2026-12-10', 'VD',   1),
 ('2026-12-10', 'HD',   1),
+('2026-12-10', 'TT',   1),
 ('2026-12-10', 'PC',   1),
 ('2026-12-11', 'KN',   1),
 ('2026-12-15', 'PN',   1),

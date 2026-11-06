@@ -224,6 +224,27 @@ CREATE TABLE HoaDon (
 );
 
 -- ============================================================
+-- TABLE: ThanhToan
+-- ============================================================
+CREATE TABLE ThanhToan (
+    maThanhToan varchar(20) NOT NULL,
+    maHoaDon varchar(20) NOT NULL,
+    phuongThuc varchar(20) NOT NULL,
+    soTien decimal(18,2) NOT NULL,
+    thoiGian datetime2(3) NOT NULL,
+    maNhanVien varchar(64) NULL,
+    ghiChu nvarchar(255) NULL,
+    CONSTRAINT PK_ThanhToan PRIMARY KEY (maThanhToan),
+    CONSTRAINT UQ_ThanhToan_maHoaDon UNIQUE (maHoaDon),
+    CONSTRAINT FK_ThanhToan_HoaDon FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
+    CONSTRAINT FK_ThanhToan_NhanVien FOREIGN KEY (maNhanVien) REFERENCES NhanVien(maNhanVien),
+    CONSTRAINT CK_ThanhToan_phuongThuc CHECK (phuongThuc IN ('CHUYEN_KHOAN', 'TIEN_MAT')),
+    CONSTRAINT CK_ThanhToan_soTien CHECK (soTien >= 0)
+);
+
+CREATE INDEX IX_ThanhToan_thoiGian ON ThanhToan(thoiGian);
+
+-- ============================================================
 -- TABLE: ChiTietHoaDon
 -- ============================================================
 CREATE TABLE ChiTietHoaDon (
