@@ -341,14 +341,22 @@ public class QuanLyHoaDonPage extends AbstractPage {
 	}
 	
 	private HoaDonView layHoaDonDuocChon(ManagementPanel panel) {
-	    int dongDuocChon = panel.getSelectedRow();
+	    int dongView = panel.getSelectedRow();
 
-	    if (dongDuocChon < 0 || dongDuocChon >= this.danhSachHienTai.size()) {
+	    if (dongView < 0) {
 	        ThongBao.canhBao(this, "app.hoaDon.chuaChonDong");
 	        return null;
 	    }
 
-	    return this.danhSachHienTai.get(dongDuocChon);
+	    int dongModel = panel.getTable()
+	            .convertRowIndexToModel(dongView);
+
+	    if (dongModel < 0 || dongModel >= this.danhSachHienTai.size()) {
+	        ThongBao.canhBao(this, "app.hoaDon.chuaChonDong");
+	        return null;
+	    }
+
+	    return this.danhSachHienTai.get(dongModel);
 	}
 	
 	private void inHoaDon(ManagementPanel panel) {
