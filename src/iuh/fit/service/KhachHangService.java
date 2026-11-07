@@ -37,7 +37,19 @@ public class KhachHangService {
 
         return PaginatedResult.of(matched, filter);
     }
+    
 
+	public KhachHang getById(String maKhachHang) throws SQLException {
+	    if (maKhachHang == null || maKhachHang.isBlank()) {
+	        throw new IllegalArgumentException("app.khachHang.khongTonTai");
+	    }
+	
+	    return this.khachHangDAO.findById(maKhachHang.trim())
+	            .orElseThrow(() ->
+	                    new IllegalArgumentException("app.khachHang.khongTonTai"));
+	}
+
+    
     public void create(KhachHang customer) throws SQLException {
         this.chuanBiTao(customer);
         this.khachHangDAO.insert(customer);

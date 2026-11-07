@@ -14,6 +14,7 @@ import iuh.fit.util.TinhTienUtil;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class ThanhToanService {
 
@@ -70,4 +71,13 @@ public class ThanhToanService {
 
     return thanhToan;
   }
+  
+  public Optional<ThanhToan> timTheoHoaDon(String maHoaDon)
+	        throws SQLException {
+	    if (maHoaDon == null || maHoaDon.isBlank()) {
+	        return Optional.empty();
+	    }
+
+	    return this.thanhToanDAO.findByMaHoaDon(maHoaDon);
+	}
 }

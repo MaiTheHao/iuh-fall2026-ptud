@@ -14,19 +14,39 @@ import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThongBao;
 import iuh.fit.gui.form.HoaDonChiTietFormPanel;
 import iuh.fit.service.HoaDonService;
+import iuh.fit.util.HoaDonInData;
+import iuh.fit.util.HoaDonRenderer;
+import iuh.fit.util.HoaDonXlsxUtil;
 import iuh.fit.util.I18nReaderUtil;
+import iuh.fit.util.InHoaDonUtil;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import java.awt.BorderLayout;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class QuanLyHoaDonPage extends AbstractPage {
 
@@ -114,7 +134,7 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		this.taiLai(panel, 1);
 
 		this.add(panel, BorderLayout.CENTER);
-
+		this.add(this.taoThanhCongCu(panel), BorderLayout.SOUTH);
 		this.revalidate();
 		this.repaint();
 	}
@@ -295,7 +315,138 @@ public class QuanLyHoaDonPage extends AbstractPage {
 
 		this.taiLai(this.pnlDanhSach, this.trang);
 	}
+	
+	private JPanel taoThanhCongCu(ManagementPanel panel) {
+	    JPanel pnlCongCu = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 6));
 
+	    JButton btnInHoaDon = new JButton(
+	            I18nReaderUtil.get("app.hoaDon.inHoaDon"));
+
+	    JButton btnXuatExcel = new JButton(
+	            I18nReaderUtil.get("app.hoaDon.xuatHoaDon"));
+
+	    btnInHoaDon.addActionListener(e -> this.inHoaDon(panel));
+	    btnXuatExcel.addActionListener(e -> this.xuatHoaDon(panel));
+	    JButton btnXemTruoc = new JButton(
+	            I18nReaderUtil.get("app.hoaDon.xemTruoc"));
+
+	    btnXemTruoc.addActionListener(e -> this.xemTruocHoaDon(panel));
+
+	    pnlCongCu.add(btnXemTruoc);
+	    pnlCongCu.add(btnInHoaDon);
+	    pnlCongCu.add(btnXuatExcel);
+	  
+
+	    return pnlCongCu;
+	}
+	
+	private HoaDonView layHoaDonDuocChon(ManagementPanel panel) {
+	    int dongDuocChon = panel.getSelectedRow();
+
+	    if (dongDuocChon < 0 || dongDuocChon >= this.danhSachHienTai.size()) {
+	        ThongBao.canhBao(this, "app.hoaDon.chuaChonDong");
+	        return null;
+	    }
+
+	    return this.danhSachHienTai.get(dongDuocChon);
+	}
+	
+	private void inHoaDon(ManagementPanel panel) {
+	    HoaDonView hoaDon = this.layHoaDonDuocChon(panel);
+
+	    if (hoaDon == null) {
+	        return;
+	    }
+
+	    try {
+	        HoaDonInData duLieuIn = HoaDonInData.tao(hoaDon.maHoaDon());
+	        InHoaDonUtil.in(this, duLieuIn);
+	    } catch (IllegalArgumentException e) {
+	        ThongBao.loi(this, e);
+	    } catch (SQLException e) {
+	        ThongBao.loi(this, "app.login.errorSystem");
+	    }
+	}
+	
+	private void xuatHoaDon(ManagementPanel panel) {
+	    HoaDonView hoaDon = this.layHoaDonDuocChon(panel);
+
+	    if (hoaDon == null) {
+	        return;
+	    }
+
+	    try {
+	        HoaDonInData duLieuIn = HoaDonInData.tao(hoaDon.maHoaDon());
+
+	        JFileChooser fileChooser = new JFileChooser();
+	        fileChooser.setDialogTitle(
+	                I18nReaderUtil.get("app.hoaDon.xuatHoaDon"));
+
+	        fileChooser.setFileFilter(
+	                new FileNameExtensionFilter("Excel (*.xlsx)", "xlsx"));
+
+	        fileChooser.setSelectedFile(
+	                new File("HoaDon-" + hoaDon.maHoaDon() + ".xlsx"));
+
+	        int ketQua = fileChooser.showSaveDialog(this);
+
+	        if (ketQua != JFileChooser.APPROVE_OPTION) {
+	            return;
+	        }
+
+	        File tepXuat = fileChooser.getSelectedFile();
+	        String tenTep = tepXuat.getName();
+
+	        if (!tenTep.toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
+	            tepXuat = new File(tepXuat.getParentFile(), tenTep + ".xlsx");
+	        }
+
+	        HoaDonXlsxUtil.write(tepXuat, duLieuIn);
+
+	        ThongBao.thongTin(this, "app.hoaDon.xuatThanhCong");
+
+	    } catch (IllegalArgumentException e) {
+	        ThongBao.loi(this, e);
+	    } catch (SQLException e) {
+	        ThongBao.loi(this, "app.login.errorSystem");
+	    } catch (IOException e) {
+	        ThongBao.loi(this, "app.hoaDon.xuatLoi");
+	    }
+	}
+	private void xemTruocHoaDon(ManagementPanel panel) {
+	    HoaDonView hoaDon = this.layHoaDonDuocChon(panel);
+
+	    if (hoaDon == null) {
+	        return;
+	    }
+
+	    try {
+	        HoaDonInData duLieuIn = HoaDonInData.tao(hoaDon.maHoaDon());
+
+	        BufferedImage hinhHoaDon = HoaDonRenderer.xemTruoc(duLieuIn);
+
+	        JLabel lblHoaDon = new JLabel(new ImageIcon(hinhHoaDon));
+	        lblHoaDon.setHorizontalAlignment(JLabel.CENTER);
+
+	        JScrollPane scrHoaDon = new JScrollPane(lblHoaDon);
+	        scrHoaDon.setPreferredSize(new Dimension(650, 850));
+
+	        JDialog dialog = new JDialog(
+	                SwingUtilities.getWindowAncestor(this),
+	                I18nReaderUtil.get("app.hoaDon.xemTruoc"),
+	                Dialog.ModalityType.APPLICATION_MODAL);
+	        dialog.setLayout(new BorderLayout());
+	        dialog.add(scrHoaDon, BorderLayout.CENTER);
+	        dialog.pack();
+	        dialog.setLocationRelativeTo(this);
+	        dialog.setVisible(true);
+
+	    } catch (IllegalArgumentException e) {
+	        ThongBao.loi(this, e);
+	    } catch (SQLException e) {
+	        ThongBao.loi(this, "app.login.errorSystem");
+	    }
+	}
 	@Override
 	public String getTitleKey() {
 		return "app.menu.invoiceManagement";

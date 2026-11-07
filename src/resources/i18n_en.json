@@ -616,22 +616,22 @@
 			"tieuDeBoThayDoi": "Discard diagnosis changes"
 		},
 		"thanhToan": {
-		    "dialogTitle": "Invoice Payment",
-		    "phuongThuc": "Payment Method",
-		    "soTien": "Payment Amount",
-		    "noiDung": "Transfer Content",
-		    "dangTaoQr": "Generating QR code...",
-		    "qrLoi": "Unable to generate QR code. Please use the displayed QR image or pay in cash.",
-		    "xacNhan": "Confirm Payment",
-		    "huy": "Cancel",
-		    "nganHang": "Bank / BIN",
-		    "soTaiKhoan": "Account Number",
-		    "tenChuTaiKhoan": "Account Holder",
-		    "hoaDonDaThanhToan": "This invoice has already been paid or is no longer awaiting payment.",
-		    "phuongThuc": {
-		        "chuyenKhoan": "Bank Transfer (QR)",
-		        "tienMat": "Cash"
-		    }
+			"dialogTitle": "Invoice Payment",
+			"phuongThuc": "Payment Method",
+			"soTien": "Payment Amount",
+			"noiDung": "Transfer Content",
+			"dangTaoQr": "Generating QR code...",
+			"qrLoi": "Unable to generate QR code. Please use the displayed QR image or pay in cash.",
+			"xacNhan": "Confirm Payment",
+			"huy": "Cancel",
+			"nganHang": "Bank / BIN",
+			"soTaiKhoan": "Account Number",
+			"tenChuTaiKhoan": "Account Holder",
+			"hoaDonDaThanhToan": "This invoice has already been paid or is no longer awaiting payment.",
+			"phuongThuc": {
+				"chuyenKhoan": "Bank Transfer (QR)",
+				"tienMat": "Cash"
+			}
 		},
 		"hoaDon": {
 			"danhSachTitle": "Invoice List",
@@ -684,7 +684,39 @@
 			"loiDaHuy": "Invoice is already cancelled",
 			"batch_huy": "Cancel Selected",
 			"batch_huy_confirm": "Cancel {0} selected invoices?",
-			"batch_huy_result": "Cancelled {0}/{1} invoices."
+			"batch_huy_result": "Cancelled {0}/{1} invoices.",
+			"inHoaDon": "Print invoice",
+			"xuatHoaDon": "Export Excel",
+			"chuaChonDong": "Please select an invoice.",
+			"inLoi": "Unable to print the invoice.",
+			"xuatThanhCong": "Invoice exported successfully.",
+			"xuatLoi": "Unable to export the invoice to Excel.",
+			"xemTruoc": "Preview invoice",
+			"in": {
+				"tieuDe": "PAYMENT INVOICE",
+				"maHoaDon": "Invoice ID",
+				"ngayTao": "Created date",
+				"thongTinKhachHang": "CUSTOMER INFORMATION",
+				"khachHang": "Customer",
+				"sdt": "Phone",
+				"bienSo": "License plate",
+				"loai": "Type",
+				"ten": "Name",
+				"soLuong": "Quantity",
+				"donGia": "Unit price",
+				"thanhTien": "Amount",
+				"tongGoc": "Subtotal",
+				"giamGia": "Discount",
+				"thucThu": "Total paid",
+				"thongTinThanhToan": "PAYMENT INFORMATION",
+				"chuaThanhToan": "Unpaid",
+				"phuongThuc": "Payment method",
+				"thoiGian": "Payment time",
+				"soTienThanhToan": "Payment amount",
+				"ghiChu": "Note",
+				"donViTienTe": "VND",
+				"duLieuKhongHopLe": "Invalid invoice data"
+			}
 		},
 		"schedule": {
 			"assignmentId": "Assignment ID",
