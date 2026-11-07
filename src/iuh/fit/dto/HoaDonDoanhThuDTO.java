@@ -4,5 +4,5 @@ import java.time.LocalDateTime;
 
 public record HoaDonDoanhThuDTO(String maHoaDon, LocalDateTime ngayTao, LocalDateTime thoiGianThanhToan,
 		String tenKhachHang, String bienSo, String trangThaiHoaDon, double doanhThuDichVu, double doanhThuPhuTung,
-		double tongDoanhThu) {
+		double tongDoanhThu, double tongGoc, double giamGia, double thucThu) {
 }

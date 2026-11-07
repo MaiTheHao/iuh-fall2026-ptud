@@ -4,6 +4,7 @@ import iuh.fit.dao.DoanhThuDAO;
 import iuh.fit.dto.BaoCaoDoanhThuDTO;
 import iuh.fit.dto.DoanhThuDTO;
 import iuh.fit.dto.HoaDonDoanhThuDTO;
+import iuh.fit.util.TinhTienUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -34,10 +35,7 @@ public class DoanhThuService {
 
 		Map<String, DoanhThuDTO> hoaDonTheoMa = new LinkedHashMap<>();
 
-		Map<String, double[]> doanhThuTheoHoaDon = new LinkedHashMap<>();
-
-		double tongDoanhThuDichVu = 0;
-		double tongDoanhThuPhuTung = 0;
+		Map<String, double[]> gocTheoHoaDon = new LinkedHashMap<>();
 
 		for (DoanhThuDTO dong : duLieu) {
 			boolean daThanhToan = "DA_THANH_TOAN".equals(dong.trangThaiHoaDon());
@@ -62,7 +60,7 @@ public class DoanhThuService {
 
 			hoaDonTheoMa.putIfAbsent(dong.maHoaDon(), dong);
 
-			double[] tongTheoLoai = doanhThuTheoHoaDon.computeIfAbsent(dong.maHoaDon(), ma -> new double[2]);
+			double[] gocTheoLoai = gocTheoHoaDon.computeIfAbsent(dong.maHoaDon(), ma -> new double[2]);
 
 			if (dong.loaiSanPham() == null) {
 				continue;
@@ -71,14 +69,8 @@ public class DoanhThuService {
 			double thanhTien = dong.soLuong() * dong.donGia();
 
 			switch (dong.loaiSanPham()) {
-			case "DICH_VU" -> {
-				tongTheoLoai[0] += thanhTien;
-				tongDoanhThuDichVu += thanhTien;
-			}
-			case "PHU_TUNG" -> {
-				tongTheoLoai[1] += thanhTien;
-				tongDoanhThuPhuTung += thanhTien;
-			}
+			case "DICH_VU" -> gocTheoLoai[0] += thanhTien;
+			case "PHU_TUNG" -> gocTheoLoai[1] += thanhTien;
 			default -> {
 			}
 			}
@@ -86,28 +78,39 @@ public class DoanhThuService {
 
 		List<HoaDonDoanhThuDTO> danhSachHoaDon = new ArrayList<>();
 
-		double tongDoanhThu = 0;
+		double tongGoc = 0;
+		double tongGiam = 0;
+		double thucThu = 0;
+		double tongDoanhThuDichVu = 0;
+		double tongDoanhThuPhuTung = 0;
 
 		for (Map.Entry<String, DoanhThuDTO> entry : hoaDonTheoMa.entrySet()) {
 
 			String maHoaDon = entry.getKey();
 			DoanhThuDTO hoaDon = entry.getValue();
-			double[] tongTheoLoai = doanhThuTheoHoaDon.get(maHoaDon);
+			double[] gocTheoLoai = gocTheoHoaDon.get(maHoaDon);
 
-			double doanhThuDichVu = tongTheoLoai[0];
-			double doanhThuPhuTung = tongTheoLoai[1];
-			double tongTien = doanhThuDichVu + doanhThuPhuTung;
+			double gocDichVu = gocTheoLoai[0];
+			double gocPhuTung = gocTheoLoai[1];
+			double goc = gocDichVu + gocPhuTung;
+			double mucGiam = TinhTienUtil.mucGiam(hoaDon.mucGiamApDung());
+			double giam = goc * mucGiam;
+			double net = TinhTienUtil.thucThu(goc, mucGiam).doubleValue();
+			double netDichVu = TinhTienUtil.thucThu(gocDichVu, mucGiam).doubleValue();
+			double netPhuTung = net - netDichVu;
 
 			danhSachHoaDon.add(new HoaDonDoanhThuDTO(hoaDon.maHoaDon(), hoaDon.ngayTao(), hoaDon.thoiGianThanhToan(),
-					hoaDon.tenKhachHang(), hoaDon.bienSo(), hoaDon.trangThaiHoaDon(), doanhThuDichVu, doanhThuPhuTung,
-					tongTien));
+					hoaDon.tenKhachHang(), hoaDon.bienSo(), hoaDon.trangThaiHoaDon(), netDichVu, netPhuTung, net,
+					goc, giam, net));
 
-			if ("DA_THANH_TOAN".equals(hoaDon.trangThaiHoaDon())) {
-				tongDoanhThu += tongTien;
-			}
+			tongGoc += goc;
+			tongGiam += giam;
+			thucThu += net;
+			tongDoanhThuDichVu += netDichVu;
+			tongDoanhThuPhuTung += netPhuTung;
 		}
 
-		return new BaoCaoDoanhThuDTO(tongDoanhThu, tongDoanhThuDichVu, tongDoanhThuPhuTung, danhSachHoaDon.size(),
-				List.copyOf(danhSachHoaDon));
+		return new BaoCaoDoanhThuDTO(tongGoc, tongGiam, thucThu, tongDoanhThuDichVu, tongDoanhThuPhuTung,
+				danhSachHoaDon.size(), List.copyOf(danhSachHoaDon));
 	}
 }

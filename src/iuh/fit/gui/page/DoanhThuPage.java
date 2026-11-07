@@ -55,6 +55,8 @@ public class DoanhThuPage extends AbstractPage {
 	private final DatePicker dpDenNgay = this.taoDatePicker();
 
 	private final JLabel lblTongDoanhThu = new JLabel();
+	private final JLabel lblTongGoc = new JLabel();
+	private final JLabel lblTongGiam = new JLabel();
 	private final JLabel lblDoanhThuDichVu = new JLabel();
 	private final JLabel lblDoanhThuPhuTung = new JLabel();
 	private final JLabel lblSoHoaDon = new JLabel();
@@ -63,7 +65,8 @@ public class DoanhThuPage extends AbstractPage {
 			I18nReaderUtil.get("app.report.revenue.invoiceCode"), I18nReaderUtil.get("app.report.revenue.createdDate"),
 			I18nReaderUtil.get("app.report.revenue.paymentTime"), I18nReaderUtil.get("app.report.revenue.customer"),
 			I18nReaderUtil.get("app.report.revenue.licensePlate"), I18nReaderUtil.get("app.report.revenue.status"),
-			I18nReaderUtil.get("app.report.revenue.amount") }) {
+			I18nReaderUtil.get("app.hoaDon.tongTienGoc"), I18nReaderUtil.get("app.hoaDon.giamGia"),
+			I18nReaderUtil.get("app.hoaDon.tongThanhToan") }) {
 		
 
 		@Override
@@ -178,7 +181,8 @@ public class DoanhThuPage extends AbstractPage {
 					: hoaDon.thoiGianThanhToan().format(DateFormats.NGAY_GIO);
 
 			model.addRow(new Object[] { hoaDon.maHoaDon(), ngayTao, thoiGianThanhToan, hoaDon.tenKhachHang(),
-					hoaDon.bienSo(), hoaDon.trangThaiHoaDon(), this.dinhDangTien.format(hoaDon.tongDoanhThu()) });
+					hoaDon.bienSo(), hoaDon.trangThaiHoaDon(), this.dinhDangTien.format(hoaDon.tongGoc()),
+					this.dinhDangTien.format(hoaDon.giamGia()), this.dinhDangTien.format(hoaDon.thucThu()) });
 		}
 	}
 
@@ -197,7 +201,11 @@ public class DoanhThuPage extends AbstractPage {
 	}
 
 	private void capNhatThongKe(BaoCaoDoanhThuDTO baoCao) {
-		this.lblTongDoanhThu.setText(this.dinhDangTien.format(baoCao.tongDoanhThu()));
+		this.lblTongDoanhThu.setText(this.dinhDangTien.format(baoCao.thucThu()));
+
+		this.lblTongGoc.setText(this.dinhDangTien.format(baoCao.tongGoc()));
+
+		this.lblTongGiam.setText(this.dinhDangTien.format(baoCao.tongGiam()));
 
 		this.lblDoanhThuDichVu.setText(this.dinhDangTien.format(baoCao.doanhThuDichVu()));
 
@@ -209,9 +217,13 @@ public class DoanhThuPage extends AbstractPage {
 	private JPanel taoNoiDung() {
 		JPanel pnl = new JPanel(new BorderLayout(8, 8));
 
-		JPanel pnlTongQuan = new JPanel(new GridLayout(1, 4, 8, 8));
+		JPanel pnlTongQuan = new JPanel(new GridLayout(1, 6, 8, 8));
 
 		pnlTongQuan.add(this.taoTheThongKe("app.report.revenue.totalRevenue", this.lblTongDoanhThu));
+
+		pnlTongQuan.add(this.taoTheThongKe("app.hoaDon.tongTienGoc", this.lblTongGoc));
+
+		pnlTongQuan.add(this.taoTheThongKe("app.hoaDon.giamGia", this.lblTongGiam));
 
 		pnlTongQuan.add(this.taoTheThongKe("app.report.revenue.serviceRevenue", this.lblDoanhThuDichVu));
 

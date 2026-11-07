@@ -19,6 +19,7 @@ import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.PhuongThucThanhToan;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.util.TextNormalizerUtil;
+import iuh.fit.util.TinhTienUtil;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -32,517 +33,521 @@ import java.util.Optional;
 
 public class HoaDonService {
 
-    private static final String ERROR_CHI_TIET_TRONG = "app.hoaDon.loiChiTietTrong";
-    private static final String ERROR_SO_LUONG = "app.hoaDon.loiSoLuong";
-    private static final String ERROR_DON_GIA = "app.hoaDon.loiDonGia";
-    private static final String ERROR_SAN_PHAM = "app.hoaDon.loiSanPham";
-    private static final String ERROR_VOUCHER = "app.hoaDon.loiVoucher";
-    private static final String ERROR_NOT_FOUND = "app.hoaDon.khongTonTai";
-    private static final String ERROR_TRANG_THAI = "app.hoaDon.loiTrangThai";
-    private static final String ERROR_THIEU_TON = "app.hoaDon.loiTonKho";
-    private static final String ERROR_KHOANG_TIEN = "app.hoaDon.loiKhoangTien";
-    private static final String ERROR_KHOANG_NGAY = "app.hoaDon.loiKhoangNgay";
-    private static final String ERROR_PHAN_TRANG = "app.hoaDon.loiPhanTrang";
-    private static final String ERROR_LY_DO_HUY = "app.hoaDon.loiLyDoHuy";
-    private static final String ERROR_LY_DO_HUY_DAI = "app.hoaDon.loiLyDoHuyDai";
-    private static final String ERROR_PHIEU_NOT_FOUND = "app.phieuTiepNhan.khongTonTai";
+  private static final String ERROR_CHI_TIET_TRONG = "app.hoaDon.loiChiTietTrong";
+  private static final String ERROR_SO_LUONG = "app.hoaDon.loiSoLuong";
+  private static final String ERROR_DON_GIA = "app.hoaDon.loiDonGia";
+  private static final String ERROR_SAN_PHAM = "app.hoaDon.loiSanPham";
+  private static final String ERROR_VOUCHER = "app.hoaDon.loiVoucher";
+  private static final String ERROR_NOT_FOUND = "app.hoaDon.khongTonTai";
+  private static final String ERROR_TRANG_THAI = "app.hoaDon.loiTrangThai";
+  private static final String ERROR_THIEU_TON = "app.hoaDon.loiTonKho";
+  private static final String ERROR_KHOANG_TIEN = "app.hoaDon.loiKhoangTien";
+  private static final String ERROR_KHOANG_NGAY = "app.hoaDon.loiKhoangNgay";
+  private static final String ERROR_PHAN_TRANG = "app.hoaDon.loiPhanTrang";
+  private static final String ERROR_LY_DO_HUY = "app.hoaDon.loiLyDoHuy";
+  private static final String ERROR_LY_DO_HUY_DAI = "app.hoaDon.loiLyDoHuyDai";
+  private static final String ERROR_PHIEU_NOT_FOUND = "app.phieuTiepNhan.khongTonTai";
 
-    private static final int MAX_LY_DO_HUY = 255;
+  private static final int MAX_LY_DO_HUY = 255;
 
-    private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
-    private final KhachHangDAO khachHangDAO = new KhachHangDAO();
-    private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
-    private final MaService maService = new MaService();
-    private final PhuTungService phuTungService = new PhuTungService();
-    private final VoucherDAO voucherDAO = new VoucherDAO();
+  private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
+  private final KhachHangDAO khachHangDAO = new KhachHangDAO();
+  private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
+  private final MaService maService = new MaService();
+  private final PhuTungService phuTungService = new PhuTungService();
+  private final VoucherDAO voucherDAO = new VoucherDAO();
 
-    public HoaDon create(String maPhieuTiepNhan, String maVoucher, List<ChiTietHoaDon> chiTiets)
-            throws SQLException {
-        return this.create(maPhieuTiepNhan, maVoucher, null, chiTiets);
+  public HoaDon create(String maPhieuTiepNhan, String maVoucher, List<ChiTietHoaDon> chiTiets)
+          throws SQLException {
+    return this.create(maPhieuTiepNhan, maVoucher, null, chiTiets);
+  }
+
+  public HoaDon create(String maPhieuTiepNhan,
+          String maVoucher,
+          String ghiChu,
+          List<ChiTietHoaDon> chiTiets) throws SQLException {
+    PhieuTiepNhan phieu = this.timPhieuTiepNhan(maPhieuTiepNhan);
+    HoaDon existing = this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(null);
+    if (existing != null) {
+      return existing;
+    }
+    this.validateChiTiet(chiTiets);
+
+    Voucher voucher = this.resolveVoucher(maVoucher);
+    List<ChiTietHoaDon> danhSachGop = this.gopChiTietTrung(chiTiets);
+    this.kiemTraTonKho(danhSachGop, List.of());
+
+    HoaDon hoaDon = new HoaDon();
+    hoaDon.setPhieuTiepNhan(phieu);
+    hoaDon.setVoucher(voucher);
+    hoaDon.setGhiChu(this.chuanHoaGhiChu(ghiChu));
+    hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.CHO_THANH_TOAN);
+    hoaDon.setMucGiamApDung(voucher == null ? null : this.tinhMucGiam(voucher));
+
+    LocalDateTime now = LocalDateTime.now();
+    try (TransactionScope scope = TransactionScope.begin()) {
+      String ma = this.maService.genMa(scope, LoaiMa.HD);
+      hoaDon.setMaHoaDon(ma);
+      hoaDon.setNgayTao(now);
+      for (ChiTietHoaDon ct : danhSachGop) {
+        ct.setHoaDon(hoaDon);
+      }
+
+      this.hoaDonDAO.insert(scope, hoaDon, danhSachGop);
+      this.capNhatTonKho(scope, danhSachGop, List.of());
+      scope.commit();
+    } catch (SQLException ex) {
+      HoaDon daCo = this.laLoiTrungKhoa(ex)
+              ? this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(null)
+              : null;
+      if (daCo != null) {
+        return daCo;
+      }
+      throw ex;
     }
 
-    public HoaDon create(String maPhieuTiepNhan, String maVoucher, String ghiChu,
-            List<ChiTietHoaDon> chiTiets) throws SQLException {
-        PhieuTiepNhan phieu = this.timPhieuTiepNhan(maPhieuTiepNhan);
-        HoaDon existing = this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(null);
-        if (existing != null) {
-            return existing;
-        }
-        this.validateChiTiet(chiTiets);
+    return this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(hoaDon);
+  }
 
-        Voucher voucher = this.resolveVoucher(maVoucher);
-        List<ChiTietHoaDon> danhSachGop = this.gopChiTietTrung(chiTiets);
-        this.kiemTraTonKho(danhSachGop, List.of());
+  private boolean laLoiTrungKhoa(SQLException ex) {
+    int errorCode = ex.getErrorCode();
+    return errorCode == 2627 || errorCode == 2601;
+  }
 
-        HoaDon hoaDon = new HoaDon();
-        hoaDon.setPhieuTiepNhan(phieu);
-        hoaDon.setVoucher(voucher);
-        hoaDon.setGhiChu(this.chuanHoaGhiChu(ghiChu));
-        hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.CHO_THANH_TOAN);
-        hoaDon.setMucGiamApDung(voucher == null ? null : this.tinhMucGiam(voucher));
+  public HoaDon capNhat(String maHoaDon, String maVoucher, String ghiChu, List<ChiTietHoaDon> chiTiets)
+          throws SQLException {
+    if (maHoaDon == null || maHoaDon.isBlank()) {
+      throw new IllegalArgumentException(ERROR_NOT_FOUND);
+    }
+    this.validateChiTiet(chiTiets);
 
-        LocalDateTime now = LocalDateTime.now();
-        try (TransactionScope scope = TransactionScope.begin()) {
-            String ma = this.maService.genMa(scope, LoaiMa.HD);
-            hoaDon.setMaHoaDon(ma);
-            hoaDon.setNgayTao(now);
-            for (ChiTietHoaDon ct : danhSachGop) {
-                ct.setHoaDon(hoaDon);
-            }
-
-            this.hoaDonDAO.insert(scope, hoaDon, danhSachGop);
-            this.capNhatTonKho(scope, danhSachGop, List.of());
-            scope.commit();
-        } catch (SQLException ex) {
-            HoaDon daCo = this.laLoiTrungKhoa(ex)
-                    ? this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(null)
-                    : null;
-            if (daCo != null) {
-                return daCo;
-            }
-            throw ex;
-        }
-
-        return this.hoaDonDAO.findByPhieuTiepNhan(phieu.getMaPhieuTiepNhan()).orElse(hoaDon);
+    HoaDon hienTai = this.getById(maHoaDon);
+    if (hienTai.getTrangThaiHoaDon() != TrangThaiHoaDon.CHO_THANH_TOAN) {
+      throw new IllegalStateException(ERROR_TRANG_THAI);
     }
 
-    private boolean laLoiTrungKhoa(SQLException ex) {
-        int errorCode = ex.getErrorCode();
-        return errorCode == 2627 || errorCode == 2601;
+    Voucher voucher = this.resolveVoucher(maVoucher);
+    String maVoucherMoi = voucher == null ? null : voucher.getMaVoucher();
+    Double mucGiamMoi = voucher == null ? null : this.tinhMucGiam(voucher);
+
+    List<ChiTietHoaDon> danhSachMoi = this.gopChiTietTrung(chiTiets);
+    this.kiemTraTonKho(danhSachMoi, hienTai.getDanhSachChiTietHoaDon());
+
+    try (TransactionScope scope = TransactionScope.begin()) {
+      if (!this.hoaDonDAO.updateThongTin(scope,
+              maHoaDon,
+              maVoucherMoi,
+              this.chuanHoaGhiChu(ghiChu),
+              mucGiamMoi)) {
+        throw new IllegalStateException(ERROR_TRANG_THAI);
+      }
+      this.capNhatTonKho(scope, danhSachMoi, hienTai.getDanhSachChiTietHoaDon());
+      this.hoaDonDAO.deleteChiTiet(scope, maHoaDon);
+      this.hoaDonDAO.insertChiTiet(scope, maHoaDon, danhSachMoi);
+      scope.commit();
     }
 
-    public HoaDon capNhat(String maHoaDon, String maVoucher, String ghiChu, List<ChiTietHoaDon> chiTiets)
-            throws SQLException {
-        if (maHoaDon == null || maHoaDon.isBlank()) {
-            throw new IllegalArgumentException(ERROR_NOT_FOUND);
-        }
-        this.validateChiTiet(chiTiets);
+    return this.getById(maHoaDon);
+  }
 
-        HoaDon hienTai = this.getById(maHoaDon);
-        if (hienTai.getTrangThaiHoaDon() != TrangThaiHoaDon.CHO_THANH_TOAN) {
-            throw new IllegalStateException(ERROR_TRANG_THAI);
-        }
+  public HoaDon thanhToan(String maHoaDon) throws SQLException {
+    new ThanhToanService().thanhToan(maHoaDon, PhuongThucThanhToan.TIEN_MAT, null);
+    return this.getById(maHoaDon);
+  }
 
-        Voucher voucher = this.resolveVoucher(maVoucher);
-        String maVoucherMoi = voucher == null ? null : voucher.getMaVoucher();
-        Double mucGiamMoi = voucher == null ? null : this.tinhMucGiam(voucher);
+  public HoaDon huy(String maHoaDon, String lyDoHuy) throws SQLException {
+    HoaDon hoaDon = this.getById(maHoaDon);
+    this.kiemTraHuy(hoaDon, lyDoHuy);
 
-        List<ChiTietHoaDon> danhSachMoi = this.gopChiTietTrung(chiTiets);
-        this.kiemTraTonKho(danhSachMoi, hienTai.getDanhSachChiTietHoaDon());
-
-        try (TransactionScope scope = TransactionScope.begin()) {
-            if (!this.hoaDonDAO.updateThongTin(scope, maHoaDon, maVoucherMoi,
-                    this.chuanHoaGhiChu(ghiChu), mucGiamMoi)) {
-                throw new IllegalStateException(ERROR_TRANG_THAI);
-            }
-            this.capNhatTonKho(scope, danhSachMoi, hienTai.getDanhSachChiTietHoaDon());
-            this.hoaDonDAO.deleteChiTiet(scope, maHoaDon);
-            this.hoaDonDAO.insertChiTiet(scope, maHoaDon, danhSachMoi);
-            scope.commit();
-        }
-
-        return this.getById(maHoaDon);
+    try (TransactionScope scope = TransactionScope.begin()) {
+      this.huy(scope, hoaDon, lyDoHuy);
+      scope.commit();
     }
 
-    public HoaDon thanhToan(String maHoaDon) throws SQLException {
-        new ThanhToanService().thanhToan(maHoaDon, PhuongThucThanhToan.TIEN_MAT, null);
-        return this.getById(maHoaDon);
+    hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.DA_HUY);
+    hoaDon.setLyDoHuy(lyDoHuy.trim());
+    return hoaDon;
+  }
+
+  public void huy(TransactionScope scope, HoaDon hoaDon, String lyDoHuy) throws SQLException {
+    this.kiemTraHuy(hoaDon, lyDoHuy);
+    if (!this.hoaDonDAO.huy(scope,
+            hoaDon.getMaHoaDon(),
+            lyDoHuy.trim(),
+            hoaDon.getTrangThaiHoaDon())) {
+      throw new IllegalStateException(ERROR_TRANG_THAI);
     }
+    this.hoanTon(scope, hoaDon.getDanhSachChiTietHoaDon());
+  }
 
-    public HoaDon huy(String maHoaDon, String lyDoHuy) throws SQLException {
-        HoaDon hoaDon = this.getById(maHoaDon);
-        this.kiemTraHuy(hoaDon, lyDoHuy);
-
-        try (TransactionScope scope = TransactionScope.begin()) {
-            this.huy(scope, hoaDon, lyDoHuy);
-            scope.commit();
-        }
-
-        hoaDon.setTrangThaiHoaDon(TrangThaiHoaDon.DA_HUY);
-        hoaDon.setLyDoHuy(lyDoHuy.trim());
-        return hoaDon;
+  private void kiemTraHuy(HoaDon hoaDon, String lyDoHuy) {
+    if (hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.CHO_THANH_TOAN
+            && hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.DA_THANH_TOAN) {
+      throw new IllegalStateException(ERROR_TRANG_THAI);
     }
-
-    public void huy(TransactionScope scope, HoaDon hoaDon, String lyDoHuy) throws SQLException {
-        this.kiemTraHuy(hoaDon, lyDoHuy);
-        if (!this.hoaDonDAO.huy(scope, hoaDon.getMaHoaDon(), lyDoHuy.trim(),
-                hoaDon.getTrangThaiHoaDon())) {
-            throw new IllegalStateException(ERROR_TRANG_THAI);
-        }
-        this.hoanTon(scope, hoaDon.getDanhSachChiTietHoaDon());
+    if (lyDoHuy == null || lyDoHuy.isBlank()) {
+      throw new IllegalArgumentException(ERROR_LY_DO_HUY);
     }
-
-    private void kiemTraHuy(HoaDon hoaDon, String lyDoHuy) {
-        if (hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.CHO_THANH_TOAN
-                && hoaDon.getTrangThaiHoaDon() != TrangThaiHoaDon.DA_THANH_TOAN) {
-            throw new IllegalStateException(ERROR_TRANG_THAI);
-        }
-        if (lyDoHuy == null || lyDoHuy.isBlank()) {
-            throw new IllegalArgumentException(ERROR_LY_DO_HUY);
-        }
-        if (lyDoHuy.trim().length() > MAX_LY_DO_HUY) {
-            throw new IllegalArgumentException(ERROR_LY_DO_HUY_DAI);
-        }
+    if (lyDoHuy.trim().length() > MAX_LY_DO_HUY) {
+      throw new IllegalArgumentException(ERROR_LY_DO_HUY_DAI);
     }
+  }
 
-    public Optional<HoaDon> timTheoPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
-        return this.hoaDonDAO.findByPhieuTiepNhan(maPhieuTiepNhan);
+  public Optional<HoaDon> timTheoPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
+    return this.hoaDonDAO.findByPhieuTiepNhan(maPhieuTiepNhan);
+  }
+
+  public HoaDon getById(String maHoaDon) throws SQLException {
+    return this.hoaDonDAO.findById(maHoaDon)
+            .orElseThrow(() -> new IllegalArgumentException(ERROR_NOT_FOUND));
+  }
+
+  public HoaDon getByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
+    return this.hoaDonDAO.findByPhieuTiepNhan(maPhieuTiepNhan).orElse(null);
+  }
+
+  private PhieuTiepNhan timPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
+    String ma = maPhieuTiepNhan == null ? "" : maPhieuTiepNhan.trim();
+    if (ma.isEmpty()) {
+      throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
     }
+    return this.phieuTiepNhanDAO.findById(ma)
+            .orElseThrow(() -> new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND));
+  }
 
-    public HoaDon getById(String maHoaDon) throws SQLException {
-        return this.hoaDonDAO.findById(maHoaDon)
-                .orElseThrow(() -> new IllegalArgumentException(ERROR_NOT_FOUND));
+  public PaginatedResult<HoaDonView> search(DanhSachHoaDonCriteria criteria) throws SQLException {
+    DanhSachHoaDonCriteria filter = criteria == null
+            ? DanhSachHoaDonCriteria.macDinh()
+            : criteria;
+
+    this.validateFilter(filter);
+
+    Map<String, KhachHang> khachHangTheoMa = this.khachHangTheoMa();
+    List<PhieuTiepNhan> danhSachPhieu = this.phieuTiepNhanDAO.findAll();
+    Map<String, String> tenKhachHangTheoPhieu = this.tenKhachHangTheoPhieu(khachHangTheoMa, danhSachPhieu);
+    Map<String, String> bienSoTheoPhieu = this.bienSoTheoPhieu(danhSachPhieu);
+    Map<String, Voucher> voucherTheoMa = this.voucherTheoMa();
+
+    List<HoaDonView> views = this.taoViews(filter, tenKhachHangTheoPhieu, bienSoTheoPhieu, voucherTheoMa);
+
+    views.sort(Comparator
+            .comparing(HoaDonView::ngayTao, Comparator.nullsLast(Comparator.reverseOrder()))
+            .thenComparing(HoaDonView::maHoaDon, Comparator.reverseOrder()));
+
+    return PaginatedResult.of(views, filter);
+  }
+
+  private Map<String, KhachHang> khachHangTheoMa() throws SQLException {
+    Map<String, KhachHang> khachHangTheoMa = new HashMap<>();
+    for (KhachHang khachHang : this.khachHangDAO.findAll()) {
+      khachHangTheoMa.put(khachHang.getMaKhachHang(), khachHang);
     }
+    return khachHangTheoMa;
+  }
 
-    public HoaDon getByPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
-        return this.hoaDonDAO.findByPhieuTiepNhan(maPhieuTiepNhan).orElse(null);
+  private Map<String, String> tenKhachHangTheoPhieu(Map<String, KhachHang> khachHangTheoMa,
+          List<PhieuTiepNhan> danhSachPhieu) {
+    Map<String, String> tenKhachHangTheoPhieu = new HashMap<>();
+    for (PhieuTiepNhan phieu : danhSachPhieu) {
+      KhachHang khachHang = khachHangTheoMa.get(
+              phieu.getKhachHang() == null ? null : phieu.getKhachHang().getMaKhachHang());
+      tenKhachHangTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
+              khachHang == null || khachHang.getHoTen() == null ? "" : khachHang.getHoTen());
     }
+    return tenKhachHangTheoPhieu;
+  }
 
-    private PhieuTiepNhan timPhieuTiepNhan(String maPhieuTiepNhan) throws SQLException {
-        String ma = maPhieuTiepNhan == null ? "" : maPhieuTiepNhan.trim();
-        if (ma.isEmpty()) {
-            throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
-        }
-        return this.phieuTiepNhanDAO.findById(ma)
-                .orElseThrow(() -> new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND));
+  private Map<String, String> bienSoTheoPhieu(List<PhieuTiepNhan> danhSachPhieu) {
+    Map<String, String> bienSoTheoPhieu = new HashMap<>();
+    for (PhieuTiepNhan phieu : danhSachPhieu) {
+      bienSoTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
+              phieu.getBienSo() == null ? "" : phieu.getBienSo());
     }
+    return bienSoTheoPhieu;
+  }
 
-    public PaginatedResult<HoaDonView> search(DanhSachHoaDonCriteria criteria) throws SQLException {
-        DanhSachHoaDonCriteria filter = criteria == null
-                ? DanhSachHoaDonCriteria.macDinh()
-                : criteria;
-
-        this.validateFilter(filter);
-
-        Map<String, KhachHang> khachHangTheoMa = this.khachHangTheoMa();
-        List<PhieuTiepNhan> danhSachPhieu = this.phieuTiepNhanDAO.findAll();
-        Map<String, String> tenKhachHangTheoPhieu = this.tenKhachHangTheoPhieu(khachHangTheoMa, danhSachPhieu);
-        Map<String, String> bienSoTheoPhieu = this.bienSoTheoPhieu(danhSachPhieu);
-        Map<String, Voucher> voucherTheoMa = this.voucherTheoMa();
-
-        List<HoaDonView> views = this.taoViews(filter, tenKhachHangTheoPhieu, bienSoTheoPhieu, voucherTheoMa);
-
-        views.sort(Comparator
-                .comparing(HoaDonView::ngayTao, Comparator.nullsLast(Comparator.reverseOrder()))
-                .thenComparing(HoaDonView::maHoaDon, Comparator.reverseOrder()));
-
-        return PaginatedResult.of(views, filter);
+  private Map<String, Voucher> voucherTheoMa() throws SQLException {
+    Map<String, Voucher> voucherTheoMa = new HashMap<>();
+    for (Voucher voucher : this.voucherDAO.findAll()) {
+      voucherTheoMa.put(voucher.getMaVoucher(), voucher);
     }
+    return voucherTheoMa;
+  }
 
-    private Map<String, KhachHang> khachHangTheoMa() throws SQLException {
-        Map<String, KhachHang> khachHangTheoMa = new HashMap<>();
-        for (KhachHang khachHang : this.khachHangDAO.findAll()) {
-            khachHangTheoMa.put(khachHang.getMaKhachHang(), khachHang);
-        }
-        return khachHangTheoMa;
+  private List<HoaDonView> taoViews(DanhSachHoaDonCriteria filter,
+          Map<String, String> tenKhachHangTheoPhieu,
+          Map<String, String> bienSoTheoPhieu,
+          Map<String, Voucher> voucherTheoMa) throws SQLException {
+    List<HoaDonView> views = new ArrayList<>();
+    for (HoaDon hoaDon : this.hoaDonDAO.findAllWithDetails()) {
+      HoaDonView view = this.taoView(hoaDon, tenKhachHangTheoPhieu, bienSoTheoPhieu, voucherTheoMa);
+      if (this.matches(view, filter)) {
+        views.add(view);
+      }
     }
+    return views;
+  }
 
-    private Map<String, String> tenKhachHangTheoPhieu(Map<String, KhachHang> khachHangTheoMa,
-            List<PhieuTiepNhan> danhSachPhieu) {
-        Map<String, String> tenKhachHangTheoPhieu = new HashMap<>();
-        for (PhieuTiepNhan phieu : danhSachPhieu) {
-            KhachHang khachHang = khachHangTheoMa.get(
-                    phieu.getKhachHang() == null ? null : phieu.getKhachHang().getMaKhachHang());
-            tenKhachHangTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
-                    khachHang == null || khachHang.getHoTen() == null ? "" : khachHang.getHoTen());
-        }
-        return tenKhachHangTheoPhieu;
-    }
+  private HoaDonView taoView(HoaDon hoaDon,
+          Map<String, String> tenKhachHangTheoPhieu,
+          Map<String, String> bienSoTheoPhieu,
+          Map<String, Voucher> voucherTheoMa) {
+    String maPhieuTiepNhan = hoaDon.getPhieuTiepNhan() == null ? ""
+            : hoaDon.getPhieuTiepNhan().getMaPhieuTiepNhan();
+    return new HoaDonView(
+            hoaDon.getMaHoaDon(),
+            maPhieuTiepNhan,
+            tenKhachHangTheoPhieu.getOrDefault(maPhieuTiepNhan, ""),
+            bienSoTheoPhieu.getOrDefault(maPhieuTiepNhan, ""),
+            hoaDon.getNgayTao(),
+            hoaDon.getTrangThaiHoaDon(),
+            this.tinhTongTien(hoaDon, voucherTheoMa),
+            hoaDon.getThoiGianThanhToan(),
+            hoaDon.getGhiChu(),
+            hoaDon.getVoucher() == null ? null : hoaDon.getVoucher().getMaVoucher(),
+            hoaDon.getLyDoHuy());
+  }
 
-    private Map<String, String> bienSoTheoPhieu(List<PhieuTiepNhan> danhSachPhieu) {
-        Map<String, String> bienSoTheoPhieu = new HashMap<>();
-        for (PhieuTiepNhan phieu : danhSachPhieu) {
-            bienSoTheoPhieu.put(phieu.getMaPhieuTiepNhan(),
-                    phieu.getBienSo() == null ? "" : phieu.getBienSo());
-        }
-        return bienSoTheoPhieu;
-    }
+  public double tinhTongTien(HoaDon hoaDon) {
+    return TinhTienUtil.thucThu(this.tinhTongTienGoc(hoaDon), this.tinhMucGiam(hoaDon)).doubleValue();
+  }
 
-    private Map<String, Voucher> voucherTheoMa() throws SQLException {
-        Map<String, Voucher> voucherTheoMa = new HashMap<>();
-        for (Voucher voucher : this.voucherDAO.findAll()) {
-            voucherTheoMa.put(voucher.getMaVoucher(), voucher);
-        }
-        return voucherTheoMa;
-    }
+  public double tinhTongTien(List<ChiTietHoaDon> chiTiets, Voucher voucher) {
+    return TinhTienUtil.thucThu(this.tinhTongTienGoc(chiTiets), this.tinhMucGiam(voucher)).doubleValue();
+  }
 
-    private List<HoaDonView> taoViews(DanhSachHoaDonCriteria filter,
-            Map<String, String> tenKhachHangTheoPhieu, Map<String, String> bienSoTheoPhieu,
-            Map<String, Voucher> voucherTheoMa) throws SQLException {
-        List<HoaDonView> views = new ArrayList<>();
-        for (HoaDon hoaDon : this.hoaDonDAO.findAllWithDetails()) {
-            HoaDonView view = this.taoView(hoaDon, tenKhachHangTheoPhieu, bienSoTheoPhieu, voucherTheoMa);
-            if (this.matches(view, filter)) {
-                views.add(view);
-            }
-        }
-        return views;
+  private double tinhTongTien(HoaDon hoaDon, Map<String, Voucher> voucherTheoMa) {
+    if (hoaDon == null) {
+      return 0.0;
     }
+    return TinhTienUtil.thucThu(this.tinhTongTienGoc(hoaDon), this.tinhMucGiam(hoaDon, voucherTheoMa))
+            .doubleValue();
+  }
 
-    private HoaDonView taoView(HoaDon hoaDon, Map<String, String> tenKhachHangTheoPhieu,
-            Map<String, String> bienSoTheoPhieu, Map<String, Voucher> voucherTheoMa) {
-        String maPhieuTiepNhan = hoaDon.getPhieuTiepNhan() == null ? ""
-                : hoaDon.getPhieuTiepNhan().getMaPhieuTiepNhan();
-        return new HoaDonView(
-                hoaDon.getMaHoaDon(),
-                maPhieuTiepNhan,
-                tenKhachHangTheoPhieu.getOrDefault(maPhieuTiepNhan, ""),
-                bienSoTheoPhieu.getOrDefault(maPhieuTiepNhan, ""),
-                hoaDon.getNgayTao(),
-                hoaDon.getTrangThaiHoaDon(),
-                this.tinhTongTien(hoaDon, voucherTheoMa),
-                hoaDon.getThoiGianThanhToan(),
-                hoaDon.getGhiChu(),
-                hoaDon.getVoucher() == null ? null : hoaDon.getVoucher().getMaVoucher(),
-                hoaDon.getLyDoHuy());
+  private double tinhMucGiam(HoaDon hoaDon, Map<String, Voucher> voucherTheoMa) {
+    if (hoaDon == null) {
+      return 0.0;
     }
+    if (hoaDon.getMucGiamApDung() != null) {
+      return TinhTienUtil.mucGiam(hoaDon.getMucGiamApDung());
+    }
+    if (hoaDon.getVoucher() == null) {
+      return 0.0;
+    }
+    return this.tinhMucGiam(voucherTheoMa.get(hoaDon.getVoucher().getMaVoucher()));
+  }
 
-    public double tinhTongTien(HoaDon hoaDon) {
-        return this.tinhTongTienGoc(hoaDon) * (1.0 - this.tinhMucGiam(hoaDon));
-    }
+  public double tinhTongTienGoc(HoaDon hoaDon) {
+    return hoaDon == null ? 0.0 : this.tinhTongTienGoc(hoaDon.getDanhSachChiTietHoaDon());
+  }
 
-    public double tinhTongTien(List<ChiTietHoaDon> chiTiets, Voucher voucher) {
-        return this.tinhTongTienGoc(chiTiets) * (1.0 - this.tinhMucGiam(voucher));
-    }
+  public double tinhTongTienGoc(List<ChiTietHoaDon> chiTiets) {
+    return TinhTienUtil.tongGoc(chiTiets);
+  }
 
-    private double tinhTongTien(HoaDon hoaDon, Map<String, Voucher> voucherTheoMa) {
-        if (hoaDon == null) {
-            return 0.0;
-        }
-        return this.tinhTongTienGoc(hoaDon) * (1.0 - this.tinhMucGiam(hoaDon, voucherTheoMa));
+  public double tinhMucGiam(HoaDon hoaDon) {
+    if (hoaDon == null) {
+      return 0.0;
     }
+    if (hoaDon.getMucGiamApDung() != null) {
+      return TinhTienUtil.mucGiam(hoaDon.getMucGiamApDung());
+    }
+    if (hoaDon.getVoucher() == null) {
+      return 0.0;
+    }
+    try {
+      return this.tinhMucGiam(this.voucherDAO.findById(hoaDon.getVoucher().getMaVoucher()).orElse(null));
+    } catch (SQLException ignored) {
+      return 0.0;
+    }
+  }
 
-    private double tinhMucGiam(HoaDon hoaDon, Map<String, Voucher> voucherTheoMa) {
-        if (hoaDon == null) {
-            return 0.0;
-        }
-        if (hoaDon.getMucGiamApDung() != null) {
-            return Math.min(Math.max(hoaDon.getMucGiamApDung(), 0.0), 1.0);
-        }
-        if (hoaDon.getVoucher() == null) {
-            return 0.0;
-        }
-        return this.tinhMucGiam(voucherTheoMa.get(hoaDon.getVoucher().getMaVoucher()));
+  public double tinhMucGiam(Voucher voucher) {
+    if (!this.voucherConHieuLuc(voucher)) {
+      return 0.0;
     }
+    double mucGiam = voucher.getMucGiam() == null ? 0.0 : voucher.getMucGiam();
+    return TinhTienUtil.mucGiam(mucGiam);
+  }
 
-    public double tinhTongTienGoc(HoaDon hoaDon) {
-        return hoaDon == null ? 0.0 : this.tinhTongTienGoc(hoaDon.getDanhSachChiTietHoaDon());
+  private Voucher resolveVoucher(String maVoucher) throws SQLException {
+    if (maVoucher == null || maVoucher.isBlank()) {
+      return null;
     }
+    Voucher voucher = this.voucherDAO.findById(maVoucher.trim())
+            .orElseThrow(() -> new IllegalArgumentException(ERROR_VOUCHER));
+    if (!this.voucherConHieuLuc(voucher)) {
+      throw new IllegalArgumentException(ERROR_VOUCHER);
+    }
+    return voucher;
+  }
 
-    public double tinhTongTienGoc(List<ChiTietHoaDon> chiTiets) {
-        if (chiTiets == null) {
-            return 0.0;
-        }
-        double tong = 0.0;
-        for (ChiTietHoaDon ct : chiTiets) {
-            double donGia = ct.getDonGia() == null ? 0.0 : ct.getDonGia();
-            tong += ct.getSoLuong() * donGia;
-        }
-        return tong;
-    }
+  public boolean voucherConHieuLuc(Voucher voucher) {
+    return voucher != null && voucher.isTrangThaiKichHoat()
+            && (voucher.getThoiHanApDung() == null
+                    || !voucher.getThoiHanApDung().isBefore(LocalDateTime.now()));
+  }
 
-    public double tinhMucGiam(HoaDon hoaDon) {
-        if (hoaDon == null) {
-            return 0.0;
-        }
-        if (hoaDon.getMucGiamApDung() != null) {
-            return Math.min(Math.max(hoaDon.getMucGiamApDung(), 0.0), 1.0);
-        }
-        if (hoaDon.getVoucher() == null) {
-            return 0.0;
-        }
-        try {
-            return this.tinhMucGiam(this.voucherDAO.findById(hoaDon.getVoucher().getMaVoucher()).orElse(null));
-        } catch (SQLException ignored) {
-            return 0.0;
-        }
-    }
+  private void capNhatTonKho(TransactionScope scope,
+          List<ChiTietHoaDon> danhSachMoi,
+          List<ChiTietHoaDon> danhSachCu) throws SQLException {
+    this.hoanTon(scope, danhSachCu);
+    this.truTon(scope, danhSachMoi);
+  }
 
-    public double tinhMucGiam(Voucher voucher) {
-        if (!this.voucherConHieuLuc(voucher)) {
-            return 0.0;
-        }
-        double mucGiam = voucher.getMucGiam() == null ? 0.0 : voucher.getMucGiam();
-        return Math.min(Math.max(mucGiam, 0.0), 1.0);
+  private void hoanTon(TransactionScope scope, List<ChiTietHoaDon> chiTiets) throws SQLException {
+    for (ChiTietHoaDon ct : chiTiets) {
+      if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
+        this.phuTungService.increaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
+      }
     }
+  }
 
-    private Voucher resolveVoucher(String maVoucher) throws SQLException {
-        if (maVoucher == null || maVoucher.isBlank()) {
-            return null;
-        }
-        Voucher voucher = this.voucherDAO.findById(maVoucher.trim())
-                .orElseThrow(() -> new IllegalArgumentException(ERROR_VOUCHER));
-        if (!this.voucherConHieuLuc(voucher)) {
-            throw new IllegalArgumentException(ERROR_VOUCHER);
-        }
-        return voucher;
+  private void truTon(TransactionScope scope, List<ChiTietHoaDon> chiTiets) throws SQLException {
+    for (ChiTietHoaDon ct : chiTiets) {
+      if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
+        this.phuTungService.decreaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
+      }
     }
+  }
 
-    public boolean voucherConHieuLuc(Voucher voucher) {
-        return voucher != null && voucher.isTrangThaiKichHoat()
-                && (voucher.getThoiHanApDung() == null
-                || !voucher.getThoiHanApDung().isBefore(LocalDateTime.now()));
+  private void kiemTraTonKho(List<ChiTietHoaDon> danhSachMoi, List<ChiTietHoaDon> danhSachCu)
+          throws SQLException {
+    Map<String, Integer> soLuongCu = this.gopSoLuong(danhSachCu);
+    for (ChiTietHoaDon ct : danhSachMoi) {
+      if (ct.getLoaiSanPham() != LoaiSanPham.PHU_TUNG) {
+        continue;
+      }
+      int soLuongTang = ct.getSoLuong() - soLuongCu.getOrDefault(this.khoa(ct), 0);
+      if (soLuongTang <= 0) {
+        continue;
+      }
+      PhuTung phuTung = this.phuTungService.getById(ct.getMaSanPham())
+              .orElseThrow(() -> new IllegalArgumentException(ERROR_SAN_PHAM));
+      if (phuTung.getSoLuongTon() < soLuongTang) {
+        throw new IllegalArgumentException(ERROR_THIEU_TON);
+      }
     }
+  }
 
-    private void capNhatTonKho(TransactionScope scope, List<ChiTietHoaDon> danhSachMoi,
-            List<ChiTietHoaDon> danhSachCu) throws SQLException {
-        this.hoanTon(scope, danhSachCu);
-        this.truTon(scope, danhSachMoi);
+  private List<ChiTietHoaDon> gopChiTietTrung(List<ChiTietHoaDon> chiTiets) {
+    Map<String, ChiTietHoaDon> map = new LinkedHashMap<>();
+    for (ChiTietHoaDon ct : chiTiets) {
+      String key = this.khoa(ct);
+      ChiTietHoaDon tonTai = map.get(key);
+      if (tonTai != null) {
+        tonTai.setSoLuong(tonTai.getSoLuong() + ct.getSoLuong());
+        if (ct.getDonGia() != null) {
+          tonTai.setDonGia(ct.getDonGia());
+        }
+        continue;
+      }
+      ChiTietHoaDon moi = new ChiTietHoaDon();
+      moi.setLoaiSanPham(ct.getLoaiSanPham());
+      moi.setMaSanPham(ct.getMaSanPham().trim());
+      moi.setSoLuong(ct.getSoLuong());
+      moi.setDonGia(ct.getDonGia());
+      map.put(key, moi);
     }
+    return new ArrayList<>(map.values());
+  }
 
-    private void hoanTon(TransactionScope scope, List<ChiTietHoaDon> chiTiets) throws SQLException {
-        for (ChiTietHoaDon ct : chiTiets) {
-            if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
-                this.phuTungService.increaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
-            }
-        }
+  private Map<String, Integer> gopSoLuong(List<ChiTietHoaDon> chiTiets) {
+    Map<String, Integer> ketQua = new LinkedHashMap<>();
+    if (chiTiets == null) {
+      return ketQua;
     }
+    for (ChiTietHoaDon ct : chiTiets) {
+      ketQua.merge(this.khoa(ct), ct.getSoLuong(), Integer::sum);
+    }
+    return ketQua;
+  }
 
-    private void truTon(TransactionScope scope, List<ChiTietHoaDon> chiTiets) throws SQLException {
-        for (ChiTietHoaDon ct : chiTiets) {
-            if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
-                this.phuTungService.decreaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
-            }
-        }
-    }
+  private String khoa(ChiTietHoaDon ct) {
+    return ct.getLoaiSanPham().name() + "|" + ct.getMaSanPham().trim();
+  }
 
-    private void kiemTraTonKho(List<ChiTietHoaDon> danhSachMoi, List<ChiTietHoaDon> danhSachCu)
-            throws SQLException {
-        Map<String, Integer> soLuongCu = this.gopSoLuong(danhSachCu);
-        for (ChiTietHoaDon ct : danhSachMoi) {
-            if (ct.getLoaiSanPham() != LoaiSanPham.PHU_TUNG) {
-                continue;
-            }
-            int soLuongTang = ct.getSoLuong() - soLuongCu.getOrDefault(this.khoa(ct), 0);
-            if (soLuongTang <= 0) {
-                continue;
-            }
-            PhuTung phuTung = this.phuTungService.getById(ct.getMaSanPham())
-                    .orElseThrow(() -> new IllegalArgumentException(ERROR_SAN_PHAM));
-            if (phuTung.getSoLuongTon() < soLuongTang) {
-                throw new IllegalArgumentException(ERROR_THIEU_TON);
-            }
-        }
-    }
+  private String chuanHoaGhiChu(String ghiChu) {
+    return ghiChu == null || ghiChu.isBlank() ? null : ghiChu.trim();
+  }
 
-    private List<ChiTietHoaDon> gopChiTietTrung(List<ChiTietHoaDon> chiTiets) {
-        Map<String, ChiTietHoaDon> map = new LinkedHashMap<>();
-        for (ChiTietHoaDon ct : chiTiets) {
-            String key = this.khoa(ct);
-            ChiTietHoaDon tonTai = map.get(key);
-            if (tonTai != null) {
-                tonTai.setSoLuong(tonTai.getSoLuong() + ct.getSoLuong());
-                if (ct.getDonGia() != null) {
-                    tonTai.setDonGia(ct.getDonGia());
-                }
-                continue;
-            }
-            ChiTietHoaDon moi = new ChiTietHoaDon();
-            moi.setLoaiSanPham(ct.getLoaiSanPham());
-            moi.setMaSanPham(ct.getMaSanPham().trim());
-            moi.setSoLuong(ct.getSoLuong());
-            moi.setDonGia(ct.getDonGia());
-            map.put(key, moi);
-        }
-        return new ArrayList<>(map.values());
+  private void validateFilter(DanhSachHoaDonCriteria filter) {
+    if (filter.page() < 1 || filter.pageSize() < 1) {
+      throw new IllegalArgumentException(ERROR_PHAN_TRANG);
     }
+    if ((filter.tongTienTu() != null && filter.tongTienTu() < 0)
+            || (filter.tongTienDen() != null && filter.tongTienDen() < 0)) {
+      throw new IllegalArgumentException(ERROR_KHOANG_TIEN);
+    }
+    if (filter.tongTienTu() != null && filter.tongTienDen() != null
+            && filter.tongTienTu() > filter.tongTienDen()) {
+      throw new IllegalArgumentException(ERROR_KHOANG_TIEN);
+    }
+    if (filter.ngayTaoTu() != null && filter.ngayTaoDen() != null
+            && filter.ngayTaoTu().isAfter(filter.ngayTaoDen())) {
+      throw new IllegalArgumentException(ERROR_KHOANG_NGAY);
+    }
+  }
 
-    private Map<String, Integer> gopSoLuong(List<ChiTietHoaDon> chiTiets) {
-        Map<String, Integer> ketQua = new LinkedHashMap<>();
-        if (chiTiets == null) {
-            return ketQua;
-        }
-        for (ChiTietHoaDon ct : chiTiets) {
-            ketQua.merge(this.khoa(ct), ct.getSoLuong(), Integer::sum);
-        }
-        return ketQua;
+  private boolean matches(HoaDonView view, DanhSachHoaDonCriteria filter) {
+    if (!this.containsText(filter.maHoaDon(), view.maHoaDon())
+            || !this.containsText(filter.maPhieuTiepNhan(), view.maPhieuTiepNhan())
+            || !this.containsText(filter.tenKhachHang(), view.tenKhachHang())) {
+      return false;
     }
+    if (filter.trangThai() != null && view.trangThai() != filter.trangThai()) {
+      return false;
+    }
+    if (filter.ngayTaoTu() != null && (view.ngayTao() == null
+            || view.ngayTao().toLocalDate().isBefore(filter.ngayTaoTu()))) {
+      return false;
+    }
+    if (filter.ngayTaoDen() != null && (view.ngayTao() == null
+            || view.ngayTao().toLocalDate().isAfter(filter.ngayTaoDen()))) {
+      return false;
+    }
+    if (filter.tongTienTu() != null && view.tongTien() < filter.tongTienTu()) {
+      return false;
+    }
+    if (filter.tongTienDen() != null && view.tongTien() > filter.tongTienDen()) {
+      return false;
+    }
+    if (filter.timNhanh() != null && !filter.timNhanh().isBlank()) {
+      String combined = this.chuanHoa(view.maHoaDon() + " " + view.maPhieuTiepNhan()
+              + " " + view.tenKhachHang() + " " + view.bienSo());
+      if (!combined.contains(this.chuanHoa(filter.timNhanh()))) {
+        return false;
+      }
+    }
+    return true;
+  }
 
-    private String khoa(ChiTietHoaDon ct) {
-        return ct.getLoaiSanPham().name() + "|" + ct.getMaSanPham().trim();
+  private boolean containsText(String filterValue, String value) {
+    if (filterValue == null || filterValue.isBlank()) {
+      return true;
     }
+    return this.chuanHoa(value).contains(this.chuanHoa(filterValue));
+  }
 
-    private String chuanHoaGhiChu(String ghiChu) {
-        return ghiChu == null || ghiChu.isBlank() ? null : ghiChu.trim();
-    }
+  private String chuanHoa(String value) {
+    return TextNormalizerUtil.normalize(value);
+  }
 
-    private void validateFilter(DanhSachHoaDonCriteria filter) {
-        if (filter.page() < 1 || filter.pageSize() < 1) {
-            throw new IllegalArgumentException(ERROR_PHAN_TRANG);
-        }
-        if ((filter.tongTienTu() != null && filter.tongTienTu() < 0)
-                || (filter.tongTienDen() != null && filter.tongTienDen() < 0)) {
-            throw new IllegalArgumentException(ERROR_KHOANG_TIEN);
-        }
-        if (filter.tongTienTu() != null && filter.tongTienDen() != null
-                && filter.tongTienTu() > filter.tongTienDen()) {
-            throw new IllegalArgumentException(ERROR_KHOANG_TIEN);
-        }
-        if (filter.ngayTaoTu() != null && filter.ngayTaoDen() != null
-                && filter.ngayTaoTu().isAfter(filter.ngayTaoDen())) {
-            throw new IllegalArgumentException(ERROR_KHOANG_NGAY);
-        }
+  private void validateChiTiet(List<ChiTietHoaDon> chiTiets) {
+    if (chiTiets == null || chiTiets.isEmpty()) {
+      throw new IllegalArgumentException(ERROR_CHI_TIET_TRONG);
     }
-
-    private boolean matches(HoaDonView view, DanhSachHoaDonCriteria filter) {
-        if (!this.containsText(filter.maHoaDon(), view.maHoaDon())
-                || !this.containsText(filter.maPhieuTiepNhan(), view.maPhieuTiepNhan())
-                || !this.containsText(filter.tenKhachHang(), view.tenKhachHang())) {
-            return false;
-        }
-        if (filter.trangThai() != null && view.trangThai() != filter.trangThai()) {
-            return false;
-        }
-        if (filter.ngayTaoTu() != null && (view.ngayTao() == null
-                || view.ngayTao().toLocalDate().isBefore(filter.ngayTaoTu()))) {
-            return false;
-        }
-        if (filter.ngayTaoDen() != null && (view.ngayTao() == null
-                || view.ngayTao().toLocalDate().isAfter(filter.ngayTaoDen()))) {
-            return false;
-        }
-        if (filter.tongTienTu() != null && view.tongTien() < filter.tongTienTu()) {
-            return false;
-        }
-        if (filter.tongTienDen() != null && view.tongTien() > filter.tongTienDen()) {
-            return false;
-        }
-        if (filter.timNhanh() != null && !filter.timNhanh().isBlank()) {
-            String combined = this.chuanHoa(view.maHoaDon() + " " + view.maPhieuTiepNhan()
-                    + " " + view.tenKhachHang() + " " + view.bienSo());
-            if (!combined.contains(this.chuanHoa(filter.timNhanh()))) {
-                return false;
-            }
-        }
-        return true;
+    for (ChiTietHoaDon ct : chiTiets) {
+      if (ct == null || ct.getMaSanPham() == null || ct.getMaSanPham().isBlank()
+              || ct.getLoaiSanPham() == null) {
+        throw new IllegalArgumentException(ERROR_SAN_PHAM);
+      }
+      if (ct.getSoLuong() <= 0) {
+        throw new IllegalArgumentException(ERROR_SO_LUONG);
+      }
+      if (ct.getDonGia() == null || !Double.isFinite(ct.getDonGia()) || ct.getDonGia() < 0) {
+        throw new IllegalArgumentException(ERROR_DON_GIA);
+      }
     }
-
-    private boolean containsText(String filterValue, String value) {
-        if (filterValue == null || filterValue.isBlank()) {
-            return true;
-        }
-        return this.chuanHoa(value).contains(this.chuanHoa(filterValue));
-    }
-
-    private String chuanHoa(String value) {
-        return TextNormalizerUtil.normalize(value);
-    }
-
-    private void validateChiTiet(List<ChiTietHoaDon> chiTiets) {
-        if (chiTiets == null || chiTiets.isEmpty()) {
-            throw new IllegalArgumentException(ERROR_CHI_TIET_TRONG);
-        }
-        for (ChiTietHoaDon ct : chiTiets) {
-            if (ct == null || ct.getMaSanPham() == null || ct.getMaSanPham().isBlank()
-                    || ct.getLoaiSanPham() == null) {
-                throw new IllegalArgumentException(ERROR_SAN_PHAM);
-            }
-            if (ct.getSoLuong() <= 0) {
-                throw new IllegalArgumentException(ERROR_SO_LUONG);
-            }
-            if (ct.getDonGia() == null || !Double.isFinite(ct.getDonGia()) || ct.getDonGia() < 0) {
-                throw new IllegalArgumentException(ERROR_DON_GIA);
-            }
-        }
-    }
+  }
 }

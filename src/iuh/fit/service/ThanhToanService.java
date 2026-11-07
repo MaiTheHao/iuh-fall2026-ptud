@@ -9,6 +9,7 @@ import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.ThanhToan;
 import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.PhuongThucThanhToan;
+import iuh.fit.util.TinhTienUtil;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -37,11 +38,16 @@ public class ThanhToanService {
     }
 
     LocalDateTime now = LocalDateTime.now();
-    Double mucGiamChot = hoaDon.getMucGiamApDung();
-    if (mucGiamChot == null && hoaDon.getVoucher() != null) {
+    double mucGiamChot;
+    if (hoaDon.getMucGiamApDung() != null) {
+      mucGiamChot = TinhTienUtil.mucGiam(hoaDon.getMucGiamApDung());
+    } else if (hoaDon.getVoucher() != null) {
       mucGiamChot = this.hoaDonService.tinhMucGiam(hoaDon);
+    } else {
+      mucGiamChot = 0.0;
     }
-    BigDecimal soTien = BigDecimal.valueOf(this.hoaDonService.tinhTongTien(hoaDon));
+    double tongGoc = this.hoaDonService.tinhTongTienGoc(hoaDon);
+    BigDecimal soTien = TinhTienUtil.thucThu(tongGoc, mucGiamChot);
     NhanVien nhanVien = AppContext.getInstance().getCurrentUser();
     String ghiChuChuan = ghiChu == null || ghiChu.isBlank() ? null : ghiChu.trim();
 
