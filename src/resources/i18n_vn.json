@@ -369,6 +369,23 @@
 			"themTitle": "Thêm dịch vụ",
 			"suaTitle": "Cập nhật dịch vụ"
 		},
+		"thanhToan": {
+		    "dialogTitle": "Thanh toán hóa đơn",
+		    "phuongThuc": "Phương thức thanh toán",
+		    "soTien": "Số tiền thanh toán",
+		    "noiDung": "Nội dung chuyển khoản",
+		    "dangTaoQr": "Đang tạo mã QR...",
+		    "qrLoi": "Không thể tạo mã QR. Vui lòng chuyển khoản theo thông tin bên dưới.",
+		    "xacNhan": "Xác nhận thanh toán",
+		    "huy": "Hủy",
+		    "phuongThuc": {
+		        "chuyenKhoan": "Chuyển khoản",
+		        "tienMat": "Tiền mặt"
+		    },
+		    "nganHang": "Ngân hàng / BIN",
+		    "soTaiKhoan": "Số tài khoản",
+		    "tenChuTaiKhoan": "Tên chủ tài khoản"
+		},
 		"phieuTiepNhan": {
 			"ma": "Mã Tiếp Nhận",
 			"thoiGianVao": "Thời Gian Vào",

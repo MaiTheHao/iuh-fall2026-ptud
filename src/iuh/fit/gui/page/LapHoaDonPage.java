@@ -9,6 +9,7 @@ import iuh.fit.entity.ChiTietHoaDon;
 import iuh.fit.entity.DichVu;
 import iuh.fit.entity.HoaDon;
 import iuh.fit.entity.PhuTung;
+import iuh.fit.entity.ThanhToan;
 import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.MenuGroup;
@@ -19,6 +20,7 @@ import iuh.fit.gui.component.ChonDichVuDialog;
 import iuh.fit.gui.component.ChonPhuTungDialog;
 import iuh.fit.gui.component.ComboTimKiem;
 import iuh.fit.gui.component.ManagementFormPanel;
+import iuh.fit.gui.component.ThanhToanDialog;
 import iuh.fit.gui.component.ThaoTac;
 import iuh.fit.gui.component.ThaoTacTableCellRenderer;
 import iuh.fit.gui.component.ThongBao;
@@ -26,7 +28,9 @@ import iuh.fit.service.DichVuService;
 import iuh.fit.service.HoaDonService;
 import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.service.PhuTungService;
+import iuh.fit.service.ThanhToanService;
 import iuh.fit.service.VoucherService;
+import iuh.fit.service.ThanhToanService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
@@ -58,6 +62,7 @@ public class LapHoaDonPage extends AbstractPage {
 	private final VoucherService voucherService = new VoucherService();
 	private final DichVuService dichVuService = new DichVuService();
 	private final PhuTungService phuTungService = new PhuTungService();
+	private final ThanhToanService thanhToanService = new ThanhToanService();
 
 	private final DecimalFormat currencyFormat = new DecimalFormat("#,##0");
 
@@ -627,8 +632,11 @@ public class LapHoaDonPage extends AbstractPage {
 	private String dinhDangTien(Double gia) {
 		return this.currencyFormat.format(gia == null ? 0.0 : gia);
 	}
-
 	private boolean luuHoaDon() {
+	    return this.luuHoaDon(true);
+	}
+
+	private boolean luuHoaDon(boolean dieuHuongSauKhiLuu) {
 		if (!this.choPhepSua()) {
 			ThongBao.canhBao(this, "app.hoaDon.loiTrangThai");
 			return false;
@@ -666,7 +674,11 @@ public class LapHoaDonPage extends AbstractPage {
 					new ArrayList<>(this.chiTiets));
 			this.taiHoaDon(hoaDon);
 			ThongBao.thongTin(this, "app.common.create_succeed");
-			this.goTo(QuanLyHoaDonPage.class);
+
+			if (dieuHuongSauKhiLuu) {
+			    this.goTo(QuanLyHoaDonPage.class);
+			}
+
 			return true;
 		} catch (IllegalArgumentException | IllegalStateException e) {
 			ThongBao.loi(this, e);
@@ -740,29 +752,55 @@ public class LapHoaDonPage extends AbstractPage {
 		}
 	}
 
-	private void thanhToan() {
-		if (this.maHoaDonHienTai == null) {
-			if (!this.luuHoaDon()) {
-				return;
-			}
-		} else if (!this.capNhatHoaDon(false)) {
-			return;
-		}
-		if (!ThongBao.xacNhan(this, "app.hoaDon.xacNhanThanhToan", "app.common.notification")) {
-			return;
-		}
-		try {
-			HoaDon hoaDon = this.hoaDonService.thanhToan(this.maHoaDonHienTai);
-			this.trangThaiHienTai = hoaDon.getTrangThaiHoaDon();
-			this.capNhatQuyen();
-			ThongBao.thongTin(this, "app.common.update_succeed");
-		} catch (IllegalArgumentException | IllegalStateException e) {
-			ThongBao.loi(this, e);
-		} catch (SQLException e) {
-			ThongBao.loi(this, "app.login.errorSystem");
-		}
-	}
+private void thanhToan() {
+    if (this.maHoaDonHienTai == null) {
+        if (!this.luuHoaDon(false)) {
+            return;
+        }
+    } else if (!this.capNhatHoaDon(false)) {
+        return;
+    }
 
+    double tongTien = this.hoaDonService.tinhTongTien(
+            this.chiTiets,
+            this.voucherDangChon
+    );
+
+    long soTienThanhToan = Math.round(tongTien);
+
+    ThanhToanDialog dlgThanhToan = new ThanhToanDialog(
+            SwingUtilities.getWindowAncestor(this),
+            soTienThanhToan,
+            this.maHoaDonHienTai
+    );
+
+    dlgThanhToan.setVisible(true);
+
+    if (!dlgThanhToan.duocXacNhan()) {
+        return;
+    }
+
+    try {
+        ThanhToan ketQuaThanhToan = this.thanhToanService.thanhToan(
+                this.maHoaDonHienTai,
+                dlgThanhToan.phuongThuc(),
+                null
+        );
+
+        HoaDon hoaDon = this.hoaDonService.getById(
+                this.maHoaDonHienTai
+        );
+
+        this.taiHoaDon(hoaDon);
+
+        ThongBao.thongTin(this, "app.common.update_succeed");
+
+    } catch (IllegalArgumentException | IllegalStateException e) {
+        ThongBao.loi(this, e);
+    } catch (SQLException e) {
+        ThongBao.loi(this, "app.login.errorSystem");
+    }
+}
 	@Override
 	public String getTitleKey() {
 		return "app.menu.invoices";

@@ -615,6 +615,24 @@
 			"xacNhanBoThayDoi": "You have unsaved diagnosis changes. Discard them?",
 			"tieuDeBoThayDoi": "Discard diagnosis changes"
 		},
+		"thanhToan": {
+		    "dialogTitle": "Invoice Payment",
+		    "phuongThuc": "Payment Method",
+		    "soTien": "Payment Amount",
+		    "noiDung": "Transfer Content",
+		    "dangTaoQr": "Generating QR code...",
+		    "qrLoi": "Unable to generate QR code. Please use the displayed QR image or pay in cash.",
+		    "xacNhan": "Confirm Payment",
+		    "huy": "Cancel",
+		    "nganHang": "Bank / BIN",
+		    "soTaiKhoan": "Account Number",
+		    "tenChuTaiKhoan": "Account Holder",
+		    "hoaDonDaThanhToan": "This invoice has already been paid or is no longer awaiting payment.",
+		    "phuongThuc": {
+		        "chuyenKhoan": "Bank Transfer (QR)",
+		        "tienMat": "Cash"
+		    }
+		},
 		"hoaDon": {
 			"danhSachTitle": "Invoice List",
 			"thongTinTitle": "Invoice Details",
