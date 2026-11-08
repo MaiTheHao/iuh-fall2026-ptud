@@ -628,10 +628,11 @@
 			"soTaiKhoan": "Account Number",
 			"tenChuTaiKhoan": "Account Holder",
 			"hoaDonDaThanhToan": "This invoice has already been paid or is no longer awaiting payment.",
-			"phuongThuc": {
+			"phuongThucThanhToan": {
 				"chuyenKhoan": "Bank Transfer (QR)",
 				"tienMat": "Cash"
-			}
+			},
+			"ghiChu": "Payment note"
 		},
 		"hoaDon": {
 			"danhSachTitle": "Invoice List",

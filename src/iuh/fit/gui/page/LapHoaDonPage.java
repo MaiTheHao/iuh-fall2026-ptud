@@ -784,7 +784,7 @@ private void thanhToan() {
         ThanhToan ketQuaThanhToan = this.thanhToanService.thanhToan(
                 this.maHoaDonHienTai,
                 dlgThanhToan.phuongThuc(),
-                null
+                dlgThanhToan.ghiChu()
         );
 
         HoaDon hoaDon = this.hoaDonService.getById(

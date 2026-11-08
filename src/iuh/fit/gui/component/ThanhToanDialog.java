@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
@@ -54,6 +55,8 @@ public class ThanhToanDialog extends JDialog {
 	private final JLabel lblSoTaiKhoan = new JLabel();
 	private final JLabel lblTenChuTaiKhoan = new JLabel();
 
+	private final JTextField txtGhiChu;
+
 	private final JPanel pnlKhuVucQr;
 
 	private SwingWorker<BufferedImage, Void> qrWorker;
@@ -66,10 +69,11 @@ public class ThanhToanDialog extends JDialog {
 
 		this.soTien = soTien;
 		this.noiDungChuyenKhoan = taoNoiDungChuyenKhoan(maHoaDon);
+		this.txtGhiChu = new JTextField(24);
 
-		this.rdoChuyenKhoan = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThuc.chuyenKhoan"));
+		this.rdoChuyenKhoan = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.chuyenKhoan"));
 
-		this.rdoTienMat = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThuc.tienMat"));
+		this.rdoTienMat = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.tienMat"));
 
 		this.lblAnhQr = new JLabel("", SwingConstants.CENTER);
 		this.lblTrangThaiQr = new JLabel("", SwingConstants.CENTER);
@@ -85,6 +89,17 @@ public class ThanhToanDialog extends JDialog {
 
 	public PhuongThucThanhToan phuongThuc() {
 		return this.rdoChuyenKhoan.isSelected() ? PhuongThucThanhToan.CHUYEN_KHOAN : PhuongThucThanhToan.TIEN_MAT;
+	}
+	public String ghiChu() {
+	    if (!this.rdoChuyenKhoan.isSelected()) {
+	        return null;
+	    }
+
+	    String ghiChu = this.txtGhiChu.getText();
+
+	    return ghiChu == null || ghiChu.isBlank()
+	            ? null
+	            : ghiChu.trim();
 	}
 
 	private JPanel taoThongTinChuyenKhoan() {
@@ -112,6 +127,16 @@ public class ThanhToanDialog extends JDialog {
 	            taoDongThongTin("app.thanhToan.noiDung",
 	                    this.noiDungChuyenKhoan,
 	                    new JLabel()));
+	    JPanel pnlGhiChu = new JPanel(new BorderLayout(8, 0));
+	    pnlGhiChu.setOpaque(false);
+
+	    JLabel lblGhiChu = new JLabel(
+	            I18nReaderUtil.get("app.thanhToan.ghiChu"));
+
+	    pnlGhiChu.add(lblGhiChu, BorderLayout.WEST);
+	    pnlGhiChu.add(this.txtGhiChu, BorderLayout.CENTER);
+
+	    pnlThongTinChuyenKhoan.add(pnlGhiChu);
 
 	    return pnlThongTinChuyenKhoan;
 	}

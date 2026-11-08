@@ -378,13 +378,15 @@
 		    "qrLoi": "Không thể tạo mã QR. Vui lòng chuyển khoản theo thông tin bên dưới.",
 		    "xacNhan": "Xác nhận thanh toán",
 		    "huy": "Hủy",
-		    "phuongThuc": {
-		        "chuyenKhoan": "Chuyển khoản",
+		    "phuongThucThanhToan": {
+		        "chuyenKhoan": "Chuyển khoản (QR)",
 		        "tienMat": "Tiền mặt"
 		    },
 		    "nganHang": "Ngân hàng / BIN",
 		    "soTaiKhoan": "Số tài khoản",
-		    "tenChuTaiKhoan": "Tên chủ tài khoản"
+		    "tenChuTaiKhoan": "Tên chủ tài khoản",
+			"ghiChu": "Ghi chú thanh toán",
+			"hoaDonDaThanhToan": "Hóa đơn này đã được thanh toán hoặc không còn ở trạng thái chờ thanh toán."
 		},
 		"phieuTiepNhan": {
 			"ma": "Mã Tiếp Nhận",
