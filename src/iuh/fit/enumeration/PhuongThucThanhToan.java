@@ -4,13 +4,13 @@ public enum PhuongThucThanhToan implements I18nEnum {
   CHUYEN_KHOAN {
     @Override
     public String getI18nKey() {
-      return "app.thanhToan.phuongThuc.chuyenKhoan";
+      return "app.thanhToan.phuongThucThanhToan.chuyenKhoan";
     }
   },
   TIEN_MAT {
     @Override
     public String getI18nKey() {
-      return "app.thanhToan.phuongThuc.tienMat";
+      return "app.thanhToan.phuongThucThanhToan.tienMat";
     }
   }
 }

@@ -35,7 +35,7 @@ public final class InHoaDonUtil {
         BufferedImage hinhHoaDon;
 
         try {
-            hinhHoaDon = HoaDonRenderer.xemTruoc(data);
+        	hinhHoaDon = HoaDonRenderer.taoAnhIn(data);
         } catch (IllegalArgumentException ex) {
             ThongBao.loi(parent, ex);
             return;
@@ -57,7 +57,7 @@ public final class InHoaDonUtil {
         }
     }
 
-    private static Printable taoNoiDungIn(BufferedImage hinhHoaDon) {
+    public static Printable taoNoiDungIn(BufferedImage hinhHoaDon) {
         return (Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
             if (pageIndex > 0) {
                 return Printable.NO_SUCH_PAGE;

@@ -691,7 +691,7 @@
 			"chuaChonDong": "Please select an invoice.",
 			"inLoi": "Unable to print the invoice.",
 			"xuatThanhCong": "Invoice exported successfully.",
-			"xuatLoi": "Unable to export the invoice to Excel.",
+			"xuatLoi": "Unable to export the invoice to Excel. Please close any open Excel file or check file write permissions, then try again.",
 			"xemTruoc": "Preview invoice",
 			"in": {
 				"tieuDe": "PAYMENT INVOICE",
@@ -716,7 +716,8 @@
 				"soTienThanhToan": "Payment amount",
 				"ghiChu": "Note",
 				"donViTienTe": "VND",
-				"duLieuKhongHopLe": "Invalid invoice data"
+				"duLieuKhongHopLe": "Invalid invoice data",
+				"nhanVienPhuTrach": "Responsible employee"
 			}
 		},
 		"schedule": {

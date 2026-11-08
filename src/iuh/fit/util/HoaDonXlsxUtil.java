@@ -152,6 +152,18 @@ public final class HoaDonXlsxUtil {
                 I18nReaderUtil.get("app.hoaDon.in.bienSo"),
                 giaTri(data.phieuTiepNhan().getBienSo()));
 
+        var nhanVien = data.phieuTiepNhan().getNhanVien();
+
+        ghiNhanVaGiaTri(
+                worksheet,
+                dong++,
+                0,
+                I18nReaderUtil.get(
+                        "app.hoaDon.in.nhanVienPhuTrach"),
+                giaTri(nhanVien == null
+                        ? null
+                        : nhanVien.getHoTen()));
+
         return dong + 1;
     }
 
@@ -204,7 +216,7 @@ public final class HoaDonXlsxUtil {
                 worksheet,
                 dong++,
                 I18nReaderUtil.get("app.hoaDon.in.giamGia"),
-                data.mucGiam());
+                data.soTienGiam().doubleValue());
 
         ghiNhanVaTien(
                 worksheet,
@@ -254,7 +266,10 @@ public final class HoaDonXlsxUtil {
                 dong++,
                 0,
                 I18nReaderUtil.get("app.hoaDon.in.phuongThuc"),
-                giaTri(thanhToan.getPhuongThuc()));
+                thanhToan.getPhuongThuc() == null
+                        ? ""
+                        : I18nReaderUtil.get(
+                                thanhToan.getPhuongThuc().getI18nKey()));
 
         ghiNhanVaGiaTri(
                 worksheet,

@@ -1,4 +1,3 @@
-
 package iuh.fit.util;
 
 import iuh.fit.dto.DanhSachDichVuCriteria;
@@ -20,6 +19,7 @@ import iuh.fit.service.PhuTungService;
 import iuh.fit.service.ThanhToanService;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +32,7 @@ public record HoaDonInData(
         List<DongIn> danhSachDong,
         double tongGoc,
         double mucGiam,
+        BigDecimal soTienGiam,
         BigDecimal thucThu,
         Optional<ThanhToan> thanhToan) {
 
@@ -41,25 +42,25 @@ public record HoaDonInData(
     private static final int TRANG_DICH_VU_MAC_DINH = 1;
     private static final int SO_DICH_VU_TOI_DA = 10000;
 
-    private static HoaDonService hoaDonService =
+    private static final HoaDonService hoaDonService =
             new HoaDonService();
 
-    private static PhieuTiepNhanService phieuTiepNhanService =
+    private static final PhieuTiepNhanService phieuTiepNhanService =
             new PhieuTiepNhanService();
 
-    private static KhachHangService khachHangService =
+    private static final KhachHangService khachHangService =
             new KhachHangService();
 
-    private static NhanVienService nhanVienService =
+    private static final NhanVienService nhanVienService =
             new NhanVienService();
 
-    private static PhuTungService phuTungService =
+    private static final PhuTungService phuTungService =
             new PhuTungService();
 
-    private static DichVuService dichVuService =
+    private static final DichVuService dichVuService =
             new DichVuService();
 
-    private static ThanhToanService thanhToanService =
+    private static final ThanhToanService thanhToanService =
             new ThanhToanService();
 
     public HoaDonInData {
@@ -93,6 +94,7 @@ public record HoaDonInData(
         if (phieu == null) {
             throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
         }
+
         if (phieu.getKhachHang() != null
                 && phieu.getKhachHang().getMaKhachHang() != null) {
 
@@ -101,6 +103,7 @@ public record HoaDonInData(
 
             phieu.setKhachHang(khachHang);
         }
+
         if (phieu.getNhanVien() != null
                 && phieu.getNhanVien().getMaNhanVien() != null) {
 
@@ -109,6 +112,7 @@ public record HoaDonInData(
 
             phieu.setNhanVien(nhanVien);
         }
+
         Map<String, String> tenPhuTungTheoMa = new HashMap<>();
 
         for (PhuTung phuTung : phuTungService.getAllForSelection()) {
@@ -146,11 +150,17 @@ public record HoaDonInData(
         double tongGoc = TinhTienUtil.tongGoc(
                 hoaDon.getDanhSachChiTietHoaDon());
 
-        double mucGiam = hoaDonService.tinhMucGiam(hoaDon);
+        double mucGiam = TinhTienUtil.mucGiam(
+                hoaDonService.tinhMucGiam(hoaDon));
 
         BigDecimal thucThu = TinhTienUtil.thucThu(
                 tongGoc,
                 mucGiam);
+
+        BigDecimal soTienGiam = BigDecimal.valueOf(tongGoc)
+                .setScale(2, RoundingMode.HALF_UP)
+                .subtract(thucThu)
+                .max(BigDecimal.ZERO);
 
         Optional<ThanhToan> thanhToan =
                 thanhToanService.timTheoHoaDon(maHoaDon);
@@ -161,6 +171,7 @@ public record HoaDonInData(
                 danhSachDong,
                 tongGoc,
                 mucGiam,
+                soTienGiam,
                 thucThu,
                 thanhToan);
     }

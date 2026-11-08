@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.BorderLayout;
@@ -39,6 +40,7 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
+import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -47,9 +49,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 public class QuanLyHoaDonPage extends AbstractPage {
-
 
 	private static final int CHIEU_CAO_CHI_TIET = 800;
 
@@ -84,27 +86,19 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		this.pnlDanhSach = panel;
 		panel.setListTitle("app.hoaDon.danhSachTitle");
 		panel.enableMultiSelection(true);
-		panel.setHeaders(
-				"#",
-				I18nReaderUtil.get("app.hoaDon.maHoaDon"),
-				I18nReaderUtil.get("app.hoaDon.maPhieuTiepNhan"),
-				I18nReaderUtil.get("app.khachHang.hoTen"),
-				I18nReaderUtil.get("app.xe.bienSo"),
-				I18nReaderUtil.get("app.hoaDon.ngayTao"),
-				I18nReaderUtil.get("app.hoaDon.trangThai"),
-				I18nReaderUtil.get("app.hoaDon.tongTien"));
+		panel.setHeaders("#", I18nReaderUtil.get("app.hoaDon.maHoaDon"),
+				I18nReaderUtil.get("app.hoaDon.maPhieuTiepNhan"), I18nReaderUtil.get("app.khachHang.hoTen"),
+				I18nReaderUtil.get("app.xe.bienSo"), I18nReaderUtil.get("app.hoaDon.ngayTao"),
+				I18nReaderUtil.get("app.hoaDon.trangThai"), I18nReaderUtil.get("app.hoaDon.tongTien"));
 
 		panel.addActionColumn("app.common.actions",
-				new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG,
-						row -> this.moHoaDon(row)),
-				new ThaoTac("eye", "app.common.view", ThaoTac.KieuThaoTac.THUONG,
-						row -> this.xemChiTiet(row)),
+				new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG, row -> this.moHoaDon(row)),
+				new ThaoTac("eye", "app.common.view", ThaoTac.KieuThaoTac.THUONG, row -> this.xemChiTiet(row)),
 				new ThaoTac("trash-2", "app.hoaDon.huyHoaDon", ThaoTac.KieuThaoTac.NGUY_HIEM,
 						row -> this.huyHoaDon(panel, row)));
 
 		panel.setAddAction("app.hoaDon.taoMoi", () -> this.goTo(LapHoaDonPage.class));
-		panel.setBatchAction("app.hoaDon.batch_huy", "trash-2", ThaoTac.KieuThaoTac.NGUY_HIEM,
-				this::huyNhieu);
+		panel.setBatchAction("app.hoaDon.batch_huy", "trash-2", ThaoTac.KieuThaoTac.NGUY_HIEM, this::huyNhieu);
 		panel.setRowDoubleClickListener(this::xemChiTiet);
 
 		this.txtBoLocMaHoaDon = panel.addTextFilter("app.hoaDon.maHoaDon");
@@ -148,34 +142,21 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		}
 
 		try {
-			DanhSachHoaDonCriteria tieuChi = new DanhSachHoaDonCriteria(
-					this.txtBoLocMaHoaDon.getText(),
-					this.txtBoLocMaPhieu.getText(),
-					this.txtBoLocKhachHang.getText(),
+			DanhSachHoaDonCriteria tieuChi = new DanhSachHoaDonCriteria(this.txtBoLocMaHoaDon.getText(),
+					this.txtBoLocMaPhieu.getText(), this.txtBoLocKhachHang.getText(),
 					this.boLocTrangThai.giaTri() instanceof TrangThaiHoaDon value ? value : null,
-					this.boLocNgayTao.tuNgay(),
-					this.boLocNgayTao.denNgay(),
-					tienTu,
-					tienDen,
-					panel.getQuickFilter(),
-					Math.max(page, 1),
-					UiConstants.SO_DONG_MOI_TRANG);
+					this.boLocNgayTao.tuNgay(), this.boLocNgayTao.denNgay(), tienTu, tienDen, panel.getQuickFilter(),
+					Math.max(page, 1), UiConstants.SO_DONG_MOI_TRANG);
 
 			PaginatedResult<HoaDonView> ketQua = this.hoaDonService.search(tieuChi);
 
 			List<Object[]> rows = new ArrayList<>(ketQua.items().size());
 			int stt = ketQua.fromIndex();
 			for (HoaDonView view : ketQua.items()) {
-				rows.add(new Object[] {
-						stt++,
-						view.maHoaDon(),
-						view.maPhieuTiepNhan(),
-						view.tenKhachHang(),
-						view.bienSo(),
-						view.ngayTao() != null ? view.ngayTao().format(this.dateTimeFormat) : "",
+				rows.add(new Object[] { stt++, view.maHoaDon(), view.maPhieuTiepNhan(), view.tenKhachHang(),
+						view.bienSo(), view.ngayTao() != null ? view.ngayTao().format(this.dateTimeFormat) : "",
 						view.trangThai() == null ? "" : view.trangThai().getI18NBusinessName(),
-						this.currencyFormat.format(view.tongTien())
-				});
+						this.currencyFormat.format(view.tongTien()) });
 			}
 
 			this.danhSachHienTai = ketQua.items();
@@ -208,13 +189,8 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		HoaDonChiTietFormPanel form = new HoaDonChiTietFormPanel();
 		form.napDuLieu(this.danhSachHienTai.get(row));
 
-		BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(
-				SwingUtilities.getWindowAncestor(this),
-				"app.hoaDon.thongTinTitle",
-				form,
-				null,
-				CHIEU_CAO_CHI_TIET,
-				true));
+		BaseFormDialog dialog = new BaseFormDialog(new BaseFormDialogConfig(SwingUtilities.getWindowAncestor(this),
+				"app.hoaDon.thongTinTitle", form, null, CHIEU_CAO_CHI_TIET, true));
 		dialog.showAndGet();
 	}
 
@@ -279,10 +255,7 @@ public class QuanLyHoaDonPage extends AbstractPage {
 			return;
 		}
 
-		if (!ThongBao.xacNhanDinhDang(this,
-				"app.hoaDon.batch_huy_confirm",
-				"app.common.confirm",
-				soLuong)) {
+		if (!ThongBao.xacNhanDinhDang(this, "app.hoaDon.batch_huy_confirm", "app.common.confirm", soLuong)) {
 			return;
 		}
 
@@ -315,146 +288,304 @@ public class QuanLyHoaDonPage extends AbstractPage {
 
 		this.taiLai(this.pnlDanhSach, this.trang);
 	}
-	
+
 	private JPanel taoThanhCongCu(ManagementPanel panel) {
-	    JPanel pnlCongCu = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 6));
+		JPanel pnlCongCu = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 6));
 
-	    JButton btnInHoaDon = new JButton(
-	            I18nReaderUtil.get("app.hoaDon.inHoaDon"));
+		JButton btnInHoaDon = new JButton(I18nReaderUtil.get("app.hoaDon.inHoaDon"));
 
-	    JButton btnXuatExcel = new JButton(
-	            I18nReaderUtil.get("app.hoaDon.xuatHoaDon"));
+		JButton btnXuatExcel = new JButton(I18nReaderUtil.get("app.hoaDon.xuatHoaDon"));
 
-	    btnInHoaDon.addActionListener(e -> this.inHoaDon(panel));
-	    btnXuatExcel.addActionListener(e -> this.xuatHoaDon(panel));
-	    JButton btnXemTruoc = new JButton(
-	            I18nReaderUtil.get("app.hoaDon.xemTruoc"));
+		btnInHoaDon.addActionListener(e -> this.inHoaDon(panel, btnInHoaDon));
+		btnXuatExcel.addActionListener(e -> this.xuatHoaDon(panel, btnXuatExcel));
+		JButton btnXemTruoc = new JButton(I18nReaderUtil.get("app.hoaDon.xemTruoc"));
 
-	    btnXemTruoc.addActionListener(e -> this.xemTruocHoaDon(panel));
+		btnXemTruoc.addActionListener(e -> this.xemTruocHoaDon(panel));
 
-	    pnlCongCu.add(btnXemTruoc);
-	    pnlCongCu.add(btnInHoaDon);
-	    pnlCongCu.add(btnXuatExcel);
-	  
+		pnlCongCu.add(btnXemTruoc);
+		pnlCongCu.add(btnInHoaDon);
+		pnlCongCu.add(btnXuatExcel);
 
-	    return pnlCongCu;
+		return pnlCongCu;
 	}
-	
+
 	private HoaDonView layHoaDonDuocChon(ManagementPanel panel) {
-	    int dongView = panel.getSelectedRow();
+		int dongView = panel.getSelectedRow();
 
-	    if (dongView < 0) {
-	        ThongBao.canhBao(this, "app.hoaDon.chuaChonDong");
-	        return null;
-	    }
+		if (dongView < 0) {
+			ThongBao.canhBao(this, "app.hoaDon.chuaChonDong");
+			return null;
+		}
 
-	    int dongModel = panel.getTable()
-	            .convertRowIndexToModel(dongView);
+		int dongModel = panel.getTable().convertRowIndexToModel(dongView);
 
-	    if (dongModel < 0 || dongModel >= this.danhSachHienTai.size()) {
-	        ThongBao.canhBao(this, "app.hoaDon.chuaChonDong");
-	        return null;
-	    }
+		if (dongModel < 0 || dongModel >= this.danhSachHienTai.size()) {
+			ThongBao.canhBao(this, "app.hoaDon.chuaChonDong");
+			return null;
+		}
 
-	    return this.danhSachHienTai.get(dongModel);
+		return this.danhSachHienTai.get(dongModel);
 	}
-	
-	private void inHoaDon(ManagementPanel panel) {
-	    HoaDonView hoaDon = this.layHoaDonDuocChon(panel);
 
-	    if (hoaDon == null) {
-	        return;
-	    }
+	private void inHoaDon(
+        ManagementPanel panel,
+        JButton btnInHoaDon) {
 
-	    try {
-	        HoaDonInData duLieuIn = HoaDonInData.tao(hoaDon.maHoaDon());
-	        InHoaDonUtil.in(this, duLieuIn);
-	    } catch (IllegalArgumentException e) {
-	        ThongBao.loi(this, e);
-	    } catch (SQLException e) {
-	        ThongBao.loi(this, "app.login.errorSystem");
-	    }
+    HoaDonView hoaDon = this.layHoaDonDuocChon(panel);
+
+    if (hoaDon == null) {
+        return;
+    }
+
+    btnInHoaDon.setEnabled(false);
+
+    SwingWorker<BufferedImage, Void> worker =
+            new SwingWorker<>() {
+
+        @Override
+        protected BufferedImage doInBackground() throws Exception {
+
+            HoaDonInData duLieuIn =
+                    HoaDonInData.tao(hoaDon.maHoaDon());
+
+            return HoaDonRenderer.taoAnhIn(duLieuIn);
+        }
+
+        @Override
+        protected void done() {
+
+            BufferedImage hinhHoaDon;
+
+            try {
+                hinhHoaDon = get();
+
+            } catch (InterruptedException e) {
+
+                Thread.currentThread().interrupt();
+
+                ThongBao.loi(
+                        QuanLyHoaDonPage.this,
+                        "app.login.errorSystem");
+
+                btnInHoaDon.setEnabled(true);
+                return;
+
+            } catch (ExecutionException e) {
+
+                Throwable nguyenNhan = e.getCause();
+
+                if (nguyenNhan instanceof SQLException) {
+
+                    ThongBao.loi(
+                            QuanLyHoaDonPage.this,
+                            "app.login.errorSystem");
+
+                } else if (nguyenNhan instanceof IllegalArgumentException loi) {
+
+                    ThongBao.loi(
+                            QuanLyHoaDonPage.this,
+                            loi);
+
+                } else {
+
+                    ThongBao.loi(
+                            QuanLyHoaDonPage.this,
+                            "app.hoaDon.inLoi");
+                }
+
+                btnInHoaDon.setEnabled(true);
+                return;
+            }
+
+            if (PrinterJob.lookupPrintServices().length == 0) {
+
+                ThongBao.loi(
+                        QuanLyHoaDonPage.this,
+                        "app.hoaDon.inLoi");
+
+                btnInHoaDon.setEnabled(true);
+                return;
+            }
+
+            PrinterJob printerJob = PrinterJob.getPrinterJob();
+
+            printerJob.setPrintable(
+                    InHoaDonUtil.taoNoiDungIn(hinhHoaDon));
+
+            if (!printerJob.printDialog()) {
+
+                btnInHoaDon.setEnabled(true);
+                return;
+            }
+
+            SwingWorker<Void, Void> workerIn =
+                    new SwingWorker<>() {
+
+                @Override
+                protected Void doInBackground() throws Exception {
+
+                    printerJob.print();
+
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+
+                    try {
+                        get();
+
+                    } catch (InterruptedException e) {
+
+                        Thread.currentThread().interrupt();
+
+                        ThongBao.loi(
+                                QuanLyHoaDonPage.this,
+                                "app.hoaDon.inLoi");
+
+                    } catch (ExecutionException e) {
+
+                        ThongBao.loi(
+                                QuanLyHoaDonPage.this,
+                                "app.hoaDon.inLoi");
+
+                    } finally {
+
+                        btnInHoaDon.setEnabled(true);
+                    }
+                }
+            };
+
+            workerIn.execute();
+        }
+    };
+
+    worker.execute();
+}
+
+	private void xuatHoaDon(ManagementPanel panel, JButton btnXuatExcel) {
+
+		HoaDonView hoaDon = this.layHoaDonDuocChon(panel);
+
+		if (hoaDon == null) {
+			return;
+		}
+
+		JFileChooser fileChooser = new JFileChooser();
+
+		fileChooser.setDialogTitle(I18nReaderUtil.get("app.hoaDon.xuatHoaDon"));
+
+		fileChooser.setFileFilter(new FileNameExtensionFilter("Excel (*.xlsx)", "xlsx"));
+
+		fileChooser.setSelectedFile(new File("HoaDon-" + hoaDon.maHoaDon() + ".xlsx"));
+
+		int ketQua = fileChooser.showSaveDialog(this);
+
+		if (ketQua != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+
+		File tepXuat = fileChooser.getSelectedFile();
+		String tenTep = tepXuat.getName();
+
+		if (!tenTep.toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
+			tepXuat = new File(tepXuat.getParentFile(), tenTep + ".xlsx");
+		}
+
+		File tepCuoiCung = tepXuat;
+
+		btnXuatExcel.setEnabled(false);
+
+		SwingWorker<Void, Void> worker = new SwingWorker<>() {
+
+			@Override
+			protected Void doInBackground() throws Exception {
+
+				HoaDonInData duLieuIn = HoaDonInData.tao(hoaDon.maHoaDon());
+
+				HoaDonXlsxUtil.write(tepCuoiCung, duLieuIn);
+
+				return null;
+			}
+
+			@Override
+			protected void done() {
+
+				try {
+					get();
+
+					ThongBao.thongTin(QuanLyHoaDonPage.this, "app.hoaDon.xuatThanhCong");
+
+				} catch (InterruptedException e) {
+
+					Thread.currentThread().interrupt();
+
+					ThongBao.loi(QuanLyHoaDonPage.this, "app.login.errorSystem");
+
+				} catch (ExecutionException e) {
+
+					Throwable nguyenNhan = e.getCause();
+
+					if (nguyenNhan instanceof IllegalArgumentException loi) {
+
+						ThongBao.loi(QuanLyHoaDonPage.this, loi);
+
+					} else if (nguyenNhan instanceof SQLException) {
+
+						ThongBao.loi(QuanLyHoaDonPage.this, "app.login.errorSystem");
+
+					} else if (nguyenNhan instanceof IOException) {
+
+						ThongBao.loi(QuanLyHoaDonPage.this, "app.hoaDon.xuatLoi");
+
+					} else {
+
+						ThongBao.loi(QuanLyHoaDonPage.this, "app.login.errorSystem");
+					}
+
+				} finally {
+
+					btnXuatExcel.setEnabled(true);
+				}
+			}
+		};
+
+		worker.execute();
 	}
-	
-	private void xuatHoaDon(ManagementPanel panel) {
-	    HoaDonView hoaDon = this.layHoaDonDuocChon(panel);
 
-	    if (hoaDon == null) {
-	        return;
-	    }
-
-	    try {
-	        HoaDonInData duLieuIn = HoaDonInData.tao(hoaDon.maHoaDon());
-
-	        JFileChooser fileChooser = new JFileChooser();
-	        fileChooser.setDialogTitle(
-	                I18nReaderUtil.get("app.hoaDon.xuatHoaDon"));
-
-	        fileChooser.setFileFilter(
-	                new FileNameExtensionFilter("Excel (*.xlsx)", "xlsx"));
-
-	        fileChooser.setSelectedFile(
-	                new File("HoaDon-" + hoaDon.maHoaDon() + ".xlsx"));
-
-	        int ketQua = fileChooser.showSaveDialog(this);
-
-	        if (ketQua != JFileChooser.APPROVE_OPTION) {
-	            return;
-	        }
-
-	        File tepXuat = fileChooser.getSelectedFile();
-	        String tenTep = tepXuat.getName();
-
-	        if (!tenTep.toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
-	            tepXuat = new File(tepXuat.getParentFile(), tenTep + ".xlsx");
-	        }
-
-	        HoaDonXlsxUtil.write(tepXuat, duLieuIn);
-
-	        ThongBao.thongTin(this, "app.hoaDon.xuatThanhCong");
-
-	    } catch (IllegalArgumentException e) {
-	        ThongBao.loi(this, e);
-	    } catch (SQLException e) {
-	        ThongBao.loi(this, "app.login.errorSystem");
-	    } catch (IOException e) {
-	        ThongBao.loi(this, "app.hoaDon.xuatLoi");
-	    }
-	}
 	private void xemTruocHoaDon(ManagementPanel panel) {
-	    HoaDonView hoaDon = this.layHoaDonDuocChon(panel);
+		HoaDonView hoaDon = this.layHoaDonDuocChon(panel);
 
-	    if (hoaDon == null) {
-	        return;
-	    }
+		if (hoaDon == null) {
+			return;
+		}
 
-	    try {
-	        HoaDonInData duLieuIn = HoaDonInData.tao(hoaDon.maHoaDon());
+		try {
+			HoaDonInData duLieuIn = HoaDonInData.tao(hoaDon.maHoaDon());
 
-	        BufferedImage hinhHoaDon = HoaDonRenderer.xemTruoc(duLieuIn);
+			BufferedImage hinhHoaDon = HoaDonRenderer.xemTruoc(duLieuIn);
 
-	        JLabel lblHoaDon = new JLabel(new ImageIcon(hinhHoaDon));
-	        lblHoaDon.setHorizontalAlignment(JLabel.CENTER);
+			JLabel lblHoaDon = new JLabel(new ImageIcon(hinhHoaDon));
+			lblHoaDon.setHorizontalAlignment(JLabel.CENTER);
 
-	        JScrollPane scrHoaDon = new JScrollPane(lblHoaDon);
-	        scrHoaDon.setPreferredSize(new Dimension(650, 850));
+			JScrollPane scrHoaDon = new JScrollPane(lblHoaDon);
+			scrHoaDon.setPreferredSize(new Dimension(650, 850));
 
-	        JDialog dialog = new JDialog(
-	                SwingUtilities.getWindowAncestor(this),
-	                I18nReaderUtil.get("app.hoaDon.xemTruoc"),
-	                Dialog.ModalityType.APPLICATION_MODAL);
-	        dialog.setLayout(new BorderLayout());
-	        dialog.add(scrHoaDon, BorderLayout.CENTER);
-	        dialog.pack();
-	        dialog.setLocationRelativeTo(this);
-	        dialog.setVisible(true);
+			JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this),
+					I18nReaderUtil.get("app.hoaDon.xemTruoc"), Dialog.ModalityType.APPLICATION_MODAL);
+			dialog.setLayout(new BorderLayout());
+			dialog.add(scrHoaDon, BorderLayout.CENTER);
+			dialog.pack();
+			dialog.setLocationRelativeTo(this);
+			dialog.setVisible(true);
 
-	    } catch (IllegalArgumentException e) {
-	        ThongBao.loi(this, e);
-	    } catch (SQLException e) {
-	        ThongBao.loi(this, "app.login.errorSystem");
-	    }
+		} catch (IllegalArgumentException e) {
+			ThongBao.loi(this, e);
+		} catch (SQLException e) {
+			ThongBao.loi(this, "app.login.errorSystem");
+		}
 	}
+
 	@Override
 	public String getTitleKey() {
 		return "app.menu.invoiceManagement";

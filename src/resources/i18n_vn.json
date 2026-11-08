@@ -691,7 +691,7 @@
 			"chuaChonDong": "Vui lòng chọn hóa đơn cần thực hiện.",
 			"inLoi": "Không thể thực hiện in hóa đơn.",
 			"xuatThanhCong": "Xuất hóa đơn thành công.",
-			"xuatLoi": "Không thể xuất hóa đơn ra tệp Excel.",
+			"xuatLoi": "Không thể xuất hóa đơn Excel. Vui lòng đóng file Excel đang mở hoặc kiểm tra quyền ghi file, sau đó thử lại.",
 			"xemTruoc": "Xem trước hóa đơn",
 			"in": {
 			        "tieuDe": "HÓA ĐƠN THANH TOÁN",
@@ -716,7 +716,8 @@
 			        "soTienThanhToan": "Số tiền thanh toán",
 			        "ghiChu": "Ghi chú",
 			        "donViTienTe": "đ",
-			        "duLieuKhongHopLe": "Dữ liệu hóa đơn không hợp lệ"
+			        "duLieuKhongHopLe": "Dữ liệu hóa đơn không hợp lệ",
+					"nhanVienPhuTrach": "Nhân viên phụ trách"
 			      }
 		},
 		"schedule": {

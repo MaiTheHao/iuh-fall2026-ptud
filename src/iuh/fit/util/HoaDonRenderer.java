@@ -23,6 +23,10 @@ public final class HoaDonRenderer {
     private static final float LE_TRANG = 42.52f;
     private static final float CHIEU_RONG_NOI_DUNG =
             CHIEU_RONG_A4 - LE_TRANG * 2;
+    
+    private static final int DPI_IN = 300;
+    private static final double TI_LE_DPI =
+            DPI_IN / 72.0;
 
     private static final float CHIEU_CAO_DONG = 21f;
 
@@ -170,6 +174,19 @@ public final class HoaDonRenderer {
                 x,
                 y);
 
+        y += 18;
+
+        var nhanVien = phieuTiepNhan.getNhanVien();
+
+        veChu(
+                graphics,
+                layNhan("nhanVienPhuTrach") + ": "
+                        + giaTri(nhanVien == null
+                                ? null
+                                : nhanVien.getHoTen()),
+                x,
+                y);
+
         y += 22;
         veDuongKe(graphics, x, y, CHIEU_RONG_NOI_DUNG);
         y += 18;
@@ -220,11 +237,10 @@ public final class HoaDonRenderer {
 
         veChuPhai(
                 graphics,
-                dinhDangTien(data.mucGiam()) + " "
+                dinhDangTien(data.soTienGiam()) + " "
                         + layNhan("donViTienTe"),
                 cotGiaTri,
                 y);
-
         y += 25;
 
         graphics.setFont(FONT_TONG_TIEN);
@@ -276,7 +292,10 @@ public final class HoaDonRenderer {
         veChu(
                 graphics,
                 layNhan("phuongThuc") + ": "
-                        + giaTri(thanhToan.getPhuongThuc()),
+                        + (thanhToan.getPhuongThuc() == null
+                                ? ""
+                                : I18nReaderUtil.get(
+                                        thanhToan.getPhuongThuc().getI18nKey())),
                 x,
                 y);
 
@@ -517,6 +536,56 @@ public final class HoaDonRenderer {
         }
 
         return dauBaCham;
+    }
+    
+    public static BufferedImage taoAnhIn(HoaDonInData data) {
+        if (data == null
+                || data.hoaDon() == null
+                || data.phieuTiepNhan() == null) {
+            throw new IllegalArgumentException(
+                    I18nReaderUtil.get("app.hoaDon.in.duLieuKhongHopLe"));
+        }
+
+        int chieuRong = (int) Math.round(
+                CHIEU_RONG_A4 * TI_LE_DPI);
+
+        int chieuCao = (int) Math.round(
+                CHIEU_CAO_A4 * TI_LE_DPI);
+
+        BufferedImage image = new BufferedImage(
+                chieuRong,
+                chieuCao,
+                BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D graphics = image.createGraphics();
+
+        try {
+            graphics.setColor(java.awt.Color.WHITE);
+            graphics.fillRect(0, 0, chieuRong, chieuCao);
+
+            graphics.setColor(java.awt.Color.BLACK);
+
+            graphics.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+            graphics.setRenderingHint(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            graphics.setRenderingHint(
+                    RenderingHints.KEY_RENDERING,
+                    RenderingHints.VALUE_RENDER_QUALITY);
+
+            graphics.scale(TI_LE_DPI, TI_LE_DPI);
+
+            veHoaDon(graphics, data);
+
+        } finally {
+            graphics.dispose();
+        }
+
+        return image;
     }
 
     private static String layNhan(String key) {
