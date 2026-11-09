@@ -1,0 +1,32 @@
+package iuh.fit.enumeration;
+
+public enum ManHinh {
+    DANG_NHAP,
+    DASHBOARD,
+    KHACH_HANG,
+    XE,
+    DANH_MUC_XE,
+    NHAN_VIEN,
+    PHU_TUNG,
+    NHA_CUNG_CAP,
+    DICH_VU,
+    VOUCHER,
+    PHAN_CONG_CA,
+    LICH_CUA_TOI,
+    LICH_CUA_SHOP,
+    TIEP_NHAN_KHACH_HANG,
+    QUAN_LY_PHIEU_TIEP_NHAN,
+    BANG_CHAN_DOAN,
+    XEM_CHAN_DOAN,
+    TIEP_NHAN_KHIEU_NAI,
+    QUAN_LY_KHIEU_NAI,
+    QUAN_LY_CHAN_DOAN,
+    LAP_PHIEU_NHAP,
+    QUAN_LY_PHIEU_NHAP,
+    LAP_HOA_DON,
+    QUAN_LY_HOA_DON,
+    DOANH_THU,
+    TIEU_THU_PHU_TUNG,
+    TIEU_THU_DICH_VU,
+    DOI_MAT_KHAU
+}

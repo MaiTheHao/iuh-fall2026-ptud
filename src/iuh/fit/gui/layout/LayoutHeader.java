@@ -9,7 +9,7 @@ import iuh.fit.gui.Theme;
 import iuh.fit.gui.component.LucideIcon;
 import iuh.fit.gui.page.AbstractPage;
 import iuh.fit.gui.page.PageRegistry;
-import iuh.fit.gui.permission.VaiTroQuyen;
+import iuh.fit.service.PhanQuyenService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.AbstractButton;
@@ -43,6 +43,7 @@ public class LayoutHeader extends JMenuBar {
 	private static final int DO_DAY_CHI_BAO = 2;
 
 	private final PageRegistry registry;
+	private final PhanQuyenService phanQuyenService = new PhanQuyenService();
 	private final Map<Class<? extends AbstractPage>, JMenuItem> itemTheoTrang = new LinkedHashMap<>();
 	private final Map<MenuGroup, JMenu> menuTheoNhom = new EnumMap<>(MenuGroup.class);
 	private final List<JMenuItem> mucTrangChu = new ArrayList<>();
@@ -85,7 +86,7 @@ public class LayoutHeader extends JMenuBar {
 		Map<MenuGroup, List<AbstractPage>> trangTheoNhom = new EnumMap<>(MenuGroup.class);
 
 		for (AbstractPage page : this.registry.all()) {
-			if (!VaiTroQuyen.duocHien(vaiTro, page.getClass())) {
+			if (!this.phanQuyenService.duocHien(vaiTro, this.registry.getManHinh(page.getClass()))) {
 				continue;
 			}
 

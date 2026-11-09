@@ -39,7 +39,7 @@ public class BangChanDoanPage extends AbstractPage {
 
     private static final Logger LOGGER = Logger.getLogger(BangChanDoanPage.class.getName());
 
-    private static final int CHIEU_CAO_DONG = 420;
+    private static final int CHIEU_CAO_DONG = 600;
 
     private final VanDeKyThuatService vanDeKyThuatService = new VanDeKyThuatService();
 
