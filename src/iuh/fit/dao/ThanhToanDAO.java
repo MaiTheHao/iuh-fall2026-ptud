@@ -25,10 +25,12 @@ public final class ThanhToanDAO {
         }
 
         String sql = """
-                SELECT maThanhToan, maHoaDon, phuongThuc, soTien,
-                       thoiGian, maNhanVien, ghiChu
-                FROM ThanhToan
-                WHERE maHoaDon = ?
+                SELECT tt.maThanhToan, tt.maHoaDon, tt.phuongThuc, tt.soTien,
+                       tt.thoiGian, tt.maNhanVien, tt.ghiChu,
+                       nv.hoTen AS tenNhanVien
+                FROM ThanhToan tt
+                LEFT JOIN NhanVien nv ON nv.maNhanVien = tt.maNhanVien
+                WHERE tt.maHoaDon = ?
                 """;
 
         try (Connection connection = DatabaseConfig.getConnection();
@@ -107,8 +109,11 @@ public final class ThanhToanDAO {
                 thoiGian == null ? null : thoiGian.toLocalDateTime());
 
         String maNhanVien = rs.getString("maNhanVien");
-        thanhToan.setNhanVien(
-                maNhanVien == null ? null : new NhanVien(maNhanVien));
+        if (maNhanVien != null) {
+            NhanVien nhanVien = new NhanVien(maNhanVien);
+            nhanVien.setHoTen(rs.getString("tenNhanVien"));
+            thanhToan.setNhanVien(nhanVien);
+        }
 
         thanhToan.setGhiChu(rs.getString("ghiChu"));
 

@@ -9,7 +9,6 @@ import iuh.fit.entity.ChiTietHoaDon;
 import iuh.fit.entity.DichVu;
 import iuh.fit.entity.HoaDon;
 import iuh.fit.entity.PhuTung;
-import iuh.fit.entity.ThanhToan;
 import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.MenuGroup;
@@ -30,7 +29,6 @@ import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.service.PhuTungService;
 import iuh.fit.service.ThanhToanService;
 import iuh.fit.service.VoucherService;
-import iuh.fit.service.ThanhToanService;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
@@ -781,17 +779,14 @@ private void thanhToan() {
     }
 
     try {
-        ThanhToan ketQuaThanhToan = this.thanhToanService.thanhToan(
+        this.thanhToanService.thanhToan(
                 this.maHoaDonHienTai,
                 dlgThanhToan.phuongThuc(),
                 dlgThanhToan.ghiChu()
         );
 
-        HoaDon hoaDon = this.hoaDonService.getById(
-                this.maHoaDonHienTai
-        );
-
-        this.taiHoaDon(hoaDon);
+        this.trangThaiHienTai = TrangThaiHoaDon.DA_THANH_TOAN;
+        this.capNhatQuyen();
 
         ThongBao.thongTin(this, "app.common.update_succeed");
 

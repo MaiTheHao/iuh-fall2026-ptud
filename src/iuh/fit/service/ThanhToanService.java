@@ -9,7 +9,6 @@ import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.ThanhToan;
 import iuh.fit.enumeration.LoaiMa;
 import iuh.fit.enumeration.PhuongThucThanhToan;
-import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.util.TinhTienUtil;
 
 import java.math.BigDecimal;
@@ -69,11 +68,6 @@ public class ThanhToanService {
       this.thanhToanDAO.insert(scope, thanhToan);
       scope.commit();
     }
-    hoaDon.setTrangThaiHoaDon(
-            TrangThaiHoaDon.DA_THANH_TOAN
-    );
-    hoaDon.setThoiGianThanhToan(now);
-    hoaDon.setMucGiamApDung(mucGiamChot);
     return thanhToan;
   }
   

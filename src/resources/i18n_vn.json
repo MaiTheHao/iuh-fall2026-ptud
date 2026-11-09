@@ -371,7 +371,6 @@
 		},
 		"thanhToan": {
 		    "dialogTitle": "Thanh toán hóa đơn",
-		    "phuongThuc": "Phương thức thanh toán",
 		    "soTien": "Số tiền thanh toán",
 		    "noiDung": "Nội dung chuyển khoản",
 		    "dangTaoQr": "Đang tạo mã QR...",
@@ -717,7 +716,8 @@
 			        "ghiChu": "Ghi chú",
 			        "donViTienTe": "đ",
 			        "duLieuKhongHopLe": "Dữ liệu hóa đơn không hợp lệ",
-					"nhanVienPhuTrach": "Nhân viên phụ trách"
+					"nhanVienPhuTrach": "Nhân viên phụ trách",
+					"nhanVienThuTien": "Nhân viên thu tiền"
 			      }
 		},
 		"schedule": {

@@ -38,7 +38,13 @@ import iuh.fit.gui.Theme;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.VietQrClient;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class ThanhToanDialog extends JDialog {
+
+	private static final Logger LOGGER =
+			Logger.getLogger(ThanhToanDialog.class.getName());
 
 	private static final int CHIEU_RONG_QR = 280;
 	private static final int CHIEU_CAO_QR = 280;
@@ -46,8 +52,8 @@ public class ThanhToanDialog extends JDialog {
 	private final long soTien;
 	private final String noiDungChuyenKhoan;
 
-	private final JRadioButton rdoChuyenKhoan;
-	private final JRadioButton rdoTienMat;
+	private final JRadioButton radChuyenKhoan;
+	private final JRadioButton radTienMat;
 
 	private final JLabel lblAnhQr;
 	private final JLabel lblTrangThaiQr;
@@ -71,9 +77,9 @@ public class ThanhToanDialog extends JDialog {
 		this.noiDungChuyenKhoan = taoNoiDungChuyenKhoan(maHoaDon);
 		this.txtGhiChu = new JTextField(24);
 
-		this.rdoChuyenKhoan = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.chuyenKhoan"));
+		this.radChuyenKhoan = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.chuyenKhoan"));
 
-		this.rdoTienMat = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.tienMat"));
+		this.radTienMat = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.tienMat"));
 
 		this.lblAnhQr = new JLabel("", SwingConstants.CENTER);
 		this.lblTrangThaiQr = new JLabel("", SwingConstants.CENTER);
@@ -88,10 +94,10 @@ public class ThanhToanDialog extends JDialog {
 	}
 
 	public PhuongThucThanhToan phuongThuc() {
-		return this.rdoChuyenKhoan.isSelected() ? PhuongThucThanhToan.CHUYEN_KHOAN : PhuongThucThanhToan.TIEN_MAT;
+		return this.radChuyenKhoan.isSelected() ? PhuongThucThanhToan.CHUYEN_KHOAN : PhuongThucThanhToan.TIEN_MAT;
 	}
 	public String ghiChu() {
-	    if (!this.rdoChuyenKhoan.isSelected()) {
+	    if (!this.radChuyenKhoan.isSelected()) {
 	        return null;
 	    }
 
@@ -230,18 +236,18 @@ public class ThanhToanDialog extends JDialog {
 		pnlSoTien.setBorder(Theme.leDeu(8));
 
 		ButtonGroup nhomLuaChonPhuongThuc = new ButtonGroup();
-		nhomLuaChonPhuongThuc.add(this.rdoChuyenKhoan);
-		nhomLuaChonPhuongThuc.add(this.rdoTienMat);
+		nhomLuaChonPhuongThuc.add(this.radChuyenKhoan);
+		nhomLuaChonPhuongThuc.add(this.radTienMat);
 
-		this.rdoChuyenKhoan.setOpaque(false);
-		this.rdoTienMat.setOpaque(false);
-		this.rdoChuyenKhoan.setSelected(true);
+		this.radChuyenKhoan.setOpaque(false);
+		this.radTienMat.setOpaque(false);
+		this.radChuyenKhoan.setSelected(true);
 
 		JPanel pnlPhuongThuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 4));
 
 		pnlPhuongThuc.setOpaque(false);
-		pnlPhuongThuc.add(this.rdoChuyenKhoan);
-		pnlPhuongThuc.add(this.rdoTienMat);
+		pnlPhuongThuc.add(this.radChuyenKhoan);
+		pnlPhuongThuc.add(this.radTienMat);
 
 		this.pnlKhuVucQr.setOpaque(false);
 		this.pnlKhuVucQr.setBorder(Theme.leDeu(8));
@@ -249,14 +255,14 @@ public class ThanhToanDialog extends JDialog {
 		this.pnlKhuVucQr.add(this.taoVungAnhQr(), BorderLayout.CENTER);
 		this.pnlKhuVucQr.add(this.taoThongTinChuyenKhoan(), BorderLayout.SOUTH);
 
-		this.rdoChuyenKhoan.addActionListener(e -> {
+		this.radChuyenKhoan.addActionListener(e -> {
 			this.pnlKhuVucQr.setVisible(true);
 			this.taiQrNeuCan();
 			this.revalidate();
 			this.repaint();
 		});
 
-		this.rdoTienMat.addActionListener(e -> {
+		this.radTienMat.addActionListener(e -> {
 			this.pnlKhuVucQr.setVisible(false);
 			this.huyQrWorker();
 			this.revalidate();
@@ -313,7 +319,7 @@ public class ThanhToanDialog extends JDialog {
 	}
 
 	private void taiQrNeuCan() {
-		if (!this.rdoChuyenKhoan.isSelected() || !this.isDisplayable() || this.qrWorker != null || this.daTaiQr) {
+		if (!this.radChuyenKhoan.isSelected() || !this.isDisplayable() || this.qrWorker != null || this.daTaiQr) {
 			return;
 		}
 
@@ -344,7 +350,7 @@ public class ThanhToanDialog extends JDialog {
 
 				qrWorker = null;
 
-				if (!rdoChuyenKhoan.isSelected()) {
+				if (!radChuyenKhoan.isSelected()) {
 					return;
 				}
 
@@ -360,6 +366,7 @@ public class ThanhToanDialog extends JDialog {
 					    hienThiQrFallback();
 					}
 				} catch (Exception e) {
+					LOGGER.log(Level.WARNING, "Không tạo được mã QR động", e);
 					hienThiQrFallback();
 				}
 			}
@@ -389,6 +396,7 @@ public class ThanhToanDialog extends JDialog {
 			}
 
 		} catch (IOException e) {
+			LOGGER.log(Level.WARNING, "Không đọc được ảnh QR dự phòng", e);
 			this.lblAnhQr.setIcon(null);
 			this.lblAnhQr.setText("");
 		}

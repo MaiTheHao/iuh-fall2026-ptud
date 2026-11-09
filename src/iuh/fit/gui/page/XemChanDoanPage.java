@@ -177,6 +177,6 @@ public class XemChanDoanPage extends AbstractPage {
 
     @Override
     public MenuGroup getGroup() {
-        return null;
+        return MenuGroup.TIEP_NHAN;
     }
 }

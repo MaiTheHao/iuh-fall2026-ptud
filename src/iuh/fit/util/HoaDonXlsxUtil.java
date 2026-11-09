@@ -287,6 +287,15 @@ public final class HoaDonXlsxUtil {
                         ? 0
                         : thanhToan.getSoTien().doubleValue());
 
+        ghiNhanVaGiaTri(
+                worksheet,
+                dong++,
+                0,
+                I18nReaderUtil.get("app.hoaDon.in.nhanVienThuTien"),
+                thanhToan.getNhanVien() == null
+                        ? ""
+                        : thanhToan.getNhanVien().getTenHienThi());
+
         if (thanhToan.getGhiChu() != null
                 && !thanhToan.getGhiChu().isBlank()) {
 

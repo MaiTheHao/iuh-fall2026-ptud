@@ -617,7 +617,6 @@
 		},
 		"thanhToan": {
 			"dialogTitle": "Invoice Payment",
-			"phuongThuc": "Payment Method",
 			"soTien": "Payment Amount",
 			"noiDung": "Transfer Content",
 			"dangTaoQr": "Generating QR code...",
@@ -717,7 +716,8 @@
 				"ghiChu": "Note",
 				"donViTienTe": "VND",
 				"duLieuKhongHopLe": "Invalid invoice data",
-				"nhanVienPhuTrach": "Responsible employee"
+				"nhanVienPhuTrach": "Responsible employee",
+				"nhanVienThuTien": "Cashier"
 			}
 		},
 		"schedule": {

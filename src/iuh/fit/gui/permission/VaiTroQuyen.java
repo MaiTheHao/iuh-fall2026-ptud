@@ -1,4 +1,4 @@
-package iuh.fit.gui.page.permission;
+package iuh.fit.gui.permission;
 
 import java.util.Set;
 

@@ -5,6 +5,7 @@ import iuh.fit.dto.BaseFormDialogConfig;
 import iuh.fit.dto.ChanDoanDong;
 import iuh.fit.dto.PhieuTiepNhanView;
 import iuh.fit.entity.VanDeKyThuat;
+import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiPhieuTiepNhan;
 import iuh.fit.enumeration.TrangThaiVanDeKyThuat;
 import iuh.fit.gui.Theme;
@@ -374,6 +375,11 @@ public class BangChanDoanPage extends AbstractPage {
             LOGGER.log(Level.SEVERE, "Khong the luu chan doan", ex);
             ThongBao.loi(this, "app.login.errorSystem");
         }
+    }
+
+    @Override
+    public MenuGroup getGroup() {
+        return MenuGroup.TIEP_NHAN;
     }
 
     @Override

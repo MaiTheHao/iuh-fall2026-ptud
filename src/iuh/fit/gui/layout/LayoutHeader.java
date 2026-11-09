@@ -9,7 +9,7 @@ import iuh.fit.gui.Theme;
 import iuh.fit.gui.component.LucideIcon;
 import iuh.fit.gui.page.AbstractPage;
 import iuh.fit.gui.page.PageRegistry;
-import iuh.fit.gui.page.permission.VaiTroQuyen;
+import iuh.fit.gui.permission.VaiTroQuyen;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.AbstractButton;

@@ -318,6 +318,17 @@ public final class HoaDonRenderer {
                 x,
                 y);
 
+        y += 18;
+
+        veChu(
+                graphics,
+                layNhan("nhanVienThuTien") + ": "
+                        + (thanhToan.getNhanVien() == null
+                                ? ""
+                                : giaTri(thanhToan.getNhanVien().getTenHienThi())),
+                x,
+                y);
+
         if (thanhToan.getGhiChu() != null
                 && !thanhToan.getGhiChu().isBlank()) {
 
