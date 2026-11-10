@@ -1,7 +1,7 @@
 # E2E D — Regression đợt 1 và luồng xuyên suốt
 
 - **Người test:** Đặng Thanh Bình · **Nhánh:** `test/e2e-d-regression-xuyen-suot`
-- **Ngày chạy:** ________ · **Commit `develop`:** ________ · **DB:** sạch, migration `V0`–`V15` (gồm seed mới)
+- **Ngày chạy:** 10/11/2026 · **Commit `develop`:** ________ · **DB:** sạch, migration `V0`–`V15` (gồm seed mới)
 - **Màn phạm vi:** SCR-03, 03B, 06, 08, SCR-04B, SCR-05, SCR-07B, SCR-10, 10B, SCR-12/12B/12C
 - **Quy ước:** dữ liệu tự tạo có tiền tố `E2E-D`. **Chạy sau khi lane A–C đã có kết quả.** Điền `PASS / NO` ngay sau mỗi kịch bản; `NO` thì bắt buộc mô tả lỗi theo mẫu 7 dòng trong file hướng dẫn.
 - **Mục đích:** mỗi kịch bản dưới đây tái hiện một lỗi đã ghi `NO` ở đợt 1 (`assets/tasks/002_test_e2e/SUMMARY.md`) để xác nhận bản fix, hoặc xác nhận lại luồng xuyên suốt sau khi thêm tính năng mới. Đánh `PASS` chỉ khi đúng **kết quả mong đợi mới** (không phải kết quả đợt 1).
@@ -17,7 +17,7 @@
 4. Xóa phụ tùng.
 **Kết quả mong đợi:** (1) tồn kho mới = **0** và ô tồn **không cho nhập tay** (đúng thiết kế: tồn chỉ thay đổi qua phiếu nhập SCR-07 — nếu app cho sửa tay thì mới là lỗi); (2) sửa đơn giá lưu đúng, tồn không đổi; (3) mỗi trường hợp bị chặn, lỗi hiện **ngay tại ô nhập** (viền đỏ + tooltip tiếng Việt), không chỉ ở console, không lưu; (4) xóa thành công.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -28,7 +28,7 @@
 **Các bước:** thêm dịch vụ mới tên `E2E-D Dịch vụ Y` với lần lượt: đơn giá âm, đơn giá chữ, đơn giá rỗng, tên rỗng.
 **Kết quả mong đợi:** mỗi trường hợp bị chặn, lỗi hiện **ngay tại ô nhập** (viền đỏ + tooltip tiếng Việt), không lưu, không văng lỗi.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -42,10 +42,11 @@
 2. Thử hủy phiếu có hóa đơn `DA_THANH_TOAN`.
 **Kết quả mong đợi:** (1) bỏ trống lý do bị chặn (`app.hoaDon.loiLyDoHuy`); nhập lý do thì phiếu **và hóa đơn cùng** chuyển `DA_HUY` trong DB, tồn kho hoàn lại đúng số lượng — một transaction, không để lệch trạng thái; SCR-10B hiện hóa đơn đã hủy; (2) bị **chặn** với thông báo rõ ràng (`app.phieuTiepNhan.loiHoaDonDaThanhToan`), phiếu không đổi, không văng lỗi.
 
-**PASS / NO:** ________
+**PASS / NO:** NO
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+1. khi không nhập lý do và chọn xác nhận thì không có thông báo chỉ mất ui lý do và không hủy hóa đơn
+2. hiện ui nhập lý do và khi nhập rồi bấm xác nhận thì cho phép hủy chứ không hiện thông báo 
 ---
 
 ### E2E-D-04 · Regression P3-06: thông báo vượt tồn đúng ngữ cảnh
@@ -56,10 +57,11 @@
 3. Nhập số lượng âm (cùng đường chọn qua dialog). Đọc thông báo.
 **Kết quả mong đợi:** (2) bị chặn kèm thông báo nói **tồn không đủ** (`app.hoaDon.loiTonKho` = "Số lượng tồn không đủ") — **không** phải "Số lượng phải lớn hơn 0"; không tạo hóa đơn, tồn không đổi; (3) thông báo là lỗi số lượng (`app.hoaDon.loiSoLuong`), không phải "Phụ tùng chưa hợp lệ".
 
-**PASS / NO:** ________
+**PASS / NO:** NO
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+1. PASS
+2. không có thông báo lỗi số lượng mà tự động đặt về 1 và thêm vào hóa đơn
 ---
 
 ### E2E-D-05 · Regression P3-10: hủy hóa đơn xong toàn bộ form khóa
@@ -69,7 +71,7 @@
 2. Sau khi hủy thành công, lần lượt thử: sửa dòng chi tiết, bấm icon thùng rác (xóa dòng), bấm Xác nhận thanh toán, bấm Lưu.
 **Kết quả mong đợi:** các nút Lưu / Xác nhận thanh toán / thêm dòng bị **disable** (không bấm được) sau khi hủy; nếu bấm được icon thùng rác (xóa dòng) thì thông báo đúng ngữ cảnh "Hóa đơn đã hủy" (`app.hoaDon.loiDaHuy`) — **không** còn "Trạng thái hiện tại không cho thanh toán". Ghi riêng thực tế của nút **Xóa trang** (nếu còn bấm được) vì hiện có thể vẫn dùng thông báo trạng thái chung. Tồn kho hoàn lại đúng; DB: `DA_HUY` + lý do.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -82,7 +84,7 @@
 2. Mở SCR-05, tạo phân công cho nhân viên vừa tạo (ngày hiện tại, ca bất kỳ).
 **Kết quả mong đợi:** nhân viên mới **xuất hiện ngay** trong danh sách chọn của SCR-05, chọn và lưu được phân công; kiểm tra DB `PhanCong` có dòng mới. (Quy tắc lọc của màn: chỉ nhân viên Hoạt động và **không phải Quản lý** — nhân viên vai trò Quản lý không xuất hiện là đúng thiết kế.)
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -95,7 +97,7 @@
 2. Đổi sang tiếng Anh, rà lại đúng 3 màn đó.
 **Kết quả mong đợi:** form hiển thị Ca sáng / Ca chiều / Ca ngày (EN: Morning shift / Afternoon shift / Full-day shift); lưới lịch hiển thị nhãn ca theo ngôn ngữ đang chọn ở cả 3 màn; không lộ key i18n thô.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -108,7 +110,7 @@
 2. Gõ số hợp lệ, lọc; xóa lọc.
 **Kết quả mong đợi:** ô **không nhận** ký tự chữ (bị chặn ngay, im lặng — đây là hành vi đã chốt, không đánh `NO` vì không có thông báo); số hợp lệ lọc đúng, xóa lọc trả lại danh sách.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -129,13 +131,13 @@
 
 | Chỉ số | Trước (bước 1) | Sau thanh toán (bước 4–6) | Sau bước 7 |
 |---|---|---|---|
-| Tổng doanh thu SCR-12 (thực thu) | | | |
-| Tổng tiền gốc SCR-12 | | | |
-| Tiêu thụ P (SCR-12B: tổng/DB) | | | |
-| Tiêu thụ D (SCR-12C) | | | |
-| Tồn P | | | |
+| Tổng doanh thu SCR-12 (thực thu) | 4,520,600| 4,680,600| 4,680,600|
+| Tổng tiền gốc SCR-12 | 4,960,000| 5,160,000| 5,160,000|
+| Tiêu thụ P (SCR-12B: tổng/DB) | 32| 30| 30|
+| Tiêu thụ D (SCR-12C) | 14| 15| 15|
+| Tồn P | 32| 30| 30|
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết (kèm bảng số liệu trước/sau):**
 >
 
@@ -143,6 +145,6 @@
 
 ## Tổng kết
 
-- Số kịch bản: 9 · **PASS:** ____ · **NO:** ____
+- Số kịch bản: 9 · **PASS:** 7 · **NO:** 2
 - Ghi chú thêm của người test:
 >
