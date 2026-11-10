@@ -3,12 +3,12 @@ package iuh.fit.gui.page;
 import iuh.fit.dto.BaoCaoTieuThuPhuTungDTO;
 import iuh.fit.dto.TieuThuPhuTungBaoCaoDTO;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.Theme;
 import iuh.fit.service.TieuThuPhuTungService;
 import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.XlsxExportUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -23,10 +23,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.print.PrinterException;
 import java.io.File;
@@ -70,7 +68,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		this.dinhDangTien.setMaximumFractionDigits(0);
 
 		this.setLayout(new BorderLayout(8, 8));
-		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		this.setBorder(Theme.leDeu(8));
 	}
 
 	@Override
@@ -122,10 +120,6 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		this.tblPhuTung.setRowHeight(25);
 		this.tblPhuTung.setAutoCreateRowSorter(true);
 		this.tblPhuTung.getTableHeader().setReorderingAllowed(false);
-		this.tblPhuTung.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
-		this.tblPhuTung.getTableHeader().setBackground(new Color(232, 235, 238));
-
-		this.tblPhuTung.setGridColor(new Color(220, 224, 228));
 		this.tblPhuTung.setShowGrid(true);
 		this.tblPhuTung.setFillsViewportHeight(true);
 
@@ -146,8 +140,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 	private JPanel taoBoLoc() {
 		JPanel pnl = new JPanel(new BorderLayout(8, 0));
 
-		pnl.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(190, 195, 200)),
-				BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+		pnl.setBorder(Theme.khungLoc());
 
 		JPanel pnlThang = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
 
@@ -176,7 +169,7 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 		JPanel pnlBang = new JPanel(new BorderLayout());
 
-		pnlBang.setBorder(BorderFactory.createTitledBorder(I18nReaderUtil.get("app.report.parts.top20")));
+		pnlBang.setBorder(Theme.titledBorder("app.report.parts.top20"));
 
 		pnlBang.add(new JScrollPane(this.tblPhuTung), BorderLayout.CENTER);
 
@@ -189,11 +182,10 @@ public class TieuThuPhuTungPage extends AbstractPage {
 	private JPanel taoTheThongKe(String key, JLabel lblGiaTri) {
 		JPanel pnl = new JPanel(new BorderLayout(4, 8));
 
-		pnl.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(pnl.getForeground()),
-				BorderFactory.createEmptyBorder(12, 12, 12, 12)));
+		pnl.setBorder(Theme.khungVien(12));
 
 		JLabel lblTieuDe = new JLabel(I18nReaderUtil.get(key));
-		lblGiaTri.setFont(new Font("Arial", Font.BOLD, 20));
+		lblGiaTri.setFont(Theme.soLieuFont());
 
 		pnl.add(lblTieuDe, BorderLayout.NORTH);
 		pnl.add(lblGiaTri, BorderLayout.CENTER);

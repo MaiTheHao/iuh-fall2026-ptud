@@ -8,18 +8,17 @@ import iuh.fit.gui.component.ThanhDieuHuongTuan;
 import iuh.fit.service.PhanCongService;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -64,7 +63,7 @@ public class LichCuaToiPage extends AbstractPage {
     public void render() {
         this.removeAll();
         this.thanhDieuHuong.capNhatNgonNgu();
-        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBorder(Theme.leDeu(8));
 
         JPanel pnlTieuDe = new JPanel(new BorderLayout());
         JLabel lblTieuDe = new JLabel(
@@ -77,7 +76,7 @@ public class LichCuaToiPage extends AbstractPage {
         pnlTren.add(this.thanhDieuHuong, BorderLayout.CENTER);
 
         this.pnlBangLich.setBorder(
-                BorderFactory.createLineBorder(Theme.LICH_VIEN));
+                Theme.vienMau(Theme.LICH_VIEN));
 
         JPanel pnlThongKe = new JPanel(new BorderLayout());
         JLabel lblGioLam = new JLabel(
@@ -195,10 +194,7 @@ public class LichCuaToiPage extends AbstractPage {
                     lblCongViec.setForeground(Theme.LICH_CHU);
                     lblCongViec.setOpaque(true);
                     lblCongViec.setBackground(Theme.LICH_O_LE);
-                    lblCongViec.setBorder(BorderFactory.createCompoundBorder(
-                            BorderFactory.createLineBorder(
-                                    new Color(80, 145, 210)),
-                            BorderFactory.createEmptyBorder(4, 6, 4, 6)));
+                    lblCongViec.setBorder(Theme.khungVien(Theme.LICH_HOM_NAY, new Insets(4, 6, 4, 6)));
 
                     oLich.add(lblCongViec, BorderLayout.NORTH);
                 }
@@ -224,9 +220,7 @@ public class LichCuaToiPage extends AbstractPage {
         panel.setOpaque(true);
         panel.setBackground(tieuDe ? Theme.LICH_TIEU_DE : (le ? Theme.LICH_O_LE : Color.WHITE));
 
-        Border vien = BorderFactory.createLineBorder(Theme.LICH_VIEN);
-        Border dem = BorderFactory.createEmptyBorder(6, 8, 6, 8);
-        panel.setBorder(BorderFactory.createCompoundBorder(vien, dem));
+        panel.setBorder(Theme.khungVien(Theme.LICH_VIEN, new Insets(6, 8, 6, 8)));
 
         JLabel label = new JLabel(
                 "<html>" + noiDung.replace("\n", "<br>") + "</html>");

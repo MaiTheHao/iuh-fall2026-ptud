@@ -6,14 +6,12 @@ import iuh.fit.gui.component.ThanhDieuHuongTuan;
 import iuh.fit.service.PhanCongService;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -21,6 +19,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -64,7 +63,7 @@ public class LichCuaShopPage extends AbstractPage {
 	public void render() {
 		this.removeAll();
 		this.thanhDieuHuong.capNhatNgonNgu();
-		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		this.setBorder(Theme.leDeu(8));
 
 		JLabel lblTieuDe = new JLabel(I18nReaderUtil.get("app.schedule.shopSchedule"));
 		lblTieuDe.setFont(lblTieuDe.getFont().deriveFont(Font.BOLD, 16f));
@@ -73,7 +72,7 @@ public class LichCuaShopPage extends AbstractPage {
 		pnlTren.add(lblTieuDe, BorderLayout.NORTH);
 		pnlTren.add(this.thanhDieuHuong, BorderLayout.CENTER);
 
-		this.pnlBangLich.setBorder(BorderFactory.createLineBorder(Theme.LICH_VIEN));
+		this.pnlBangLich.setBorder(Theme.vienMau(Theme.LICH_VIEN));
 
 		JPanel pnlThongKe = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 4));
 		pnlThongKe.add(this.lblTongPhanCong);
@@ -148,9 +147,7 @@ public class LichCuaShopPage extends AbstractPage {
 							lblNhanVien.setForeground(Theme.LICH_CHU);
 							lblNhanVien.setOpaque(true);
 							lblNhanVien.setBackground(Theme.LICH_O_LE);
-							lblNhanVien.setBorder(BorderFactory.createCompoundBorder(
-									BorderFactory.createLineBorder(new Color(80, 145, 210)),
-									BorderFactory.createEmptyBorder(4, 6, 4, 6)));
+							lblNhanVien.setBorder(Theme.khungVien(Theme.LICH_HOM_NAY, new Insets(4, 6, 4, 6)));
 
 							lblNhanVien.setAlignmentX(JLabel.LEFT_ALIGNMENT);
 
@@ -202,10 +199,7 @@ public class LichCuaShopPage extends AbstractPage {
 		panel.setOpaque(true);
 		panel.setBackground(tieuDe ? Theme.LICH_TIEU_DE : (le ? Theme.LICH_O_LE : Color.WHITE));
 
-		Border vien = BorderFactory.createLineBorder(Theme.LICH_VIEN);
-		Border dem = BorderFactory.createEmptyBorder(6, 8, 6, 8);
-
-		panel.setBorder(BorderFactory.createCompoundBorder(vien, dem));
+		panel.setBorder(Theme.khungVien(Theme.LICH_VIEN, new Insets(6, 8, 6, 8)));
 
 		JLabel label = new JLabel("<html>" + noiDung.replace("\n", "<br>") + "</html>");
 		label.setFont(label.getFont().deriveFont(tieuDe ? Font.BOLD : Font.PLAIN));

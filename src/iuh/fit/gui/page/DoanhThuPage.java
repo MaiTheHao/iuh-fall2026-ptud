@@ -6,6 +6,7 @@ import com.github.lgooddatepicker.components.DatePickerSettings;
 import iuh.fit.dto.BaoCaoDoanhThuDTO;
 import iuh.fit.dto.HoaDonDoanhThuDTO;
 import iuh.fit.enumeration.MenuGroup;
+import iuh.fit.gui.Theme;
 import iuh.fit.service.DoanhThuService;
 import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
@@ -18,7 +19,6 @@ import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -32,7 +32,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -86,7 +85,7 @@ public class DoanhThuPage extends AbstractPage {
 
 	public DoanhThuPage() {
 		this.setLayout(new BorderLayout(8, 8));
-		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		this.setBorder(Theme.leDeu(8));
 
 		this.datMacDinhNgay();
 
@@ -234,7 +233,7 @@ public class DoanhThuPage extends AbstractPage {
 		JPanel pnlKhungBieuDo = new JPanel(new BorderLayout());
 
 		pnlKhungBieuDo
-				.setBorder(BorderFactory.createTitledBorder(I18nReaderUtil.get("app.report.revenue.revenueStructure")));
+				.setBorder(Theme.titledBorder("app.report.revenue.revenueStructure"));
 
 		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
 
@@ -253,7 +252,7 @@ public class DoanhThuPage extends AbstractPage {
 		piePlot.setLabelOutlinePaint(null);
 		piePlot.setLabelShadowPaint(null);
 		piePlot.setLabelPaint(Color.WHITE);
-		piePlot.setLabelFont(new Font("Arial", Font.BOLD, 18));
+		piePlot.setLabelFont(Theme.soLieuFont());
 
 		piePlot.setInteriorGap(0.04);
 
@@ -261,7 +260,7 @@ public class DoanhThuPage extends AbstractPage {
 		pnlKhungBieuDo.add(this.pnlBieuDo, BorderLayout.CENTER);
 
 		JPanel pnlBangHoaDon = new JPanel(new BorderLayout());
-		pnlBangHoaDon.setBorder(BorderFactory.createTitledBorder(I18nReaderUtil.get("app.report.revenue.invoiceList")));
+		pnlBangHoaDon.setBorder(Theme.titledBorder("app.report.revenue.invoiceList"));
 
 		this.tblHoaDon.setRowHeight(28);
 		this.tblHoaDon.setAutoCreateRowSorter(true);
@@ -295,8 +294,7 @@ public class DoanhThuPage extends AbstractPage {
 	private JPanel taoTheThongKe(String key, JLabel lblGiaTri) {
 		JPanel pnl = new JPanel(new BorderLayout(4, 8));
 
-		pnl.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(pnl.getForeground()),
-				BorderFactory.createEmptyBorder(12, 12, 12, 12)));
+		pnl.setBorder(Theme.khungVien(12));
 
 		pnl.add(new JLabel(I18nReaderUtil.get(key)), BorderLayout.NORTH);
 

@@ -70,6 +70,7 @@ public final class Theme {
     public static final Color LICH_O_LE = new Color(234, 242, 249);
     public static final Color LICH_VIEN = new Color(195, 202, 210);
     public static final Color LICH_CHU = new Color(35, 85, 135);
+    public static final Color LICH_HOM_NAY = new Color(80, 145, 210);
 
     private static Color hex(String value) {
         return Color.decode(value);
@@ -106,6 +107,35 @@ public final class Theme {
 
     public static javax.swing.border.Border leDeu(int padding) {
         return BorderFactory.createEmptyBorder(padding, padding, padding, padding);
+    }
+
+    public static javax.swing.border.Border leDeu(Insets le) {
+        return BorderFactory.createEmptyBorder(le.top, le.left, le.bottom, le.right);
+    }
+
+    public static javax.swing.border.Border vienMau(Color mau) {
+        return new LineBorder(mau, 1);
+    }
+
+    public static javax.swing.border.Border khungVien(int padding) {
+        return BorderFactory.createCompoundBorder(vienNhat(), leDeu(padding));
+    }
+
+    public static javax.swing.border.Border khungVien(Color mau, Insets le) {
+        return BorderFactory.createCompoundBorder(vienMau(mau), leDeu(le));
+    }
+
+    public static javax.swing.border.Border khungTieuDe(String titleKey, int padding) {
+        return BorderFactory.createCompoundBorder(titledBorder(titleKey), leDeu(padding));
+    }
+
+    public static javax.swing.border.Border khungTieuDe(String titleKey, Insets le) {
+        return BorderFactory.createCompoundBorder(titledBorder(titleKey), leDeu(le));
+    }
+
+    public static javax.swing.border.Border khungLoc() {
+        return BorderFactory.createCompoundBorder(vienNhat(),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10));
     }
 
     public static javax.swing.border.Border vienTren() {
@@ -161,6 +191,11 @@ public final class Theme {
 
     public static Font fieldLabelFont() {
         return UIManager.getFont("Label.font").deriveFont(Font.BOLD);
+    }
+
+    public static Font soLieuFont() {
+        Font font = UIManager.getFont("TitledBorder.font");
+        return font == null ? fieldLabelFont().deriveFont(20f) : font;
     }
 
     public static Insets fieldRowInsets() {
