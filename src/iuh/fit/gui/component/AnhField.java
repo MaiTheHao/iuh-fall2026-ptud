@@ -26,213 +26,191 @@ import java.io.File;
 
 public class AnhField extends JPanel {
 
-    
+  public record KhoaAnh(
+          String nhan,
+          String chonAnh,
+          String goAnh,
+          String chuaCoAnh,
+          String khongTaiDuocAnh,
+          String loaiTepAnh,
+          String duLieuKhongPhaiAnh) {}
 
-    public record KhoaAnh(
-            String nhan,
-            String chonAnh,
-            String goAnh,
-            String chuaCoAnh,
-            String khongTaiDuocAnh,
-            String loaiTepAnh,
-            String duLieuKhongPhaiAnh) {
+  private final String keyChonAnh;
+  private final String keyLoaiTepAnh;
+  private final String keyChuaCoAnh;
+  private final String keyKhongTaiDuocAnh;
+  private final String keyDuLieuKhongPhaiAnh;
+
+  private final JTextField txtDuongDan = new JTextField(20);
+  private final JLabel lblPreview = new JLabel("", SwingConstants.CENTER);
+
+  public AnhField(KhoaAnh khoa) {
+    this.keyChonAnh = khoa.chonAnh();
+    this.keyLoaiTepAnh = khoa.loaiTepAnh();
+    this.keyChuaCoAnh = khoa.chuaCoAnh();
+    this.keyKhongTaiDuocAnh = khoa.khongTaiDuocAnh();
+    this.keyDuLieuKhongPhaiAnh = khoa.duLieuKhongPhaiAnh();
+
+    this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+    this.setOpaque(false);
+
+    JPanel duongDanRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+    duongDanRow.setOpaque(false);
+
+    JLabel nhanLabel = new JLabel(I18nReaderUtil.get(khoa.nhan()));
+    nhanLabel.setFont(nhanLabel.getFont().deriveFont(Font.BOLD));
+    nhanLabel.setForeground(Theme.INK);
+    duongDanRow.add(nhanLabel);
+    duongDanRow.add(this.txtDuongDan);
+    this.add(duongDanRow);
+
+    this.txtDuongDan.addActionListener(
+            e -> this.setDuongDan(this.txtDuongDan.getText().trim()));
+
+    JPanel nutRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+    nutRow.setOpaque(false);
+
+    JButton chonAnhButton = new JButton(I18nReaderUtil.get(this.keyChonAnh));
+    JButton nhapUrlButton = new JButton(I18nReaderUtil.get("app.common.nhapUrl"));
+    JButton goAnhButton = new JButton(I18nReaderUtil.get(khoa.goAnh()));
+
+    chonAnhButton.setMargin(new Insets(4, 8, 4, 8));
+    nhapUrlButton.setMargin(new Insets(4, 8, 4, 8));
+    goAnhButton.setMargin(new Insets(4, 8, 4, 8));
+
+    chonAnhButton.addActionListener(e -> this.chonAnh());
+    nhapUrlButton.addActionListener(e -> this.nhapUrl());
+    goAnhButton.addActionListener(e -> this.clear());
+
+    nutRow.add(chonAnhButton);
+    nutRow.add(nhapUrlButton);
+    nutRow.add(goAnhButton);
+    this.add(nutRow);
+
+    this.lblPreview.setPreferredSize(new Dimension(240, 160));
+    this.lblPreview.setForeground(Theme.INK);
+    this.lblPreview.setBorder(Theme.vienNhat());
+    this.lblPreview.setIcon(null);
+    this.lblPreview.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
+
+    JPanel previewRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+    previewRow.setOpaque(false);
+    previewRow.add(this.lblPreview);
+    this.add(previewRow);
+  }
+
+  public String getDuongDan() {
+    return this.txtDuongDan.getText().trim();
+  }
+
+  public void setDuongDan(String duongDan) {
+    this.txtDuongDan.setText(duongDan == null ? "" : duongDan);
+
+    this.hienThiAnh(duongDan);
+  }
+
+  public void clear() {
+    this.txtDuongDan.setText("");
+    this.lblPreview.setIcon(null);
+    this.lblPreview.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
+  }
+
+  private void chonAnh() {
+    JFileChooser chooser = new JFileChooser();
+
+    chooser.setDialogTitle(I18nReaderUtil.get(this.keyChonAnh));
+    chooser.setFileFilter(
+            new FileNameExtensionFilter(
+                    I18nReaderUtil.get(this.keyLoaiTepAnh),
+                    "png",
+                    "jpg",
+                    "jpeg",
+                    "gif"));
+
+    int result = chooser.showOpenDialog(this);
+
+    if (result == JFileChooser.APPROVE_OPTION) {
+      File file = chooser.getSelectedFile();
+
+      this.setDuongDan(file.getAbsolutePath());
+    }
+  }
+
+  private void nhapUrl() {
+    String ketQua = (String) JOptionPane.showInputDialog(
+            this,
+            I18nReaderUtil.get("app.common.urlGoiY"),
+            I18nReaderUtil.get("app.common.tieuDeNhapUrl"),
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            null,
+            this.txtDuongDan.getText());
+
+    if (ketQua != null) {
+      this.setDuongDan(ketQua.trim());
+    }
+  }
+
+  private void hienThiAnh(String duongDan) {
+    if (duongDan == null || duongDan.isBlank()) {
+      this.clear();
+      return;
     }
 
-    private final String keyChonAnh;
-    private final String keyLoaiTepAnh;
-    private final String keyChuaCoAnh;
-    private final String keyKhongTaiDuocAnh;
-    private final String keyDuLieuKhongPhaiAnh;
+    String dia = duongDan.trim();
 
-    private final JTextField txtDuongDan = new JTextField(20);
-    private final JLabel lblPreview = new JLabel("", SwingConstants.CENTER);
+    this.lblPreview.setIcon(null);
+    this.lblPreview.setText("");
 
-    public AnhField(KhoaAnh khoa) {
-        this.keyChonAnh = khoa.chonAnh();
-        this.keyLoaiTepAnh = khoa.loaiTepAnh();
-        this.keyChuaCoAnh = khoa.chuaCoAnh();
-        this.keyKhongTaiDuocAnh = khoa.khongTaiDuocAnh();
-        this.keyDuLieuKhongPhaiAnh = khoa.duLieuKhongPhaiAnh();
+    SwingWorker<KetQuaTaiAnh, Void> worker = new SwingWorker<>() {
+      @Override
+      protected KetQuaTaiAnh doInBackground() {
+        return taiAnh(dia);
+      }
 
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        this.setOpaque(false);
+      @Override
+      protected void done() {
+        KetQuaTaiAnh ketQua;
 
-        JPanel duongDanRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
-        duongDanRow.setOpaque(false);
-
-        JLabel nhanLabel = new JLabel(I18nReaderUtil.get(khoa.nhan()));
-        nhanLabel.setFont(nhanLabel.getFont().deriveFont(Font.BOLD));
-        nhanLabel.setForeground(Theme.INK);
-        duongDanRow.add(nhanLabel);
-        duongDanRow.add(this.txtDuongDan);
-        this.add(duongDanRow);
-
-        this.txtDuongDan.addActionListener(
-                e -> this.setDuongDan(this.txtDuongDan.getText().trim())
-        );
-
-        JPanel nutRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
-        nutRow.setOpaque(false);
-
-        JButton chonAnhButton = new JButton(I18nReaderUtil.get(this.keyChonAnh));
-        JButton nhapUrlButton = new JButton(I18nReaderUtil.get("app.common.nhapUrl"));
-        JButton goAnhButton = new JButton(I18nReaderUtil.get(khoa.goAnh()));
-
-        chonAnhButton.setMargin(new Insets(4, 8, 4, 8));
-        nhapUrlButton.setMargin(new Insets(4, 8, 4, 8));
-        goAnhButton.setMargin(new Insets(4, 8, 4, 8));
-
-        chonAnhButton.addActionListener(e -> this.chonAnh());
-        nhapUrlButton.addActionListener(e -> this.nhapUrl());
-        goAnhButton.addActionListener(e -> this.clear());
-
-        nutRow.add(chonAnhButton);
-        nutRow.add(nhapUrlButton);
-        nutRow.add(goAnhButton);
-        this.add(nutRow);
-
-        this.lblPreview.setPreferredSize(new Dimension(240, 160));
-        this.lblPreview.setForeground(Theme.INK);
-        this.lblPreview.setBorder(Theme.vienNhat());
-        this.lblPreview.setIcon(null);
-        this.lblPreview.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
-
-        JPanel previewRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
-        previewRow.setOpaque(false);
-        previewRow.add(this.lblPreview);
-        this.add(previewRow);
-    }
-
-    public String getDuongDan() {
-        return this.txtDuongDan.getText().trim();
-    }
-
-    public void setDuongDan(String duongDan) {
-        this.txtDuongDan.setText(duongDan == null ? "" : duongDan);
-
-        this.hienThiAnh(duongDan);
-    }
-
-    public void clear() {
-        this.txtDuongDan.setText("");
-        this.lblPreview.setIcon(null);
-        this.lblPreview.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
-    }
-
-    private void chonAnh() {
-        JFileChooser chooser = new JFileChooser();
-
-        chooser.setDialogTitle(I18nReaderUtil.get(this.keyChonAnh));
-        chooser.setFileFilter(
-                new FileNameExtensionFilter(
-                        I18nReaderUtil.get(this.keyLoaiTepAnh),
-                        "png", "jpg", "jpeg", "gif"
-                )
-        );
-
-        int result = chooser.showOpenDialog(this);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
-
-            this.setDuongDan(file.getAbsolutePath());
-        }
-    }
-
-    private void nhapUrl() {
-        String ketQua = (String) JOptionPane.showInputDialog(
-                this,
-                I18nReaderUtil.get("app.common.urlGoiY"),
-                I18nReaderUtil.get("app.common.tieuDeNhapUrl"),
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                null,
-                this.txtDuongDan.getText());
-
-        if (ketQua != null) {
-            this.setDuongDan(ketQua.trim());
-        }
-    }
-
-    private void hienThiAnh(String duongDan) {
-        if (duongDan == null || duongDan.isBlank()) {
-            this.clear();
-            return;
-        }
-
-        String dia = duongDan.trim();
-
-        this.lblPreview.setIcon(null);
-        this.lblPreview.setText("");
-
-        SwingWorker<KetQuaTaiAnh, Void> worker = new SwingWorker<>() {
-            @Override
-            protected KetQuaTaiAnh doInBackground() {
-                return taiAnh(dia);
-            }
-
-            @Override
-            protected void done() {
-                KetQuaTaiAnh ketQua;
-
-                try {
-                    ketQua = get();
-                } catch (Exception e) {
-                    ketQua = new KetQuaTaiAnh(null, false);
-                }
-
-                if (ketQua.icon() != null) {
-                    lblPreview.setText("");
-                    lblPreview.setIcon(ketQua.icon());
-                } else {
-                    lblPreview.setIcon(null);
-                    lblPreview.setText(
-                            I18nReaderUtil.get(
-                                    ketQua.duLieuKhongPhaiAnh()
-                                            ? keyDuLieuKhongPhaiAnh
-                                            : keyKhongTaiDuocAnh
-                            )
-                    );
-                }
-            }
-        };
-
-        worker.execute();
-    }
-
-    private static KetQuaTaiAnh taiAnh(String duongDan) {
         try {
-            BufferedImage bufferedImage = TaiAnhUtil.docAnh(duongDan, 5000, 10000);
-
-            if (bufferedImage == null) {
-                return new KetQuaTaiAnh(null, true);
-            }
-
-            Image image = bufferedImage.getScaledInstance(240, 160, Image.SCALE_SMOOTH);
-
-            return new KetQuaTaiAnh(new ImageIcon(image), false);
-
+          ketQua = get();
         } catch (Exception e) {
-            return new KetQuaTaiAnh(null, false);
+          ketQua = new KetQuaTaiAnh(null, false);
         }
+
+        if (ketQua.icon() != null) {
+          lblPreview.setText("");
+          lblPreview.setIcon(ketQua.icon());
+        } else {
+          lblPreview.setIcon(null);
+          lblPreview.setText(
+                  I18nReaderUtil.get(
+                          ketQua.duLieuKhongPhaiAnh()
+                                  ? keyDuLieuKhongPhaiAnh
+                                  : keyKhongTaiDuocAnh));
+        }
+      }
+    };
+
+    worker.execute();
+  }
+
+  private static KetQuaTaiAnh taiAnh(String duongDan) {
+    try {
+      BufferedImage bufferedImage = TaiAnhUtil.docAnh(duongDan, 5000, 10000);
+
+      if (bufferedImage == null) {
+        return new KetQuaTaiAnh(null, true);
+      }
+
+      Image image = bufferedImage.getScaledInstance(240, 160, Image.SCALE_SMOOTH);
+
+      return new KetQuaTaiAnh(new ImageIcon(image), false);
+
+    } catch (Exception e) {
+      return new KetQuaTaiAnh(null, false);
     }
+  }
 
-    private static final class KetQuaTaiAnh {
-
-        private final ImageIcon icon;
-        private final boolean duLieuKhongPhaiAnh;
-
-        private KetQuaTaiAnh(ImageIcon icon, boolean duLieuKhongPhaiAnh) {
-            this.icon = icon;
-            this.duLieuKhongPhaiAnh = duLieuKhongPhaiAnh;
-        }
-
-        private ImageIcon icon() {
-            return this.icon;
-        }
-
-        private boolean duLieuKhongPhaiAnh() {
-            return this.duLieuKhongPhaiAnh;
-        }
-    }
+  private record KetQuaTaiAnh(ImageIcon icon, boolean duLieuKhongPhaiAnh) {}
 }

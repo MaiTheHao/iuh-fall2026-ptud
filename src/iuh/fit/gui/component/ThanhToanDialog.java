@@ -43,387 +43,405 @@ import java.util.logging.Logger;
 
 public class ThanhToanDialog extends JDialog {
 
-	private static final Logger LOGGER =
-			Logger.getLogger(ThanhToanDialog.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(ThanhToanDialog.class.getName());
 
-	private static final int CHIEU_RONG_QR = 280;
-	private static final int CHIEU_CAO_QR = 280;
+  private static final int CHIEU_RONG_QR = 280;
+  private static final int CHIEU_CAO_QR = 280;
 
-	private final long soTien;
-	private final String noiDungChuyenKhoan;
+  private final long soTien;
+  private final String noiDungChuyenKhoan;
 
-	private final JRadioButton radChuyenKhoan;
-	private final JRadioButton radTienMat;
+  private final JRadioButton radChuyenKhoan;
+  private final JRadioButton radTienMat;
 
-	private final JLabel lblAnhQr;
-	private final JLabel lblTrangThaiQr;
-	private final JLabel lblNganHang = new JLabel();
-	private final JLabel lblSoTaiKhoan = new JLabel();
-	private final JLabel lblTenChuTaiKhoan = new JLabel();
+  private final JLabel lblAnhQr;
+  private final JLabel lblTrangThaiQr;
+  private final JLabel lblNganHang = new JLabel();
+  private final JLabel lblSoTaiKhoan = new JLabel();
+  private final JLabel lblTenChuTaiKhoan = new JLabel();
 
-	private final JTextField txtGhiChu;
+  private final JTextField txtGhiChu;
 
-	private final JPanel pnlKhuVucQr;
+  private final JPanel pnlKhuVucQr;
 
-	private SwingWorker<BufferedImage, Void> qrWorker;
+  private SwingWorker<BufferedImage, Void> qrWorker;
 
-	private boolean daTaiQr;
-	private boolean duocXacNhan;
+  private boolean daTaiQr;
+  private boolean duocXacNhan;
 
-	public ThanhToanDialog(Window owner, long soTien, String maHoaDon) {
-		super(owner, I18nReaderUtil.get("app.thanhToan.dialogTitle"), ModalityType.APPLICATION_MODAL);
+  public ThanhToanDialog(Window owner, long soTien, String maHoaDon) {
+    super(owner, I18nReaderUtil.get("app.thanhToan.dialogTitle"), ModalityType.APPLICATION_MODAL);
 
-		this.soTien = soTien;
-		this.noiDungChuyenKhoan = taoNoiDungChuyenKhoan(maHoaDon);
-		this.txtGhiChu = new JTextField(24);
+    this.soTien = soTien;
+    this.noiDungChuyenKhoan = taoNoiDungChuyenKhoan(maHoaDon);
+    this.txtGhiChu = new JTextField(24);
 
-		this.radChuyenKhoan = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.chuyenKhoan"));
+    this.radChuyenKhoan = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.chuyenKhoan"));
 
-		this.radTienMat = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.tienMat"));
+    this.radTienMat = new JRadioButton(I18nReaderUtil.get("app.thanhToan.phuongThucThanhToan.tienMat"));
 
-		this.lblAnhQr = new JLabel("", SwingConstants.CENTER);
-		this.lblTrangThaiQr = new JLabel("", SwingConstants.CENTER);
+    this.lblAnhQr = new JLabel("", SwingConstants.CENTER);
+    this.lblTrangThaiQr = new JLabel("", SwingConstants.CENTER);
 
-		this.pnlKhuVucQr = new JPanel(new BorderLayout(8, 8));
+    this.pnlKhuVucQr = new JPanel(new BorderLayout(8, 8));
 
-		this.khoiTao();
-	}
+    this.khoiTao();
+  }
 
-	public boolean duocXacNhan() {
-		return this.duocXacNhan;
-	}
+  public boolean duocXacNhan() {
+    return this.duocXacNhan;
+  }
 
-	public PhuongThucThanhToan phuongThuc() {
-		return this.radChuyenKhoan.isSelected() ? PhuongThucThanhToan.CHUYEN_KHOAN : PhuongThucThanhToan.TIEN_MAT;
-	}
-	public String ghiChu() {
-	    if (!this.radChuyenKhoan.isSelected()) {
-	        return null;
-	    }
+  public PhuongThucThanhToan phuongThuc() {
+    return this.radChuyenKhoan.isSelected() ? PhuongThucThanhToan.CHUYEN_KHOAN : PhuongThucThanhToan.TIEN_MAT;
+  }
 
-	    String ghiChu = this.txtGhiChu.getText();
+  public String ghiChu() {
+    if (!this.radChuyenKhoan.isSelected()) {
+      return null;
+    }
 
-	    return ghiChu == null || ghiChu.isBlank()
-	            ? null
-	            : ghiChu.trim();
-	}
+    String ghiChu = this.txtGhiChu.getText();
 
-	private JPanel taoThongTinChuyenKhoan() {
-	    JPanel pnlThongTinChuyenKhoan = new JPanel(new GridLayout(0, 1, 4, 4));
-	    pnlThongTinChuyenKhoan.setOpaque(false);
+    return ghiChu == null || ghiChu.isBlank()
+            ? null
+            : ghiChu.trim();
+  }
 
-	    pnlThongTinChuyenKhoan.add(
-	            taoDongThongTin("app.thanhToan.nganHang",
-	                    QrConfig.bin(), this.lblNganHang));
+  private JPanel taoThongTinChuyenKhoan() {
+    JPanel pnlThongTinChuyenKhoan = new JPanel(new GridLayout(0, 1, 4, 4));
+    pnlThongTinChuyenKhoan.setOpaque(false);
 
-	    pnlThongTinChuyenKhoan.add(
-	            taoDongThongTin("app.thanhToan.soTaiKhoan",
-	                    QrConfig.soTk(), this.lblSoTaiKhoan));
+    pnlThongTinChuyenKhoan.add(
+            taoDongThongTin("app.thanhToan.nganHang",
+                    QrConfig.bin(),
+                    this.lblNganHang));
 
-	    pnlThongTinChuyenKhoan.add(
-	            taoDongThongTin("app.thanhToan.tenChuTaiKhoan",
-	                    QrConfig.tenTk(), this.lblTenChuTaiKhoan));
+    pnlThongTinChuyenKhoan.add(
+            taoDongThongTin("app.thanhToan.soTaiKhoan",
+                    QrConfig.soTk(),
+                    this.lblSoTaiKhoan));
 
-	    pnlThongTinChuyenKhoan.add(
-	            taoDongThongTin("app.thanhToan.soTien",
-	                    new DecimalFormat("#,##0").format(this.soTien) + " đ",
-	                    new JLabel()));
+    pnlThongTinChuyenKhoan.add(
+            taoDongThongTin("app.thanhToan.tenChuTaiKhoan",
+                    QrConfig.tenTk(),
+                    this.lblTenChuTaiKhoan));
 
-	    pnlThongTinChuyenKhoan.add(
-	            taoDongThongTin("app.thanhToan.noiDung",
-	                    this.noiDungChuyenKhoan,
-	                    new JLabel()));
-	    JPanel pnlGhiChu = new JPanel(new BorderLayout(8, 0));
-	    pnlGhiChu.setOpaque(false);
+    pnlThongTinChuyenKhoan.add(
+            taoDongThongTin("app.thanhToan.soTien",
+                    new DecimalFormat("#,##0").format(this.soTien) + " đ",
+                    new JLabel()));
 
-	    JLabel lblGhiChu = new JLabel(
-	            I18nReaderUtil.get("app.thanhToan.ghiChu"));
+    pnlThongTinChuyenKhoan.add(
+            taoDongThongTin("app.thanhToan.noiDung",
+                    this.noiDungChuyenKhoan,
+                    new JLabel()));
+    JPanel pnlGhiChu = new JPanel(new BorderLayout(8, 0));
+    pnlGhiChu.setOpaque(false);
 
-	    pnlGhiChu.add(lblGhiChu, BorderLayout.WEST);
-	    pnlGhiChu.add(this.txtGhiChu, BorderLayout.CENTER);
+    JLabel lblGhiChu = new JLabel(
+            I18nReaderUtil.get("app.thanhToan.ghiChu"));
 
-	    pnlThongTinChuyenKhoan.add(pnlGhiChu);
+    pnlGhiChu.add(lblGhiChu, BorderLayout.WEST);
+    pnlGhiChu.add(this.txtGhiChu, BorderLayout.CENTER);
+
+    pnlThongTinChuyenKhoan.add(pnlGhiChu);
+
+    return pnlThongTinChuyenKhoan;
+  }
+
+  private JPanel taoDongThongTin(String key, String giaTri, JLabel lblGiaTri) {
+    JPanel pnlDongThongTin = new JPanel(new BorderLayout(8, 0));
+    pnlDongThongTin.setOpaque(false);
+
+    JLabel lblNhan = new JLabel(I18nReaderUtil.get(key));
+    lblGiaTri.setText(giaTri == null || giaTri.isBlank() ? "-" : giaTri);
+
+    pnlDongThongTin.add(lblNhan, BorderLayout.WEST);
+    pnlDongThongTin.add(lblGiaTri, BorderLayout.CENTER);
+
+    return pnlDongThongTin;
+  }
+
+  private void khoiTao() {
+    this.cauHinhCuaSo();
+    this.taoNoiDung();
+    this.ganSuKien();
+  }
+
+  private void cauHinhCuaSo() {
+    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    this.setLayout(new BorderLayout());
+    this.getContentPane().setBackground(Theme.BG);
+
+    this.setSize(560, 680);
+    this.setMinimumSize(new Dimension(520, 600));
+    this.setResizable(false);
+    this.setLocationRelativeTo(getOwner());
+  }
+
+  private void taoNoiDung() {
+    JPanel pnlNoiDung = Theme.contentPanel(12);
+    pnlNoiDung.add(this.taoPhanDau(), BorderLayout.NORTH);
+
+    JScrollPane scrNoiDung = new JScrollPane(this.taoThan());
+    scrNoiDung.setBorder(null);
+    scrNoiDung.setOpaque(false);
+    scrNoiDung.getViewport().setOpaque(false);
+    scrNoiDung.setHorizontalScrollBarPolicy(
+            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    scrNoiDung.setVerticalScrollBarPolicy(
+            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+    pnlNoiDung.add(scrNoiDung, BorderLayout.CENTER);
+    pnlNoiDung.add(this.taoThanhNut(), BorderLayout.SOUTH);
+
+    this.add(pnlNoiDung, BorderLayout.CENTER);
+  }
+
+  private void ganSuKien() {
+    this.addWindowListener(new WindowAdapter() {
+      @Override
+      public void windowOpened(WindowEvent e) {
+        taiQrNeuCan();
+      }
+
+      @Override
+      public void windowClosed(WindowEvent e) {
+        huyQrWorker();
+      }
+    });
 
-	    return pnlThongTinChuyenKhoan;
-	}
+    this.getRootPane().registerKeyboardAction(e -> this.dispose(),
+            KeyStroke.getKeyStroke("ESCAPE"),
+            JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-	private JPanel taoDongThongTin(String key, String giaTri, JLabel lblGiaTri) {
-		JPanel pnlDongThongTin = new JPanel(new BorderLayout(8, 0));
-		pnlDongThongTin.setOpaque(false);
+    this.radChuyenKhoan.addActionListener(e -> {
+      this.pnlKhuVucQr.setVisible(true);
+      this.taiQrNeuCan();
+      this.revalidate();
+      this.repaint();
+    });
 
-		JLabel lblNhan = new JLabel(I18nReaderUtil.get(key));
-		lblGiaTri.setText(giaTri == null || giaTri.isBlank() ? "-" : giaTri);
+    this.radTienMat.addActionListener(e -> {
+      this.pnlKhuVucQr.setVisible(false);
+      this.huyQrWorker();
+      this.revalidate();
+      this.repaint();
+    });
+  }
 
-		pnlDongThongTin.add(lblNhan, BorderLayout.WEST);
-		pnlDongThongTin.add(lblGiaTri, BorderLayout.CENTER);
+  private JPanel taoPhanDau() {
+    JLabel lblTieuDe = Theme.tieuDeDialog("app.thanhToan.dialogTitle");
 
-		return pnlDongThongTin;
-	}
+    JPanel pnlPhanDau = new JPanel(new BorderLayout());
+    pnlPhanDau.setOpaque(false);
+    pnlPhanDau.add(lblTieuDe, BorderLayout.CENTER);
 
-	private void khoiTao() {
-		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		this.setLayout(new BorderLayout());
-		this.getContentPane().setBackground(Theme.BG);
+    return pnlPhanDau;
+  }
 
-		JPanel pnlNoiDung = Theme.contentPanel(12);
-		pnlNoiDung.add(this.taoPhanDau(), BorderLayout.NORTH);
+  private JPanel taoThan() {
+    JPanel pnlThan = new JPanel();
+    pnlThan.setOpaque(false);
+    pnlThan.setLayout(new BoxLayout(pnlThan, BoxLayout.Y_AXIS));
 
-		JScrollPane scrNoiDung = new JScrollPane(this.taoThan());
-		scrNoiDung.setBorder(null);
-		scrNoiDung.setOpaque(false);
-		scrNoiDung.getViewport().setOpaque(false);
-		scrNoiDung.setHorizontalScrollBarPolicy(
-		        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrNoiDung.setVerticalScrollBarPolicy(
-		        JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
-		pnlNoiDung.add(scrNoiDung, BorderLayout.CENTER);
-		pnlNoiDung.add(this.taoThanhNut(), BorderLayout.SOUTH);
+    pnlThan.add(this.taoKhoiSoTien());
+    pnlThan.add(Box.createVerticalStrut(12));
+    pnlThan.add(this.taoKhoiPhuongThuc());
+    pnlThan.add(Box.createVerticalStrut(8));
+    pnlThan.add(this.pnlKhuVucQr);
 
-		this.add(pnlNoiDung, BorderLayout.CENTER);
-
-		this.setSize(560, 680);
-		this.setMinimumSize(new Dimension(520, 600));
-		this.setResizable(false);
-		this.setLocationRelativeTo(getOwner());
+    return pnlThan;
+  }
 
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowOpened(WindowEvent e) {
-				taiQrNeuCan();
-			}
+  private JPanel taoKhoiSoTien() {
+    JLabel lblNhanSoTien = new JLabel(I18nReaderUtil.get("app.thanhToan.soTien"));
 
-			@Override
-			public void windowClosed(WindowEvent e) {
-				huyQrWorker();
-			}
-		});
+    JLabel lblGiaTriSoTien = new JLabel(new DecimalFormat("#,##0").format(this.soTien) + " đ");
 
-		this.getRootPane().registerKeyboardAction(e -> this.dispose(), KeyStroke.getKeyStroke("ESCAPE"),
-				JComponent.WHEN_IN_FOCUSED_WINDOW);
-	}
+    lblGiaTriSoTien.setForeground(Theme.INK);
+    lblGiaTriSoTien.setFont(UIManager.getFont("TitledBorder.font"));
 
-	private JPanel taoPhanDau() {
-		JLabel lblTieuDe = new JLabel(I18nReaderUtil.get("app.thanhToan.dialogTitle"));
+    JPanel pnlSoTien = new JPanel(new BorderLayout(8, 4));
+    pnlSoTien.setOpaque(false);
+    pnlSoTien.add(lblNhanSoTien, BorderLayout.NORTH);
+    pnlSoTien.add(lblGiaTriSoTien, BorderLayout.CENTER);
+    pnlSoTien.setBorder(Theme.leDeu(8));
 
-		lblTieuDe.setFont(UIManager.getFont("TitledBorder.font"));
-		lblTieuDe.setForeground(Theme.INK);
-		lblTieuDe.setBorder(Theme.leDeu(4));
+    return pnlSoTien;
+  }
 
-		JPanel pnlPhanDau = new JPanel(new BorderLayout());
-		pnlPhanDau.setOpaque(false);
-		pnlPhanDau.add(lblTieuDe, BorderLayout.CENTER);
+  private JPanel taoKhoiPhuongThuc() {
+    ButtonGroup nhomLuaChonPhuongThuc = new ButtonGroup();
+    nhomLuaChonPhuongThuc.add(this.radChuyenKhoan);
+    nhomLuaChonPhuongThuc.add(this.radTienMat);
 
-		return pnlPhanDau;
-	}
+    this.radChuyenKhoan.setOpaque(false);
+    this.radTienMat.setOpaque(false);
+    this.radChuyenKhoan.setSelected(true);
 
-	private JPanel taoThan() {
-		JPanel pnlThan = new JPanel();
-		pnlThan.setOpaque(false);
-		pnlThan.setLayout(new BoxLayout(pnlThan, BoxLayout.Y_AXIS));
+    JPanel pnlPhuongThuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 4));
 
-		JLabel lblNhanSoTien = new JLabel(I18nReaderUtil.get("app.thanhToan.soTien"));
+    pnlPhuongThuc.setOpaque(false);
+    pnlPhuongThuc.add(this.radChuyenKhoan);
+    pnlPhuongThuc.add(this.radTienMat);
 
-		JLabel lblGiaTriSoTien = new JLabel(new DecimalFormat("#,##0").format(this.soTien) + " đ");
+    this.pnlKhuVucQr.setOpaque(false);
+    this.pnlKhuVucQr.setBorder(Theme.leDeu(8));
 
-		lblGiaTriSoTien.setForeground(Theme.INK);
-		lblGiaTriSoTien.setFont(UIManager.getFont("TitledBorder.font"));
+    this.pnlKhuVucQr.add(this.taoVungAnhQr(), BorderLayout.CENTER);
+    this.pnlKhuVucQr.add(this.taoThongTinChuyenKhoan(), BorderLayout.SOUTH);
 
-		JPanel pnlSoTien = new JPanel(new BorderLayout(8, 4));
-		pnlSoTien.setOpaque(false);
-		pnlSoTien.add(lblNhanSoTien, BorderLayout.NORTH);
-		pnlSoTien.add(lblGiaTriSoTien, BorderLayout.CENTER);
-		pnlSoTien.setBorder(Theme.leDeu(8));
+    return pnlPhuongThuc;
+  }
 
-		ButtonGroup nhomLuaChonPhuongThuc = new ButtonGroup();
-		nhomLuaChonPhuongThuc.add(this.radChuyenKhoan);
-		nhomLuaChonPhuongThuc.add(this.radTienMat);
+  private JPanel taoVungAnhQr() {
+    JPanel pnlVungAnhQr = new JPanel(new BorderLayout(4, 4));
+    pnlVungAnhQr.setOpaque(false);
 
-		this.radChuyenKhoan.setOpaque(false);
-		this.radTienMat.setOpaque(false);
-		this.radChuyenKhoan.setSelected(true);
+    this.lblAnhQr.setPreferredSize(new Dimension(CHIEU_RONG_QR, CHIEU_CAO_QR));
 
-		JPanel pnlPhuongThuc = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 4));
+    this.lblTrangThaiQr.setForeground(Theme.palette().INK_MUTED());
 
-		pnlPhuongThuc.setOpaque(false);
-		pnlPhuongThuc.add(this.radChuyenKhoan);
-		pnlPhuongThuc.add(this.radTienMat);
+    pnlVungAnhQr.add(this.lblTrangThaiQr, BorderLayout.NORTH);
+    pnlVungAnhQr.add(this.lblAnhQr, BorderLayout.CENTER);
 
-		this.pnlKhuVucQr.setOpaque(false);
-		this.pnlKhuVucQr.setBorder(Theme.leDeu(8));
+    return pnlVungAnhQr;
+  }
 
-		this.pnlKhuVucQr.add(this.taoVungAnhQr(), BorderLayout.CENTER);
-		this.pnlKhuVucQr.add(this.taoThongTinChuyenKhoan(), BorderLayout.SOUTH);
+  private JPanel taoThanhNut() {
+    JButton btnHuy = new JButton(I18nReaderUtil.get("app.thanhToan.huy"));
 
-		this.radChuyenKhoan.addActionListener(e -> {
-			this.pnlKhuVucQr.setVisible(true);
-			this.taiQrNeuCan();
-			this.revalidate();
-			this.repaint();
-		});
+    JButton btnXacNhan = new JButton(I18nReaderUtil.get("app.thanhToan.xacNhan"));
 
-		this.radTienMat.addActionListener(e -> {
-			this.pnlKhuVucQr.setVisible(false);
-			this.huyQrWorker();
-			this.revalidate();
-			this.repaint();
-		});
+    Theme.applySecondary(btnHuy);
+    Theme.applyPrimary(btnXacNhan);
 
-		pnlThan.add(pnlSoTien);
-		pnlThan.add(Box.createVerticalStrut(12));
-		pnlThan.add(pnlPhuongThuc);
-		pnlThan.add(Box.createVerticalStrut(8));
-		pnlThan.add(this.pnlKhuVucQr);
+    btnHuy.addActionListener(e -> this.dispose());
 
-		return pnlThan;
-	}
+    btnXacNhan.addActionListener(e -> {
+      this.duocXacNhan = true;
+      this.dispose();
+    });
 
-	private JPanel taoVungAnhQr() {
-		JPanel pnlVungAnhQr = new JPanel(new BorderLayout(4, 4));
-		pnlVungAnhQr.setOpaque(false);
+    JPanel pnlThanhNut = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
 
-		this.lblAnhQr.setPreferredSize(new Dimension(CHIEU_RONG_QR, CHIEU_CAO_QR));
+    pnlThanhNut.setOpaque(false);
+    pnlThanhNut.add(btnHuy);
+    pnlThanhNut.add(btnXacNhan);
 
-		this.lblTrangThaiQr.setForeground(Theme.palette().INK_MUTED());
+    this.getRootPane().setDefaultButton(btnXacNhan);
+
+    return pnlThanhNut;
+  }
 
-		pnlVungAnhQr.add(this.lblTrangThaiQr, BorderLayout.NORTH);
-		pnlVungAnhQr.add(this.lblAnhQr, BorderLayout.CENTER);
+  private void taiQrNeuCan() {
+    if (!this.radChuyenKhoan.isSelected() || !this.isDisplayable() || this.qrWorker != null || this.daTaiQr) {
+      return;
+    }
+
+    String bin = QrConfig.bin();
+    String soTk = QrConfig.soTk();
+    String tenTk = QrConfig.tenTk();
 
-		return pnlVungAnhQr;
-	}
+    if (bin == null || bin.isBlank() || soTk == null || soTk.isBlank() || tenTk == null || tenTk.isBlank()) {
 
-	private JPanel taoThanhNut() {
-		JButton btnHuy = new JButton(I18nReaderUtil.get("app.thanhToan.huy"));
+      this.daTaiQr = true;
+      this.hienThiQrFallback();
+      return;
+    }
 
-		JButton btnXacNhan = new JButton(I18nReaderUtil.get("app.thanhToan.xacNhan"));
+    this.lblTrangThaiQr.setText(I18nReaderUtil.get("app.thanhToan.dangTaoQr"));
 
-		Theme.applySecondary(btnHuy);
-		Theme.applyPrimary(btnXacNhan);
+    this.qrWorker = new SwingWorker<>() {
+      @Override
+      protected BufferedImage doInBackground() {
+        return VietQrClient.taoQr(soTien, noiDungChuyenKhoan);
+      }
 
-		btnHuy.addActionListener(e -> this.dispose());
+      @Override
+      protected void done() {
+        if (qrWorker != this || !isDisplayable()) {
+          return;
+        }
 
-		btnXacNhan.addActionListener(e -> {
-			this.duocXacNhan = true;
-			this.dispose();
-		});
+        qrWorker = null;
 
-		JPanel pnlThanhNut = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        if (!radChuyenKhoan.isSelected()) {
+          return;
+        }
 
-		pnlThanhNut.setOpaque(false);
-		pnlThanhNut.add(btnHuy);
-		pnlThanhNut.add(btnXacNhan);
+        daTaiQr = true;
 
-		this.getRootPane().setDefaultButton(btnXacNhan);
+        try {
+          BufferedImage anhQrTao = get();
 
-		return pnlThanhNut;
-	}
+          if (anhQrTao != null) {
+            lblTrangThaiQr.setText("");
+            hienThiAnh(anhQrTao);
+          } else {
+            hienThiQrFallback();
+          }
+        } catch (Exception e) {
+          LOGGER.log(Level.WARNING, "Không tạo được mã QR động", e);
+          hienThiQrFallback();
+        }
+      }
+    };
 
-	private void taiQrNeuCan() {
-		if (!this.radChuyenKhoan.isSelected() || !this.isDisplayable() || this.qrWorker != null || this.daTaiQr) {
-			return;
-		}
+    this.qrWorker.execute();
+  }
 
-		String bin = QrConfig.bin();
-		String soTk = QrConfig.soTk();
-		String tenTk = QrConfig.tenTk();
+  private void hienThiQrFallback() {
+    this.lblTrangThaiQr.setText(I18nReaderUtil.get("app.thanhToan.qrLoi"));
 
-		if (bin == null || bin.isBlank() || soTk == null || soTk.isBlank() || tenTk == null || tenTk.isBlank()) {
+    try (InputStream dauVao = getClass().getClassLoader().getResourceAsStream("resources/qr.jpg")) {
 
-			this.daTaiQr = true;
-			this.hienThiQrFallback();
-			return;
-		}
+      if (dauVao == null) {
+        this.lblAnhQr.setIcon(null);
+        this.lblAnhQr.setText("");
+        return;
+      }
 
-		this.lblTrangThaiQr.setText(I18nReaderUtil.get("app.thanhToan.dangTaoQr"));
+      BufferedImage anhQrFallback = ImageIO.read(dauVao);
 
-		this.qrWorker = new SwingWorker<>() {
-			@Override
-			protected BufferedImage doInBackground() {
-				return VietQrClient.taoQr(soTien, noiDungChuyenKhoan);
-			}
+      if (anhQrFallback != null) {
+        this.hienThiAnh(anhQrFallback);
+      } else {
+        this.lblAnhQr.setIcon(null);
+        this.lblAnhQr.setText("");
+      }
 
-			@Override
-			protected void done() {
-				if (qrWorker != this || !isDisplayable()) {
-					return;
-				}
+    } catch (IOException e) {
+      LOGGER.log(Level.WARNING, "Không đọc được ảnh QR dự phòng", e);
+      this.lblAnhQr.setIcon(null);
+      this.lblAnhQr.setText("");
+    }
+  }
 
-				qrWorker = null;
+  private void hienThiAnh(BufferedImage anhQr) {
+    Image anhQrThuNho = anhQr.getScaledInstance(CHIEU_RONG_QR, CHIEU_CAO_QR, Image.SCALE_SMOOTH);
 
-				if (!radChuyenKhoan.isSelected()) {
-					return;
-				}
+    this.lblAnhQr.setText("");
+    this.lblAnhQr.setIcon(new ImageIcon(anhQrThuNho));
+  }
 
-				daTaiQr = true;
+  private void huyQrWorker() {
+    if (this.qrWorker != null) {
+      this.qrWorker.cancel(true);
+      this.qrWorker = null;
+      this.daTaiQr = false;
+    }
+  }
 
-				try {
-					BufferedImage anhQrTao = get();
+  private static String taoNoiDungChuyenKhoan(String maHoaDon) {
+    String noiDung = "TT " + (maHoaDon == null ? "" : maHoaDon);
 
-					if (anhQrTao != null) {
-					    lblTrangThaiQr.setText("");
-					    hienThiAnh(anhQrTao);
-					} else {
-					    hienThiQrFallback();
-					}
-				} catch (Exception e) {
-					LOGGER.log(Level.WARNING, "Không tạo được mã QR động", e);
-					hienThiQrFallback();
-				}
-			}
-		};
+    String ascii = Normalizer.normalize(noiDung, Normalizer.Form.NFD).replaceAll("\\p{M}", "")
+            .replaceAll("[^\\x20-\\x7E]", "");
 
-		this.qrWorker.execute();
-	}
-
-	private void hienThiQrFallback() {
-		this.lblTrangThaiQr.setText(I18nReaderUtil.get("app.thanhToan.qrLoi"));
-
-		try (InputStream dauVao = getClass().getClassLoader().getResourceAsStream("resources/qr.jpg")) {
-
-			if (dauVao == null) {
-				this.lblAnhQr.setIcon(null);
-				this.lblAnhQr.setText("");
-				return;
-			}
-
-			BufferedImage anhQrFallback = ImageIO.read(dauVao);
-
-			if (anhQrFallback != null) {
-				this.hienThiAnh(anhQrFallback);
-			} else {
-				this.lblAnhQr.setIcon(null);
-				this.lblAnhQr.setText("");
-			}
-
-		} catch (IOException e) {
-			LOGGER.log(Level.WARNING, "Không đọc được ảnh QR dự phòng", e);
-			this.lblAnhQr.setIcon(null);
-			this.lblAnhQr.setText("");
-		}
-	}
-
-	private void hienThiAnh(BufferedImage anhQr) {
-		Image anhQrThuNho = anhQr.getScaledInstance(CHIEU_RONG_QR, CHIEU_CAO_QR, Image.SCALE_SMOOTH);
-
-		this.lblAnhQr.setText("");
-		this.lblAnhQr.setIcon(new ImageIcon(anhQrThuNho));
-	}
-
-	private void huyQrWorker() {
-		if (this.qrWorker != null) {
-			this.qrWorker.cancel(true);
-			this.qrWorker = null;
-			this.daTaiQr = false;
-		}
-	}
-
-	private static String taoNoiDungChuyenKhoan(String maHoaDon) {
-		String noiDung = "TT " + (maHoaDon == null ? "" : maHoaDon);
-
-		String ascii = Normalizer.normalize(noiDung, Normalizer.Form.NFD).replaceAll("\\p{M}", "")
-				.replaceAll("[^\\x20-\\x7E]", "");
-
-		return ascii.length() > 25 ? ascii.substring(0, 25) : ascii;
-	}
+    return ascii.length() > 25 ? ascii.substring(0, 25) : ascii;
+  }
 
 }

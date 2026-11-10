@@ -2,10 +2,12 @@ package iuh.fit.gui;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
+import iuh.fit.gui.component.LucideIcon;
 import iuh.fit.util.I18nReaderUtil;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -158,6 +160,23 @@ public final class Theme {
         styleNut(button, bg, fg);
         button.setMargin(new Insets(4, 12, 4, 12));
         button.setBorderPainted(false);
+    }
+
+    public static JButton nut(String labelKey, String iconName, int coIcon, Color mauIcon) {
+        JButton nut = new JButton(I18nReaderUtil.get(labelKey));
+        nut.setIcon(new LucideIcon(iconName, coIcon, mauIcon));
+        nut.setIconTextGap(6);
+        nut.setFocusPainted(false);
+        return nut;
+    }
+
+    public static JLabel tieuDeDialog(String titleKey) {
+        JLabel tieuDe = new JLabel(I18nReaderUtil.get(titleKey));
+        Font fontTieuDe = UIManager.getFont("TitledBorder.font");
+        tieuDe.setFont(fontTieuDe == null ? fieldLabelFont() : fontTieuDe);
+        tieuDe.setForeground(LIGHT.INK());
+        tieuDe.setBorder(leDeu(4));
+        return tieuDe;
     }
 
     public static void applyPrimary(JButton nut) {

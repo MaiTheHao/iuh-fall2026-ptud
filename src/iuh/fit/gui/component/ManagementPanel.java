@@ -92,8 +92,6 @@ public class ManagementPanel extends JPanel {
   private final List<JComboBox<Object>> boLocCombo = new ArrayList<>();
   private final DefaultTableModel moHinhBang = new DefaultTableModel() {
 
-    
-
     @Override
     public boolean isCellEditable(int row, int column) {
       return ManagementPanel.this.chonNhieu && column == 0;
@@ -107,8 +105,6 @@ public class ManagementPanel extends JPanel {
     }
   };
   private final JTable tblDuLieu = new JTable(this.moHinhBang) {
-
-    
 
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -187,7 +183,6 @@ public class ManagementPanel extends JPanel {
 
     this.add(listPanel, BorderLayout.CENTER);
   }
-
 
   private void cauHinhThanhThaoTac() {
     this.pnlThanhThaoTac.setOpaque(false);
@@ -371,7 +366,6 @@ public class ManagementPanel extends JPanel {
     });
   }
 
-
   private List<Object[]> chupDuLieu() {
     List<Object[]> ketQua = new ArrayList<>();
     int lech = this.chonNhieu ? 1 : 0;
@@ -433,8 +427,6 @@ public class ManagementPanel extends JPanel {
   }
 
   private final class TieuDeChonTatCa extends JCheckBox implements TableCellRenderer {
-
-    
 
     private TieuDeChonTatCa() {
       this.setHorizontalAlignment(SwingConstants.CENTER);
@@ -723,8 +715,6 @@ public class ManagementPanel extends JPanel {
   }
 
   private static final class KhungBoLoc extends JPanel {
-
-    
 
     private int rongDaDo = -1;
 

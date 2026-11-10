@@ -43,8 +43,6 @@ import java.util.concurrent.ExecutionException;
 
 public abstract class ChonSanPhamDialog<T> extends JDialog {
 
-  
-
   private static final int DO_RONG = 960;
   private static final int CHIEU_CAO = 640;
   private static final int THOI_GIAN_CHO_LOC = 250;
@@ -53,11 +51,9 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
 
   private final JTextField txtTimKiem = new JTextField();
   private final JLabel lblTrangThai = new JLabel();
-  private final JSpinner soLuongSpinner =
-          new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
+  private final JSpinner soLuongSpinner = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
   private final JPanel pnlBoLoc = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
   private final DefaultTableModel model = new DefaultTableModel(new Object[0], 0) {
-    
 
     @Override
     public boolean isCellEditable(int row, int column) {
@@ -149,8 +145,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
 
   protected abstract KetQuaTai<T> taiDuLieu(String tuKhoa) throws SQLException;
 
-  protected void chuanBiTaiLieu() {
-  }
+  protected void chuanBiTaiLieu() {}
 
   protected abstract String[] tenCot();
 
@@ -200,10 +195,9 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
   }
 
   private JPanel taoPanelDuoi() {
-    JButton btnChon = new JButton(I18nReaderUtil.get("app.common.confirm"));
+    JButton btnChon = Theme.nut("app.common.confirm", "check", 16, Theme.palette().ON_ACCENT());
     JButton btnHuy = new JButton(I18nReaderUtil.get("app.common.cancel"));
 
-    btnChon.setIcon(new LucideIcon("check", 16, Theme.palette().ON_ACCENT()));
     Theme.applyPrimary(btnChon);
     Theme.applySecondary(btnHuy);
 
@@ -380,8 +374,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
     super.dispose();
   }
 
-  public record KetQuaChon<T>(T sanPham, int soLuong) {
-  }
+  public record KetQuaChon<T>(T sanPham, int soLuong) {}
 
   public record KetQuaTai<T>(List<T> items, int tongSoKetQua) {
     public KetQuaTai {
