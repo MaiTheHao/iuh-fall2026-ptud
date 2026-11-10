@@ -1,7 +1,7 @@
 # E2E A — Thanh toán QR / tiền mặt
 
 - **Người test:** Nguyễn Minh Quốc (người xây `ThanhToanDialog`) · **Nhánh:** `test/e2e-a-thanh-toan`
-- **Ngày chạy:** ________ · **Commit `develop`:** ________ · **DB:** sạch, migration `V0`–`V15` (gồm seed mới)
+- **Ngày chạy:** 10/11/2026 · **Commit `develop`:** ________ · **DB:** sạch, migration `V0`–`V15` (gồm seed mới)
 - **Màn phạm vi:** SCR-10 Lập hóa đơn, SCR-10B Quản lý hóa đơn
 - **Quy ước:** dữ liệu tự tạo có tiền tố `E2E-A`. Điền `PASS / NO` ngay sau mỗi kịch bản; `NO` thì bắt buộc mô tả lỗi theo mẫu 7 dòng trong file hướng dẫn.
 - **Chuẩn bị:** đăng nhập `admin`. Tạo trước ít nhất 3 phiếu tiếp nhận chưa có hóa đơn (SCR-04, biển số khớp regex, ví dụ `59C12345`), dùng để lập 3+ hóa đơn `CHO_THANH_TOAN` ở SCR-10. Một hóa đơn nên có dịch vụ + phụ tùng + voucher `VC-20261020-000007` (20%) để có "thực thu ≠ tổng gộp".
@@ -36,7 +36,7 @@ qr.properties phai co thong tin
 4. Kiểm tra DB: bảng `ThanhToan` và cột `trangThaiHoaDon` của `HoaDon`.
 **Kết quả mong đợi:** ảnh QR hiển thị không lỗi; sau khi xác nhận có thông báo thành công, hóa đơn chuyển `DA_THANH_TOAN`, form khóa chỉnh sửa; DB có đúng 1 dòng `ThanhToan`: `phuongThuc = CHUYEN_KHOAN`, `soTien` = thực thu (không phải tổng gộp), `thoiGian` ≈ thời điểm xác nhận, `maNhanVien` = người đang đăng nhập, `maThanhToan` bắt đầu bằng `TT`, `ghiChu` lưu đúng.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -50,7 +50,7 @@ qr.properties phai co thong tin
 3. Bấm **Xác nhận**. Kiểm tra DB bảng `ThanhToan`.
 **Kết quả mong đợi:** vùng QR ẩn ngay khi chọn Tiền mặt (không có request tạo QR nào); sau xác nhận DB ghi dòng `phuongThuc = TIEN_MAT`, `soTien` đúng, hóa đơn `DA_THANH_TOAN`.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -64,7 +64,7 @@ qr.properties phai co thong tin
 3. Kiểm tra DB bảng `ThanhToan` và trạng thái hóa đơn.
 **Kết quả mong đợi:** cả hai lần dialog đóng, hóa đơn vẫn `CHO_THANH_TOAN`, form vẫn sửa được, DB không có dòng thanh toán mới, không lỗi.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -78,10 +78,10 @@ qr.properties phai co thong tin
 3. Kiểm tra cột `ghiChu` của 2 dòng `ThanhToan`.
 **Kết quả mong đợi:** dòng QR lưu ghi chú đã nhập; dòng tiền mặt ghi chú rỗng/NULL (hành vi hiện tại — ghi lại thực tế nếu khác); không văng lỗi.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	người dùng phải tự nhập ghi chú hệ thôngs không sinhh
 ---
 
 ### E2E-A-06 · Fallback khi thiếu cấu hình QR
@@ -93,10 +93,10 @@ qr.properties phai co thong tin
 3. Trả lại file như cũ, build lại (ghi lại trong mô tả).
 **Kết quả mong đợi:** dialog không gọi API, hiện ngay ảnh `qr.jpg` + khối text; nút Xác nhận vẫn hoạt động; thanh toán vẫn ghi được `CHUYEN_KHOAN` vào DB; app không văng lỗi.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	nhưng nội dung như tên và stk bin = "" 
 ---
 
 ### E2E-A-07 · Mất mạng khi tạo QR
@@ -107,7 +107,7 @@ qr.properties phai co thong tin
 3. Bật lại mạng.
 **Kết quả mong đợi:** sau timeout (đợi tối đa ~60 giây, UI vẫn thao tác được trong lúc chờ), dialog hiện ảnh dự phòng `qr.jpg`/thông báo lỗi QR + khối text, không treo giao diện; thanh toán vẫn thành công và ghi đúng DB.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -120,7 +120,7 @@ qr.properties phai co thong tin
 2. Mở hóa đơn đó ở SCR-10B, kiểm tra nhãn trạng thái và nút.
 **Kết quả mong đợi:** form đã khóa (nút thanh toán không bấm được, hoặc nếu bấm được thì bị từ chối với thông báo rõ ràng từ i18n, không lộ lỗi SQL trùng khóa `UQ_ThanhToan_maHoaDon`); DB vẫn chỉ 1 dòng `ThanhToan` cho hóa đơn này.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
 
@@ -135,10 +135,10 @@ qr.properties phai co thong tin
 3. Chọn hóa đơn đã hủy đó, thử In hóa đơn (chi tiết hơn ở lane B).
 **Kết quả mong đợi:** hóa đơn chuyển `DA_HUY` kèm lý do, tồn kho được hoàn lại; hành vi với dòng `ThanhToan` (giữ nguyên hay xóa) và nội dung bản in sau hủy — **ghi lại đúng thực tế**; mọi thông báo rõ ràng, không văng lỗi.
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+	
 ---
 
 ## Tổng kết
