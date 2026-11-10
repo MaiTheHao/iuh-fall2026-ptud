@@ -407,10 +407,8 @@
 			"lyDoHuy": "Cancellation reason (recorded on the linked invoice)",
 			"loiHoaDonDaThanhToan": "This slip has a paid invoice. Cancel the invoice on the Invoice screen first, then cancel the slip.",
 			"huyBangNut": "Please use the Cancel Slip button to cancel an intake slip.",
-			"chuyenTrangThai": "Change Status",
-			"suaNoiDung": "Edit Content",
-			"khongCoTrangThaiKeTiep": "No next status available",
-			"chiSuaKhiMoi": "Content can only be edited while the slip is New"
+			"suaNoiDung": "Update Slip",
+			"chiSuaKhiDaKetThuc": "The slip can only be edited before it is completed or cancelled."
 		},
 		"tiepNhan": {
 			"loiDuLieu": "Intake data must not be empty.",
@@ -887,7 +885,7 @@
 			"revenueToday": "Today's revenue",
 			"ticketsInProgress": "Tickets in progress",
 			"ticketsInProgressSub": "in the workshop",
-			"ticketsAwaitingHandover": "Tickets awaiting handover",
+			"ticketsAwaitingHandover": "Tickets awaiting",
 			"ticketsAwaitingHandoverSub": "ready for pickup",
 			"complaintsPending": "Unresolved complaints",
 			"complaintsPendingSub": "needs attention",

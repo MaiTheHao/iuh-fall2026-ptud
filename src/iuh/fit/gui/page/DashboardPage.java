@@ -25,7 +25,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -34,7 +33,7 @@ import java.util.Optional;
 
 public class DashboardPage extends AbstractPage {
 
-    private static final int RONG_THE = 820;
+    private static final int RONG_COT_PHAI = 550;
     private static final int KHOANG_CACH = 12;
     private static final int CO_ICON = 22;
     private static final DecimalFormat DINH_DANG_TIEN = new DecimalFormat("#,##0");
@@ -67,7 +66,7 @@ public class DashboardPage extends AbstractPage {
             thongKe = ThongKeDashboard.rong();
         }
 
-        this.add(new KhungCanPhai(this.taoThe(nhanVien, thongKe)), BorderLayout.CENTER);
+        this.add(this.taoBoCuc(nhanVien, thongKe), BorderLayout.CENTER);
         this.revalidate();
         this.repaint();
     }
@@ -82,15 +81,38 @@ public class DashboardPage extends AbstractPage {
         return MenuGroup.TRANG_CHU;
     }
 
-    JPanel taoThe(NhanVien nhanVien, ThongKeDashboard thongKe) {
-        JPanel the = new JPanel();
-        the.setLayout(new BoxLayout(the, BoxLayout.Y_AXIS));
-        the.setBackground(Theme.BG);
+    private JPanel taoBoCuc(NhanVien nhanVien, ThongKeDashboard thongKe) {
+        JPanel pnlChinh = new JPanel(new BorderLayout(16, 0));
+        pnlChinh.setOpaque(false);
 
-        the.add(this.taoTheNhanVien(nhanVien, thongKe.caHomNay()));
-        the.add(Box.createVerticalStrut(KHOANG_CACH));
-        the.add(this.taoLuoiChiSo(thongKe));
-        the.add(Box.createVerticalGlue());
+        // Lịch chiếm toàn bộ ô bên trái, thông tin nhân viên và chỉ số dồn sang cột phải.
+        pnlChinh.add(this.taoLichCuaToi(), BorderLayout.CENTER);
+        pnlChinh.add(this.taoThongTin(nhanVien, thongKe), BorderLayout.EAST);
+        return pnlChinh;
+    }
+
+    private JPanel taoThongTin(NhanVien nhanVien, ThongKeDashboard thongKe) {
+        JPanel cot = new JPanel();
+        cot.setLayout(new BoxLayout(cot, BoxLayout.Y_AXIS));
+        cot.setOpaque(false);
+        cot.setPreferredSize(new Dimension(RONG_COT_PHAI, 0));
+
+        cot.add(this.taoTheNhanVien(nhanVien, thongKe.caHomNay()));
+        cot.add(Box.createVerticalStrut(KHOANG_CACH));
+        cot.add(this.taoLuoiChiSo(thongKe));
+        cot.add(Box.createVerticalGlue());
+        return cot;
+    }
+
+    private JPanel taoLichCuaToi() {
+        // Tạo instance riêng vì page gốc đã nằm trong CardLayout của Layout.
+        LichCuaToiPage lich = new LichCuaToiPage();
+        lich.render();
+        lich.setBorder(Theme.leDeu(0));
+
+        // Bọc trong card để lịch phủ kín ô bên trái thay vì nằm rời trên nền.
+        JPanel the = Theme.contentPanel(8);
+        the.add(lich, BorderLayout.CENTER);
         return the;
     }
 
@@ -132,6 +154,8 @@ public class DashboardPage extends AbstractPage {
                 this.setOpaque(false);
             }
         });
+        // Giữ lưới chỉ số ở chiều cao tự nhiên, phần dư nhường cho khoảng trống bên dưới.
+        luoi.setMaximumSize(new Dimension(Integer.MAX_VALUE, luoi.getPreferredSize().height));
         return luoi;
     }
 
@@ -269,29 +293,4 @@ public class DashboardPage extends AbstractPage {
         return phanCong.getCaLamViec().getI18NBusinessName() + " | " + ngay.format(dinhDang);
     }
 
-    private static final class KhungCanPhai extends JPanel {
-
-        
-
-        private final JComponent the;
-
-        private KhungCanPhai(JComponent the) {
-            this.the = the;
-            this.setOpaque(false);
-            this.setLayout(null);
-            this.add(the);
-        }
-
-        @Override
-        public void doLayout() {
-            Insets insets = this.getInsets();
-            int rong = Math.min(RONG_THE, this.getWidth() - insets.left - insets.right);
-
-            this.the.setBounds(
-                    this.getWidth() - insets.right - rong,
-                    insets.top,
-                    rong,
-                    this.getHeight() - insets.top - insets.bottom);
-        }
-    }
 }

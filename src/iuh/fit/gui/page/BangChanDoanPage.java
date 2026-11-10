@@ -378,7 +378,8 @@ public class BangChanDoanPage extends AbstractPage {
 
     @Override
     public MenuGroup getGroup() {
-        return MenuGroup.TIEP_NHAN;
+        // Màn hình con chỉ mở từ Quản lý chẩn đoán, không hiển thị trên menu.
+        return null;
     }
 
     @Override

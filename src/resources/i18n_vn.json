@@ -425,10 +425,8 @@
 			"lyDoHuy": "Lý do hủy (sẽ ghi vào hóa đơn liên kết)",
 			"loiHoaDonDaThanhToan": "Phiếu đã có hóa đơn đã thanh toán. Vui lòng sang trang Hóa đơn để hủy hóa đơn trước, rồi quay lại hủy phiếu.",
 			"huyBangNut": "Vui lòng dùng nút Hủy Phiếu để hủy phiếu tiếp nhận.",
-			"chuyenTrangThai": "Chuyển trạng thái",
-			"suaNoiDung": "Sửa nội dung",
-			"khongCoTrangThaiKeTiep": "Không còn trạng thái kế tiếp",
-			"chiSuaKhiMoi": "Chỉ được sửa nội dung khi phiếu ở trạng thái Mới"
+			"suaNoiDung": "Cập nhật phiếu",
+			"chiSuaKhiDaKetThuc": "Chỉ được sửa khi phiếu chưa hoàn thành hoặc chưa hủy."
 		},
 		"tiepNhan": {
 			"loiDuLieu": "Dữ liệu tiếp nhận không được để trống.",
@@ -885,9 +883,9 @@
 			"shift": "Ca",
 			"noShift": "Chưa phân ca",
 			"revenueToday": "Doanh thu hôm nay",
-			"ticketsInProgress": "Phiếu tiếp nhận đang xử lý",
+			"ticketsInProgress": "Phiếu đang xử lý",
 			"ticketsInProgressSub": "đang trong xưởng",
-			"ticketsAwaitingHandover": "Phiếu tiếp nhận chờ bàn giao",
+			"ticketsAwaitingHandover": "Phiếu chờ bàn giao",
 			"ticketsAwaitingHandoverSub": "chờ trả khách",
 			"complaintsPending": "Khiếu nại chưa xử lý",
 			"complaintsPendingSub": "cần xử lý",

@@ -40,7 +40,7 @@ public class PhieuTiepNhanService {
     private static final String ERROR_MO_TA_TRONG = "app.phieuTiepNhan.loiMoTaTrong";
     private static final String ERROR_GHI_DU_LIEU = "app.phieuTiepNhan.loiGhiDuLieu";
     private static final String ERROR_PHIEU_NOT_FOUND = "app.phieuTiepNhan.khongTonTai";
-    private static final String ERROR_CHI_SUA_KHI_MOI = "app.phieuTiepNhan.chiSuaKhiMoi";
+    private static final String ERROR_CHI_SUA_KHI_DA_KET_THUC = "app.phieuTiepNhan.chiSuaKhiDaKetThuc";
 
     private final PhieuTiepNhanDAO phieuTiepNhanDAO = new PhieuTiepNhanDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
@@ -97,8 +97,9 @@ public class PhieuTiepNhanService {
         PhieuTiepNhan hienTai = this.phieuTiepNhanDAO.findById(ma)
                 .orElseThrow(() -> new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND));
 
-        if (hienTai.getTrangThai() != TrangThaiPhieuTiepNhan.TIEP_NHAN) {
-            throw new IllegalStateException(ERROR_CHI_SUA_KHI_MOI);
+        if (hienTai.getTrangThai() == TrangThaiPhieuTiepNhan.HOAN_THANH
+                || hienTai.getTrangThai() == TrangThaiPhieuTiepNhan.DA_HUY) {
+            throw new IllegalStateException(ERROR_CHI_SUA_KHI_DA_KET_THUC);
         }
 
         this.kiemTraChuyenTrangThai(hienTai.getTrangThai(), phieu.getTrangThai());

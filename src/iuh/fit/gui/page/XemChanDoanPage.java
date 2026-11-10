@@ -160,6 +160,7 @@ public class XemChanDoanPage extends AbstractPage {
         VanDeKyThuat vanDe = this.danhSachHienTai.get(row);
         try {
             this.vanDeKyThuatService.capNhatTrangThaiDongY(vanDe.getMaVanDe(), trangThai);
+            ThongBao.thongTin(this, "app.common.update_succeed");
             this.taiLai();
         } catch (IllegalArgumentException | IllegalStateException ex) {
             ThongBao.loi(this, ex);
@@ -176,6 +177,7 @@ public class XemChanDoanPage extends AbstractPage {
 
     @Override
     public MenuGroup getGroup() {
-        return MenuGroup.TIEP_NHAN;
+        // Màn hình con chỉ mở từ Quản lý phiếu tiếp nhận, không hiển thị trên menu.
+        return null;
     }
 }
