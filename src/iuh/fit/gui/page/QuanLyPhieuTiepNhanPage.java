@@ -23,7 +23,6 @@ import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -73,7 +72,7 @@ public class QuanLyPhieuTiepNhanPage extends AbstractPage {
     @Override
     public void render() {
         this.removeAll();
-        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBorder(Theme.leDeu(8));
         this.setBackground(Theme.BG);
 
         this.pnlDanhSach = new ManagementPanel();

@@ -20,7 +20,6 @@ import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 import iuh.fit.util.TextNormalizerUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
@@ -65,7 +64,7 @@ public class VoucherPage extends AbstractPage {
   @Override
   public void render() {
     this.removeAll();
-    this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    this.setBorder(Theme.leDeu(8));
     this.setBackground(Theme.BG);
 
     this.pnlDanhSach = new ManagementPanel();

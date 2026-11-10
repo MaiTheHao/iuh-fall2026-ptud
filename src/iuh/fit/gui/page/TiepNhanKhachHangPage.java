@@ -20,7 +20,6 @@ import iuh.fit.service.XeService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -103,7 +102,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
   @Override
   public void render() {
     this.removeAll();
-    this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    this.setBorder(Theme.leDeu(8));
     this.setBackground(Theme.BG);
     this.setLayout(new BorderLayout(16, 16));
 
@@ -410,9 +409,7 @@ public class TiepNhanKhachHangPage extends AbstractPage {
     JPanel panel = new JPanel();
     panel.setOpaque(true);
     panel.setBackground(Theme.PANEL);
-    panel.setBorder(BorderFactory.createCompoundBorder(
-            Theme.titledBorder(titleKey),
-            BorderFactory.createEmptyBorder(8, 8, 8, 8)));
+    panel.setBorder(Theme.khungTieuDe(titleKey, 8));
     return panel;
   }
 

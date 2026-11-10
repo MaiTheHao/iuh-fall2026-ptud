@@ -4,7 +4,6 @@ import iuh.fit.gui.Theme;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.TaiAnhUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -94,7 +93,7 @@ public class AnhField extends JPanel {
 
         this.lblPreview.setPreferredSize(new Dimension(240, 160));
         this.lblPreview.setForeground(Theme.INK);
-        this.lblPreview.setBorder(BorderFactory.createLineBorder(Theme.BORDER));
+        this.lblPreview.setBorder(Theme.vienNhat());
         this.lblPreview.setIcon(null);
         this.lblPreview.setText(I18nReaderUtil.get(this.keyChuaCoAnh));
 

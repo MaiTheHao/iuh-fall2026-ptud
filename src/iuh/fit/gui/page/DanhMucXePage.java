@@ -18,7 +18,6 @@ import iuh.fit.service.DanhMucXeService;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.NumberParseUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -80,7 +79,7 @@ public final class DanhMucXePage extends AbstractPage {
   @Override
   public void render() {
     this.removeAll();
-    this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    this.setBorder(Theme.leDeu(8));
     this.setBackground(Theme.BG);
 
     JTabbedPane tabs = new JTabbedPane();

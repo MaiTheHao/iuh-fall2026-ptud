@@ -20,7 +20,6 @@ import iuh.fit.util.HoaDonXlsxUtil;
 import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.InHoaDonUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -79,7 +78,7 @@ public class QuanLyHoaDonPage extends AbstractPage {
 	@Override
 	public void render() {
 		this.removeAll();
-		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		this.setBorder(Theme.leDeu(8));
 		this.setBackground(Theme.BG);
 
 		ManagementPanel panel = new ManagementPanel();

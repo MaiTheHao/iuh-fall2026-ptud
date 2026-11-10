@@ -17,7 +17,6 @@ import iuh.fit.gui.form.ChanDoanDongFormPanel;
 import iuh.fit.service.VanDeKyThuatService;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -68,7 +67,7 @@ public class BangChanDoanPage extends AbstractPage {
     @Override
     public void render() {
         this.removeAll();
-        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBorder(Theme.leDeu(8));
         this.setBackground(Theme.BG);
 
         this.pnlDanhSach = new ManagementPanel();

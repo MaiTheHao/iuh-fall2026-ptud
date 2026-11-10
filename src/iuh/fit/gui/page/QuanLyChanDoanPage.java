@@ -15,7 +15,6 @@ import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.sql.SQLException;
@@ -54,7 +53,7 @@ public class QuanLyChanDoanPage extends AbstractPage {
     @Override
     public void render() {
         this.removeAll();
-        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBorder(Theme.leDeu(8));
         this.setBackground(Theme.BG);
 
         this.pnlDanhSach = new ManagementPanel();

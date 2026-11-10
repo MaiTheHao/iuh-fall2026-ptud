@@ -31,7 +31,6 @@ import iuh.fit.service.ThanhToanService;
 import iuh.fit.service.VoucherService;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -143,7 +142,7 @@ public class LapHoaDonPage extends AbstractPage {
 	@Override
 	public void render() {
 		this.removeAll();
-		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		this.setBorder(Theme.leDeu(8));
 		this.setBackground(Theme.BG);
 
 		ManagementFormPanel form = new ManagementFormPanel("app.hoaDon.thongTinTitle");

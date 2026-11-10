@@ -8,7 +8,6 @@ import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.AuthService;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -32,7 +31,7 @@ public class DoiMatKhauPage extends AbstractPage {
 	@Override
 	public void render() {
 		this.removeAll();
-		this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		this.setBorder(Theme.leDeu(8));
 		this.setBackground(Theme.BG);
 		this.xoaTrang();
 

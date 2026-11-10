@@ -16,7 +16,6 @@ import iuh.fit.service.KhieuNaiService;
 import iuh.fit.service.PhieuTiepNhanService;
 import iuh.fit.util.I18nReaderUtil;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -85,18 +84,14 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     @Override
     public void render() {
         this.removeAll();
-        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        this.setBorder(Theme.leDeu(8));
 
         this.btnLamMoi.setText(I18nReaderUtil.get("app.khieuNai.lamMoi"));
         this.btnLuu.setText(I18nReaderUtil.get("app.khieuNai.luu"));
 
         JPanel mainContainer = new JPanel(new BorderLayout(0, 10));
         mainContainer.setOpaque(false);
-        Insets padding = Theme.fieldRowInsets();
-        mainContainer.setBorder(BorderFactory.createCompoundBorder(
-                Theme.titledBorder("app.khieuNai.tiepNhanTitle"),
-                BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
-        ));
+        mainContainer.setBorder(Theme.khungTieuDe("app.khieuNai.tiepNhanTitle", Theme.fieldRowInsets()));
 
         JPanel pnlTop = new JPanel(new GridLayout(1, 2, 16, 0));
         pnlTop.setOpaque(false);
@@ -108,7 +103,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setOpaque(false);
-        buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.BORDER));
+        buttonPanel.setBorder(Theme.vienTren());
         buttonPanel.add(Box.createVerticalStrut(24));
 
         this.btnLamMoi.setPreferredSize(new Dimension(140, 40));
@@ -271,11 +266,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     private JPanel createKhachHangPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
-        Insets padding = Theme.fieldRowInsets();
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                Theme.titledBorder("app.khieuNai.tieuDeKhachHang"),
-                BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
-        ));
+        panel.setBorder(Theme.khungTieuDe("app.khieuNai.tieuDeKhachHang", Theme.fieldRowInsets()));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -307,11 +298,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     private JPanel createPhieuTiepNhanPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
-        Insets padding = Theme.fieldRowInsets();
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                Theme.titledBorder("app.khieuNai.tieuDePhieu"),
-                BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
-        ));
+        panel.setBorder(Theme.khungTieuDe("app.khieuNai.tieuDePhieu", Theme.fieldRowInsets()));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -343,11 +330,7 @@ public class TiepNhanKhieuNaiPage extends AbstractPage {
     private JPanel createNoiDungPanel() {
         JPanel panel = new JPanel(new BorderLayout(0, 5));
         panel.setOpaque(false);
-        Insets padding = Theme.fieldRowInsets();
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                Theme.titledBorder("app.khieuNai.tieuDeNoiDung"),
-                BorderFactory.createEmptyBorder(padding.top, padding.left, padding.bottom, padding.right)
-        ));
+        panel.setBorder(Theme.khungTieuDe("app.khieuNai.tieuDeNoiDung", Theme.fieldRowInsets()));
 
         this.txaNoiDungKhieuNai.setLineWrap(true);
         this.txaNoiDungKhieuNai.setWrapStyleWord(true);
