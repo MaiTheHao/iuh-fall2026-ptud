@@ -1,143 +1,80 @@
 ---
 name: fe-convention
-description: Enforce Gara Ô tô Lúa Java 17 Swing & FlatLaf frontend conventions for all files under `src/iuh/fit/gui` (theme, component, layout, page, form, dialog, renderer, i18n). Use this skill whenever reading, creating, modifying, reviewing, or refactoring UI screens, forms, layouts, dialogs, FlatLaf styling, Theme tokens, Lucide icons, or user-visible text keys.
+description: Enforce Gara Ô tô Lúa Java 17 Swing + FlatLaf frontend conventions (structure, theme, management screens, forms, dialogs, pickers, i18n, control naming) for all files under `src/iuh/fit/gui`. Use whenever creating, renaming, reading, reviewing, or refactoring UI screens, forms, dialogs, Theme usage, control names, or user-visible text, and before accepting any GUI diff.
 ---
 
-# Frontend Conventions — Gara Ô tô Lúa (Java 17 Swing + FlatLaf)
+# Frontend Convention — RULES (MUST / MUST NOT)
 
-This skill governs all user interface development in `src/iuh/fit/gui`. The UI is built on standard **Java 17 Swing** powered by **FlatLaf 3.5.4** as the Look & Feel engine and centralized through `iuh.fit.gui.theme.Theme`.
+## 1. Structure & boundary
 
----
+- MUST: GUI talks only to `iuh.fit.service.*` and `iuh.fit.dto.*`. MUST NOT import `dao.*` or `java.sql.*`, nor write SQL.
+- MUST: every screen = `AbstractPage` subclass in `gui/page` with `render()` + `getTitleKey()`, registered in `PageRegistry` + `MenuRegistry`.
+- MUST: navigate with `goTo(XxxPage.class)`; NEVER `new XxxPage()` in a listener.
+- MUST: `render()` re-run calls `clearActionListeners(...)` before re-attaching.
+- MUST: listener does only 3 things: read UI → wrap DTO → call SERVICE → show result via `ThongBao`. NO validation/calculation in listeners.
+- Fixed desktop target: window `1280×800` (maximize on login); `LayoutHeader` 52px; row height `34` (`44` with action column, `72` with thumbnail). MUST NOT use percentage dividers, `getScreenSize`, `setResizeWeight`, or resize reflow.
 
-## 1. Non-Negotiables for Frontend
+## 2. Theme
 
-1. **Strict Layer Boundary**: GUI only communicates with `iuh.fit.service.*` and `iuh.fit.dto.*`. **NEVER** import or reference `dao`, `java.sql.*`, or execute SQL queries in GUI code.
-2. **Single Source of Visual Styling**: All colors, fonts, borders, insets, and visual states come from `Theme.java` and `Theme.palette()`. **NEVER** use `new Color(...)`, `new Font(...)`, hex literals, or raw `BorderFactory` calls in pages or forms.
-3. **Fixed Desktop Target**: The desktop window is sized for `1280×800` (minimized/restored) and maximized upon login. Management screens use a full-width data grid (no side form column). Modal form dialogs open at `760×800` (minimum `520×320`). Table row height is `34px` (`44px` when an action column is present, `72px` when a thumbnail column is present). No dynamic percentage scaling or custom responsive reflow.
-4. **Standard Management Pattern**: Management screens consist of a single full-width `ManagementPanel` containing the filter bar, an on-table action toolbar (`setAddAction` / `setBatchAction`), a `JTable` with an optional selection checkbox column, an action column (`addActionColumn`), and pagination. Create/update uses `BaseFormDialog` (modal) hosting a feature form panel; the legacy `ManagementFormPanel` + `JSplitPane` layout is only allowed on screens not yet migrated.
-5. **Standard Form Fields**: Always use `FormFieldPanel.addField(labelKey, component)`. Never lay out label/field pairs manually. Currency and numeric inputs must be right-aligned (`setHorizontalAlignment(JTextField.RIGHT)`). Inline validation uses `FormValidationHelper` (`FlatClientProperties.OUTLINE = "error"`) and must focus the first invalid field.
-6. **Modal Pickers**: Selecting a record from an unbounded dataset (customers, spare parts, vehicles) must use a modal dialog returning `Optional<T>`, never an unpaged combo box. The only approved exception is `ComboTimKiem<T>` for a quick lookup by a unique key (phone number, licence plate): 300 ms debounce, at most 10 rows, and selecting a row fills the related fields.
-7. **Strict i18n Synchronization**: All visible labels, tooltips, placeholders, and dialog messages must be i18n keys present in both `src/resources/i18n_vn.json` and `src/resources/i18n_en.json`.
-8. **Event Handler Simplicity**: Listeners must only do 3 things: (1) read and wrap UI inputs into DTOs, (2) call SERVICE, and (3) display the outcome via `ThongBao`. No validation logic or calculations inside listeners.
+- MUST: all color/font/border/inset via `Theme` / `Theme.palette()`.
+- MUST NOT: `new Color(`, `new Font(`, hex literal, `BorderFactory.*` outside `gui/theme`.
+- Use helpers: `applyPrimary/Secondary/Danger`, `applyPillButton`, `applyCardStyle`, `contentPanel(n)`, `vienNhat()`, `leDeu(n)`, `titledBorder(key)`, `fieldLabelFont()`, `fieldRowInsets()`, `applyReadOnly/applyEditable`, `styleTable`.
+- States by token: hover `ACCENT_HOVER`, focus `FOCUS`, selection `TABLE_SELECTION_BG`, helper text `INK_MUTED`. `chuTrenAnh()` only over image/scrim; on light panel use `INK`.
+- Keep `LoginPage`, `DashboardPage`, `PlaceholderPage`, `BaseFormDialog` free of inline color/font.
 
----
+## 3. Management screen
 
-## 2. Architecture & File Structure (`src/iuh/fit/gui`)
+- MUST: one full-width `ManagementPanel` (filter bar, `setAddAction`, optional `setBatchAction`, optional checkbox column, `addActionColumn`, pagination); `setRowDoubleClickListener` opens edit.
+- MUST: `enableMultiSelection(true)` BEFORE `setHeaders(...)`; column 0 becomes checkbox → data columns +1; use index constants, no magic numbers.
+- MUST NOT: add own filter debounce timer (ManagementPanel has 300ms); use `JSplitPane`/`ManagementFormPanel` on migrated screens (legacy only: `DoiMatKhauPage`, `LapHoaDonPage`).
+- Action icons: `pencil` (edit), `trash-2` (delete). Icon PNG MUST exist in `src/resources/icons` (missing = silently invisible).
+- Only `ManagementPanel`, `ChonSanPhamDialog`, `ComboTimKiem` may create `new Timer`.
+- Batch: confirm once with count; run row by row in try/catch (a rejected row MUST NOT abort loop); all ok → `app.common.delete_succeed`, else `*_batch_*_result` with `success/total`.
 
-```
-src/iuh/fit/gui/
-├── GUI.java                    # Window lifecycle, anti-aliasing text settings, root frame
-├── theme/
-│   └── Theme.java              # FlatLaf setup, semantic Palette record, style helpers, UIManager defaults
-├── layout/
-│   ├── Layout.java             # Main application shell with CardLayout & background art
-│   ├── LayoutHeader.java       # Modern 52px app header (top menus, user badge, VI/EN toggle, logout)
-│   └── MenuRegistry.java       # Menu tracking, active underline indicators, permission filtering
-├── component/
-│   ├── ManagementPanel.java    # Full-width grid: search, filters, action toolbar (add/batch), checkbox + action columns, pagination
-│   ├── ManagementFormPanel.java# LEGACY right-side form card (non-migrated screens only)
-│   ├── BaseFormDialog.java     # Standard modal dialog for create/update (header, scrollable body, ESC/Enter footer)
-│   ├── FormValidationHelper.java # Inline FlatLaf error outline helpers + focus/auto-clear
-│   ├── FormFieldPanel.java     # Standardized GridBag form layout with uniform insets & label fonts
-│   ├── BoChonNgayGio.java      # Date/DateTime pickers with locale & clean popup styling
-│   ├── BoHienThiI18n.java      # Localized combo box renderers for domain enums
-│   ├── LucideIcon.java         # Vector-quality Lucide icons loaded from PNG and tinted via Theme
-│   ├── ThaoTacTableCellRenderer.java # Table row action buttons rendered as pill badges with hover states
-│   ├── ChonSanPhamDialog.java  # Abstract modal picker base (search, 250 ms debounce, quantity)
-│   ├── ComboTimKiem.java       # Editable combo: 300 ms debounced lookup by unique key, max 10 rows
-│   ├── ChonPhuTungDialog.java  # Modal picker for spare parts
-│   ├── ChonDichVuDialog.java   # Modal picker for services
-│   └── ThongBao.java           # Standard alert dialogs (info, success, warning, error, confirm)
-├── form/                       # Feature form panels: XxxFormPanel (shared base) + XxxTao/XxxSuaFormPanel per dialog
-└── page/                       # Screen implementations extending AbstractPage (LoginPage, DashboardPage, etc.)
-```
+## 4. Forms & dialogs
 
----
+- MUST: create/update via `BaseFormDialog(new BaseFormDialogConfig(owner, titleKey, form, onSave, chieuCao[, chiDoc]))`; `showAndGet()` true → reload.
+- Width fixed `760`; height = explicit page constants `CHIEU_CAO_TAO/SUA/CHI_TIET` (cap `800`, min `520×320`). MUST NOT compute height from field count. Wrap content in `Theme.contentPanel(12)`.
+- `onSave` MUST return `false` (dialog stays open) on validation/service failure; `true` only after service success.
+- One panel class per dialog: `XxxTaoFormPanel` / `XxxSuaFormPanel` extend abstract `XxxFormPanel` (fields, `napDuLieu`, `layDuLieu`, `validateInput`, hooks `dungBoCuc()`, `kiemTraRieng()`; shared rules in `kiemTraChung()`). NO mode flag, NO `if (mode == …)`, NEVER reuse a panel instance across dialogs/table.
+- Sua panel: load record, immutable keys `Theme.applyReadOnly`, optional fields (e.g. new password) left blank.
+- Read-only detail: `chiDoc = true`, `XxxChiTietFormPanel`, only `app.common.close`.
+- Fields: ALWAYS `FormFieldPanel.addField(labelKey, comp)`; NEVER hand-layout label/field pairs. Number/currency fields `setHorizontalAlignment(JTextField.RIGHT)`.
+- Validation: `FormValidationHelper.kiemTra/markError/clearError/autoClearOnInput`; validate ALL rules, focus first invalid, return `false`; NEVER throw for user input errors. Regex/ranges MUST equal Service rules.
+- Dates: ONLY `BoChonNgayGio.taoBoChonNgay()/taoBoChonNgayGio()`; pass `LocalDate/LocalDateTime` to Service, never formatted text; `LGoodDatePicker` never leaks outside `iuh.fit.gui`.
+- Enum combos: `BoHienThiI18n.tao()` with leading `null` item for "All" filters.
+- Icons: `new LucideIcon(name, size, color)` with Theme color.
 
-## 3. Theme & Visual Tokens Quick Reference
+## 5. Pickers
 
-Access tokens via static fields or `Theme.palette()`:
+- Unbounded dataset (customer, part, vehicle) MUST use modal picker extending `ChonSanPhamDialog<T>`; `showDialog()` → `Optional<KetQuaChon<T>>`; one instance per open (2nd call → `IllegalStateException`). NEVER a combo box.
+- Picker loads via `service.search(criteria)` → `.items()`; NEVER pass a preloaded `List`. Search covers code+name+description, `TextNormalizerUtil.normalize`, debounce 250ms. Put every DB-expressible filter in `DanhSach…Criteria`; only display-mapped filters (e.g. in-stock-only) filter in `taiDuLieu`. Full-load uses `PaginatedResult.PAGE_SIZE_TAI_TOAN_BO`, `page = 1`. Truncation notice only from `PaginatedResult.tongSoKetQuaCanBao`.
+- Sole exception: `ComboTimKiem<T>` for quick lookup by a unique key (phone, plate) inside a data-entry form: `page=1,pageSize=10`, debounce 300ms, max 10 rows, selection fills related fields. NEVER for catalogues.
 
-```java
-// Common static fields
-Theme.BG;               // Slate-50 (#F8FAFC) - Background for screens and shell
-Theme.PANEL;            // White (#FFFFFF) - Panel and card backgrounds
-Theme.BORDER;           // Cool Gray (#E2E8F0) - Standard subtle borders
-Theme.ACCENT;           // Electric Blue (#2563EB) - Primary actions, active highlights
-Theme.INK;              // Slate-900 (#111827) - Primary text
-Theme.DANGER_TEXT;      // Red (#DC2626) - Destructive text/alerts
+## 6. Messages & i18n
 
-// Key Helper Methods
-Theme.applyCardStyle(panel);            // Makes panel white with Theme.vienNhat() and 16px padding
-Theme.applyPrimary(button);             // Accent blue button, white text, focus painted false
-Theme.applySecondary(button);           // Light gray button, dark text
-Theme.applyDanger(button);              // Red danger button
-Theme.applyPillButton(button, bg, fg);  // Compact rounded action button
-Theme.contentPanel(padding);            // White panel with subtle border and specified padding
-Theme.titledBorder("i18n.key");         // Standard titled border with Theme font and color
-Theme.vienNhat();                       // Subtle 1px line border
-Theme.leDeu(padding);                   // Empty padding border
-Theme.fieldRowInsets();                 // Standard insets: (8, 10, 8, 10)
-Theme.fieldLabelFont();                 // Bold label font
-Theme.applyReadOnly(textField);         // Soft accent background for read-only fields
-Theme.applyEditable(textField);         // Standard input background
+- ALL user messages via `ThongBao` (`thongTin`, `canhBao`, `loi(parent,key|exception)`, `xacNhan`, `*Dinh Dang` variants). Catch `IllegalArgumentException`/`IllegalStateException` → pass key to `ThongBao.loi`.
+- Every label, tooltip, placeholder, dialog message MUST be an i18n key present in BOTH `src/resources/i18n_vn.json` and `i18n_en.json` (identical key sets).
+
+## 7. Control naming
+
+- Format: `prefix` + PascalCase Vietnamese-no-accent suffix (`btnLuu`, `txtHoTen`).
+- Prefixes: `btn` JButton · `lbl` JLabel · `txt` JTextField · `txa` JTextArea · `chk` JCheckBox · `rad` JRadioButton · `cmb` JComboBox/ComboTimKiem · `lst` JList · `tbl` JTable · `mnu` JMenuBar/JMenu · `mni` JMenuItem · `frm` JFrame · `pnl` JPanel · `dlg` JDialog.
+- MUST: apply to fields, `static final` controls, and new/modified params & locals. Custom component follows its base (`AccountBox extends JPanel` → `pnlAccount`).
+- MUST NOT: `rdo` prefix; stacked type words (`btnButtonLuu`); prefix on `AbstractPage` (not `frm`); prefix on non-controls (services, DAOs, DTOs, workers, timers, listeners, icons → plain camelCase). Non-control constants → `UPPER_SNAKE_CASE`.
+- Rename MUST hit every occurrence (decl, `new`, listeners, enable/disable, add/remove) with no behavior/layout/i18n change.
+
+## 8. Verify before accepting a diff (all EMPTY / exit 0)
+
+```bash
+grep -rn 'import iuh\.fit\.dao\.\|java\.sql\.' src/iuh/fit/gui
+grep -rn '#[0-9A-Fa-f]\{6\}' src/iuh/fit/gui | grep -v '/theme/'
+grep -rn 'new Color(\|new Font(' src/iuh/fit/gui | grep -v '/theme/'
+grep -rn 'getScreenSize\|setResizeWeight' src/iuh/fit/gui
+grep -rn '\brdo[A-Z]' src/iuh/fit/gui
+grep -rn 'new Timer' src/iuh/fit/gui   # only ManagementPanel, ChonSanPhamDialog, ComboTimKiem
+javac --release 17 -encoding UTF-8 -d bin -cp "lib/*:src" $(find src -name "*.java")
 ```
 
----
-
-## 4. UI Patterns & Screen Building
-
-### 4.1. Building a Management Screen
-Every management screen extends `AbstractPage`:
-- Register in `PageRegistry` and its menu in `MenuRegistry`.
-- Override `render()` to build or refresh the UI.
-- Use a single full-width `ManagementPanel`:
-  ```java
-  this.panel = new ManagementPanel();
-  this.panel.setListTitle("app.khachHang.danhSachTitle");
-  this.panel.enableMultiSelection(true);        // call BEFORE setHeaders
-  this.panel.setHeaders(...);
-  this.panel.addActionColumn("app.common.actions",
-          new ThaoTac("pencil", "app.common.edit", ThaoTac.KieuThaoTac.THUONG, this::moDialogSua),
-          new ThaoTac("trash-2", "app.common.delete", ThaoTac.KieuThaoTac.NGUY_HIEM, this::xoa));
-  this.panel.setAddAction("app.common.add_new", this::moDialogThem);
-  this.panel.setBatchAction("app.common.batch_delete", "trash-2",
-          ThaoTac.KieuThaoTac.NGUY_HIEM, this::xoaNhieu);
-  this.panel.setRowDoubleClickListener(this::moDialogSua);
-  this.add(this.panel, BorderLayout.CENTER);
-  ```
-- With multi-selection enabled, model column `0` is the selection checkbox; data columns shift by one (`COT_MA = 1`, …). Define index constants instead of magic numbers.
-- Batch deletes run row by row and report a partial result (`app.common.batch_delete_result`) when foreign keys reject some rows.
-- Clear listeners before reattaching on subsequent `render()` calls (`clearActionListeners(...)`).
-
-### 4.2. Input Formatting
-- **Dates**: Always use `BoChonNgayGio.taoBoChonNgay()` / `taoBoChonNgayGio()`. Read as `LocalDate` / `LocalDateTime`.
-- **Numbers & Currency**: Right-align the field: `field.setHorizontalAlignment(JTextField.RIGHT);`.
-- **Enum Combos**: Use `BoHienThiI18n.tao()` with a leading `null` item for "All" filters.
-
-### 4.3. Modern Shell Header (`LayoutHeader`)
-- Fixed height: `52px`.
-- Left: Navigation items with Lucide icons. Current page receives an active underline (`veChiBaoDuoi`).
-- Right: User badge (Full name + Role), language toggle pill (shows VI/EN, triggers on click or F11), and logout icon button.
-
-### 4.4. Create / Update Modal Dialogs
-- Use `BaseFormDialog` with `BaseFormDialogConfig(owner, titleKey, formContent, onSave, chieuCao)`; it wraps content in a scroll pane, wires Save as default button and ESC to close, and returns `showAndGet()`.
-- Width is fixed at `760`. Height is declared explicitly by the page with two constants (`CHIEU_CAO_TAO` / `CHIEU_CAO_SUA`) and capped at `800` by the dialog. Never compute height from field counts.
-- One panel class per dialog: `XxxTaoFormPanel` for create, `XxxSuaFormPanel` for update. Both extend the shared `XxxFormPanel` base (fields, `napDuLieu`, `layDuLieu`, validation). Never pass a mode flag into a panel, and never reuse a panel instance across dialogs.
-- Read-only detail dialogs set `chiDoc = true`: no Save, only `app.common.close`. They use a dedicated `XxxChiTietFormPanel` and a page `CHIEU_CAO_CHI_TIET` constant.
-- `XxxTaoFormPanel` only lays out create fields; `XxxSuaFormPanel` lays out update fields, loads the record, marks immutable keys read-only (`Theme.applyReadOnly`), and leaves optional fields such as a new password blank.
-- Mode-specific rules override `kiemTraRieng()` on the panel that needs them; shared rules live in `kiemTraChung()`.
-- `onSave` must return `false` and leave the dialog open when validation or the service call fails.
-- Validation lives in `form.validateInput()`: mark fields with `FormValidationHelper.kiemTra(...)` / `markError(...)`, focus the first invalid component, and rely on `autoClearOnInput(...)` for text fields.
-
----
-
-## 5. References Index
-
-| Topic | Reference Document |
-|---|---|
-| Full UI Architecture & Navigation lifecycle | [01-swing-architecture.md](references/01-swing-architecture.md) |
-| FlatLaf 3.5.4 setup & Theme Palette tokens | [02-theme-tokens.md](references/02-theme-tokens.md) |
-| ManagementPanel, Forms & Field styling | [03-components-and-forms.md](references/03-components-and-forms.md) |
-| Dialogs, Modal Pickers & Confirmation | [04-dialogs-and-pickers.md](references/04-dialogs-and-pickers.md) |
-| Frontend Verification & Grep Checklist | [05-fe-checklist.md](references/05-fe-checklist.md) |
+- i18n parity: flatten `i18n_vn.json` vs `i18n_en.json` → both "missing" lists MUST be empty.
+- Naming audit: scan control field declarations (type → prefix table above) → `violations: 0`.

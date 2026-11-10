@@ -1,71 +1,57 @@
 ---
 name: be-convention
-description: Enforce Gara Ô tô Lúa Java 17 backend conventions for all files under `src/iuh/fit/service`, `src/iuh/fit/dao`, `src/iuh/fit/entity`, `src/iuh/fit/dto`, `src/iuh/fit/core`, `src/iuh/fit/exception`. Use this skill whenever reading, writing, reviewing, or refactoring DAOs, Services, Entities, DTO records, SQL queries, transactions, or business validation logic.
+description: Enforce Gara Ô tô Lúa Java 17 backend conventions for files under `src/iuh/fit/{service,dao,entity,dto,core,exception}`. Use whenever reading, writing, reviewing, or refactoring DAOs, Services, Entities, DTO records, SQL, transactions, or business validation.
 ---
 
-# Backend Conventions — Gara Ô tô Lúa (Java 17 Service & DAO)
+# Backend Convention — RULES (MUST / MUST NOT)
 
-This skill governs all server-side and business logic development under `src/iuh/fit/service`, `dao`, `entity`, `dto`, `core`, and `exception`.
+## 1. Layering
 
----
+- MUST: `GUI → SERVICE → DAO → DB`. Each layer imports only the layer below + `entity, dto, enumeration, exception, util, core`.
+- MUST NOT: DAO→DAO call; SQL/`PreparedStatement`/`Connection` in SERVICE (only `TransactionScope` allowed); `javax.swing.*` in service/dao/entity/dto; JDBC connection opened outside `DatabaseConfig` / `TransactionScope`.
+- MUST: utility classes `final`, private ctor `throw new AssertionError("Utility class")`, static methods only.
 
-## 1. Non-Negotiables for Backend
+## 2. Entity & DTO
 
-1. **Unidirectional Layering**: `GUI → SERVICE → DAO → Database`.
-   - `SERVICE` orchestrates one or more `DAO`s.
-   - `DAO` communicates only with the Database via JDBC.
-   - **NO DAO-to-DAO calls**: Multi-table operations belong in SERVICE.
-   - **NO SQL/JDBC in SERVICE or GUI**: Only `dao` packages hold SQL or `PreparedStatement`.
-2. **Entities vs. DTOs**:
-   - Entities (`iuh.fit.entity.*`) are logic-free POJOs mapped directly to database tables.
-   - Payloads crossing layer boundaries (search criteria, form input, table views, paging) MUST be immutable Java 17 records in `iuh.fit.dto.*`.
-3. **DAO Safety & Null-Free Contracts**:
-   - DAO query methods return `Optional<T>` for single rows, and `List<T>` for multiple rows.
-   - **NEVER return `null`** from a DAO query method.
-   - All SQL statements must be Java 17 text blocks (`"""`) with `?` parameter bindings.
-   - **NO SQL injection**: Never concatenate variables into SQL strings.
-   - DAO never commits transactions.
-4. **Service Owns Business Rules & Validation**:
-   - Validation, filtering, sorting, paging calculations, authorization, and business computations live exclusively in `SERVICE`, never in listeners, entities, or SQL.
-   - Validation failures throw `IllegalArgumentException` or domain exceptions with i18n message keys.
-5. **Service Owns Transactions**:
-   - Multi-step writes must be wrapped in `TransactionScope`.
-   - Pass the shared `Connection` down to DAO methods. Commit once atomically upon success. Rollback automatically on failure.
-6. **Java 17 Language Idioms**:
-   - Use `this.` for instance fields and methods.
-   - Use records for DTOs.
-   - Use pattern matching for `instanceof` and switch expressions where appropriate.
-   - No method comments; class comments short and in Vietnamese.
+- Entity: logic-free POJO, 1 per table (fields, ctors, getters/setters, equals/hashCode/toString). MUST NOT hold validation/calculation/status logic.
+- DTO (criteria, form input, view row, paging): MUST be immutable Java 17 `record` in `iuh.fit.dto`. Normalize via compact ctor or `from(Entity)`. MUST NOT hold mutable state or `Connection`.
 
----
+## 3. DAO
 
-## 2. Package Map (`src/iuh/fit`)
+- MUST: extend `BaseDao<T>`, 1 table per DAO; declare `throws SQLException`; never swallow exceptions.
+- MUST: single row → `Optional<T>`; multi row → `List<T>`. NEVER `return null`.
+- MUST: SQL in text blocks `"""`, UPPERCASE keywords, `?` bindings. NEVER concatenate variables into SQL.
+- MUST: map rows via private `mapRow(ResultSet)`.
+- MUST: every write has an overload taking `Connection conn`; if given → use it, do not close/commit; if `null` → open from `DatabaseConfig` with try-with-resources.
+- DAO NEVER commits.
 
+## 4. Service
+
+- MUST: 1 Service per feature/entity group. Owns ALL validation (required, regex, range, status transition), filtering, sorting, paging, authorization, calculations. MUST NOT live in listeners, entities, or SQL.
+- MUST: throw `IllegalArgumentException` / domain exception carrying an **i18n key** (e.g. `app.nhanVien.loiSoDienThoai`). NEVER hardcoded message text.
+- MUST: return DTOs to GUI (joins, totals, labels computed in Service); build count + page queries via DAO.
+- MUST NOT: catch `SQLException` then return null/continue; rethrow or map to domain exception.
+
+## 5. Transaction
+
+- MUST: multi-table write or atomic business-ID generation uses
+  `try (TransactionScope scope = new TransactionScope())`, passes `scope.getConnection()` to every DAO call, calls `scope.commit()` once at the end.
+- MUST NOT: sequential multi-DAO writes without `TransactionScope`; catch-and-continue inside the scope (must roll back).
+- Business-ID duplicate key → retry inside the transaction, max 3.
+
+## 6. Java 17 style
+
+- `this.` for instance fields/methods; records for DTOs; pattern-matching `instanceof` / switch expressions where suitable.
+- No method comments; class comments short, in Vietnamese.
+
+## 7. Verify before accepting a diff (all EMPTY / exit 0)
+
+```bash
+grep -rn 'javax\.swing\.' src/iuh/fit/{service,dao,entity,dto}
+grep -rn 'new [A-Za-z0-9]*DAO(' src/iuh/fit/dao
+grep -rn 'PreparedStatement\|DriverManager\|Connection ' src/iuh/fit/service | grep -v TransactionScope
+grep -rn 'SELECT \|INSERT \|UPDATE \|DELETE ' src/iuh/fit/service
+grep -rn '\+ [a-zA-Z0-9_]* \+' src/iuh/fit/dao | grep -i 'SELECT\|INSERT\|UPDATE\|DELETE'
+grep -rn 'return null;' src/iuh/fit/dao
+javac --release 17 -encoding UTF-8 -d bin -cp "lib/*:src" $(find src -name "*.java")
 ```
-src/iuh/fit/
-├── core/
-│   ├── config/DatabaseConfig.java  # The ONLY factory for Database connections
-│   └── context/AppContext.java     # Session state (currentUser, locale, currentPage)
-├── entity/                         # Logic-free POJOs (one per table, getters/setters/constructors)
-├── dto/                            # Immutable records for criteria, views, paging, form inputs
-├── dao/
-│   ├── BaseDao.java                # Common CRUD helpers
-│   ├── TransactionScope.java       # Atomic transaction boundary manager
-│   └── XxxDAO.java                 # Data Access Object per entity/table
-├── service/
-│   └── XxxService.java             # Business validation, calculations, transaction orchestration
-└── exception/                      # Domain exceptions carrying i18n keys
-```
-
----
-
-## 3. Quick Rule Index
-
-| Topic | Reference Document |
-|---|---|
-| Layer Direction, Package Rules & Imports | [01-be-architecture.md](references/01-be-architecture.md) |
-| Entities (POJOs) and DTOs (Records) | [02-entity-dto.md](references/02-entity-dto.md) |
-| DAO Methods, SQL Text Blocks & RowMappers | [03-dao-and-sql.md](references/03-dao-and-sql.md) |
-| Service Logic, Validation & Error Keys | [04-service-validation.md](references/04-service-validation.md) |
-| TransactionScope & Multi-table Writes | [05-transaction-scope.md](references/05-transaction-scope.md) |
-| Backend Verification & Grep Checklist | [06-be-checklist.md](references/06-be-checklist.md) |
