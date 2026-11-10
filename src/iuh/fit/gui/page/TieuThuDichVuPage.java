@@ -5,21 +5,18 @@ import iuh.fit.dto.BaoCaoTieuThuDichVuDTO;
 import iuh.fit.dto.TieuThuDichVuBaoCaoDTO;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.Theme;
+import iuh.fit.gui.component.BaoCaoUi;
+import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.TieuThuDichVuService;
 import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
-import iuh.fit.util.XlsxExportUtil;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -27,8 +24,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -81,7 +76,8 @@ public class TieuThuDichVuPage extends AbstractPage {
 
 		this.add(this.taoBoLoc(), BorderLayout.NORTH);
 		this.add(this.taoNoiDung(), BorderLayout.CENTER);
-		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);
+		this.add(BaoCaoUi.thanhCongCu("app.report.revenue.print", this::inBaoCao,
+				"app.report.service.export", this::xuatBaoCao), BorderLayout.SOUTH);
 
 		this.clearActionListeners(this.cmbThang);
 		this.cmbThang.addActionListener(e -> this.taiBaoCao());
@@ -167,10 +163,10 @@ public class TieuThuDichVuPage extends AbstractPage {
 
 		JPanel pnlTongQuan = new JPanel(new GridLayout(1, 4, 8, 8));
 
-		pnlTongQuan.add(this.taoTheThongKe("app.report.service.totalUses", this.lblTongLuot));
-		pnlTongQuan.add(this.taoTheThongKe("app.report.service.totalRevenue", this.lblDoanhThu));
-		pnlTongQuan.add(this.taoTheThongKe("app.report.service.mostUsed", this.lblDichVuPhoBien));
-		pnlTongQuan.add(this.taoTheThongKe("app.report.service.distinctCount", this.lblSoDichVu));
+		pnlTongQuan.add(BaoCaoUi.theThongKe("app.report.service.totalUses", this.lblTongLuot));
+		pnlTongQuan.add(BaoCaoUi.theThongKe("app.report.service.totalRevenue", this.lblDoanhThu));
+		pnlTongQuan.add(BaoCaoUi.theThongKe("app.report.service.mostUsed", this.lblDichVuPhoBien));
+		pnlTongQuan.add(BaoCaoUi.theThongKe("app.report.service.distinctCount", this.lblSoDichVu));
 
 		JPanel pnlBang = new JPanel(new BorderLayout());
 		pnlBang.setBorder(Theme.titledBorder("app.report.service.top20"));
@@ -178,35 +174,6 @@ public class TieuThuDichVuPage extends AbstractPage {
 
 		pnl.add(pnlTongQuan, BorderLayout.NORTH);
 		pnl.add(pnlBang, BorderLayout.CENTER);
-
-		return pnl;
-	}
-
-	private JPanel taoTheThongKe(String key, JLabel lblGiaTri) {
-		JPanel pnl = new JPanel(new BorderLayout(4, 8));
-
-		pnl.setBorder(Theme.khungVien(10));
-
-		JLabel lblTieuDe = new JLabel(I18nReaderUtil.get(key));
-		lblGiaTri.setFont(Theme.soLieuFont());
-
-		pnl.add(lblTieuDe, BorderLayout.NORTH);
-		pnl.add(lblGiaTri, BorderLayout.CENTER);
-
-		return pnl;
-	}
-
-	private JPanel taoThanhCongCu() {
-		JPanel pnl = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 6));
-
-		JButton btnIn = new JButton(I18nReaderUtil.get("app.report.revenue.print"));
-		JButton btnXuat = new JButton(I18nReaderUtil.get("app.report.service.export"));
-
-		btnIn.addActionListener(e -> this.inBaoCao());
-		btnXuat.addActionListener(e -> this.xuatBaoCao());
-
-		pnl.add(btnIn);
-		pnl.add(btnXuat);
 
 		return pnl;
 	}
@@ -237,16 +204,12 @@ public class TieuThuDichVuPage extends AbstractPage {
 		} catch (IllegalArgumentException ex) {
 			this.xoaDuLieuBaoCao();
 
-			JOptionPane.showMessageDialog(this, ex.getMessage(), I18nReaderUtil.get("app.common.notification"),
-					JOptionPane.WARNING_MESSAGE);
+			ThongBao.canhBao(this, ex.getMessage());
 
 		} catch (SQLException ex) {
 			this.xoaDuLieuBaoCao();
 
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.service.loadError"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
-
-			ex.printStackTrace();
+			ThongBao.loi(this, "app.report.service.loadError");
 		}
 	}
 
@@ -283,54 +246,12 @@ public class TieuThuDichVuPage extends AbstractPage {
 	}
 
 	private void inBaoCao() {
-		if (this.modelDichVu.getRowCount() == 0) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.noData"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
-			return;
-		}
-
-		try {
-			this.tblDichVu.print(JTable.PrintMode.FIT_WIDTH, null, null);
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.printError"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
-			ex.printStackTrace();
-		}
+		BaoCaoUi.in(this.tblDichVu, "app.report.revenue.noData");
 	}
 
 	private void xuatBaoCao() {
-		if (this.modelDichVu.getRowCount() == 0) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.noData"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
-			return;
-		}
-
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.service.export"));
-		fileChooser.setSelectedFile(new File("BaoCaoTieuThuDichVu.xlsx"));
-		fileChooser.setFileFilter(new FileNameExtensionFilter("XLSX (*.xlsx)", "xlsx"));
-
-		if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-			return;
-		}
-
-		File file = fileChooser.getSelectedFile();
-
-		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
-			file = new File(file.getAbsolutePath() + ".xlsx");
-		}
-
-		try {
-			XlsxExportUtil.write(file, I18nReaderUtil.get("app.report.service.title"), this.modelDichVu);
-
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.exportSuccess"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
-
-		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.exportError"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
-			ex.printStackTrace();
-		}
+		BaoCaoUi.xuat(this, this.modelDichVu, "BaoCaoTieuThuDichVu.xlsx",
+				"app.report.service.title", "app.report.revenue.noData");
 	}
 
 	@Override

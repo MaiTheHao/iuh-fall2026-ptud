@@ -4,21 +4,18 @@ import iuh.fit.dto.BaoCaoTieuThuPhuTungDTO;
 import iuh.fit.dto.TieuThuPhuTungBaoCaoDTO;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.gui.Theme;
+import iuh.fit.gui.component.BaoCaoUi;
+import iuh.fit.gui.component.ThongBao;
 import iuh.fit.service.TieuThuPhuTungService;
 import iuh.fit.util.DateFormats;
 import iuh.fit.util.I18nReaderUtil;
-import iuh.fit.util.XlsxExportUtil;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -26,9 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.print.PrinterException;
-import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.time.YearMonth;
@@ -81,7 +75,8 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 		this.add(this.taoBoLoc(), BorderLayout.NORTH);
 		this.add(this.taoNoiDung(), BorderLayout.CENTER);
-		this.add(this.taoThanhCongCu(), BorderLayout.SOUTH);
+		this.add(BaoCaoUi.thanhCongCu("app.report.revenue.print", this::inBaoCao,
+				"app.report.parts.export", this::xuatBaoCao), BorderLayout.SOUTH);
 
 		this.clearActionListeners(this.cmbThang);
 		this.cmbThang.addActionListener(e -> this.taiBaoCao());
@@ -159,13 +154,13 @@ public class TieuThuPhuTungPage extends AbstractPage {
 
 		JPanel pnlTongQuan = new JPanel(new GridLayout(1, 4, 8, 8));
 
-		pnlTongQuan.add(this.taoTheThongKe("app.report.parts.totalImported", this.lblTongNhap));
+		pnlTongQuan.add(BaoCaoUi.theThongKe("app.report.parts.totalImported", this.lblTongNhap));
 
-		pnlTongQuan.add(this.taoTheThongKe("app.report.parts.totalExported", this.lblTongXuat));
+		pnlTongQuan.add(BaoCaoUi.theThongKe("app.report.parts.totalExported", this.lblTongXuat));
 
-		pnlTongQuan.add(this.taoTheThongKe("app.report.parts.currentStock", this.lblTonKho));
+		pnlTongQuan.add(BaoCaoUi.theThongKe("app.report.parts.currentStock", this.lblTonKho));
 
-		pnlTongQuan.add(this.taoTheThongKe("app.report.parts.consumptionRate", this.lblTyLeTieuThu));
+		pnlTongQuan.add(BaoCaoUi.theThongKe("app.report.parts.consumptionRate", this.lblTyLeTieuThu));
 
 		JPanel pnlBang = new JPanel(new BorderLayout());
 
@@ -179,93 +174,20 @@ public class TieuThuPhuTungPage extends AbstractPage {
 		return pnl;
 	}
 
-	private JPanel taoTheThongKe(String key, JLabel lblGiaTri) {
-		JPanel pnl = new JPanel(new BorderLayout(4, 8));
-
-		pnl.setBorder(Theme.khungVien(12));
-
-		JLabel lblTieuDe = new JLabel(I18nReaderUtil.get(key));
-		lblGiaTri.setFont(Theme.soLieuFont());
-
-		pnl.add(lblTieuDe, BorderLayout.NORTH);
-		pnl.add(lblGiaTri, BorderLayout.CENTER);
-
-		return pnl;
-	}
-
-	private JPanel taoThanhCongCu() {
-		JPanel pnl = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 6));
-
-		JButton btnIn = new JButton(I18nReaderUtil.get("app.report.revenue.print"));
-
-		JButton btnXuatExcel = new JButton(I18nReaderUtil.get("app.report.parts.export"));
-
-		btnIn.addActionListener(e -> this.inBaoCao());
-		btnXuatExcel.addActionListener(e -> this.xuatBaoCao());
-
-		pnl.add(btnIn);
-		pnl.add(btnXuatExcel);
-
-		return pnl;
-	}
-
 	private void xuatBaoCao() {
-		if (this.modelPhuTung.getRowCount() == 0) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.noData"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
-			return;
-		}
-
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setDialogTitle(I18nReaderUtil.get("app.report.parts.export"));
-		fileChooser.setSelectedFile(new File("BaoCaoTieuThuPhuTung.xlsx"));
-		fileChooser.setFileFilter(new FileNameExtensionFilter("XLSX (*.xlsx)", "xlsx"));
-
-		if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
-			return;
-		}
-
-		File file = fileChooser.getSelectedFile();
-
-		if (!file.getName().toLowerCase(Locale.ROOT).endsWith(".xlsx")) {
-			file = new File(file.getAbsolutePath() + ".xlsx");
-		}
-
-		try {
-			XlsxExportUtil.write(file, I18nReaderUtil.get("app.report.parts.title"), this.modelPhuTung);
-
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.exportSuccess"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.INFORMATION_MESSAGE);
-
-		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.exportError"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
-
-			ex.printStackTrace();
-		}
+		BaoCaoUi.xuat(this, this.modelPhuTung, "BaoCaoTieuThuPhuTung.xlsx",
+				"app.report.parts.title", "app.report.parts.noData");
 	}
 
 	private void inBaoCao() {
-		if (this.modelPhuTung.getRowCount() == 0) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.noData"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);
-			return;
-		}
-
-		try {
-			this.tblPhuTung.print(JTable.PrintMode.FIT_WIDTH, null, null);
-		} catch (PrinterException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.printError"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
-		}
+		BaoCaoUi.in(this.tblPhuTung, "app.report.parts.noData");
 	}
 
 	private void taiBaoCao() {
 		String thangDuocChon = (String) this.cmbThang.getSelectedItem();
 
 		if (thangDuocChon == null || thangDuocChon.isBlank()) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.parts.invalidMonth"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);
+			ThongBao.canhBao(this, "app.report.parts.invalidMonth");
 			return;
 		}
 
@@ -278,12 +200,10 @@ public class TieuThuPhuTungPage extends AbstractPage {
 			this.capNhatBangPhuTung(baoCao);
 
 		} catch (IllegalArgumentException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get(e.getMessage()),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.WARNING_MESSAGE);
+			ThongBao.canhBao(this, e.getMessage());
 
 		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(this, I18nReaderUtil.get("app.report.revenue.loadError"),
-					I18nReaderUtil.get("app.common.notification"), JOptionPane.ERROR_MESSAGE);
+			ThongBao.loi(this, "app.report.revenue.loadError");
 		}
 	}
 
