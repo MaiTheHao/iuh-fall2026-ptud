@@ -14,6 +14,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+/**
+ * Form nhập thông tin dịch vụ, dùng chung cho cả tạo mới và sửa.
+ */
 public class DichVuFormPanel extends FormFieldPanel {
 
   protected final boolean tao;
@@ -48,6 +51,7 @@ public class DichVuFormPanel extends FormFieldPanel {
   }
 
   protected void dungBoCuc() {
+    // Mã dịch vụ do hệ thống sinh nên chỉ hiển thị khi sửa.
     if (!this.tao) {
       this.addField("app.dichVu.ma", this.txtMa);
     }
@@ -125,6 +129,7 @@ public class DichVuFormPanel extends FormFieldPanel {
     Double donGia = NumberParseUtil.toDoubleOrNull(this.txtDonGia.getText());
 
     if (donGia == null || !Double.isFinite(donGia) || donGia < 0) {
+      // Chặn cả NaN/Infinity vì người dùng có thể nhập ký tự đặc biệt.
       FormValidationHelper.markError(this.txtDonGia,
               I18nReaderUtil.get("app.dichVu.loiDonGia"));
       if (loiDauTien == null) {

@@ -10,6 +10,9 @@ import iuh.fit.util.I18nReaderUtil;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
+/**
+ * Form nhập khách hàng, dùng chung cho tạo mới và sửa.
+ */
 public class KhachHangFormPanel extends FormFieldPanel {
 
   protected final boolean tao;
@@ -24,6 +27,7 @@ public class KhachHangFormPanel extends FormFieldPanel {
 
   public KhachHangFormPanel(boolean tao) {
     this.tao = tao;
+    // Mã và ngày tạo do hệ thống sinh nên chỉ đọc.
     Theme.applyReadOnly(this.txtMa);
     Theme.applyReadOnly(this.txtNgayTao);
     this.txtSdt.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,

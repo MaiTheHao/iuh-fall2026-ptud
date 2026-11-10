@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+/**
+ * Dựng ảnh hoá đơn khổ A4 bằng Java2D cho chức năng xem trước và in.
+ */
 public final class HoaDonRenderer {
 
     private static final int CHIEU_RONG_A4 = 595;
@@ -24,6 +27,7 @@ public final class HoaDonRenderer {
     private static final float CHIEU_RONG_NOI_DUNG =
             CHIEU_RONG_A4 - LE_TRANG * 2;
     
+    // Bản in được vẽ theo đơn vị point của A4 rồi phóng lên 300 DPI để nét hơn.
     private static final int DPI_IN = 300;
     private static final double TI_LE_DPI =
             DPI_IN / 72.0;
@@ -54,6 +58,7 @@ public final class HoaDonRenderer {
     }
 
     public static BufferedImage xemTruoc(HoaDonInData data) {
+        // Ảnh xem trước giữ đúng khổ A4 ở 72 DPI; bản in sẽ được phóng lên sau.
         if (data == null
                 || data.hoaDon() == null
                 || data.phieuTiepNhan() == null) {
@@ -99,9 +104,11 @@ public final class HoaDonRenderer {
             Graphics2D graphics,
             HoaDonInData data) {
 
+        // Toạ độ y cộng dần theo từng khối để giữ bố cục cố định trên trang A4.
         float x = LE_TRANG;
         float y = 58f;
 
+        // Phần đầu: tên cửa hàng, tiêu đề và đường kẻ phân cách.
         graphics.setFont(FONT_TEN_CUA_HANG);
         veCanGiua(graphics, TEN_CUA_HANG, y);
 
@@ -118,6 +125,7 @@ public final class HoaDonRenderer {
         y += 27;
 
         graphics.setFont(FONT_DAM);
+        // Mã hoá đơn và ngày tạo nằm cùng dòng, một bên trái một bên phải.
         veChu(graphics, layNhan("maHoaDon") + ":", x, y);
 
         graphics.setFont(FONT_THUONG);
@@ -135,6 +143,7 @@ public final class HoaDonRenderer {
                 y);
 
         y += 32;
+        // Thông tin khách hàng, biển số và nhân viên phụ trách.
         var phieuTiepNhan = data.phieuTiepNhan();
         var khachHang = phieuTiepNhan.getKhachHang();
 
@@ -195,6 +204,7 @@ public final class HoaDonRenderer {
                 55, 185, 65, 100, 110
         };
 
+        // Bảng chi tiết: dòng tiêu đề cột rồi đến từng dòng sản phẩm.
         veTieuDeBang(graphics, x, y, doRongCot);
         y += 25;
 
@@ -212,6 +222,7 @@ public final class HoaDonRenderer {
 
         float cotGiaTri = x + CHIEU_RONG_NOI_DUNG;
 
+        // Tổng hợp tiền: tổng gốc, giảm giá và thực thu.
         graphics.setFont(FONT_THUONG);
 
         veChu(
@@ -265,6 +276,7 @@ public final class HoaDonRenderer {
 
         graphics.setFont(FONT_DAM);
 
+        // Thông tin thanh toán; hoá đơn chưa thanh toán thì dừng tại đây.
         veChu(
                 graphics,
                 layNhan("thongTinThanhToan"),
@@ -415,6 +427,7 @@ public final class HoaDonRenderer {
                         giaTri[i],
                         doRongCot[i] - 8);
 
+                // Cột số lượng canh giữa, các cột tiền canh phải để dễ đối chiếu.
                 if (i >= 3) {
                     veChuPhai(
                             graphics,
@@ -536,6 +549,7 @@ public final class HoaDonRenderer {
         String dauBaCham = "...";
         int doDai = noiDung.length();
 
+        // Cắt dần từ cuối cho đến khi chuỗi cộng dấu ba chấm vừa bề rộng cột.
         while (doDai > 0) {
             String ketQua = noiDung.substring(0, doDai) + dauBaCham;
 
@@ -550,6 +564,7 @@ public final class HoaDonRenderer {
     }
     
     public static BufferedImage taoAnhIn(HoaDonInData data) {
+        // Vẽ bằng toạ độ point rồi scale Graphics2D để không phải sửa mọi toạ độ.
         if (data == null
                 || data.hoaDon() == null
                 || data.phieuTiepNhan() == null) {
@@ -617,6 +632,7 @@ public final class HoaDonRenderer {
         DecimalFormatSymbols symbols =
                 new DecimalFormatSymbols(Locale.forLanguageTag("vi-VN"));
 
+        // Cố định dấu phân cách theo vi-VN để kết quả không phụ thuộc locale máy chạy.
         symbols.setGroupingSeparator('.');
         symbols.setDecimalSeparator(',');
 

@@ -15,6 +15,9 @@ import java.time.Duration;
 import java.util.Base64;
 import javax.imageio.ImageIO;
 
+/**
+ * Gọi API VietQR để tạo ảnh mã QR chuyển khoản.
+ */
 public final class VietQrClient {
 
   private static final String ENDPOINT = "https://api.vietqr.io/v2/generate";
@@ -33,6 +36,7 @@ public final class VietQrClient {
       if (bin == null || soTk == null || tenTk == null) {
         return null;
       }
+      // Thử lại tối đa 2 lần vì lỗi mạng hoặc lỗi tạm thời của API thường tự hết.
       for (int lan = 0; lan < SO_LAN_THU_TOI_DA; lan++) {
         try {
           BufferedImage anh = goiMotLan(bin, soTk, tenTk, soTien, noiDung);
@@ -78,6 +82,7 @@ public final class VietQrClient {
       return null;
     }
     JsonObject ketQua = JsonParser.parseString(response.body()).getAsJsonObject();
+    // Mã "00" là phản hồi thành công theo quy ước của VietQR.
     if (!ketQua.has("code") || !"00".equals(ketQua.get("code").getAsString())) {
       return null;
     }
@@ -88,6 +93,7 @@ public final class VietQrClient {
       return null;
     }
     String duongDan = duLieu.get("qrDataURL").getAsString();
+    // API trả ảnh dạng data URL "data:image/png;base64,..."; bỏ phần tiền tố trước khi giải mã.
     int viTriBase64 = duongDan.indexOf("base64,");
     String chuoiAnh = viTriBase64 >= 0 ? duongDan.substring(viTriBase64 + 7) : duongDan;
     byte[] bytesAnh = Base64.getDecoder().decode(chuoiAnh.trim());

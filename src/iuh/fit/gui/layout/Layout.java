@@ -25,6 +25,9 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * Khung chính của ứng dụng: nền, thanh menu và vùng nội dung đổi trang bằng CardLayout.
+ */
 public class Layout extends JPanel {
 
     private static final String DUONG_DAN_ANH_NEN = "resources/background.jpg";
@@ -48,6 +51,7 @@ public class Layout extends JPanel {
     }
 
     private static Image taiAnhNen() {
+        // Ảnh nền là tuỳ chọn; lỗi đọc trả null để giao diện vẫn chạy bình thường.
         try (InputStream luong = Layout.class.getClassLoader().getResourceAsStream(DUONG_DAN_ANH_NEN)) {
             return luong == null ? null : ImageIO.read(luong);
         } catch (IOException e) {
@@ -61,6 +65,7 @@ public class Layout extends JPanel {
         if (ANH_NEN != null) {
             this.veAnhNen(g, ANH_NEN);
         }
+        // Phủ lớp sáng để nội dung phía trên vẫn đọc rõ trên ảnh nền.
         g.setColor(Theme.phuSangAnh());
         g.fillRect(0, 0, this.getWidth(), this.getHeight());
     }
@@ -68,6 +73,7 @@ public class Layout extends JPanel {
     private void veAnhNen(Graphics g, Image anh) {
         int rong = this.getWidth();
         int cao = this.getHeight();
+        // Lấy tỉ lệ theo cạnh lớn hơn để ảnh phủ kín khung rồi cắt phần thừa.
         double tiLe = Math.max(rong / (double) anh.getWidth(null), cao / (double) anh.getHeight(null));
         int rongAnh = (int) Math.ceil(anh.getWidth(null) * tiLe);
         int caoAnh = (int) Math.ceil(anh.getHeight(null) * tiLe);
@@ -75,6 +81,7 @@ public class Layout extends JPanel {
     }
 
     private void bindShortcuts() {
+        // Gắn vào WHEN_IN_FOCUSED_WINDOW để phím tắt vẫn chạy dù focus ở component con.
         this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0), "toggleLocale");
         this.getActionMap().put("toggleLocale", new AbstractAction() {
@@ -93,6 +100,7 @@ public class Layout extends JPanel {
     }
 
     private static String cardKey(Class<? extends AbstractPage> type) {
+        // Dùng tên class làm khoá card để điều hướng chỉ cần truyền kiểu trang.
         return type.getName();
     }
 
@@ -117,6 +125,7 @@ public class Layout extends JPanel {
         this.context = context;
         AbstractPage page = this.resolveCurrentPage();
         this.cardLayout.show(this.pnlNoiDung, cardKey(page.getClass()));
+        // Gọi lại render mỗi lần điều hướng vì dữ liệu của trang có thể đã thay đổi.
         page.render();
         this.header.refreshText();
         this.header.setActive(page.getClass());
@@ -129,6 +138,7 @@ public class Layout extends JPanel {
     private void syncMenuBar(AppContext context) {
         Window window = SwingUtilities.getWindowAncestor(this);
         if (window instanceof JFrame frame) {
+            // JMenuBar gắn vào JFrame nên phải gỡ ra khi đăng xuất.
             boolean loggedIn = context.getCurrentUser() != null;
             frame.setJMenuBar(loggedIn ? this.header : null);
         }
@@ -136,6 +146,7 @@ public class Layout extends JPanel {
 
     private AbstractPage resolveCurrentPage() {
         AbstractPage page = this.registry.get(this.context.getCurrentPage());
+        // Trang hiện tại không còn trong registry thì quay về Dashboard.
         return page == null ? this.registry.get(DashboardPage.class) : page;
     }
 }

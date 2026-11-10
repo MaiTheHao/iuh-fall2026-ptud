@@ -9,6 +9,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URLConnection;
 
+/**
+ * Đọc ảnh từ đường dẫn cục bộ hoặc URL HTTP(S).
+ */
 public final class TaiAnhUtil {
 
     private TaiAnhUtil() {
@@ -21,6 +24,7 @@ public final class TaiAnhUtil {
 
         if (dia.startsWith("https://") || dia.startsWith("http://")) {
             URLConnection connection = URI.create(dia).toURL().openConnection();
+            // Đặt timeout để giao diện không bị treo khi mạng chậm hoặc máy chủ không phản hồi.
             connection.setConnectTimeout(thoiGianKetNoi);
             connection.setReadTimeout(thoiGianDoc);
 

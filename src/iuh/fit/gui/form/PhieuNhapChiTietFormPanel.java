@@ -13,6 +13,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.Dimension;
 import java.text.DecimalFormat;
 
+/**
+ * Form chỉ đọc hiển thị chi tiết phiếu nhập và bảng phụ tùng đi kèm.
+ */
 public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
 
   
@@ -37,6 +40,7 @@ public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
 
     @Override
     public boolean isCellEditable(int row, int column) {
+      // Bảng chỉ để xem nên chặn sửa trực tiếp trên ô.
       return false;
     }
   };
@@ -44,6 +48,7 @@ public final class PhieuNhapChiTietFormPanel extends FormFieldPanel {
   private final JTable tblChiTiet = new JTable(this.modelChiTiet);
 
   public PhieuNhapChiTietFormPanel() {
+    // Màn xem chi tiết nên mọi trường đều chỉ đọc và không nhận focus.
     for (JTextField field : new JTextField[]{
         this.txtMaPhieu, this.txtMoTa, this.txtThuKho,
         this.txtNgayTao, this.txtTongChiPhi}) {

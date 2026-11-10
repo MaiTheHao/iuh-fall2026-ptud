@@ -9,6 +9,9 @@ import iuh.fit.util.I18nReaderUtil;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
+/**
+ * Form nhập hãng xe.
+ */
 public class HangXeFormPanel extends FormFieldPanel {
 
   
@@ -29,6 +32,7 @@ public class HangXeFormPanel extends FormFieldPanel {
   }
 
   protected void dungBoCuc() {
+    // Mã hãng do hệ thống sinh nên chỉ hiển thị khi sửa.
     if (!this.tao) {
       this.addField("app.danhMucXe.ma", this.txtMa);
     }
@@ -81,6 +85,7 @@ public class HangXeFormPanel extends FormFieldPanel {
   }
 
   public void hienThiLoiTen(String thongDiep) {
+    // Service báo tên không hợp lệ/trùng thì đánh dấu đúng ô và đưa focus về đó.
     FormValidationHelper.markError(this.txtTen, thongDiep);
     this.txtTen.requestFocusInWindow();
   }

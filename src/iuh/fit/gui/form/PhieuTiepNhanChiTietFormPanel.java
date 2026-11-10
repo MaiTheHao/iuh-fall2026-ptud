@@ -8,6 +8,9 @@ import iuh.fit.util.DateFormats;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+/**
+ * Form chỉ đọc hiển thị chi tiết phiếu tiếp nhận.
+ */
 public final class PhieuTiepNhanChiTietFormPanel extends FormFieldPanel {
 
     
@@ -21,6 +24,7 @@ public final class PhieuTiepNhanChiTietFormPanel extends FormFieldPanel {
     private final JTextField txtNgayTao = new JTextField(14);
 
     public PhieuTiepNhanChiTietFormPanel() {
+        // Màn xem chi tiết nên tất cả trường đều chỉ đọc.
         for (JTextField field : new JTextField[]{
             this.txtMaPhieu, this.txtBienSo, this.txtKhachHang,
             this.txtSdt, this.txtTrangThai, this.txtNgayTao}) {

@@ -12,6 +12,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Xuất dữ liệu bảng ra tệp XLSX bằng fastexcel.
+ */
 public final class XlsxExportUtil {
 
   private static final String APP_NAME = "Gara O To Lua";
@@ -26,6 +29,7 @@ public final class XlsxExportUtil {
 
       Worksheet worksheet = workbook.newWorksheet(sheetName);
 
+      // Ghi dòng tiêu đề và in đậm để tách khỏi phần dữ liệu.
       for (int column = 0; column < headers.length; column++) {
         worksheet.value(0, column, headers[column] == null ? "" : headers[column]);
         worksheet.style(0, column).bold().set();
@@ -38,6 +42,7 @@ public final class XlsxExportUtil {
         for (int column = 0; column < headers.length; column++) {
           Object value = values != null && column < values.length ? values[column] : null;
 
+          // Giữ Number đúng kiểu số để Excel tính toán được thay vì lưu thành chuỗi.
           if (value == null) {
             worksheet.value(row + 1, column, "");
           } else if (value instanceof Number number) {
@@ -51,6 +56,7 @@ public final class XlsxExportUtil {
   }
 
   public static void write(File file, String sheetName, TableModel model) throws IOException {
+    // Tách TableModel thành tiêu đề và các dòng để dùng lại hàm ghi phía trên.
     String[] headers = new String[model.getColumnCount()];
 
     for (int column = 0; column < headers.length; column++) {

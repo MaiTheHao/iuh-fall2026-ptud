@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+/**
+ * Tính tổng tiền và mức giảm giá từ chi tiết hoá đơn.
+ */
 public final class TinhTienUtil {
 
   private TinhTienUtil() {}
@@ -23,6 +26,7 @@ public final class TinhTienUtil {
   }
 
   public static double mucGiam(double muc) {
+    // Kẹp mức giảm về [0, 1] để tránh giảm quá 100% hoặc ra số tiền âm.
     if (Double.isNaN(muc)) {
       return 0.0;
     }
@@ -30,6 +34,7 @@ public final class TinhTienUtil {
   }
 
   public static BigDecimal thucThu(double tongGoc, double mucGiam) {
+    // Làm tròn HALF_UP để khớp cách hiển thị và in tiền của hoá đơn.
     return BigDecimal.valueOf(tongGoc * (1.0 - mucGiam(mucGiam))).setScale(2, RoundingMode.HALF_UP);
   }
 }

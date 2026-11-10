@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Dữ liệu đã chuẩn hoá để dựng ảnh hoá đơn, gồm thông tin chung và các dòng in.
+ */
 public record HoaDonInData(
         HoaDon hoaDon,
         PhieuTiepNhan phieuTiepNhan,
@@ -42,6 +45,7 @@ public record HoaDonInData(
     private static final int TRANG_DICH_VU_MAC_DINH = 1;
     private static final int SO_DICH_VU_TOI_DA = 10000;
 
+    // Service được khai báo static vì record chỉ giữ dữ liệu in, không giữ tầng truy vấn.
     private static final HoaDonService hoaDonService =
             new HoaDonService();
 
@@ -95,6 +99,7 @@ public record HoaDonInData(
             throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
         }
 
+        // Entity gắn trong hoá đơn chỉ có khoá ngoại nên phải nạp lại để lấy tên hiển thị.
         if (phieu.getKhachHang() != null
                 && phieu.getKhachHang().getMaKhachHang() != null) {
 
@@ -115,6 +120,7 @@ public record HoaDonInData(
 
         Map<String, String> tenPhuTungTheoMa = new HashMap<>();
 
+        // Nạp sẵn tên một lần thay vì truy vấn lại cho từng dòng chi tiết.
         for (PhuTung phuTung : phuTungService.getAllForSelection()) {
             tenPhuTungTheoMa.put(
                     phuTung.getMaPhuTung(),
@@ -160,6 +166,7 @@ public record HoaDonInData(
         BigDecimal soTienGiam = BigDecimal.valueOf(tongGoc)
                 .setScale(2, RoundingMode.HALF_UP)
                 .subtract(thucThu)
+                // Chặn số tiền giảm âm khi dữ liệu giảm giá lệch với tổng gốc.
                 .max(BigDecimal.ZERO);
 
         Optional<ThanhToan> thanhToan =
@@ -194,6 +201,7 @@ public record HoaDonInData(
         }
 
         if (tenSanPham == null || tenSanPham.isBlank()) {
+            // Hiển thị mã thay cho tên để dòng in không bị trống.
             tenSanPham = maSanPham;
         }
 

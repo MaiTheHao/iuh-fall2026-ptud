@@ -11,6 +11,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Dimension;
 
+/**
+ * Form sửa nội dung yêu cầu của phiếu tiếp nhận.
+ */
 public class PhieuTiepNhanFormPanel extends FormFieldPanel {
 
     
@@ -23,6 +26,7 @@ public class PhieuTiepNhanFormPanel extends FormFieldPanel {
     private TrangThaiPhieuTiepNhan trangThai;
 
     public PhieuTiepNhanFormPanel() {
+        // Chỉ nội dung yêu cầu được sửa; thông tin phiếu và khách hàng chỉ đọc.
         Theme.applyReadOnly(this.txtMaPhieu);
         Theme.applyReadOnly(this.txtBienSo);
         Theme.applyReadOnly(this.txtKhachHang);
@@ -46,6 +50,7 @@ public class PhieuTiepNhanFormPanel extends FormFieldPanel {
         this.txtKhachHang.setText(view.tenKhachHang() == null ? "" : view.tenKhachHang());
         this.txtSdt.setText(view.sdt() == null ? "" : view.sdt());
         this.txaMoTa.setText(view.moTa() == null ? "" : view.moTa());
+        // Trạng thái không có ô nhập nhưng phải giữ lại để gửi kèm khi lưu.
         this.trangThai = view.trangThai();
     }
 

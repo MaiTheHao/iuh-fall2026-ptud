@@ -11,6 +11,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+/**
+ * Form nhập một dòng chẩn đoán: tiêu đề, mức độ ưu tiên, mô tả và giải pháp.
+ */
 public final class ChanDoanDongFormPanel extends FormFieldPanel {
 
   
@@ -71,6 +74,7 @@ public final class ChanDoanDongFormPanel extends FormFieldPanel {
   }
 
   public boolean validateInput() {
+    // Kiểm tra tất cả trường để hiện đủ lỗi, nhưng chỉ focus ô sai đầu tiên.
     JComponent loiDauTien = null;
 
     String tieuDe = this.txtTieuDe.getText().trim();
@@ -128,6 +132,7 @@ public final class ChanDoanDongFormPanel extends FormFieldPanel {
   }
 
   private Integer docMucDo() {
+    // Trả null thay vì ném lỗi để phần validate hiển thị thông báo thân thiện.
     try {
       return Integer.valueOf(this.txtMucDo.getText().trim());
     } catch (NumberFormatException ex) {

@@ -36,6 +36,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+/**
+ * Thanh menu trên cùng: menu theo nhóm quyền, tài khoản, đổi ngôn ngữ và đăng xuất.
+ */
 public class LayoutHeader extends JMenuBar {
 
 	private static final int CHIEU_CAO = 52;
@@ -86,6 +89,7 @@ public class LayoutHeader extends JMenuBar {
 		Map<MenuGroup, List<AbstractPage>> trangTheoNhom = new EnumMap<>(MenuGroup.class);
 
 		for (AbstractPage page : this.registry.all()) {
+			// Chỉ dựng mục cho màn hình mà vai trò hiện tại được phép xem.
 			if (!this.phanQuyenService.duocHien(vaiTro, this.registry.getManHinh(page.getClass()))) {
 				continue;
 			}
@@ -99,6 +103,7 @@ public class LayoutHeader extends JMenuBar {
 
 		this.buildGroupMenus(trangTheoNhom, this.onSelect);
 
+		// Phần tài khoản và các nút tiện ích luôn dồn về bên phải thanh menu.
 		this.add(Box.createHorizontalGlue());
 		this.add(this.pnlAccount);
 
@@ -231,6 +236,7 @@ public class LayoutHeader extends JMenuBar {
 	}
 
 	public void setMenuVisible(boolean visible) {
+		// Ẩn cả menu lẫn khối tài khoản khi chưa đăng nhập.
 		this.menuTheoNhom.values().forEach(menu -> setVisibleAndEnabled(menu, visible));
 		this.mucTrangChu.forEach(item -> setVisibleAndEnabled(item, visible));
 		this.pnlAccount.setVisible(visible);
@@ -243,6 +249,7 @@ public class LayoutHeader extends JMenuBar {
 
 	    VaiTro vaiTro = nhanVien == null ? null : nhanVien.getVaiTro();
 
+	    // Vai trò đổi thì phải dựng lại menu; các trường hợp khác chỉ cần cập nhật chữ.
 	    if (!Objects.equals(this.vaiTroLanDungMenuGanNhat, vaiTro)) {
 	        this.dungLaiMenu(vaiTro);
 	    }
@@ -288,6 +295,7 @@ public class LayoutHeader extends JMenuBar {
 	}
 
 	private static void ganBieuTuong(AbstractButton component, String ten) {
+		// Lưu tên icon vào client property để đổi màu khi active mà không dựng lại menu.
 		component.putClientProperty("bieuTuong", ten);
 		component.setIcon(taoBieuTuong(ten, false));
 	}
@@ -297,6 +305,7 @@ public class LayoutHeader extends JMenuBar {
 	}
 
 	private static Dimension kichThuocToiDa(JComponent component) {
+		// JMenuBar kéo giãn mục theo trục ngang; trả preferred size để giữ đúng bề rộng.
 		return component.getPreferredSize();
 	}
 
@@ -324,6 +333,7 @@ public class LayoutHeader extends JMenuBar {
 		}
 		Graphics2D doHoa = (Graphics2D) g.create();
 		try {
+			// Tạo Graphics riêng để màu vẽ chỉ báo không ảnh hưởng Graphics gốc.
 			doHoa.setColor(Theme.palette().ACCENT());
 			doHoa.fillRect(0, component.getHeight() - DO_DAY_CHI_BAO, component.getWidth(), DO_DAY_CHI_BAO);
 		} finally {
@@ -331,6 +341,9 @@ public class LayoutHeader extends JMenuBar {
 		}
 	}
 
+	/**
+	 * Ô hiển thị tên và vai trò của người đang đăng nhập.
+	 */
 	private static final class AccountBox extends JPanel {
 
 		private AccountBox() {
@@ -343,6 +356,9 @@ public class LayoutHeader extends JMenuBar {
 		}
 	}
 
+	/**
+	 * Mục menu cấp cao nhất, có chỉ báo màu khi đang mở.
+	 */
 	private static final class TopLevelItem extends JMenuItem implements MenuActive {
 
 		private boolean active;
@@ -371,6 +387,9 @@ public class LayoutHeader extends JMenuBar {
 		}
 	}
 
+	/**
+	 * Menu nhóm chức năng, đổi màu icon và hiện chỉ báo khi nhóm đang mở.
+	 */
 	private static final class GroupMenu extends JMenu implements MenuActive {
 
 		private boolean active;
@@ -399,6 +418,9 @@ public class LayoutHeader extends JMenuBar {
 		}
 	}
 
+	/**
+	 * Cho phép đánh dấu mục đang mở bằng màu chữ và chỉ báo dưới chân.
+	 */
 	private interface MenuActive {
 
 		void setActive(boolean active);

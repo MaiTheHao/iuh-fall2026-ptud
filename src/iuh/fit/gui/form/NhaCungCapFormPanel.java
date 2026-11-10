@@ -9,6 +9,9 @@ import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+/**
+ * Form nhập thông tin nhà cung cấp.
+ */
 public class NhaCungCapFormPanel extends FormFieldPanel {
 
   protected final boolean tao;
@@ -23,6 +26,7 @@ public class NhaCungCapFormPanel extends FormFieldPanel {
 
   public NhaCungCapFormPanel(boolean tao) {
     this.tao = tao;
+    // Mã nhà cung cấp do hệ thống sinh nên khoá lại khi sửa.
     if (!this.tao) {
       this.txtMa.setEditable(false);
     }
@@ -68,10 +72,12 @@ public class NhaCungCapFormPanel extends FormFieldPanel {
   }
 
   protected String maHienTai() {
+    // Chế độ tạo mới trả null để Service tự sinh mã.
     return this.tao ? null : this.txtMa.getText().trim();
   }
 
   public boolean validateInput() {
+    // Báo lỗi bằng hộp thoại và dừng ngay ở lỗi đầu tiên.
     if (this.txtTen.getText().trim().isEmpty()) {
       iuh.fit.gui.component.ThongBao.loi(this, "app.nhaCungCap.loiTen");
       return false;

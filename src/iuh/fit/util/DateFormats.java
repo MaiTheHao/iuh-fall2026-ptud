@@ -2,6 +2,9 @@ package iuh.fit.util;
 
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Định dạng ngày dùng chung để các màn hình không lệch kiểu hiển thị.
+ */
 public final class DateFormats {
 
     public static final DateTimeFormatter NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");

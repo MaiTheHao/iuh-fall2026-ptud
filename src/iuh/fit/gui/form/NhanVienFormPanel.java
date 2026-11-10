@@ -18,6 +18,9 @@ import javax.swing.JTextField;
 
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Form nhập nhân viên, dùng chung cho tạo mới và sửa.
+ */
 public class NhanVienFormPanel extends FormFieldPanel {
 
   protected final boolean tao;
@@ -56,6 +59,7 @@ public class NhanVienFormPanel extends FormFieldPanel {
     if (this.tao) {
       Theme.applyEditable(this.txtTenDangNhap);
     } else {
+      // Tên đăng nhập là khoá đăng nhập nên không cho sửa.
       Theme.applyReadOnly(this.txtTenDangNhap);
     }
 
@@ -134,6 +138,8 @@ public class NhanVienFormPanel extends FormFieldPanel {
   }
 
   protected JComponent kiemTraRieng() {
+    // Chỉ bắt buộc tên đăng nhập và mật khẩu khi tạo mới;
+    // lúc sửa, mật khẩu để trống nghĩa là giữ nguyên mật khẩu cũ.
     if (!this.tao) {
       return null;
     }

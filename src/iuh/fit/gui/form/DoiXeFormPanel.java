@@ -18,6 +18,9 @@ import javax.swing.text.AbstractDocument;
 
 import java.util.List;
 
+/**
+ * Form nhập đời xe, gắn với hãng xe và dòng xe đã có trong danh mục.
+ */
 public class DoiXeFormPanel extends FormFieldPanel {
 
   
@@ -33,6 +36,7 @@ public class DoiXeFormPanel extends FormFieldPanel {
     this.tao = tao;
     Theme.applyReadOnly(this.txtMa);
     this.txtNam.setHorizontalAlignment(JTextField.RIGHT);
+    // Ô năm chỉ nhận chữ số để tránh nhập sai định dạng ngay từ đầu.
     ((AbstractDocument) this.txtNam.getDocument()).setDocumentFilter(new LocSoDocumentFilter());
     FormValidationHelper.autoClearOnInput(this.txtNam);
 
@@ -130,6 +134,7 @@ public class DoiXeFormPanel extends FormFieldPanel {
     FormValidationHelper.clearError(this.cmbDongXe);
 
     Integer namSX = this.layNamSX();
+    // Dùng chung ngưỡng năm với Service để thông báo lỗi khớp nhau.
     if (namSX == null
             || namSX < DanhMucXeService.NAM_SX_NHO_NHAT
             || namSX > DanhMucXeService.namSxLonNhat()) {
@@ -148,6 +153,7 @@ public class DoiXeFormPanel extends FormFieldPanel {
   private void chonHangXe(String maHangXe) {
     this.cmbHangXe.setSelectedIndex(-1);
 
+    // Tìm theo mã vì danh sách có thể được nạp lại với thứ tự khác.
     if (maHangXe == null || maHangXe.isBlank()) {
       return;
     }
@@ -164,6 +170,7 @@ public class DoiXeFormPanel extends FormFieldPanel {
   private void chonDongXe(String maDongXe) {
     this.cmbDongXe.setSelectedIndex(-1);
 
+    // Tìm theo mã vì danh sách có thể được nạp lại với thứ tự khác.
     if (maDongXe == null || maDongXe.isBlank()) {
       return;
     }

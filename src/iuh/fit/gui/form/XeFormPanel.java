@@ -15,10 +15,14 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+/**
+ * Form nhập xe: biển số, hãng/dòng/đời xe và số ODO.
+ */
 public class XeFormPanel extends FormFieldPanel {
 
   
 
+  // Biển số Việt Nam: 2 số tỉnh/thành, 1-2 chữ cái và 4-6 chữ số.
   private static final String BIEN_SO_REGEX = "^[0-9]{2}[A-Z]{1,2}[0-9]{4,6}$";
 
   protected final boolean tao;
@@ -31,6 +35,7 @@ public class XeFormPanel extends FormFieldPanel {
 
   public XeFormPanel(boolean tao) {
     this.tao = tao;
+    // Biển số là khoá nhận diện xe nên chỉ cho sửa khi thêm xe mới.
     if (this.tao) {
       Theme.applyEditable(this.txtBienSo);
     } else {

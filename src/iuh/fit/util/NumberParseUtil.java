@@ -1,5 +1,8 @@
 package iuh.fit.util;
 
+/**
+ * Chuyển chuỗi nhập từ giao diện sang số, cho phép bỏ trống.
+ */
 public final class NumberParseUtil {
 
     private NumberParseUtil() {
@@ -11,6 +14,8 @@ public final class NumberParseUtil {
             return null;
         }
 
+        // Chuỗi rỗng là "không nhập"; chuỗi sai định dạng vẫn ném NumberFormatException
+        // để lớp gọi hiển thị lỗi thay vì âm thầm coi như rỗng.
         return Double.valueOf(value.trim());
     }
 

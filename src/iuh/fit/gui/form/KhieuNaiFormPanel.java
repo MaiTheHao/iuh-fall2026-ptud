@@ -13,6 +13,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.Dimension;
 
+/**
+ * Form cập nhật khiếu nại: nội dung và trạng thái xử lý.
+ */
 public class KhieuNaiFormPanel extends FormFieldPanel {
 
     
@@ -24,6 +27,7 @@ public class KhieuNaiFormPanel extends FormFieldPanel {
     private final JComboBox<TrangThaiKhieuNai> cmbTrangThai = new JComboBox<>(TrangThaiKhieuNai.values());
 
     public KhieuNaiFormPanel() {
+        // Mã và thông tin liên kết chỉ đọc; người dùng chỉ sửa nội dung và trạng thái.
         Theme.applyReadOnly(this.txtMa);
         Theme.applyReadOnly(this.txtKhachHang);
         Theme.applyReadOnly(this.txtPhieuTiepNhan);

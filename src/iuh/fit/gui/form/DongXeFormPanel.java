@@ -13,6 +13,9 @@ import javax.swing.JTextField;
 
 import java.util.List;
 
+/**
+ * Form nhập dòng xe và chọn hãng xe tương ứng.
+ */
 public class DongXeFormPanel extends FormFieldPanel {
 
   
@@ -34,6 +37,7 @@ public class DongXeFormPanel extends FormFieldPanel {
   }
 
   protected void dungBoCuc() {
+    // Mã dòng xe do hệ thống sinh nên chỉ hiển thị khi sửa.
     if (!this.tao) {
       this.addField("app.danhMucXe.ma", this.txtMa);
     }
@@ -112,6 +116,7 @@ public class DongXeFormPanel extends FormFieldPanel {
   private void chonHangXe(String maHangXe) {
     this.cmbHangXe.setSelectedIndex(-1);
 
+    // Tìm theo mã vì danh sách có thể được nạp lại với thứ tự khác.
     if (maHangXe == null || maHangXe.isBlank()) {
       return;
     }

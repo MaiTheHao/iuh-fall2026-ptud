@@ -18,10 +18,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Đọc chuỗi giao diện từ tệp JSON i18n theo ngôn ngữ hiện tại.
+ */
 public final class I18nReaderUtil {
 
     private static final Logger LOGGER = Logger.getLogger(I18nReaderUtil.class.getName());
 
+    // Mỗi tệp ngôn ngữ chỉ được nạp một lần; ConcurrentHashMap vì nhiều luồng có thể đọc cùng lúc.
     private static final Map<AppLocale, Map<String, String>> CACHE = new ConcurrentHashMap<>();
 
     private I18nReaderUtil() {
@@ -49,6 +53,7 @@ public final class I18nReaderUtil {
         Map<String, String> translations =
                 CACHE.computeIfAbsent(locale, I18nReaderUtil::loadTranslations);
 
+        // Trả null khi thiếu khoá để lớp gọi tự quyết định giá trị mặc định.
         return translations.get(path);
     }
 
@@ -82,6 +87,7 @@ public final class I18nReaderUtil {
     }
 
     private static void flatten(JsonObject object, String prefix, Map<String, String> result) {
+        // JSON lồng nhau được làm phẳng thành khoá dạng "app.hoTen" để tra cứu trực tiếp.
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
             String key = prefix.isEmpty()
                     ? entry.getKey()

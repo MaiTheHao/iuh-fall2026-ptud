@@ -21,6 +21,9 @@ import java.awt.Component;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Form phân công ca làm việc cho nhân viên theo ngày.
+ */
 public class PhanCongCaFormPanel extends FormFieldPanel {
 
   protected final boolean tao;
@@ -37,12 +40,12 @@ public class PhanCongCaFormPanel extends FormFieldPanel {
     this.ngayLamPicker.getSettings().setFormatForDatesCommonEra("dd/MM/yyyy");
     this.cmbCaLam.setRenderer(BoHienThiI18n.tao());
     this.cmbNhanVien.setRenderer(new DefaultListCellRenderer() {
-      
 
       @Override
       public Component getListCellRendererComponent(JList<?> list, Object value, int index,
               boolean isSelected, boolean cellHasFocus) {
         String hienThi = value instanceof NhanVien nhanVien
+                // Kèm mã để phân biệt nhân viên trùng họ tên.
                 ? nhanVien.getHoTen() + " (" + nhanVien.getMaNhanVien() + ")"
                 : "";
         return super.getListCellRendererComponent(list, hienThi, index, isSelected, cellHasFocus);
@@ -127,6 +130,7 @@ public class PhanCongCaFormPanel extends FormFieldPanel {
   }
 
   private void chonNhanVien(String maNhanVien) {
+    // Tìm theo mã vì danh sách có thể được nạp lại với thứ tự khác.
     for (int i = 0; i < this.cmbNhanVien.getItemCount(); i++) {
       NhanVien nhanVien = this.cmbNhanVien.getItemAt(i);
 
@@ -138,6 +142,9 @@ public class PhanCongCaFormPanel extends FormFieldPanel {
     }
   }
 
+  /**
+   * Dữ liệu form trả về trước khi Service ghép thành entity.
+   */
   public record DuLieu(
           String maPhanCong,
           String maNhanVien,

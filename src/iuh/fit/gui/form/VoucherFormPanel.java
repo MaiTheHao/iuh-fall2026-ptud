@@ -18,6 +18,9 @@ import javax.swing.SwingConstants;
 
 import java.time.LocalDateTime;
 
+/**
+ * Form nhập voucher giảm giá, dùng chung cho tạo mới và sửa.
+ */
 public class VoucherFormPanel extends FormFieldPanel {
 
   protected final boolean tao;
@@ -39,6 +42,7 @@ public class VoucherFormPanel extends FormFieldPanel {
     this.txtMucGiam.setHorizontalAlignment(SwingConstants.RIGHT);
     Theme.applyReadOnly(this.txtMa);
 
+    // DateTimePicker của LGoodDatePicker không tự theo theme nên phải áp màu thủ công.
     BoChonNgayGio.apDungMau(this.thoiHanPicker);
 
     this.chkTrangThai.setOpaque(false);
@@ -104,6 +108,7 @@ public class VoucherFormPanel extends FormFieldPanel {
   }
 
   protected JComponent kiemTraRieng() {
+    // Chỉ kiểm tra hạn dùng khi tạo mới để không chặn việc sửa voucher đã tạo.
     if (!this.tao) {
       return null;
     }

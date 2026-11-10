@@ -10,6 +10,9 @@ import javax.swing.JTextField;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Form chỉ đọc hiển thị chi tiết một hoá đơn.
+ */
 public final class HoaDonChiTietFormPanel extends FormFieldPanel {
 
   
@@ -17,6 +20,7 @@ public final class HoaDonChiTietFormPanel extends FormFieldPanel {
   private static final DecimalFormat TIEN = new DecimalFormat("#,##0");
 
   private final DateTimeFormatter dinhDangNgayGio =
+          // Ghép mẫu ngày theo ngôn ngữ hiện tại với giờ 24h.
           DateTimeFormatter.ofPattern(I18nReaderUtil.get("app.date.format") + " HH:mm");
 
   private final JTextField txtMaHoaDon = new JTextField(14);
@@ -31,6 +35,7 @@ public final class HoaDonChiTietFormPanel extends FormFieldPanel {
   private final JTextField txtLyDoHuy = new JTextField(14);
 
   public HoaDonChiTietFormPanel() {
+    // Màn xem chi tiết nên mọi trường chỉ đọc và không nhận focus.
     for (JTextField field : new JTextField[]{
         this.txtMaHoaDon, this.txtMaPhieu, this.txtKhachHang, this.txtBienSo,
         this.txtNgayTao, this.txtTrangThai, this.txtTongTien,

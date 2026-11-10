@@ -19,6 +19,9 @@ import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 
+/**
+ * Form nhập phụ tùng, kèm chọn nhà cung cấp và ảnh minh hoạ.
+ */
 public class PhuTungFormPanel extends FormFieldPanel {
 
   protected final boolean tao;
@@ -49,6 +52,7 @@ public class PhuTungFormPanel extends FormFieldPanel {
     this.txtSoLuongTon.setHorizontalAlignment(SwingConstants.RIGHT);
 
     Theme.applyReadOnly(this.txtMa);
+    // Tồn kho chỉ thay đổi qua phiếu nhập/xuất nên không cho sửa trực tiếp.
     Theme.applyReadOnly(this.txtSoLuongTon);
     this.txtSoLuongTon.setText("0");
     Theme.applyReadOnly(this.txtNhaCungCap);
