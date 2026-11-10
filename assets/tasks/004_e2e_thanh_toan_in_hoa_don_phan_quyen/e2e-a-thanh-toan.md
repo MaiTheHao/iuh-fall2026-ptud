@@ -20,10 +20,10 @@ Voucher hợp lệ	`VC-20261020-000007` / giảm 20%, hạn 31/08/2027
 2. Quan sát dialog vừa mở (không bấm gì).
 **Kết quả mong đợi:** dialog hiện dạng modal; ô phương thức mặc định là **Chuyển khoản QR**; dòng số tiền đúng thực thu, định dạng `#,##0` + " đ"; khối thông tin hiện ngân hàng/BIN, số tài khoản, tên chủ tài khoản, số tiền, nội dung chuyển khoản dạng `TT <mã hóa đơn>` (chỉ ASCII, tối đa 25 ký tự); sau khi dialog hiện, vùng QR bắt đầu tải ("Đang tạo mã QR…").
 
-**PASS / NO:** ________
+**PASS / NO:** PASS
 **Mô tả thực tế / lỗi chi tiết:**
 >
-
+qr.properties phai co thong tin
 ---
 
 ### E2E-A-02 · Thanh toán chuyển khoản QR thành công
