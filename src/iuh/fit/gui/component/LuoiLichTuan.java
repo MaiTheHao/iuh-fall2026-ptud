@@ -34,8 +34,6 @@ import java.util.function.Consumer;
 
 public final class LuoiLichTuan extends JPanel {
 
-  
-
   private static final int SO_NGAY = 7;
   private static final int CHIEU_CAO_THE = 28;
   private static final int KICH_THUOC_NUT = 28;

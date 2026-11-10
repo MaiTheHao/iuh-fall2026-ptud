@@ -21,306 +21,333 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * ComboBox có ô nhập cho phép gõ từ khóa để tìm kiếm.
+ */
 public final class ComboTimKiem<T> extends JComboBox<T> {
 
-  
-
   private static final Logger LOGGER = Logger.getLogger(ComboTimKiem.class.getName());
-  private static final int THOI_GIAN_CHO_LOC = 300;
-  private static final int SO_DONG_TOI_DA = 10;
+  private static final int DO_TRE_SAU_KHI_GO_MS = 300;
+  private static final int SO_GOI_Y_HIEN_TOI_DA = 10;
 
+  /** Nguồn dữ liệu: nhận từ khóa, trả về danh sách gợi ý. */
   @FunctionalInterface
   public interface NguonTim<T> {
     List<T> tim(String tuKhoa) throws SQLException;
   }
 
-  private final NguonTim<T> nguon;
-  private final Function<T, String> nhanHienThi;
-  private final Function<T, String> giaTriNhap;
-  private final JTextField txtONhap;
-  private final Timer boDem = new Timer(THOI_GIAN_CHO_LOC, e -> this.taiLai());
+  // Cấu hình bất biến.
+  private final NguonTim<T> nguonTimKiem;
+  private final Function<T, String> hamLayNhanHienThi;
+  private final Function<T, String> hamLayChuoiNhap;
+  private final JTextField txtONhapLieu;
+  private final Timer boHenGioTim = new Timer(DO_TRE_SAU_KHI_GO_MS, e -> this.batDauTimGoiY(false));
 
-  private SwingWorker<List<T>, Void> workerHienTai;
-  private int theHeTim;
-  private boolean dangNap;
-  private boolean dangLapTrinh;
-  private Consumer<T> xuLyChon;
-  private Runnable xuLyGo;
+  // Trạng thái tìm kiếm.
+  private SwingWorker<List<T>, Void> tacVuTimDangChay;
+  private int soThuTuLanTim;
 
-  public ComboTimKiem(NguonTim<T> nguon, Function<T, String> nhanHienThi,
+  // Cờ chống đệ quy sự kiện.
+  private boolean dangCapNhatModel;
+  private boolean dangDatTextBangCode;
+
+  // Callback do bên ngoài đặt.
+  private Consumer<T> xuLyKhiChon;
+  private Runnable xuLyKhiGo;
+
+  public ComboTimKiem(NguonTim<T> nguon,
+          Function<T, String> nhanHienThi,
           Function<T, String> giaTriNhap) {
-    this.nguon = Objects.requireNonNull(nguon, "nguon");
-    this.nhanHienThi = Objects.requireNonNull(nhanHienThi, "nhanHienThi");
-    this.giaTriNhap = Objects.requireNonNull(giaTriNhap, "giaTriNhap");
+    this.nguonTimKiem = Objects.requireNonNull(nguon, "nguon");
+    this.hamLayNhanHienThi = Objects.requireNonNull(nhanHienThi, "nhanHienThi");
+    this.hamLayChuoiNhap = Objects.requireNonNull(giaTriNhap, "giaTriNhap");
 
     this.setEditable(true);
-    this.setMaximumRowCount(SO_DONG_TOI_DA);
-    this.boDem.setRepeats(false);
+    this.setMaximumRowCount(SO_GOI_Y_HIEN_TOI_DA);
+    this.boHenGioTim.setRepeats(false);
 
-    this.setEditor(new BasicComboBoxEditor() {
-      @Override
-      public void setItem(Object anObject) {
-        if (anObject == null || ComboTimKiem.this.dangNap) {
-          return;
-        }
-        if (anObject instanceof String chuoi) {
-          super.setItem(chuoi);
-          return;
-        }
-        try {
-          super.setItem(ComboTimKiem.this.giaTriNhap.apply(castItem(anObject)));
-        } catch (RuntimeException ex) {
-          super.setItem(String.valueOf(anObject));
-        }
-      }
-    });
+    this.setEditor(new EditorHienChuoiNhap());
+    this.setRenderer(new RendererHienNhan());
 
-    this.setRenderer(new DefaultListCellRenderer() {
-      
+    this.txtONhapLieu = (JTextField) this.getEditor().getEditorComponent();
+    this.txtONhapLieu.getDocument().addDocumentListener(new LangNgheNoiDungOChu());
 
-      @Override
-      public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-              boolean isSelected, boolean cellHasFocus) {
-        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        String nhan = "";
-        if (value != null) {
-          try {
-            nhan = ComboTimKiem.this.nhanHienThi.apply(castItem(value));
-          } catch (RuntimeException ex) {
-            nhan = value.toString();
-          }
-        }
-        this.setText(nhan == null ? "" : nhan);
-        return this;
-      }
-    });
-
-    this.txtONhap = (JTextField) this.getEditor().getEditorComponent();
-    this.txtONhap.getDocument().addDocumentListener(new DocumentListener() {
-      @Override
-      public void insertUpdate(DocumentEvent e) {
-        ComboTimKiem.this.khiGo();
-      }
-
-      @Override
-      public void removeUpdate(DocumentEvent e) {
-        ComboTimKiem.this.khiGo();
-      }
-
-      @Override
-      public void changedUpdate(DocumentEvent e) {
-        ComboTimKiem.this.khiGo();
-      }
-    });
-
-    this.addActionListener(e -> this.khiChon());
+    this.addActionListener(e -> this.khiNguoiDungChonGoiY());
   }
 
   public String getTuKhoa() {
-    return this.txtONhap.getText();
+    return this.txtONhapLieu.getText();
   }
 
+  /** Đặt từ khóa bằng code: hủy tìm kiếm đang chạy và không kích hoạt tìm mới. */
   public void datTuKhoa(String tuKhoa) {
-    this.huyTimKiem();
-    this.dangLapTrinh = true;
-    try {
-      this.boDem.stop();
-      this.txtONhap.setText(tuKhoa == null ? "" : tuKhoa);
-    } finally {
-      this.dangLapTrinh = false;
-    }
+    this.huyTimKiemDangChay();
+    this.boHenGioTim.stop();
+    this.datTextKhongKichHoatTim(tuKhoa);
   }
 
   public void datChoPhepNhap(boolean choPhep) {
     this.setEnabled(choPhep);
-    this.txtONhap.setEnabled(choPhep);
-    this.txtONhap.setEditable(choPhep);
+    this.txtONhapLieu.setEnabled(choPhep);
+    this.txtONhapLieu.setEditable(choPhep);
   }
 
   public void xoa() {
     this.datTuKhoa("");
-    this.xoaDanhSach();
+    this.xoaToanBoGoiY();
   }
 
   public void datXuLyChon(Consumer<T> xuLy) {
-    this.xuLyChon = xuLy;
+    this.xuLyKhiChon = xuLy;
   }
 
   public void datXuLyGo(Runnable xuLy) {
-    this.xuLyGo = xuLy;
+    this.xuLyKhiGo = xuLy;
   }
 
-  @SuppressWarnings("unchecked")
-  private static <T> T castItem(Object value) {
-    return (T) value;
+  /** Tải lại gợi ý ngay (bỏ chờ), cho phép cả khi từ khóa rỗng. */
+  public void napLaiGoiY() {
+    this.boHenGioTim.stop();
+    this.batDauTimGoiY(true);
   }
 
-  private void khiGo() {
-    if (this.dangLapTrinh || this.dangNap) {
+  // Sự kiện từ người dùng.
+  private void khiNguoiDungGoPhim() {
+    if (this.dangDatTextBangCode || this.dangCapNhatModel) {
       return;
     }
-    this.huyTimKiem();
-    this.boDem.restart();
-    if (this.xuLyGo != null) {
-      this.xuLyGo.run();
+    this.huyTimKiemDangChay();
+    this.boHenGioTim.restart();
+    if (this.xuLyKhiGo != null) {
+      this.xuLyKhiGo.run();
     }
   }
 
-  private void khiChon() {
-    if (this.dangNap) {
+  private void khiNguoiDungChonGoiY() {
+    if (this.dangCapNhatModel) {
+      return;
+    }
+    Object mucDangChon = this.getSelectedItem();
+    if (mucDangChon == null) {
+      return;
+    }
+    T mucGoiY = this.timMucTrongModel(mucDangChon);
+    if (mucGoiY == null) {
       return;
     }
 
-    Object chon = this.getSelectedItem();
-    if (chon == null) {
-      return;
-    }
-
-    T item = this.timDongTrongModel(chon);
-    if (item == null) {
-      return;
-    }
-
-    this.dangNap = true;
-    try {
-      this.datTuKhoa(this.giaTriNhap.apply(item));
+    this.chayKhiCapNhatModel(() -> {
+      this.datTuKhoa(this.hamLayChuoiNhap.apply(mucGoiY));
       this.setSelectedItem(null);
       this.setPopupVisible(false);
-      if (this.xuLyChon != null) {
-        this.xuLyChon.accept(item);
+      if (this.xuLyKhiChon != null) {
+        this.xuLyKhiChon.accept(mucGoiY);
       }
-    } finally {
-      this.dangNap = false;
-    }
+    });
   }
 
-  private T timDongTrongModel(Object giaTri) {
+  private T timMucTrongModel(Object mucCanTim) {
     for (int i = 0; i < this.getItemCount(); i++) {
-      T dong = this.getItemAt(i);
-      if (dong == giaTri || dong.equals(giaTri)) {
-        return dong;
+      T muc = this.getItemAt(i);
+      if (muc == mucCanTim || muc.equals(mucCanTim)) {
+        return muc;
       }
     }
     return null;
   }
 
-  private void taiLai() {
-    this.taiLai(false);
-  }
+  // Tìm kiếm ở luồng nền.
+  private void batDauTimGoiY(boolean choPhepTuKhoaRong) {
+    this.huyTimKiemDangChay();
 
-  private void taiLai(boolean choPhepTuKhoaRong) {
-    this.huyTimKiem();
-    final int theHe = this.theHeTim;
-
-    final String tuKhoa = this.getTuKhoa();
+    String tuKhoa = this.getTuKhoa();
     if (tuKhoa.isBlank() && !choPhepTuKhoaRong) {
-      this.xoaDanhSach();
+      this.xoaToanBoGoiY();
       return;
     }
 
-    SwingWorker<List<T>, Void> worker = new SwingWorker<List<T>, Void>() {
-      private Exception loiTim;
-
-      @Override
-      protected List<T> doInBackground() {
-        try {
-          return ComboTimKiem.this.nguon.tim(tuKhoa);
-        } catch (SQLException | RuntimeException ex) {
-          this.loiTim = ex;
-          return List.of();
-        }
-      }
-
-      @Override
-      protected void done() {
-        if (theHe != ComboTimKiem.this.theHeTim || !ComboTimKiem.this.isShowing()) {
-          return;
-        }
-
-        if (this.loiTim != null) {
-          LOGGER.log(Level.WARNING,
-                  "Không tải được gợi ý tìm kiếm cho từ khóa: " + tuKhoa, this.loiTim);
-          ComboTimKiem.this.xoaDanhSach();
-          return;
-        }
-
-        List<T> danhSach;
-        try {
-          danhSach = this.get();
-        } catch (CancellationException ex) {
-          return;
-        } catch (InterruptedException ex) {
-          Thread.currentThread().interrupt();
-          ComboTimKiem.this.xoaDanhSach();
-          return;
-        } catch (ExecutionException ex) {
-          LOGGER.log(Level.WARNING,
-                  "Không tải được gợi ý tìm kiếm cho từ khóa: " + tuKhoa, ex.getCause());
-          ComboTimKiem.this.xoaDanhSach();
-          return;
-        }
-
-        ComboTimKiem.this.napDanhSach(danhSach);
-      }
-    };
-
-    this.workerHienTai = worker;
-    worker.execute();
+    this.tacVuTimDangChay = new TacVuTimKiem(tuKhoa, this.soThuTuLanTim);
+    this.tacVuTimDangChay.execute();
   }
 
-  public void napLaiGoiY() {
-    this.boDem.stop();
-    this.huyTimKiem();
-    this.taiLai(true);
-  }
-
-  private void huyTimKiem() {
-    if (this.workerHienTai != null) {
-      this.workerHienTai.cancel(true);
-      this.workerHienTai = null;
+  /** Hủy tác vụ đang chạy và tăng số thứ tự để kết quả cũ trả về muộn bị bỏ qua. */
+  private void huyTimKiemDangChay() {
+    if (this.tacVuTimDangChay != null) {
+      this.tacVuTimDangChay.cancel(true);
+      this.tacVuTimDangChay = null;
     }
-    this.theHeTim++;
+    this.soThuTuLanTim++;
   }
 
-  private void napDanhSach(List<T> danhSach) {
-    String textDangGo = this.getTuKhoa();
+  private void ghiLogLoiTim(String tuKhoa, Throwable loi) {
+    LOGGER.log(Level.WARNING, "Không tải được gợi ý tìm kiếm cho từ khóa: " + tuKhoa, loi);
+  }
 
-    this.dangNap = true;
-    try {
+  // Cập nhật model và ô nhập.
+  private void hienThiGoiY(List<T> danhSachGoiY) {
+    String textNguoiDungDangGo = this.getTuKhoa();
+
+    this.chayKhiCapNhatModel(() -> {
       this.removeAllItems();
-      if (danhSach != null) {
-        for (T item : danhSach) {
-          if (item != null) {
-            this.addItem(item);
-          }
-        }
+      if (danhSachGoiY != null) {
+        danhSachGoiY.stream().filter(Objects::nonNull).forEach(this::addItem);
       }
       this.setSelectedItem(null);
-      this.khoiPhucText(textDangGo);
-    } finally {
-      this.dangNap = false;
-    }
+      this.datTextKhongKichHoatTim(textNguoiDungDangGo);
+    });
 
-    this.setPopupVisible(this.getItemCount() > 0 && this.txtONhap.hasFocus() && this.isShowing());
+    // Chỉ mở popup khi thực sự có gợi ý và ô nhập vẫn đang được thao tác.
+    boolean nenHienPopup = this.getItemCount() > 0
+            && this.txtONhapLieu.hasFocus()
+            && this.isShowing();
+    this.setPopupVisible(nenHienPopup);
   }
 
-  private void khoiPhucText(String text) {
-    this.dangLapTrinh = true;
-    try {
-      this.txtONhap.setText(text == null ? "" : text);
-    } finally {
-      this.dangLapTrinh = false;
-    }
-  }
-
-  private void xoaDanhSach() {
-    this.dangNap = true;
-    try {
+  private void xoaToanBoGoiY() {
+    this.chayKhiCapNhatModel(() -> {
       this.removeAllItems();
       this.setSelectedItem(null);
-    } finally {
-      this.dangNap = false;
-    }
+    });
     this.setPopupVisible(false);
+  }
+
+  // Helper điều khiển cờ trạng thái.
+  private void chayKhiCapNhatModel(Runnable viec) {
+    boolean giaTriCu = this.dangCapNhatModel;
+    this.dangCapNhatModel = true;
+    try {
+      viec.run();
+    } finally {
+      this.dangCapNhatModel = giaTriCu;
+    }
+  }
+
+  private void datTextKhongKichHoatTim(String text) {
+    boolean giaTriCu = this.dangDatTextBangCode;
+    this.dangDatTextBangCode = true;
+    try {
+      this.txtONhapLieu.setText(text == null ? "" : text);
+    } finally {
+      this.dangDatTextBangCode = giaTriCu;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> T epVeKieuT(Object doiTuong) {
+    return (T) doiTuong;
+  }
+
+  private String layNhanHienThi(Object muc) {
+    if (muc == null) {
+      return "";
+    }
+    try {
+      String nhan = this.hamLayNhanHienThi.apply(epVeKieuT(muc));
+      return nhan == null ? "" : nhan;
+    } catch (RuntimeException ex) {
+      return muc.toString();
+    }
+  }
+
+  private String layChuoiNhap(Object muc) {
+    try {
+      return this.hamLayChuoiNhap.apply(epVeKieuT(muc));
+    } catch (RuntimeException ex) {
+      return String.valueOf(muc);
+    }
+  }
+
+  // Lớp nội bộ.
+  private final class EditorHienChuoiNhap extends BasicComboBoxEditor {
+    @Override
+    public void setItem(Object muc) {
+      if (muc == null || ComboTimKiem.this.dangCapNhatModel) {
+        return;
+      }
+      if (muc instanceof String chuoi) {
+        super.setItem(chuoi);
+      } else {
+        super.setItem(ComboTimKiem.this.layChuoiNhap(muc));
+      }
+    }
+  }
+
+  private final class RendererHienNhan extends DefaultListCellRenderer {
+    @Override
+    public Component getListCellRendererComponent(JList<?> list,
+            Object value,
+            int index,
+            boolean isSelected,
+            boolean cellHasFocus) {
+      super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+      this.setText(ComboTimKiem.this.layNhanHienThi(value));
+      return this;
+    }
+  }
+
+  private final class LangNgheNoiDungOChu implements DocumentListener {
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+      ComboTimKiem.this.khiNguoiDungGoPhim();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+      ComboTimKiem.this.khiNguoiDungGoPhim();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+      ComboTimKiem.this.khiNguoiDungGoPhim();
+    }
+  }
+
+  private final class TacVuTimKiem extends SwingWorker<List<T>, Void> {
+    private final String tuKhoaDuocTim;
+    private final int soThuTuLanTimNay;
+    private Exception loiKhiTim;
+
+    TacVuTimKiem(String tuKhoaDuocTim, int soThuTuLanTimNay) {
+      this.tuKhoaDuocTim = tuKhoaDuocTim;
+      this.soThuTuLanTimNay = soThuTuLanTimNay;
+    }
+
+    @Override
+    protected List<T> doInBackground() {
+      try {
+        return ComboTimKiem.this.nguonTimKiem.tim(this.tuKhoaDuocTim);
+      } catch (SQLException | RuntimeException ex) {
+        this.loiKhiTim = ex;
+        return List.of();
+      }
+    }
+
+    @Override
+    protected void done() {
+      ComboTimKiem<T> combo = ComboTimKiem.this;
+
+      boolean ketQuaDaCu = this.soThuTuLanTimNay != combo.soThuTuLanTim;
+      if (ketQuaDaCu || !combo.isShowing()) {
+        return;
+      }
+
+      if (this.loiKhiTim != null) {
+        combo.ghiLogLoiTim(this.tuKhoaDuocTim, this.loiKhiTim);
+        combo.xoaToanBoGoiY();
+        return;
+      }
+
+      try {
+        combo.hienThiGoiY(this.get());
+      } catch (CancellationException ex) {
+        // Tác vụ đã bị hủy nên bỏ qua kết quả này.
+      } catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+        combo.xoaToanBoGoiY();
+      } catch (ExecutionException ex) {
+        combo.ghiLogLoiTim(this.tuKhoaDuocTim, ex.getCause());
+        combo.xoaToanBoGoiY();
+      }
+    }
   }
 }

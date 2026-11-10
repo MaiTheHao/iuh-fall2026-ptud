@@ -155,7 +155,7 @@ public class LoginPage extends AbstractPage {
         this.addDong(pnlNoiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.login.tagline"),
                 fontCo(14f, Font.PLAIN), Theme.palette().INK_MUTED(), SwingConstants.CENTER), 6, 26);
         this.addDong(pnlNoiDung, rangBuoc, this.taoNhan(I18nReaderUtil.get("app.login.title"),
-                fontCo(20f, Font.BOLD), Theme.palette().INK(), SwingConstants.LEFT), 0, 18);
+                fontCo(20f, Font.BOLD), Theme.palette().INK(), SwingConstants.CENTER), 0, 18);
     }
 
     private void taoPhanDangNhap(JPanel pnlNoiDung, GridBagConstraints rangBuoc) {

@@ -20,6 +20,7 @@ import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,6 +29,7 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -231,6 +233,7 @@ public class DoanhThuPage extends AbstractPage {
 		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
 
 		this.pnlBieuDo = new ChartPanel(ChartFactory.createPieChart(null, dataset, true, true, false));
+    this.pnlBieuDo.setPreferredSize(new Dimension(700, 320));
 
 		JFreeChart bieuDo = this.pnlBieuDo.getChart();
 
@@ -246,8 +249,7 @@ public class DoanhThuPage extends AbstractPage {
 		piePlot.setLabelShadowPaint(null);
 		piePlot.setLabelPaint(Color.WHITE);
 		piePlot.setLabelFont(Theme.soLieuFont());
-
-		piePlot.setInteriorGap(0.04);
+		piePlot.setInteriorGap(0.10);
 
 		piePlot.setLegendLabelGenerator(new StandardPieSectionLabelGenerator("{0}"));
 		pnlKhungBieuDo.add(this.pnlBieuDo, BorderLayout.CENTER);
@@ -269,12 +271,12 @@ public class DoanhThuPage extends AbstractPage {
 		gbc.weighty = 1.0;
 
 		gbc.gridx = 0;
-		gbc.weightx = 1.0;
+		gbc.weightx = 0.0;
 		gbc.insets = new Insets(0, 0, 0, 4);
 		pnlBieuDoVaBang.add(pnlKhungBieuDo, gbc);
 
 		gbc.gridx = 1;
-		gbc.weightx = 2.0;
+		gbc.weightx = 1.0;
 		gbc.insets = new Insets(0, 4, 0, 0);
 		pnlBieuDoVaBang.add(pnlBangHoaDon, gbc);
 

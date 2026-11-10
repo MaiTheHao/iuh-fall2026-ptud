@@ -41,14 +41,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Panel quản lý dạng danh sách: bộ lọc (text / combo / ngày / khoảng) + ô tìm nhanh + bảng
+ * (tùy chọn cột checkbox chọn nhiều, cột thao tác) + thanh phân trang.
+ */
 public class ManagementPanel extends JPanel {
 
-  private static final String THE_BANG = "bang";
-  private static final String THE_TRONG = "trong";
+  private static final String THE_HIEN_BANG = "bang";
+  private static final String THE_HIEN_TRONG = "trong";
 
   private static final int CO_ICON_TIM = 16;
   private static final int CO_ICON_NUT = 18;
   private static final int RONG_COT_CHON = 44;
+  private static final int CHIEU_CAO_DONG_BANG = 34;
+  private static final int RONG_O_TIM_NHANH = 240;
+  private static final int DO_TRE_LOC_MS = 300;
+  private static final int CHI_SO_COT_CHON = 0;
 
   public record BoLocChon(JComboBox<Object> combo) {
 
@@ -89,27 +97,29 @@ public class ManagementPanel extends JPanel {
     }
   }
 
-  private final List<JComboBox<Object>> boLocCombo = new ArrayList<>();
   private final DefaultTableModel moHinhBang = new DefaultTableModel() {
 
     @Override
     public boolean isCellEditable(int row, int column) {
-      return ManagementPanel.this.chonNhieu && column == 0;
+      return ManagementPanel.this.cheDoChonNhieu && column == CHI_SO_COT_CHON;
     }
 
     @Override
     public Class<?> getColumnClass(int column) {
-      return ManagementPanel.this.chonNhieu && column == 0
+      return ManagementPanel.this.cheDoChonNhieu && column == CHI_SO_COT_CHON
               ? Boolean.class
               : Object.class;
     }
   };
+
   private final JTable tblDuLieu = new JTable(this.moHinhBang) {
 
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
       Component thanhPhan = super.prepareRenderer(renderer, row, column);
-      if (!this.isRowSelected(row) && !(renderer instanceof ThaoTacTableCellRenderer)) {
+      boolean canTomauXenKe = !this.isRowSelected(row)
+              && !(renderer instanceof ThaoTacTableCellRenderer);
+      if (canTomauXenKe) {
         thanhPhan.setBackground(row % 2 == 0
                 ? this.getBackground()
                 : Theme.palette().TABLE_ROW_ALT());
@@ -117,101 +127,437 @@ public class ManagementPanel extends JPanel {
       return thanhPhan;
     }
   };
-  private final CardLayout theDanhSach = new CardLayout();
-  private final JPanel pnlDanhSach = new JPanel(this.theDanhSach);
+
+  private final CardLayout boCardDanhSach = new CardLayout();
+  private final JPanel pnlDanhSach = new JPanel(this.boCardDanhSach);
 
   private final JPanel pnlBoLoc = new KhungBoLoc();
-  private final List<JTextField> boLocText = new ArrayList<>();
-  private final List<DatePicker[]> boLocNgay = new ArrayList<>();
-  private final List<JLabel> nhanBoLoc = new ArrayList<>();
+  private final List<JComboBox<Object>> dsBoLocCombo = new ArrayList<>();
+  private final List<JTextField> dsOLocText = new ArrayList<>();
+  private final List<DatePicker[]> dsCapLocNgay = new ArrayList<>(); // mỗi phần tử: {từ, đến}
+  private final List<JLabel> dsNhanBoLoc = new ArrayList<>();
+
   private final JTextField txtOTimNhanh = new JTextField(20);
-  private final JLabel lblNhanDem = new JLabel();
+  private final JLabel lblDemKetQua = new JLabel();
   private final JButton btnXoaLoc = new JButton(I18nReaderUtil.get("app.common.clearFilter"));
+
+  private final Timer boHenGioLoc = new Timer(DO_TRE_LOC_MS, e -> this.baoBoLocDaDoi());
+  private boolean dangXoaBoLoc;
+  private Runnable xuLyKhiDoiBoLoc;
+
+  // ======================================================================
+  // Phân trang
+  // ======================================================================
+
   private final JButton btnTruoc = new JButton(I18nReaderUtil.get("app.common.prev"));
   private final JButton btnSau = new JButton(I18nReaderUtil.get("app.common.next"));
-  private final JLabel lblNhanTrang = new JLabel();
+  private final JLabel lblSoTrang = new JLabel();
+
+  // ======================================================================
+  // Thanh thao tác
+  // ======================================================================
 
   private final JPanel pnlThanhThaoTac = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
   private final JButton btnThem = new JButton();
-  private final JButton btnBatchAction = new JButton();
+  private final JButton btnHangLoat = new JButton();
 
-  private Runnable khiDoiBoLoc;
-  private boolean dangXoaLoc;
-  private final Timer henGioLoc = new Timer(300, e -> this.fireFilterChange());
+  private Runnable xuLyKhiThem;
+  private Consumer<List<Integer>> xuLyHangLoat;
+  private String khoaNhanNutHangLoat;
 
-  private boolean chonNhieu;
-  private String[] tieuDeDuLieu = new String[0];
-  private String tieuDeThaoTacKey;
-  private List<ThaoTac> dsThaoTacHienTai;
-  private int cotThaoTacView = -1;
-  private String nhanBatchKey;
-  private Consumer<List<Integer>> xuLyBatch;
-  private Runnable xuLyThem;
-  private Consumer<Integer> khiNhapDup;
+  private Consumer<Integer> xuLyNhapDupDong;
+
+  private boolean cheDoChonNhieu;
+  private String[] tieuDeCotDuLieu = new String[0];
+  private String khoaTieuDeCotThaoTac;
+  private List<ThaoTac> dsThaoTac;
+  private int chiSoCotThaoTac = -1;
+
+  // ======================================================================
+  // Khởi tạo
+  // ======================================================================
 
   public ManagementPanel() {
-    this.henGioLoc.setRepeats(false);
+    this.boHenGioLoc.setRepeats(false);
 
     this.setLayout(new BorderLayout(4, 4));
     this.setOpaque(false);
 
+    this.caiDatBang();
+    this.caiDatOTimNhanh();
+    this.caiDatNutPhanTrangVaXoaLoc();
+
+    this.theoDoiThayDoiOText(this.txtOTimNhanh);
+    this.caiDatThanhThaoTac();
+    this.caiDatSuKienBang();
+
+    JPanel pnlNoiDung = new JPanel(new BorderLayout(4, 4));
+    pnlNoiDung.setOpaque(false);
+    pnlNoiDung.add(this.taoPanelBoLoc(), BorderLayout.NORTH);
+    pnlNoiDung.add(this.taoPanelBang(), BorderLayout.CENTER);
+    pnlNoiDung.add(this.taoPanelPhanTrang(), BorderLayout.SOUTH);
+
+    this.pnlDanhSach.setOpaque(false);
+    this.pnlDanhSach.add(new JScrollPane(this.tblDuLieu), THE_HIEN_BANG);
+    this.pnlDanhSach.add(this.taoNhanKhongCoDuLieu(), THE_HIEN_TRONG);
+
+    this.add(pnlNoiDung, BorderLayout.CENTER);
+  }
+
+  private void caiDatBang() {
     this.tblDuLieu.setFillsViewportHeight(true);
-    this.tblDuLieu.setRowHeight(34);
+    this.tblDuLieu.setRowHeight(CHIEU_CAO_DONG_BANG);
+    Theme.styleTable(this.tblDuLieu);
+  }
+
+  private void caiDatOTimNhanh() {
     this.txtOTimNhanh.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT,
             I18nReaderUtil.get("app.common.search"));
     this.txtOTimNhanh.putClientProperty(FlatClientProperties.TEXT_FIELD_LEADING_ICON,
             new LucideIcon("search", CO_ICON_TIM, Theme.palette().INK_MUTED()));
+  }
 
-    Theme.styleTable(this.tblDuLieu);
+  private void caiDatNutPhanTrangVaXoaLoc() {
     Theme.applySecondary(this.btnXoaLoc);
     Theme.applySecondary(this.btnTruoc);
     Theme.applySecondary(this.btnSau);
-
-    this.attachTextListener(this.txtOTimNhanh);
-    this.cauHinhThanhThaoTac();
-    this.caiDatSuKienBang();
-
-    JPanel listPanel = new JPanel(new BorderLayout(4, 4));
-    listPanel.setOpaque(false);
-    listPanel.add(this.taoPanelBoLoc(), BorderLayout.NORTH);
-    listPanel.add(this.taoPanelBang(), BorderLayout.CENTER);
-    listPanel.add(this.buildPaginationPanel(), BorderLayout.SOUTH);
-
-    this.pnlDanhSach.setOpaque(false);
-    this.pnlDanhSach.add(new JScrollPane(this.tblDuLieu), THE_BANG);
-    this.pnlDanhSach.add(this.taoLblTrang(), THE_TRONG);
-
-    this.add(listPanel, BorderLayout.CENTER);
   }
 
-  private void cauHinhThanhThaoTac() {
+  // ======================================================================
+  // Thanh thao tác
+  // ======================================================================
+
+  private void caiDatThanhThaoTac() {
     this.pnlThanhThaoTac.setOpaque(false);
 
-    this.btnThem.setIcon(new LucideIcon("plus", CO_ICON_NUT, Theme.palette().ON_ACCENT()));
-    this.btnThem.setIconTextGap(6);
-    this.btnThem.setFocusPainted(false);
-    this.btnThem.setVisible(false);
+    this.caiDatNutThanhThaoTac(this.btnThem, "plus");
     this.btnThem.addActionListener(e -> {
-      if (this.xuLyThem != null) {
-        this.xuLyThem.run();
+      if (this.xuLyKhiThem != null) {
+        this.xuLyKhiThem.run();
       }
     });
     Theme.applyPrimary(this.btnThem);
 
-    this.btnBatchAction.setIcon(new LucideIcon("trash-2", CO_ICON_NUT, Theme.palette().ON_ACCENT()));
-    this.btnBatchAction.setIconTextGap(6);
-    this.btnBatchAction.setFocusPainted(false);
-    this.btnBatchAction.setVisible(false);
-    this.btnBatchAction.setEnabled(false);
-    this.btnBatchAction.addActionListener(e -> {
-      if (this.xuLyBatch != null) {
-        this.xuLyBatch.accept(this.getSelectedRowIndices());
+    this.caiDatNutThanhThaoTac(this.btnHangLoat, "trash-2");
+    this.btnHangLoat.setEnabled(false);
+    this.btnHangLoat.addActionListener(e -> {
+      if (this.xuLyHangLoat != null) {
+        this.xuLyHangLoat.accept(this.getSelectedRowIndices());
       }
     });
 
-    this.pnlThanhThaoTac.add(this.btnBatchAction);
+    this.pnlThanhThaoTac.add(this.btnHangLoat);
     this.pnlThanhThaoTac.add(this.btnThem);
   }
+
+  private void caiDatNutThanhThaoTac(JButton nut, String tenIcon) {
+    nut.setIcon(new LucideIcon(tenIcon, CO_ICON_NUT, Theme.palette().ON_ACCENT()));
+    nut.setIconTextGap(6);
+    nut.setFocusPainted(false);
+    nut.setVisible(false);
+  }
+
+  private void capNhatThanhThaoTac() {
+    this.pnlThanhThaoTac.revalidate();
+    this.pnlThanhThaoTac.repaint();
+  }
+
+  public void setAddAction(String labelKey, Runnable onAdd) {
+    this.xuLyKhiThem = onAdd;
+    this.btnThem.setText(I18nReaderUtil.get(labelKey));
+    this.btnThem.setVisible(true);
+    this.capNhatThanhThaoTac();
+  }
+
+  public void setBatchAction(String labelKey,
+          String iconName,
+          ThaoTac.KieuThaoTac kieu,
+          Consumer<List<Integer>> onBatch) {
+    this.khoaNhanNutHangLoat = labelKey;
+    this.xuLyHangLoat = onBatch;
+
+    boolean nguyHiem = kieu == ThaoTac.KieuThaoTac.NGUY_HIEM;
+    if (nguyHiem) {
+      Theme.applyDanger(this.btnHangLoat);
+    } else {
+      Theme.applySecondary(this.btnHangLoat);
+    }
+
+    this.btnHangLoat.setIcon(new LucideIcon(iconName,
+            CO_ICON_NUT,
+            nguyHiem ? Theme.palette().ON_ACCENT() : Theme.INK));
+    this.btnHangLoat.setVisible(true);
+
+    this.capNhatNutHangLoat();
+    this.capNhatThanhThaoTac();
+  }
+
+  private void capNhatNutHangLoat() {
+    this.tblDuLieu.getTableHeader().repaint();
+
+    if (this.khoaNhanNutHangLoat == null) {
+      return;
+    }
+
+    int soDongDaChon = this.getSelectedRowIndices().size();
+    this.btnHangLoat.setText(I18nReaderUtil.get(this.khoaNhanNutHangLoat) + " (" + soDongDaChon + ")");
+    this.btnHangLoat.setEnabled(soDongDaChon > 0);
+  }
+
+  // ======================================================================
+  // Chọn nhiều dòng
+  // ======================================================================
+
+  public void enableMultiSelection(boolean enable) {
+    if (this.cheDoChonNhieu == enable) {
+      return;
+    }
+
+    List<Object[]> duLieuCu = this.laySaoDuLieuHienTai();
+    this.cheDoChonNhieu = enable;
+    this.dungLaiCacCot(duLieuCu);
+  }
+
+  public List<Integer> getSelectedRowIndices() {
+    List<Integer> dsDongDaChon = new ArrayList<>();
+
+    if (!this.cheDoChonNhieu) {
+      return dsDongDaChon;
+    }
+
+    for (int dong = 0; dong < this.moHinhBang.getRowCount(); dong++) {
+      if (this.dongDaDuocTick(dong)) {
+        dsDongDaChon.add(dong);
+      }
+    }
+
+    return dsDongDaChon;
+  }
+
+  private boolean dongDaDuocTick(int dongModel) {
+    return Boolean.TRUE.equals(this.moHinhBang.getValueAt(dongModel, CHI_SO_COT_CHON));
+  }
+
+  private boolean tatCaDongDaChon() {
+    int soDong = this.moHinhBang.getRowCount();
+
+    if (!this.cheDoChonNhieu || soDong == 0) {
+      return false;
+    }
+
+    for (int dong = 0; dong < soDong; dong++) {
+      if (!this.dongDaDuocTick(dong)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private void datChonTatCaDong(boolean chon) {
+    for (int dong = 0; dong < this.moHinhBang.getRowCount(); dong++) {
+      this.moHinhBang.setValueAt(chon, dong, CHI_SO_COT_CHON);
+    }
+  }
+
+  public void setRowDoubleClickListener(Consumer<Integer> onDoubleClick) {
+    this.xuLyNhapDupDong = onDoubleClick;
+  }
+
+  // ======================================================================
+  // Sự kiện bảng
+  // ======================================================================
+
+  private void caiDatSuKienBang() {
+    this.moHinhBang.addTableModelListener(e -> this.capNhatNutHangLoat());
+
+    this.tblDuLieu.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        ManagementPanel.this.khiClickVaoBang(e);
+      }
+    });
+
+    this.tblDuLieu.getTableHeader().addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        ManagementPanel.this.khiClickVaoTieuDeBang(e);
+      }
+    });
+  }
+
+  private void khiClickVaoBang(MouseEvent e) {
+    if (this.xuLyNhapDupDong == null
+            || e.getClickCount() != 2
+            || !SwingUtilities.isLeftMouseButton(e)) {
+      return;
+    }
+
+    int dongView = this.tblDuLieu.rowAtPoint(e.getPoint());
+    int cotView = this.tblDuLieu.columnAtPoint(e.getPoint());
+
+    boolean clickNgoaiDong = dongView < 0;
+    boolean clickCotCheckbox = this.cheDoChonNhieu && cotView == CHI_SO_COT_CHON;
+    boolean clickCotThaoTac = cotView == this.chiSoCotThaoTac;
+    if (clickNgoaiDong || clickCotCheckbox || clickCotThaoTac) {
+      return;
+    }
+
+    this.xuLyNhapDupDong.accept(this.tblDuLieu.convertRowIndexToModel(dongView));
+  }
+
+  private void khiClickVaoTieuDeBang(MouseEvent e) {
+    if (!this.cheDoChonNhieu || this.tblDuLieu.getColumnCount() == 0) {
+      return;
+    }
+
+    int cotView = this.tblDuLieu.getColumnModel().getColumnIndexAtX(e.getX());
+    if (cotView == CHI_SO_COT_CHON) {
+      this.datChonTatCaDong(!this.tatCaDongDaChon());
+    }
+  }
+
+  // ======================================================================
+  // Dữ liệu và cột của bảng
+  // ======================================================================
+
+  private List<Object[]> laySaoDuLieuHienTai() {
+    List<Object[]> ketQua = new ArrayList<>();
+
+    int soCotChon = this.cheDoChonNhieu ? 1 : 0;
+    int soCotThaoTac = this.khoaTieuDeCotThaoTac == null ? 0 : 1;
+    int soCotDuLieu = this.moHinhBang.getColumnCount() - soCotChon - soCotThaoTac;
+
+    if (soCotDuLieu <= 0) {
+      return ketQua;
+    }
+
+    for (int dong = 0; dong < this.moHinhBang.getRowCount(); dong++) {
+      Object[] giaTriDong = new Object[soCotDuLieu];
+
+      for (int cot = 0; cot < soCotDuLieu; cot++) {
+        giaTriDong[cot] = this.moHinhBang.getValueAt(dong, cot + soCotChon);
+      }
+
+      ketQua.add(giaTriDong);
+    }
+
+    return ketQua;
+  }
+
+  private void dungLaiCacCot(List<Object[]> duLieuCu) {
+    List<String> tieuDeCot = new ArrayList<>();
+
+    if (this.cheDoChonNhieu) {
+      tieuDeCot.add("");
+    }
+
+    tieuDeCot.addAll(Arrays.asList(this.tieuDeCotDuLieu));
+
+    if (this.khoaTieuDeCotThaoTac != null) {
+      tieuDeCot.add(I18nReaderUtil.get(this.khoaTieuDeCotThaoTac));
+    }
+
+    this.moHinhBang.setColumnIdentifiers(tieuDeCot.toArray(new String[0]));
+
+    if (this.cheDoChonNhieu) {
+      this.caiDatCotCheckbox();
+    }
+
+    if (this.khoaTieuDeCotThaoTac != null) {
+      this.ganRendererCotThaoTac();
+    }
+
+    this.setRows(duLieuCu);
+  }
+
+  private void caiDatCotCheckbox() {
+    if (this.tblDuLieu.getColumnCount() == 0) {
+      return;
+    }
+
+    TableColumn cotCheckbox = this.tblDuLieu.getColumnModel().getColumn(CHI_SO_COT_CHON);
+    cotCheckbox.setMinWidth(RONG_COT_CHON);
+    cotCheckbox.setMaxWidth(RONG_COT_CHON);
+    cotCheckbox.setPreferredWidth(RONG_COT_CHON);
+    cotCheckbox.setHeaderRenderer(new TieuDeCotChonTatCa());
+  }
+
+  private void ganRendererCotThaoTac() {
+    int cotCuoi = this.tblDuLieu.getColumnCount() - 1;
+
+    if (cotCuoi < 0 || this.dsThaoTac == null) {
+      return;
+    }
+
+    this.chiSoCotThaoTac = cotCuoi;
+    ThaoTacTableCellRenderer.ganVao(this.tblDuLieu, cotCuoi, this.dsThaoTac);
+  }
+
+  public void setHeaders(String... headers) {
+    List<Object[]> duLieuCu = this.laySaoDuLieuHienTai();
+    this.tieuDeCotDuLieu = headers == null ? new String[0] : headers.clone();
+    this.dungLaiCacCot(duLieuCu);
+    this.capNhatTheBangHoacTrong();
+  }
+
+  public void addActionColumn(String headerKey, ThaoTac... dsThaoTacMoi) {
+    if (dsThaoTacMoi == null || dsThaoTacMoi.length == 0) {
+      return;
+    }
+
+    List<Object[]> duLieuCu = this.laySaoDuLieuHienTai();
+    this.khoaTieuDeCotThaoTac = headerKey;
+    this.dsThaoTac = List.of(dsThaoTacMoi);
+    this.dungLaiCacCot(duLieuCu);
+  }
+
+  public void setRows(List<Object[]> rows) {
+    this.moHinhBang.setRowCount(0);
+
+    if (rows != null) {
+      for (Object[] dong : rows) {
+        this.moHinhBang.addRow(this.cheDoChonNhieu ? this.themCotChonVaoDau(dong) : dong);
+      }
+    }
+
+    this.capNhatNutHangLoat();
+    this.capNhatTheBangHoacTrong();
+  }
+
+  private Object[] themCotChonVaoDau(Object[] dongDuLieu) {
+    Object[] dongCoCotChon = new Object[dongDuLieu.length + 1];
+    dongCoCotChon[CHI_SO_COT_CHON] = Boolean.FALSE;
+    System.arraycopy(dongDuLieu, 0, dongCoCotChon, 1, dongDuLieu.length);
+    return dongCoCotChon;
+  }
+
+  private void capNhatTheBangHoacTrong() {
+    String the = this.moHinhBang.getRowCount() == 0 ? THE_HIEN_TRONG : THE_HIEN_BANG;
+    this.boCardDanhSach.show(this.pnlDanhSach, the);
+  }
+
+  private JLabel taoNhanKhongCoDuLieu() {
+    JLabel nhan = new JLabel(I18nReaderUtil.get("app.common.khongCoDuLieu"), SwingConstants.CENTER);
+    nhan.setForeground(Theme.palette().INK_MUTED());
+    return nhan;
+  }
+
+  public int getSelectedRow() {
+    return this.tblDuLieu.getSelectedRow();
+  }
+
+  public JTable getTable() {
+    return this.tblDuLieu;
+  }
+
+  public DefaultTableModel getModel() {
+    return this.moHinhBang;
+  }
+
+  // ======================================================================
+  // Dựng giao diện
+  // ======================================================================
 
   private JPanel taoPanelBang() {
     JPanel khung = new JPanel(new BorderLayout(0, 4));
@@ -221,382 +567,151 @@ public class ManagementPanel extends JPanel {
     return khung;
   }
 
-  public void setAddAction(String labelKey, Runnable onAdd) {
-    this.xuLyThem = onAdd;
-    this.btnThem.setText(I18nReaderUtil.get(labelKey));
-    this.btnThem.setVisible(true);
-    this.pnlThanhThaoTac.revalidate();
-    this.pnlThanhThaoTac.repaint();
-  }
-
-  public void setBatchAction(String labelKey,
-          String iconName,
-          ThaoTac.KieuThaoTac kieu,
-          Consumer<List<Integer>> onBatch) {
-    this.nhanBatchKey = labelKey;
-    this.xuLyBatch = onBatch;
-
-    boolean nguyHiem = kieu == ThaoTac.KieuThaoTac.NGUY_HIEM;
-    if (nguyHiem) {
-      Theme.applyDanger(this.btnBatchAction);
-    } else {
-      Theme.applySecondary(this.btnBatchAction);
-    }
-
-    this.btnBatchAction.setIcon(new LucideIcon(iconName,
-            CO_ICON_NUT,
-            nguyHiem ? Theme.palette().ON_ACCENT() : Theme.INK));
-    this.btnBatchAction.setVisible(true);
-
-    this.capNhatNutBatch();
-    this.pnlThanhThaoTac.revalidate();
-    this.pnlThanhThaoTac.repaint();
-  }
-
-  public void enableMultiSelection(boolean enable) {
-    if (this.chonNhieu == enable) {
-      return;
-    }
-
-    List<Object[]> duLieuCu = this.chupDuLieu();
-    this.chonNhieu = enable;
-    this.dungLaiCot(duLieuCu);
-  }
-
-  public List<Integer> getSelectedRowIndices() {
-    List<Integer> ketQua = new ArrayList<>();
-
-    if (!this.chonNhieu) {
-      return ketQua;
-    }
-
-    for (int dong = 0; dong < this.moHinhBang.getRowCount(); dong++) {
-      if (Boolean.TRUE.equals(this.moHinhBang.getValueAt(dong, 0))) {
-        ketQua.add(dong);
-      }
-    }
-
-    return ketQua;
-  }
-
-  public void setRowDoubleClickListener(Consumer<Integer> onDoubleClick) {
-    this.khiNhapDup = onDoubleClick;
-  }
-
-  private void capNhatNutBatch() {
-    this.tblDuLieu.getTableHeader().repaint();
-
-    if (this.nhanBatchKey == null) {
-      return;
-    }
-
-    int soLuong = this.getSelectedRowIndices().size();
-    this.btnBatchAction.setText(I18nReaderUtil.get(this.nhanBatchKey) + " (" + soLuong + ")");
-    this.btnBatchAction.setEnabled(soLuong > 0);
-  }
-
-  private boolean tatCaDuocChon() {
-    int soDong = this.moHinhBang.getRowCount();
-
-    if (!this.chonNhieu || soDong == 0) {
-      return false;
-    }
-
-    for (int dong = 0; dong < soDong; dong++) {
-      if (!Boolean.TRUE.equals(this.moHinhBang.getValueAt(dong, 0))) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  private void datTatCaChon(boolean chon) {
-    for (int dong = 0; dong < this.moHinhBang.getRowCount(); dong++) {
-      this.moHinhBang.setValueAt(chon, dong, 0);
-    }
-  }
-
-  private void caiDatSuKienBang() {
-    this.moHinhBang.addTableModelListener(e -> this.capNhatNutBatch());
-
-    this.tblDuLieu.addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if (ManagementPanel.this.khiNhapDup == null
-                || e.getClickCount() != 2
-                || !SwingUtilities.isLeftMouseButton(e)) {
-          return;
-        }
-
-        int dongView = ManagementPanel.this.tblDuLieu.rowAtPoint(e.getPoint());
-        int cotView = ManagementPanel.this.tblDuLieu.columnAtPoint(e.getPoint());
-
-        if (dongView < 0) {
-          return;
-        }
-
-        if (ManagementPanel.this.chonNhieu && cotView == 0) {
-          return;
-        }
-
-        if (cotView == ManagementPanel.this.cotThaoTacView) {
-          return;
-        }
-
-        ManagementPanel.this.khiNhapDup.accept(
-                ManagementPanel.this.tblDuLieu.convertRowIndexToModel(dongView));
-      }
-    });
-
-    this.tblDuLieu.getTableHeader().addMouseListener(new MouseAdapter() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if (!ManagementPanel.this.chonNhieu
-                || ManagementPanel.this.tblDuLieu.getColumnCount() == 0) {
-          return;
-        }
-
-        int cotView = ManagementPanel.this.tblDuLieu.getColumnModel().getColumnIndexAtX(e.getX());
-
-        if (cotView == 0) {
-          ManagementPanel.this.datTatCaChon(!ManagementPanel.this.tatCaDuocChon());
-        }
-      }
-    });
-  }
-
-  private List<Object[]> chupDuLieu() {
-    List<Object[]> ketQua = new ArrayList<>();
-    int lech = this.chonNhieu ? 1 : 0;
-    int soCot = this.moHinhBang.getColumnCount() - lech - (this.tieuDeThaoTacKey == null ? 0 : 1);
-
-    if (soCot <= 0) {
-      return ketQua;
-    }
-
-    for (int dong = 0; dong < this.moHinhBang.getRowCount(); dong++) {
-      Object[] giaTri = new Object[soCot];
-
-      for (int cot = 0; cot < soCot; cot++) {
-        giaTri[cot] = this.moHinhBang.getValueAt(dong, cot + lech);
-      }
-
-      ketQua.add(giaTri);
-    }
-
-    return ketQua;
-  }
-
-  private void dungLaiCot(List<Object[]> duLieuCu) {
-    List<String> maCot = new ArrayList<>();
-
-    if (this.chonNhieu) {
-      maCot.add("");
-    }
-
-    maCot.addAll(Arrays.asList(this.tieuDeDuLieu));
-
-    if (this.tieuDeThaoTacKey != null) {
-      maCot.add(I18nReaderUtil.get(this.tieuDeThaoTacKey));
-    }
-
-    this.moHinhBang.setColumnIdentifiers(maCot.toArray(new String[0]));
-
-    if (this.chonNhieu) {
-      this.cauHinhCotChon();
-    }
-
-    if (this.tieuDeThaoTacKey != null) {
-      this.ganCotThaoTac();
-    }
-
-    this.setRows(duLieuCu);
-  }
-
-  private void cauHinhCotChon() {
-    if (this.tblDuLieu.getColumnCount() == 0) {
-      return;
-    }
-
-    TableColumn cotChon = this.tblDuLieu.getColumnModel().getColumn(0);
-    cotChon.setMinWidth(RONG_COT_CHON);
-    cotChon.setMaxWidth(RONG_COT_CHON);
-    cotChon.setPreferredWidth(RONG_COT_CHON);
-    cotChon.setHeaderRenderer(new TieuDeChonTatCa());
-  }
-
-  private final class TieuDeChonTatCa extends JCheckBox implements TableCellRenderer {
-
-    private TieuDeChonTatCa() {
-      this.setHorizontalAlignment(SwingConstants.CENTER);
-      this.setOpaque(true);
-    }
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
-      this.setBackground(Theme.palette().TABLE_HEADER_BG());
-      this.setSelected(ManagementPanel.this.tatCaDuocChon());
-      this.setEnabled(ManagementPanel.this.moHinhBang.getRowCount() > 0);
-      return this;
-    }
-  }
-
-  private JLabel taoLblTrang() {
-    JLabel label = new JLabel(I18nReaderUtil.get("app.common.khongCoDuLieu"), SwingConstants.CENTER);
-    label.setForeground(Theme.palette().INK_MUTED());
-    return label;
-  }
-
-  private void hienTrangThaiDanhSach() {
-    if (this.moHinhBang.getRowCount() == 0) {
-      this.theDanhSach.show(this.pnlDanhSach, THE_TRONG);
-    } else {
-      this.theDanhSach.show(this.pnlDanhSach, THE_BANG);
-    }
-  }
-
   private JPanel taoPanelBoLoc() {
     this.pnlBoLoc.setOpaque(false);
 
-    JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
-    actions.setOpaque(false);
-
-    this.txtOTimNhanh.setPreferredSize(new Dimension(240,
+    this.txtOTimNhanh.setPreferredSize(new Dimension(RONG_O_TIM_NHANH,
             this.txtOTimNhanh.getPreferredSize().height));
-    actions.add(this.txtOTimNhanh);
+    this.lblDemKetQua.setForeground(Theme.palette().INK_SECONDARY());
 
-    this.lblNhanDem.setForeground(Theme.palette().INK_SECONDARY());
-    actions.add(this.lblNhanDem);
-    actions.add(this.btnXoaLoc);
+    JPanel pnlHanhDong = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
+    pnlHanhDong.setOpaque(false);
+    pnlHanhDong.add(this.txtOTimNhanh);
+    pnlHanhDong.add(this.lblDemKetQua);
+    pnlHanhDong.add(this.btnXoaLoc);
 
-    JPanel panel = new JPanel(new BorderLayout(4, 4));
-    panel.setOpaque(false);
-    panel.add(this.pnlBoLoc, BorderLayout.CENTER);
-    panel.add(actions, BorderLayout.SOUTH);
-    return panel;
+    JPanel khung = new JPanel(new BorderLayout(4, 4));
+    khung.setOpaque(false);
+    khung.add(this.pnlBoLoc, BorderLayout.CENTER);
+    khung.add(pnlHanhDong, BorderLayout.SOUTH);
+    return khung;
   }
 
-  private JPanel buildPaginationPanel() {
-    JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 6));
-    panel.setOpaque(true);
-    panel.setBackground(Theme.palette().PANEL_ALT());
-    this.lblNhanTrang.setForeground(Theme.INK);
-    panel.add(this.btnTruoc);
-    panel.add(this.lblNhanTrang);
-    panel.add(this.btnSau);
-    return panel;
+  private JPanel taoPanelPhanTrang() {
+    JPanel khung = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 6));
+    khung.setOpaque(true);
+    khung.setBackground(Theme.palette().PANEL_ALT());
+    this.lblSoTrang.setForeground(Theme.INK);
+    khung.add(this.btnTruoc);
+    khung.add(this.lblSoTrang);
+    khung.add(this.btnSau);
+    return khung;
   }
+
+  // ======================================================================
+  // Thêm bộ lọc
+  // ======================================================================
 
   public JTextField addTextFilter(String labelKey) {
-    JTextField field = new JTextField(14);
-    this.boLocText.add(field);
-    this.attachTextListener(field);
-    this.pnlBoLoc.add(this.taoMucLoc(labelKey, field));
-    this.pnlBoLoc.revalidate();
-    return field;
+    JTextField oNhap = new JTextField(14);
+    this.dsOLocText.add(oNhap);
+    this.theoDoiThayDoiOText(oNhap);
+    this.themMucLocVaoKhung(this.taoMucLoc(labelKey, oNhap));
+    return oNhap;
   }
 
   public BoLocChon addComboBoxFilter(String labelKey, Object[] values) {
     JComboBox<Object> combo = new JComboBox<>();
-    combo.addItem(null);
+    combo.addItem(null); // mục đầu tiên = "không lọc"
     for (Object value : values) {
       combo.addItem(value);
     }
     combo.setRenderer(BoHienThiI18n.tao());
-    this.boLocCombo.add(combo);
-    combo.addActionListener(e -> this.fireFilterChange());
-    this.pnlBoLoc.add(this.taoMucLoc(labelKey, combo));
-    this.pnlBoLoc.revalidate();
+    this.dsBoLocCombo.add(combo);
+    combo.addActionListener(e -> this.baoBoLocDaDoi());
+    this.themMucLocVaoKhung(this.taoMucLoc(labelKey, combo));
     return new BoLocChon(combo);
   }
 
   public void addComboSearchFilter(String labelKey, ComboTimKiem<?> combo) {
     JTextField oNhap = (JTextField) combo.getEditor().getEditorComponent();
-    this.boLocText.add(oNhap);
-    this.attachTextListener(oNhap);
-    this.pnlBoLoc.add(this.taoMucLoc(labelKey, combo));
-    this.pnlBoLoc.revalidate();
+    this.dsOLocText.add(oNhap);
+    this.theoDoiThayDoiOText(oNhap);
+    this.themMucLocVaoKhung(this.taoMucLoc(labelKey, combo));
   }
 
   public BoLocNgay addDateRangeFilter(String labelKey) {
-    DatePicker from = BoChonNgayGio.taoBoChonNgay();
-    DatePicker to = BoChonNgayGio.taoBoChonNgay();
-    this.boLocNgay.add(new DatePicker[] { from, to });
-    this.attachDateListener(from);
-    this.attachDateListener(to);
+    DatePicker tuNgay = BoChonNgayGio.taoBoChonNgay();
+    DatePicker denNgay = BoChonNgayGio.taoBoChonNgay();
+    this.dsCapLocNgay.add(new DatePicker[] { tuNgay, denNgay });
+    this.theoDoiThayDoiNgay(tuNgay);
+    this.theoDoiThayDoiNgay(denNgay);
 
-    this.pnlBoLoc.add(this.taoMucKhoang(labelKey, from, to));
-    this.pnlBoLoc.revalidate();
-    return new BoLocNgay(from, to);
+    this.themMucLocVaoKhung(this.taoMucLocKhoang(labelKey, tuNgay, denNgay));
+    return new BoLocNgay(tuNgay, denNgay);
   }
 
   public BoLocKhoang addRangeFilter(String labelKey) {
-    JTextField fromField = new JTextField(14);
-    JTextField toField = new JTextField(14);
+    JTextField oTu = new JTextField(14);
+    JTextField oDen = new JTextField(14);
 
-    LocSoDocumentFilter locSo = new LocSoDocumentFilter();
-    ((AbstractDocument) fromField.getDocument()).setDocumentFilter(locSo);
-    ((AbstractDocument) toField.getDocument()).setDocumentFilter(locSo);
+    LocSoDocumentFilter boLocChiNhapSo = new LocSoDocumentFilter();
+    ((AbstractDocument) oTu.getDocument()).setDocumentFilter(boLocChiNhapSo);
+    ((AbstractDocument) oDen.getDocument()).setDocumentFilter(boLocChiNhapSo);
 
-    this.boLocText.add(fromField);
-    this.boLocText.add(toField);
+    this.dsOLocText.add(oTu);
+    this.dsOLocText.add(oDen);
+    this.theoDoiThayDoiOText(oTu);
+    this.theoDoiThayDoiOText(oDen);
 
-    this.attachTextListener(fromField);
-    this.attachTextListener(toField);
+    this.themMucLocVaoKhung(this.taoMucLocKhoang(labelKey, oTu, oDen));
+    return new BoLocKhoang(oTu, oDen);
+  }
 
-    this.pnlBoLoc.add(this.taoMucKhoang(labelKey, fromField, toField));
+  private void themMucLocVaoKhung(JPanel mucLoc) {
+    this.pnlBoLoc.add(mucLoc);
     this.pnlBoLoc.revalidate();
-    return new BoLocKhoang(fromField, toField);
   }
 
-  private JPanel taoMucKhoang(String labelKey, JComponent from, JComponent to) {
-    JPanel range = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-    range.setOpaque(false);
-    range.add(from);
+  /** Một mục lọc dạng "Nhãn: [từ] - [đến]". */
+  private JPanel taoMucLocKhoang(String labelKey, JComponent tu, JComponent den) {
+    JLabel nhanGach = new JLabel("-");
+    nhanGach.setForeground(Theme.palette().INK_MUTED());
 
-    JLabel separator = new JLabel("-");
-    separator.setForeground(Theme.palette().INK_MUTED());
-    range.add(separator);
-
-    range.add(to);
-    return this.taoMucLoc(labelKey, range);
+    JPanel khungKhoang = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+    khungKhoang.setOpaque(false);
+    khungKhoang.add(tu);
+    khungKhoang.add(nhanGach);
+    khungKhoang.add(den);
+    return this.taoMucLoc(labelKey, khungKhoang);
   }
 
-  private JPanel taoMucLoc(String labelKey, JComponent field) {
-    JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-    item.setOpaque(false);
-    item.add(this.taoLblTruong(labelKey));
-    item.add(field);
-    return item;
+  /** Một mục lọc dạng "Nhãn: [thành phần nhập]". */
+  private JPanel taoMucLoc(String labelKey, JComponent thanhPhanNhap) {
+    JPanel muc = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+    muc.setOpaque(false);
+    muc.add(this.taoNhanTruongLoc(labelKey));
+    muc.add(thanhPhanNhap);
+    return muc;
   }
 
-  private JLabel taoLblTruong(String labelKey) {
-    JLabel label = new JLabel(I18nReaderUtil.get(labelKey), SwingConstants.RIGHT);
-    label.setForeground(Theme.INK);
-    this.nhanBoLoc.add(label);
-    this.capNhatDoRongNhan();
-    return label;
+  private JLabel taoNhanTruongLoc(String labelKey) {
+    JLabel nhan = new JLabel(I18nReaderUtil.get(labelKey), SwingConstants.RIGHT);
+    nhan.setForeground(Theme.INK);
+    this.dsNhanBoLoc.add(nhan);
+    this.dongBoDoRongNhanLoc();
+    return nhan;
   }
 
-  private void capNhatDoRongNhan() {
-    int width = 0;
-    int height = 0;
+  /** Cho mọi nhãn bộ lọc cùng kích thước **/
+  private void dongBoDoRongNhanLoc() {
+    int rongToiDa = 0;
+    int caoToiDa = 0;
 
-    for (JLabel label : this.nhanBoLoc) {
-      width = Math.max(width, label.getFontMetrics(label.getFont()).stringWidth(label.getText()));
-      height = Math.max(height, label.getPreferredSize().height);
+    for (JLabel nhan : this.dsNhanBoLoc) {
+      int rongChu = nhan.getFontMetrics(nhan.getFont()).stringWidth(nhan.getText());
+      rongToiDa = Math.max(rongToiDa, rongChu);
+      caoToiDa = Math.max(caoToiDa, nhan.getPreferredSize().height);
     }
 
-    for (JLabel label : this.nhanBoLoc) {
-      label.setPreferredSize(new Dimension(width, height));
+    for (JLabel nhan : this.dsNhanBoLoc) {
+      nhan.setPreferredSize(new Dimension(rongToiDa, caoToiDa));
     }
   }
+
+  // ======================================================================
+  // Trạng thái bộ lọc và phân trang
+  // ======================================================================
 
   public String getQuickFilter() {
     return this.txtOTimNhanh.getText();
@@ -615,169 +730,143 @@ public class ManagementPanel extends JPanel {
   }
 
   public void setFilterChangeListener(Runnable listener) {
-    this.khiDoiBoLoc = listener;
+    this.xuLyKhiDoiBoLoc = listener;
   }
 
   public void clearFilters() {
-    this.henGioLoc.stop();
-    this.dangXoaLoc = true;
+    this.boHenGioLoc.stop();
+    this.dangXoaBoLoc = true;
 
     try {
-      this.boLocText.forEach(field -> field.setText(""));
+      this.dsOLocText.forEach(oNhap -> oNhap.setText(""));
 
-      for (DatePicker[] pickers : this.boLocNgay) {
-        pickers[0].clear();
-        pickers[1].clear();
+      for (DatePicker[] capNgay : this.dsCapLocNgay) {
+        capNgay[0].clear();
+        capNgay[1].clear();
       }
 
       this.txtOTimNhanh.setText("");
-      this.boLocCombo.forEach(combo -> combo.setSelectedIndex(0));
+      this.dsBoLocCombo.forEach(combo -> combo.setSelectedIndex(0));
     } finally {
-      this.dangXoaLoc = false;
+      this.dangXoaBoLoc = false;
     }
 
-    this.fireFilterChange();
+    this.baoBoLocDaDoi();
   }
 
   public void setCount(long from, long to, long total) {
-    this.lblNhanDem.setText(I18nReaderUtil.get("app.common.count") + " " + from + "-" + to + " / " + total);
+    this.lblDemKetQua.setText(
+            I18nReaderUtil.get("app.common.count") + " " + from + "-" + to + " / " + total);
   }
 
   public void setPage(int page, int totalPages) {
-    this.lblNhanTrang.setText(I18nReaderUtil.get("app.common.pageLabel") + " " + page + "/" + totalPages);
+    this.lblSoTrang.setText(I18nReaderUtil.get("app.common.pageLabel") + " " + page + "/" + totalPages);
     this.btnTruoc.setEnabled(page > 1);
     this.btnSau.setEnabled(page < totalPages);
-  }
-
-  public JTable getTable() {
-    return this.tblDuLieu;
-  }
-
-  public DefaultTableModel getModel() {
-    return this.moHinhBang;
   }
 
   public void setListTitle(String titleKey) {
     this.setBorder(Theme.titledBorder(titleKey));
   }
 
-  public void setHeaders(String... headers) {
-    List<Object[]> duLieuCu = this.chupDuLieu();
-    this.tieuDeDuLieu = headers == null ? new String[0] : headers.clone();
-    this.dungLaiCot(duLieuCu);
-    this.hienTrangThaiDanhSach();
+  // ======================================================================
+  // Theo dõi thay đổi bộ lọc
+  // ======================================================================
+
+  private void theoDoiThayDoiOText(JTextField oNhap) {
+    oNhap.getDocument().addDocumentListener(new LangNgheNoiDung(this.boHenGioLoc::restart));
   }
 
-  public void addActionColumn(String headerKey, ThaoTac... dsThaoTac) {
-    if (dsThaoTac == null || dsThaoTac.length == 0) {
+  private void theoDoiThayDoiNgay(DatePicker boChonNgay) {
+    boChonNgay.addDateChangeListener(event -> this.boHenGioLoc.restart());
+  }
+
+  private void baoBoLocDaDoi() {
+    if (this.dangXoaBoLoc || this.xuLyKhiDoiBoLoc == null) {
       return;
     }
 
-    List<Object[]> duLieuCu = this.chupDuLieu();
-    this.tieuDeThaoTacKey = headerKey;
-    this.dsThaoTacHienTai = List.of(dsThaoTac);
-    this.dungLaiCot(duLieuCu);
+    this.xuLyKhiDoiBoLoc.run();
   }
 
-  private void ganCotThaoTac() {
-    int cotView = this.tblDuLieu.getColumnCount() - 1;
+  @Override
+  public void removeNotify() {
+    this.boHenGioLoc.stop();
+    super.removeNotify();
+  }
 
-    if (cotView < 0 || this.dsThaoTacHienTai == null) {
-      return;
+  private final class TieuDeCotChonTatCa extends JCheckBox implements TableCellRenderer {
+
+    private TieuDeCotChonTatCa() {
+      this.setHorizontalAlignment(SwingConstants.CENTER);
+      this.setOpaque(true);
     }
 
-    this.cotThaoTacView = cotView;
-    ThaoTacTableCellRenderer.ganVao(this.tblDuLieu, cotView, this.dsThaoTacHienTai);
+    @Override
+    public Component getTableCellRendererComponent(JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+      this.setBackground(Theme.palette().TABLE_HEADER_BG());
+      this.setSelected(ManagementPanel.this.tatCaDongDaChon());
+      this.setEnabled(ManagementPanel.this.moHinhBang.getRowCount() > 0);
+      return this;
+    }
   }
 
-  public void setRows(List<Object[]> rows) {
-    this.moHinhBang.setRowCount(0);
+  private static final class LangNgheNoiDung implements DocumentListener {
 
-    if (rows != null) {
-      for (Object[] row : rows) {
-        if (this.chonNhieu) {
-          Object[] dong = new Object[row.length + 1];
-          dong[0] = Boolean.FALSE;
-          System.arraycopy(row, 0, dong, 1, row.length);
-          this.moHinhBang.addRow(dong);
-        } else {
-          this.moHinhBang.addRow(row);
-        }
-      }
+    private final Runnable hanhDong;
+
+    private LangNgheNoiDung(Runnable hanhDong) {
+      this.hanhDong = hanhDong;
     }
 
-    this.capNhatNutBatch();
-    this.hienTrangThaiDanhSach();
-  }
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+      this.hanhDong.run();
+    }
 
-  public int getSelectedRow() {
-    return this.tblDuLieu.getSelectedRow();
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+      this.hanhDong.run();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+      this.hanhDong.run();
+    }
   }
 
   private static final class KhungBoLoc extends JPanel {
 
-    private int rongDaDo = -1;
+    private int rongLanTruoc = -1;
 
     private KhungBoLoc() {
       super(new WrapLayout(FlowLayout.LEFT, 8, 6));
       this.addComponentListener(new ComponentAdapter() {
         @Override
         public void componentResized(ComponentEvent e) {
-          KhungBoLoc.this.doRongThayDoi();
+          KhungBoLoc.this.khiDoiChieuRong();
         }
       });
     }
 
-    private void doRongThayDoi() {
+    private void khiDoiChieuRong() {
       int rong = this.getWidth();
 
-      if (rong == this.rongDaDo) {
+      if (rong == this.rongLanTruoc) {
         return;
       }
 
-      this.rongDaDo = rong;
+      this.rongLanTruoc = rong;
       Container cha = this.getParent();
 
       if (cha != null) {
         SwingUtilities.invokeLater(cha::revalidate);
       }
     }
-  }
-
-  private void attachTextListener(JTextField field) {
-    field.getDocument().addDocumentListener(new DocumentListener() {
-      @Override
-      public void insertUpdate(DocumentEvent e) {
-        ManagementPanel.this.henGioLoc.restart();
-      }
-
-      @Override
-      public void removeUpdate(DocumentEvent e) {
-        ManagementPanel.this.henGioLoc.restart();
-      }
-
-      @Override
-      public void changedUpdate(DocumentEvent e) {
-        ManagementPanel.this.henGioLoc.restart();
-      }
-    });
-  }
-
-  private void attachDateListener(DatePicker picker) {
-    picker.addDateChangeListener(event -> this.henGioLoc.restart());
-  }
-
-  @Override
-  public void removeNotify() {
-    this.henGioLoc.stop();
-    super.removeNotify();
-  }
-
-  private void fireFilterChange() {
-    if (this.dangXoaLoc || this.khiDoiBoLoc == null) {
-      return;
-    }
-
-    this.khiDoiBoLoc.run();
   }
 }
