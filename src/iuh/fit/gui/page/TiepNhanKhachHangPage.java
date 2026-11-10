@@ -279,17 +279,17 @@ public class TiepNhanKhachHangPage extends AbstractPage {
 
   private String maHangDaChon() {
     Object sel = this.cmbHangXe.getSelectedItem();
-    return sel instanceof HangXe ? ((HangXe) sel).getMaHangXe() : null;
+    return sel instanceof HangXe hangXe ? hangXe.getMaHangXe() : null;
   }
 
   private String maDongDaChon() {
     Object sel = this.cmbDongXe.getSelectedItem();
-    return sel instanceof DongXe ? ((DongXe) sel).getMaDongXe() : null;
+    return sel instanceof DongXe dongXe ? dongXe.getMaDongXe() : null;
   }
 
   private String maDoiDaChon() {
     Object sel = this.cmbDoiXe.getSelectedItem();
-    return sel instanceof DoiXe ? ((DoiXe) sel).getMaDoiXe() : null;
+    return sel instanceof DoiXe doiXe ? doiXe.getMaDoiXe() : null;
   }
 
   private void chonHangXe(String maHangXe) {

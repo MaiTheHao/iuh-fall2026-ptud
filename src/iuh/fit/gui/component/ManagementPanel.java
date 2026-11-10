@@ -177,13 +177,13 @@ public class ManagementPanel extends JPanel {
 
     JPanel listPanel = new JPanel(new BorderLayout(4, 4));
     listPanel.setOpaque(false);
-    listPanel.add(this.buildFilterPanel(), BorderLayout.NORTH);
-    listPanel.add(this.buildTablePanel(), BorderLayout.CENTER);
+    listPanel.add(this.taoPanelBoLoc(), BorderLayout.NORTH);
+    listPanel.add(this.taoPanelBang(), BorderLayout.CENTER);
     listPanel.add(this.buildPaginationPanel(), BorderLayout.SOUTH);
 
     this.pnlDanhSach.setOpaque(false);
     this.pnlDanhSach.add(new JScrollPane(this.tblDuLieu), THE_BANG);
-    this.pnlDanhSach.add(this.buildEmptyLabel(), THE_TRONG);
+    this.pnlDanhSach.add(this.taoLblTrang(), THE_TRONG);
 
     this.add(listPanel, BorderLayout.CENTER);
   }
@@ -218,7 +218,7 @@ public class ManagementPanel extends JPanel {
     this.pnlThanhThaoTac.add(this.btnThem);
   }
 
-  private JPanel buildTablePanel() {
+  private JPanel taoPanelBang() {
     JPanel khung = new JPanel(new BorderLayout(0, 4));
     khung.setOpaque(false);
     khung.add(this.pnlThanhThaoTac, BorderLayout.NORTH);
@@ -455,7 +455,7 @@ public class ManagementPanel extends JPanel {
     }
   }
 
-  private JLabel buildEmptyLabel() {
+  private JLabel taoLblTrang() {
     JLabel label = new JLabel(I18nReaderUtil.get("app.common.khongCoDuLieu"), SwingConstants.CENTER);
     label.setForeground(Theme.palette().INK_MUTED());
     return label;
@@ -469,7 +469,7 @@ public class ManagementPanel extends JPanel {
     }
   }
 
-  private JPanel buildFilterPanel() {
+  private JPanel taoPanelBoLoc() {
     this.pnlBoLoc.setOpaque(false);
 
     JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 2));
@@ -505,7 +505,7 @@ public class ManagementPanel extends JPanel {
     JTextField field = new JTextField(14);
     this.boLocText.add(field);
     this.attachTextListener(field);
-    this.pnlBoLoc.add(this.buildFilterItem(labelKey, field));
+    this.pnlBoLoc.add(this.taoMucLoc(labelKey, field));
     this.pnlBoLoc.revalidate();
     return field;
   }
@@ -519,7 +519,7 @@ public class ManagementPanel extends JPanel {
     combo.setRenderer(BoHienThiI18n.tao());
     this.boLocCombo.add(combo);
     combo.addActionListener(e -> this.fireFilterChange());
-    this.pnlBoLoc.add(this.buildFilterItem(labelKey, combo));
+    this.pnlBoLoc.add(this.taoMucLoc(labelKey, combo));
     this.pnlBoLoc.revalidate();
     return new BoLocChon(combo);
   }
@@ -528,7 +528,7 @@ public class ManagementPanel extends JPanel {
     JTextField oNhap = (JTextField) combo.getEditor().getEditorComponent();
     this.boLocText.add(oNhap);
     this.attachTextListener(oNhap);
-    this.pnlBoLoc.add(this.buildFilterItem(labelKey, combo));
+    this.pnlBoLoc.add(this.taoMucLoc(labelKey, combo));
     this.pnlBoLoc.revalidate();
   }
 
@@ -539,7 +539,7 @@ public class ManagementPanel extends JPanel {
     this.attachDateListener(from);
     this.attachDateListener(to);
 
-    this.pnlBoLoc.add(this.buildRangeItem(labelKey, from, to));
+    this.pnlBoLoc.add(this.taoMucKhoang(labelKey, from, to));
     this.pnlBoLoc.revalidate();
     return new BoLocNgay(from, to);
   }
@@ -558,12 +558,12 @@ public class ManagementPanel extends JPanel {
     this.attachTextListener(fromField);
     this.attachTextListener(toField);
 
-    this.pnlBoLoc.add(this.buildRangeItem(labelKey, fromField, toField));
+    this.pnlBoLoc.add(this.taoMucKhoang(labelKey, fromField, toField));
     this.pnlBoLoc.revalidate();
     return new BoLocKhoang(fromField, toField);
   }
 
-  private JPanel buildRangeItem(String labelKey, JComponent from, JComponent to) {
+  private JPanel taoMucKhoang(String labelKey, JComponent from, JComponent to) {
     JPanel range = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
     range.setOpaque(false);
     range.add(from);
@@ -573,26 +573,26 @@ public class ManagementPanel extends JPanel {
     range.add(separator);
 
     range.add(to);
-    return this.buildFilterItem(labelKey, range);
+    return this.taoMucLoc(labelKey, range);
   }
 
-  private JPanel buildFilterItem(String labelKey, JComponent field) {
+  private JPanel taoMucLoc(String labelKey, JComponent field) {
     JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
     item.setOpaque(false);
-    item.add(this.buildFieldLabel(labelKey));
+    item.add(this.taoLblTruong(labelKey));
     item.add(field);
     return item;
   }
 
-  private JLabel buildFieldLabel(String labelKey) {
+  private JLabel taoLblTruong(String labelKey) {
     JLabel label = new JLabel(I18nReaderUtil.get(labelKey), SwingConstants.RIGHT);
     label.setForeground(Theme.INK);
     this.nhanBoLoc.add(label);
-    this.updateFieldLabelWidth();
+    this.capNhatDoRongNhan();
     return label;
   }
 
-  private void updateFieldLabelWidth() {
+  private void capNhatDoRongNhan() {
     int width = 0;
     int height = 0;
 

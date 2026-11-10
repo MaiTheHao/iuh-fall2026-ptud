@@ -103,9 +103,9 @@ public class XeFormPanel extends FormFieldPanel {
     Object hangSel = this.cmbHangXe.getSelectedItem();
     Object dongSel = this.cmbDongXe.getSelectedItem();
     Object doiSel = this.cmbDoiXe.getSelectedItem();
-    String maHangXe = hangSel instanceof HangXe ? ((HangXe) hangSel).getMaHangXe() : null;
-    String maDongXe = dongSel instanceof DongXe ? ((DongXe) dongSel).getMaDongXe() : null;
-    String maDoiXe = doiSel instanceof DoiXe ? ((DoiXe) doiSel).getMaDoiXe() : null;
+    String maHangXe = hangSel instanceof HangXe hangXe ? hangXe.getMaHangXe() : null;
+    String maDongXe = dongSel instanceof DongXe dongXe ? dongXe.getMaDongXe() : null;
+    String maDoiXe = doiSel instanceof DoiXe doiXe ? doiXe.getMaDoiXe() : null;
     return new XeFormData(
             this.txtBienSo.getText().trim().toUpperCase(),
             maHangXe,

@@ -345,7 +345,7 @@ public abstract class ChonSanPhamDialog<T> extends JDialog {
       }
 
       Object giaTriSoLuong = this.soLuongSpinner.getValue();
-      soLuong = giaTriSoLuong instanceof Number ? ((Number) giaTriSoLuong).intValue() : 0;
+      soLuong = giaTriSoLuong instanceof Number soLuongValue ? soLuongValue.intValue() : 0;
 
       if (soLuong <= 0) {
         ThongBao.canhBao(this, "app.common.soLuongKhongHopLe");

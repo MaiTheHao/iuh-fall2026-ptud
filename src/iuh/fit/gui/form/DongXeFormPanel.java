@@ -127,8 +127,7 @@ public class DongXeFormPanel extends FormFieldPanel {
 
   private String layMaHangXe() {
     Object sel = this.cmbHangXe.getSelectedItem();
-    HangXe item = sel instanceof HangXe ? (HangXe) sel : null;
-    return item == null ? null : item.getMaHangXe();
+    return sel instanceof HangXe hangXe ? hangXe.getMaHangXe() : null;
   }
 
   private String layTen() {

@@ -94,8 +94,7 @@ public class DoiXeFormPanel extends FormFieldPanel {
 
   public String layMaHangXe() {
     Object sel = this.cmbHangXe.getSelectedItem();
-    HangXe item = sel instanceof HangXe ? (HangXe) sel : null;
-    return item == null ? null : item.getMaHangXe();
+    return sel instanceof HangXe hangXe ? hangXe.getMaHangXe() : null;
   }
 
   public final boolean validateInput() {
@@ -180,7 +179,6 @@ public class DoiXeFormPanel extends FormFieldPanel {
 
   private String layMaDongXe() {
     Object sel = this.cmbDongXe.getSelectedItem();
-    DongXe item = sel instanceof DongXe ? (DongXe) sel : null;
-    return item == null ? null : item.getMaDongXe();
+    return sel instanceof DongXe dongXe ? dongXe.getMaDongXe() : null;
   }
 }

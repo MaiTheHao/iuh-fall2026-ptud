@@ -178,7 +178,7 @@ public class XePage extends AbstractPage {
   private void napDongXe(XeFormPanel form) {
     try {
       Object sel = form.getHangXeCombo().getSelectedItem();
-      String maHang = sel instanceof HangXe ? ((HangXe) sel).getMaHangXe() : null;
+      String maHang = sel instanceof HangXe hangXe ? hangXe.getMaHangXe() : null;
       form.getDongXeCombo().removeAllItems();
       for (DongXe dongXe : this.danhMucXeService.getDanhSachDongXe(maHang)) {
         form.getDongXeCombo().addItem(dongXe);
@@ -191,7 +191,7 @@ public class XePage extends AbstractPage {
   private void napDoiXe(XeFormPanel form) {
     try {
       Object sel = form.getDongXeCombo().getSelectedItem();
-      String maDong = sel instanceof DongXe ? ((DongXe) sel).getMaDongXe() : null;
+      String maDong = sel instanceof DongXe dongXe ? dongXe.getMaDongXe() : null;
       form.getDoiXeCombo().removeAllItems();
       for (DoiXe doiXe : this.danhMucXeService.getDanhSachDoiXe(maDong)) {
         form.getDoiXeCombo().addItem(doiXe);
