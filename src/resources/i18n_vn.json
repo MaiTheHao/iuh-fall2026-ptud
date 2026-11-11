@@ -718,7 +718,16 @@
 			        "donViTienTe": "đ",
 			        "duLieuKhongHopLe": "Dữ liệu hóa đơn không hợp lệ",
 					"nhanVienPhuTrach": "Nhân viên phụ trách",
-					"nhanVienThuTien": "Nhân viên thu tiền"
+					"nhanVienThuTien": "Nhân viên thu tiền",
+					"maPhieuTiepNhan": "Mã phiếu tiếp nhận",
+					"hotline": "Hotline",
+					"email": "Email",
+					"maSoThue": "MST",
+					"stt": "STT",
+					"ghiChuChuaThanhToan": "Vui lòng thanh toán tại quầy.",
+					"thoiGianIn": "In lúc",
+					"trang": "Trang",
+					"camOn": "Cảm ơn quý khách đã sử dụng dịch vụ!"
 			      }
 		},
 		"schedule": {

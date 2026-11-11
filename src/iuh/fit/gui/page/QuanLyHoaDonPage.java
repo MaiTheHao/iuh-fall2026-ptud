@@ -21,6 +21,8 @@ import iuh.fit.util.I18nReaderUtil;
 import iuh.fit.util.InHoaDonUtil;
 
 import javax.swing.ImageIcon;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -35,6 +37,7 @@ import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -338,11 +341,11 @@ public class QuanLyHoaDonPage extends AbstractPage {
 
     btnInHoaDon.setEnabled(false);
 
-    SwingWorker<BufferedImage, Void> worker =
+    SwingWorker<List<BufferedImage>, Void> worker =
             new SwingWorker<>() {
 
         @Override
-        protected BufferedImage doInBackground() throws Exception {
+        protected List<BufferedImage> doInBackground() throws Exception {
 
             HoaDonInData duLieuIn =
                     HoaDonInData.tao(hoaDon.maHoaDon());
@@ -353,10 +356,10 @@ public class QuanLyHoaDonPage extends AbstractPage {
         @Override
         protected void done() {
 
-            BufferedImage hinhHoaDon;
+            List<BufferedImage> cacTrang;
 
             try {
-                hinhHoaDon = get();
+                cacTrang = get();
 
             } catch (InterruptedException e) {
 
@@ -409,7 +412,7 @@ public class QuanLyHoaDonPage extends AbstractPage {
             PrinterJob printerJob = PrinterJob.getPrinterJob();
 
             printerJob.setPrintable(
-                    InHoaDonUtil.taoNoiDungIn(hinhHoaDon));
+                    InHoaDonUtil.taoNoiDungIn(cacTrang));
 
             if (!printerJob.printDialog()) {
 
@@ -562,12 +565,20 @@ public class QuanLyHoaDonPage extends AbstractPage {
 		try {
 			HoaDonInData duLieuIn = HoaDonInData.tao(hoaDon.maHoaDon());
 
-			BufferedImage hinhHoaDon = HoaDonRenderer.xemTruoc(duLieuIn);
+			List<BufferedImage> cacTrang = HoaDonRenderer.xemTruoc(duLieuIn);
 
-			JLabel lblHoaDon = new JLabel(new ImageIcon(hinhHoaDon));
-			lblHoaDon.setHorizontalAlignment(JLabel.CENTER);
+			JPanel pnlCacTrang = new JPanel();
+			pnlCacTrang.setLayout(new BoxLayout(pnlCacTrang, BoxLayout.Y_AXIS));
+			pnlCacTrang.setBackground(Theme.BG);
 
-			JScrollPane scrHoaDon = new JScrollPane(lblHoaDon);
+			for (BufferedImage trang : cacTrang) {
+				JLabel lblTrang = new JLabel(new ImageIcon(trang));
+				lblTrang.setAlignmentX(Component.CENTER_ALIGNMENT);
+				lblTrang.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+				pnlCacTrang.add(lblTrang);
+			}
+
+			JScrollPane scrHoaDon = new JScrollPane(pnlCacTrang);
 			scrHoaDon.setPreferredSize(new Dimension(650, 850));
 
 			JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this),

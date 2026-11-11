@@ -718,7 +718,16 @@
 				"donViTienTe": "VND",
 				"duLieuKhongHopLe": "Invalid invoice data",
 				"nhanVienPhuTrach": "Responsible employee",
-				"nhanVienThuTien": "Cashier"
+				"nhanVienThuTien": "Cashier",
+				"maPhieuTiepNhan": "Reception ticket",
+				"hotline": "Hotline",
+				"email": "Email",
+				"maSoThue": "Tax code",
+				"stt": "No.",
+				"ghiChuChuaThanhToan": "Please pay at the counter.",
+				"thoiGianIn": "Printed at",
+				"trang": "Page",
+				"camOn": "Thank you for choosing our service!"
 			}
 		},
 		"schedule": {

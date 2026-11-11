@@ -32,138 +32,128 @@ public record HoaDonInData(
         BigDecimal thucThu,
         Optional<ThanhToan> thanhToan) {
 
-    private static final String ERROR_PHIEU_NOT_FOUND =
-            "app.phieuTiepNhan.khongTonTai";
+  private static final String ERROR_PHIEU_NOT_FOUND = "app.phieuTiepNhan.khongTonTai";
 
-    // Service được khai báo static vì record chỉ giữ dữ liệu in, không giữ tầng truy vấn.
-    private static final HoaDonService hoaDonService =
-            new HoaDonService();
+  private static final HoaDonService hoaDonService = new HoaDonService();
 
-    private static final PhieuTiepNhanService phieuTiepNhanService =
-            new PhieuTiepNhanService();
+  private static final PhieuTiepNhanService phieuTiepNhanService = new PhieuTiepNhanService();
 
-    private static final KhachHangService khachHangService =
-            new KhachHangService();
+  private static final KhachHangService khachHangService = new KhachHangService();
 
-    private static final NhanVienService nhanVienService =
-            new NhanVienService();
+  private static final NhanVienService nhanVienService = new NhanVienService();
 
-    private static final ThanhToanService thanhToanService =
-            new ThanhToanService();
+  private static final ThanhToanService thanhToanService = new ThanhToanService();
 
-    public HoaDonInData {
-        danhSachDong = danhSachDong == null
-                ? List.of()
-                : List.copyOf(danhSachDong);
+  public HoaDonInData {
+    danhSachDong = danhSachDong == null
+            ? List.of()
+            : List.copyOf(danhSachDong);
 
-        thanhToan = thanhToan == null
-                ? Optional.empty()
-                : thanhToan;
+    thanhToan = thanhToan == null
+            ? Optional.empty()
+            : thanhToan;
+  }
+
+  public record DongIn(
+          String ten,
+          String loai,
+          int soLuong,
+          double donGia,
+          double thanhTien) {}
+
+  public static HoaDonInData tao(String maHoaDon) throws SQLException {
+    HoaDon hoaDon = hoaDonService.getById(maHoaDon);
+    PhieuTiepNhan phieu = hoaDon.getPhieuTiepNhan();
+
+    if (phieu == null || phieu.getMaPhieuTiepNhan() == null) {
+      throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
     }
 
-    public record DongIn(
-            String ten,
-            String loai,
-            int soLuong,
-            double donGia,
-            double thanhTien) {
+    phieu = phieuTiepNhanService.getById(phieu.getMaPhieuTiepNhan());
+
+    if (phieu == null) {
+      throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
     }
 
-    public static HoaDonInData tao(String maHoaDon) throws SQLException {
-        HoaDon hoaDon = hoaDonService.getById(maHoaDon);
-        PhieuTiepNhan phieu = hoaDon.getPhieuTiepNhan();
+    // Entity gắn trong hoá đơn chỉ có khoá ngoại nên phải nạp lại để lấy tên hiển thị.
+    if (phieu.getKhachHang() != null
+            && phieu.getKhachHang().getMaKhachHang() != null) {
 
-        if (phieu == null || phieu.getMaPhieuTiepNhan() == null) {
-            throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
-        }
+      KhachHang khachHang = khachHangService.getById(
+              phieu.getKhachHang().getMaKhachHang());
 
-        phieu = phieuTiepNhanService.getById(phieu.getMaPhieuTiepNhan());
-
-        if (phieu == null) {
-            throw new IllegalArgumentException(ERROR_PHIEU_NOT_FOUND);
-        }
-
-        // Entity gắn trong hoá đơn chỉ có khoá ngoại nên phải nạp lại để lấy tên hiển thị.
-        if (phieu.getKhachHang() != null
-                && phieu.getKhachHang().getMaKhachHang() != null) {
-
-            KhachHang khachHang = khachHangService.getById(
-                    phieu.getKhachHang().getMaKhachHang());
-
-            phieu.setKhachHang(khachHang);
-        }
-
-        if (phieu.getNhanVien() != null
-                && phieu.getNhanVien().getMaNhanVien() != null) {
-
-            NhanVien nhanVien = nhanVienService.getById(
-                    phieu.getNhanVien().getMaNhanVien());
-
-            phieu.setNhanVien(nhanVien);
-        }
-
-        List<DongIn> danhSachDong = hoaDon.getDanhSachChiTietHoaDon()
-                .stream()
-                .map(HoaDonInData::taoDongIn)
-                .toList();
-
-        double tongGoc = TinhTienUtil.tongGoc(
-                hoaDon.getDanhSachChiTietHoaDon());
-
-        double mucGiam = TinhTienUtil.mucGiam(
-                hoaDonService.tinhMucGiam(hoaDon));
-
-        BigDecimal thucThu = TinhTienUtil.thucThu(
-                tongGoc,
-                mucGiam);
-
-        BigDecimal soTienGiam = BigDecimal.valueOf(tongGoc)
-                .setScale(2, RoundingMode.HALF_UP)
-                .subtract(thucThu)
-                // Chặn số tiền giảm âm khi dữ liệu giảm giá lệch với tổng gốc.
-                .max(BigDecimal.ZERO);
-
-        Optional<ThanhToan> thanhToan =
-                thanhToanService.timTheoHoaDon(maHoaDon);
-
-        return new HoaDonInData(
-                hoaDon,
-                phieu,
-                danhSachDong,
-                tongGoc,
-                mucGiam,
-                soTienGiam,
-                thucThu,
-                thanhToan);
+      phieu.setKhachHang(khachHang);
     }
 
-    private static DongIn taoDongIn(ChiTietHoaDon chiTiet) {
-        SanPham sanPham = chiTiet.getSanPham();
+    if (phieu.getNhanVien() != null
+            && phieu.getNhanVien().getMaNhanVien() != null) {
 
-        String maSanPham = sanPham == null ? null : sanPham.getMaSanPham();
+      NhanVien nhanVien = nhanVienService.getById(
+              phieu.getNhanVien().getMaNhanVien());
 
-        String tenSanPham = sanPham == null ? null : sanPham.getTenSanPham();
-
-        if (tenSanPham == null || tenSanPham.isBlank()) {
-            // Hiển thị mã thay cho tên để dòng in không bị trống.
-            tenSanPham = maSanPham;
-        }
-
-        String loaiSanPham = sanPham == null
-                ? ""
-                : sanPham.getLoaiSanPham().getI18NBusinessName();
-
-        double donGia = chiTiet.getDonGia() == null
-                ? 0.0
-                : chiTiet.getDonGia();
-
-        double thanhTien = chiTiet.getSoLuong() * donGia;
-
-        return new DongIn(
-                tenSanPham,
-                loaiSanPham,
-                chiTiet.getSoLuong(),
-                donGia,
-                thanhTien);
+      phieu.setNhanVien(nhanVien);
     }
+
+    List<DongIn> danhSachDong = hoaDon.getDanhSachChiTietHoaDon()
+            .stream()
+            .map(HoaDonInData::taoDongIn)
+            .toList();
+
+    double tongGoc = TinhTienUtil.tongGoc(
+            hoaDon.getDanhSachChiTietHoaDon());
+
+    double mucGiam = TinhTienUtil.mucGiam(
+            hoaDonService.tinhMucGiam(hoaDon));
+
+    BigDecimal thucThu = TinhTienUtil.thucThu(
+            tongGoc,
+            mucGiam);
+
+    BigDecimal soTienGiam = BigDecimal.valueOf(tongGoc)
+            .setScale(2, RoundingMode.HALF_UP)
+            .subtract(thucThu)
+            .max(BigDecimal.ZERO);
+
+    Optional<ThanhToan> thanhToan = thanhToanService.timTheoHoaDon(maHoaDon);
+
+    return new HoaDonInData(
+            hoaDon,
+            phieu,
+            danhSachDong,
+            tongGoc,
+            mucGiam,
+            soTienGiam,
+            thucThu,
+            thanhToan);
+  }
+
+  private static DongIn taoDongIn(ChiTietHoaDon chiTiet) {
+    SanPham sanPham = chiTiet.getSanPham();
+
+    String maSanPham = sanPham == null ? null : sanPham.getMaSanPham();
+
+    String tenSanPham = sanPham == null ? null : sanPham.getTenSanPham();
+
+    if (tenSanPham == null || tenSanPham.isBlank()) {
+      // Hiển thị mã thay cho tên để dòng in không bị trống.
+      tenSanPham = maSanPham;
+    }
+
+    String loaiSanPham = sanPham == null
+            ? ""
+            : sanPham.getLoaiSanPham().getI18NBusinessName();
+
+    double donGia = chiTiet.getDonGia() == null
+            ? 0.0
+            : chiTiet.getDonGia();
+
+    double thanhTien = chiTiet.getSoLuong() * donGia;
+
+    return new DongIn(
+            tenSanPham,
+            loaiSanPham,
+            chiTiet.getSoLuong(),
+            donGia,
+            thanhTien);
+  }
 }

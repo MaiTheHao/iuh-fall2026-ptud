@@ -1,370 +1,275 @@
-
 package iuh.fit.util;
 
+import iuh.fit.core.config.CuaHangConfig;
+import iuh.fit.entity.KhachHang;
+import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.ThanhToan;
+import iuh.fit.enumeration.TrangThaiHoaDon;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
- * Dựng ảnh hoá đơn khổ A4 bằng Java2D cho chức năng xem trước và in.
+ * Dựng hoá đơn khổ A4 bằng Java2D, hỗ trợ nhiều trang cho hoá đơn dài.
  */
 public final class HoaDonRenderer {
 
-    private static final int CHIEU_RONG_A4 = 595;
-    private static final int CHIEU_CAO_A4 = 842;
+    private static final int A4_RONG = 595;
+    private static final int A4_CAO = 842;
 
-    private static final float LE_TRANG = 42.52f;
-    private static final float CHIEU_RONG_NOI_DUNG =
-            CHIEU_RONG_A4 - LE_TRANG * 2;
-    
-    // Bản in được vẽ theo đơn vị point của A4 rồi phóng lên 300 DPI để nét hơn.
+    private static final float LE = 42.52f;
+    private static final float RONG = A4_RONG - LE * 2;
+
+    private static final float LE_TREN = 42f;
+    private static final float DAY_NOI_DUNG = A4_CAO - 46f;
+
     private static final int DPI_IN = 300;
-    private static final double TI_LE_DPI =
-            DPI_IN / 72.0;
+    private static final double TI_LE_IN = DPI_IN / 72.0;
 
-    private static final float CHIEU_CAO_DONG = 21f;
+    private static final String FONT = "SansSerif";
 
-    private static final String TEN_CUA_HANG = "GARA Ô TÔ LÚA";
+    private static final Font F_TEN_CUA_HANG = new Font(FONT, Font.BOLD, 15);
+    private static final Font F_TIEU_DE = new Font(FONT, Font.BOLD, 17);
+    private static final Font F_TEN_PHU = new Font(FONT, Font.BOLD, 10);
+    private static final Font F_MUC = new Font(FONT, Font.BOLD, 9);
+    private static final Font F_THUONG = new Font(FONT, Font.PLAIN, 9);
+    private static final Font F_NHO = new Font(FONT, Font.PLAIN, 8);
+    private static final Font F_NHO_DAM = new Font(FONT, Font.BOLD, 8);
+    private static final Font F_TONG = new Font(FONT, Font.BOLD, 12);
+    private static final Font F_GHI_CHU = new Font(FONT, Font.ITALIC, 8);
 
-    private static final Font FONT_THUONG =
-            new Font("Dialog", Font.PLAIN, 9);
+    private static final Color MAU_CHU = new Color(0x111827);
+    private static final Color MAU_CHU_MO = new Color(0x6B7280);
+    private static final Color MAU_VIEN = new Color(0xE5E7EB);
+    private static final Color MAU_NEN = new Color(0xF6, 0xF8, 0xFB);
+    private static final Color MAU_NEN_DAU_BANG = new Color(0xEE, 0xF2, 0xF7);
+    private static final Color MAU_TRANG = Color.WHITE;
 
-    private static final Font FONT_DAM =
-            new Font("Dialog", Font.BOLD, 9);
+    private static final Color MAU_NEN_DA_THANH_TOAN = new Color(0xDC, 0xFC, 0xE7);
+    private static final Color MAU_CHU_DA_THANH_TOAN = new Color(0x16, 0x65, 0x34);
+    private static final Color MAU_NEN_CHO_THANH_TOAN = new Color(0xFE, 0xF3, 0xC7);
+    private static final Color MAU_CHU_CHO_THANH_TOAN = new Color(0x92, 0x40, 0x0E);
+    private static final Color MAU_NEN_DA_HUY = new Color(0xFE, 0xE2, 0xE2);
+    private static final Color MAU_CHU_DA_HUY = new Color(0x99, 0x1B, 0x1B);
 
-    private static final Font FONT_TIEU_DE =
-            new Font("SansSerif", Font.BOLD, 19);
+    private static final float[] COT = {30f, 58f, 244f, 40f, 70f, 67.96f};
 
-    private static final Font FONT_TEN_CUA_HANG =
-            new Font("SansSerif", Font.BOLD, 14);
-
-    private static final Font FONT_TONG_TIEN =
-            new Font("Dialog", Font.BOLD, 12);
+    private static final float CHIEU_CAO_DONG_MIN = 22f;
+    private static final float DONG_CHU = 11f;
 
     private static final DateTimeFormatter DINH_DANG_NGAY =
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+    // Định dạng tiền dùng chung theo luồng để không tạo lại DecimalFormat cho từng dòng.
+    private static final ThreadLocal<DecimalFormat> DINH_DANG_TIEN = ThreadLocal.withInitial(() -> {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.forLanguageTag("vi-VN"));
+        symbols.setGroupingSeparator('.');
+        symbols.setDecimalSeparator(',');
+        DecimalFormat format = new DecimalFormat("#,##0", symbols);
+        format.setGroupingUsed(true);
+        return format;
+    });
+
     private HoaDonRenderer() {
     }
 
-    public static BufferedImage xemTruoc(HoaDonInData data) {
-        // Ảnh xem trước giữ đúng khổ A4 ở 72 DPI; bản in sẽ được phóng lên sau.
-        if (data == null
-                || data.hoaDon() == null
-                || data.phieuTiepNhan() == null) {
-            throw new IllegalArgumentException(
-                    I18nReaderUtil.get("app.hoaDon.in.duLieuKhongHopLe"));
-        }
-
-        BufferedImage image = new BufferedImage(
-                CHIEU_RONG_A4,
-                CHIEU_CAO_A4,
-                BufferedImage.TYPE_INT_RGB);
-
-        Graphics2D graphics = image.createGraphics();
-
-        try {
-            graphics.setColor(java.awt.Color.WHITE);
-            graphics.fillRect(
-                    0, 0, CHIEU_RONG_A4, CHIEU_CAO_A4);
-
-            graphics.setColor(java.awt.Color.BLACK);
-
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_TEXT_ANTIALIASING,
-                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_RENDERING,
-                    RenderingHints.VALUE_RENDER_QUALITY);
-
-            veHoaDon(graphics, data);
-        } finally {
-            graphics.dispose();
-        }
-
-        return image;
+    public static List<BufferedImage> xemTruoc(HoaDonInData data) {
+        return veCacTrang(data, 1.0);
     }
 
-    private static void veHoaDon(
-            Graphics2D graphics,
-            HoaDonInData data) {
+    public static List<BufferedImage> taoAnhIn(HoaDonInData data) {
+        return veCacTrang(data, TI_LE_IN);
+    }
 
-        // Toạ độ y cộng dần theo từng khối để giữ bố cục cố định trên trang A4.
-        float x = LE_TRANG;
-        float y = 58f;
+    private static List<BufferedImage> veCacTrang(HoaDonInData data, double tiLe) {
+        kiemTra(data);
 
-        // Phần đầu: tên cửa hàng, tiêu đề và đường kẻ phân cách.
-        graphics.setFont(FONT_TEN_CUA_HANG);
-        veCanGiua(graphics, TEN_CUA_HANG, y);
+        List<DongInVe> danhSachDong = chuanBiDong(data.danhSachDong());
+        LocalDateTime thoiGianIn = LocalDateTime.now();
 
-        y += 35;
+        List<BufferedImage> danhSachTrang = new ArrayList<>();
+        Trang trang = new Trang(tiLe);
+        danhSachTrang.add(trang.anh);
 
-        graphics.setFont(FONT_TIEU_DE);
-        veCanGiua(
-                graphics,
-                layNhan("tieuDe"),
-                y);
-
-        y += 19;
-        veDuongKe(graphics, x, y, CHIEU_RONG_NOI_DUNG);
-        y += 27;
-
-        graphics.setFont(FONT_DAM);
-        // Mã hoá đơn và ngày tạo nằm cùng dòng, một bên trái một bên phải.
-        veChu(graphics, layNhan("maHoaDon") + ":", x, y);
-
-        graphics.setFont(FONT_THUONG);
-        veChu(
-                graphics,
-                giaTri(data.hoaDon().getMaHoaDon()),
-                x + 75,
-                y);
-
-        veChuPhai(
-                graphics,
-                layNhan("ngayTao") + ": "
-                        + dinhDangNgay(data.hoaDon().getNgayTao()),
-                x + CHIEU_RONG_NOI_DUNG,
-                y);
-
-        y += 32;
-        // Thông tin khách hàng, biển số và nhân viên phụ trách.
-        var phieuTiepNhan = data.phieuTiepNhan();
-        var khachHang = phieuTiepNhan.getKhachHang();
-
-        graphics.setFont(FONT_DAM);
-        veChu(
-                graphics,
-                layNhan("thongTinKhachHang"),
-                x,
-                y);
-
-        y += 19;
-
-        graphics.setFont(FONT_THUONG);
-
-        veChu(
-                graphics,
-                layNhan("khachHang") + ": "
-                        + giaTri(khachHang == null
-                                ? null : khachHang.getHoTen()),
-                x,
-                y);
-
-        veChu(
-                graphics,
-                layNhan("sdt") + ": "
-                        + giaTri(khachHang == null
-                                ? null : khachHang.getSdt()),
-                x + 285,
-                y);
-
+        float y = veHeaderDayDu(trang.g, data);
+        y = veKhachHang(trang.g, data, y + 10);
         y += 18;
+        y = veHeaderBang(trang.g, y);
 
-        veChu(
-                graphics,
-                layNhan("bienSo") + ": "
-                        + giaTri(phieuTiepNhan.getBienSo()),
-                x,
-                y);
+        int soThuTu = 1;
 
-        y += 18;
+        for (DongInVe dong : danhSachDong) {
+            if (y + dong.chieuCao > DAY_NOI_DUNG) {
+                trang.dong();
+                trang = new Trang(tiLe);
+                danhSachTrang.add(trang.anh);
+                y = veHeaderPhu(trang.g, data);
+                y = veHeaderBang(trang.g, y);
+            }
 
-        var nhanVien = phieuTiepNhan.getNhanVien();
-
-        veChu(
-                graphics,
-                layNhan("nhanVienPhuTrach") + ": "
-                        + giaTri(nhanVien == null
-                                ? null
-                                : nhanVien.getHoTen()),
-                x,
-                y);
-
-        y += 22;
-        veDuongKe(graphics, x, y, CHIEU_RONG_NOI_DUNG);
-        y += 18;
-
-        float[] doRongCot = {
-                55, 185, 65, 100, 110
-        };
-
-        // Bảng chi tiết: dòng tiêu đề cột rồi đến từng dòng sản phẩm.
-        veTieuDeBang(graphics, x, y, doRongCot);
-        y += 25;
-
-        y = veNoiDungBang(
-                graphics,
-                data,
-                x,
-                y,
-                doRongCot);
-
-        y += 25;
-
-        veDuongKe(graphics, x, y, CHIEU_RONG_NOI_DUNG);
-        y += 22;
-
-        float cotGiaTri = x + CHIEU_RONG_NOI_DUNG;
-
-        // Tổng hợp tiền: tổng gốc, giảm giá và thực thu.
-        graphics.setFont(FONT_THUONG);
-
-        veChu(
-                graphics,
-                layNhan("tongGoc") + ":",
-                x + 220,
-                y);
-
-        veChuPhai(
-                graphics,
-                dinhDangTien(data.tongGoc()) + " "
-                        + layNhan("donViTienTe"),
-                cotGiaTri,
-                y);
-
-        y += 21;
-
-        veChu(
-                graphics,
-                layNhan("giamGia") + ":",
-                x + 220,
-                y);
-
-        veChuPhai(
-                graphics,
-                dinhDangTien(data.soTienGiam()) + " "
-                        + layNhan("donViTienTe"),
-                cotGiaTri,
-                y);
-        y += 25;
-
-        graphics.setFont(FONT_TONG_TIEN);
-
-        veChu(
-                graphics,
-                layNhan("thucThu") + ":",
-                x + 220,
-                y);
-
-        veChuPhai(
-                graphics,
-                dinhDangTien(data.thucThu()) + " "
-                        + layNhan("donViTienTe"),
-                cotGiaTri,
-                y);
-
-        y += 28;
-
-        veDuongKe(graphics, x, y, CHIEU_RONG_NOI_DUNG);
-        y += 22;
-
-        graphics.setFont(FONT_DAM);
-
-        // Thông tin thanh toán; hoá đơn chưa thanh toán thì dừng tại đây.
-        veChu(
-                graphics,
-                layNhan("thongTinThanhToan"),
-                x,
-                y);
-
-        y += 20;
-
-        if (data.thanhToan().isEmpty()) {
-            graphics.setFont(FONT_DAM);
-
-            veChu(
-                    graphics,
-                    layNhan("chuaThanhToan"),
-                    x,
-                    y);
-
-            return;
+            veDong(trang.g, dong, soThuTu++, y);
+            y += dong.chieuCao;
         }
 
-        ThanhToan thanhToan = data.thanhToan().get();
-
-        graphics.setFont(FONT_THUONG);
-
-        veChu(
-                graphics,
-                layNhan("phuongThuc") + ": "
-                        + (thanhToan.getPhuongThuc() == null
-                                ? ""
-                                : I18nReaderUtil.get(
-                                        thanhToan.getPhuongThuc().getI18nKey())),
-                x,
-                y);
-
+        veDuongKe(trang.g, LE, y, RONG, 0.8f, MAU_CHU_MO);
         y += 18;
 
-        veChu(
-                graphics,
-                layNhan("thoiGian") + ": "
-                        + dinhDangNgay(thanhToan.getThoiGian()),
-                x,
-                y);
+        if (y + chieuCaoKhoiCuoi() > DAY_NOI_DUNG) {
+            trang.dong();
+            trang = new Trang(tiLe);
+            danhSachTrang.add(trang.anh);
+            y = veHeaderPhu(trang.g, data) + 8;
+        }
 
-        y += 18;
+        y = veKhoiTongHop(trang.g, data, y);
+        veLoiCamOn(trang.g, y + 22);
+        trang.dong();
 
-        veChu(
-                graphics,
-                layNhan("soTienThanhToan") + ": "
-                        + dinhDangTien(thanhToan.getSoTien())
-                        + " " + layNhan("donViTienTe"),
-                x,
-                y);
+        for (int i = 0; i < danhSachTrang.size(); i++) {
+            veChanTrang(danhSachTrang.get(i), tiLe, i + 1, danhSachTrang.size(), thoiGianIn);
+        }
 
-        y += 18;
+        return danhSachTrang;
+    }
 
-        veChu(
-                graphics,
-                layNhan("nhanVienThuTien") + ": "
-                        + (thanhToan.getNhanVien() == null
-                                ? ""
-                                : giaTri(thanhToan.getNhanVien().getTenHienThi())),
-                x,
-                y);
-
-        if (thanhToan.getGhiChu() != null
-                && !thanhToan.getGhiChu().isBlank()) {
-
-            y += 18;
-
-            veChu(
-                    graphics,
-                    layNhan("ghiChu") + ": "
-                            + catEllipsis(
-                                    graphics,
-                                    thanhToan.getGhiChu(),
-                                    CHIEU_RONG_NOI_DUNG),
-                    x,
-                    y);
+    private static void kiemTra(HoaDonInData data) {
+        if (data == null || data.hoaDon() == null || data.phieuTiepNhan() == null) {
+            throw new IllegalArgumentException(I18nReaderUtil.get("app.hoaDon.in.duLieuKhongHopLe"));
         }
     }
 
-    private static void veTieuDeBang(
-            Graphics2D graphics,
+    private static float veHeaderDayDu(Graphics2D graphics, HoaDonInData data) {
+        float y = LE_TREN;
+
+        graphics.setColor(MAU_CHU);
+        graphics.setFont(F_TEN_CUA_HANG);
+        veTrai(graphics, CuaHangConfig.ten(), LE, y + 12);
+
+        graphics.setFont(F_TIEU_DE);
+        vePhai(graphics, layNhan("tieuDe"), LE + RONG, y + 12);
+
+        graphics.setFont(F_NHO);
+        graphics.setColor(MAU_CHU_MO);
+
+        if (!CuaHangConfig.diaChi().isBlank()) {
+            veTrai(graphics, CuaHangConfig.diaChi(), LE, y + 25);
+        }
+
+        String lienHe = taoDongLienHe();
+        if (!lienHe.isBlank()) {
+            veTrai(graphics, lienHe, LE, y + 36);
+        }
+
+        String phapLy = taoDongPhapLy();
+        if (!phapLy.isBlank()) {
+            veTrai(graphics, phapLy, LE, y + 47);
+        }
+
+        graphics.setFont(F_THUONG);
+        graphics.setColor(MAU_CHU);
+        vePhai(graphics, layNhan("maHoaDon") + ": " + giaTri(data.hoaDon().getMaHoaDon()),
+                LE + RONG, y + 28);
+        vePhai(graphics, layNhan("ngayTao") + ": " + dinhDangNgay(data.hoaDon().getNgayTao()),
+                LE + RONG, y + 40);
+        vePhai(graphics, layNhan("maPhieuTiepNhan") + ": "
+                + giaTri(data.phieuTiepNhan().getMaPhieuTiepNhan()), LE + RONG, y + 52);
+
+        TrangThaiHoaDon trangThai = data.hoaDon().getTrangThaiHoaDon();
+        if (trangThai != null) {
+            veNhan(graphics, trangThai.getI18NBusinessName(), LE + RONG, y + 58,
+                    mauNenTrangThai(trangThai), mauChuTrangThai(trangThai));
+        }
+
+        float ke = y + 76;
+        veDuongKe(graphics, LE, ke, RONG, 1.4f, MAU_CHU);
+        return ke + 16;
+    }
+
+    private static float veHeaderPhu(Graphics2D graphics, HoaDonInData data) {
+        float y = LE_TREN;
+
+        graphics.setColor(MAU_CHU);
+        graphics.setFont(F_TEN_PHU);
+        veTrai(graphics, CuaHangConfig.ten(), LE, y + 10);
+
+        graphics.setFont(F_NHO);
+        graphics.setColor(MAU_CHU_MO);
+        vePhai(graphics, layNhan("maHoaDon") + ": " + giaTri(data.hoaDon().getMaHoaDon()),
+                LE + RONG, y + 10);
+
+        veDuongKe(graphics, LE, y + 16, RONG, 0.8f, MAU_VIEN);
+        graphics.setColor(MAU_CHU);
+        return y + 24;
+    }
+
+    private static float veKhachHang(Graphics2D graphics, HoaDonInData data, float y) {
+        float cao = 52f;
+        graphics.setColor(MAU_NEN);
+        graphics.fillRoundRect(r(LE), r(y), r(RONG), r(cao), 8, 8);
+
+        KhachHang khachHang = data.phieuTiepNhan().getKhachHang();
+        NhanVien nhanVien = data.phieuTiepNhan().getNhanVien();
+
+        float x1 = LE + 14;
+        float x2 = LE + RONG / 2f + 8;
+        float phai1 = LE + RONG / 2f - 8;
+        float phai2 = LE + RONG - 14;
+
+        veO(graphics, layNhan("khachHang"),
+                khachHang == null ? null : khachHang.getHoTen(), x1, phai1, y + 18);
+        veO(graphics, layNhan("sdt"),
+                khachHang == null ? null : khachHang.getSdt(), x2, phai2, y + 18);
+        veO(graphics, layNhan("bienSo"),
+                data.phieuTiepNhan().getBienSo(), x1, phai1, y + 38);
+        veO(graphics, layNhan("nhanVienPhuTrach"),
+                nhanVien == null ? null : nhanVien.getHoTen(), x2, phai2, y + 38);
+
+        return y + cao;
+    }
+
+    private static void veO(Graphics2D graphics,
+            String nhan,
+            String giaTri,
             float x,
-            float y,
-            float[] doRongCot) {
+            float phai,
+            float baseline) {
+
+        String nhanText = nhan + ":";
+
+        graphics.setFont(F_NHO);
+        graphics.setColor(MAU_CHU_MO);
+        graphics.drawString(nhanText, x, baseline);
+
+        float xGiaTri = x + graphics.getFontMetrics().stringWidth(nhanText) + 6;
+        graphics.setFont(F_THUONG);
+        graphics.setColor(MAU_CHU);
+        veTrai(graphics, catEllipsis(graphics.getFontMetrics(), giaTri, phai - xGiaTri),
+                xGiaTri, baseline);
+    }
+
+    private static float veHeaderBang(Graphics2D graphics, float y) {
+        graphics.setColor(MAU_NEN_DAU_BANG);
+        graphics.fillRoundRect(r(LE), r(y), r(RONG), 22, 4, 4);
+
+        graphics.setColor(MAU_CHU);
+        graphics.setFont(F_NHO_DAM);
 
         String[] tieuDe = {
+                layNhan("stt"),
                 layNhan("loai"),
                 layNhan("ten"),
                 layNhan("soLuong"),
@@ -372,285 +277,472 @@ public final class HoaDonRenderer {
                 layNhan("thanhTien")
         };
 
-        graphics.setFont(FONT_DAM);
+        float[] cot = viTriCot();
+        float baseline = y + 14;
 
-        veDuongKe(graphics, x, y, CHIEU_RONG_NOI_DUNG);
+        veCanGiua(graphics, tieuDe[0], cot[0] + COT[0] / 2f, baseline);
+        veTrai(graphics, tieuDe[1], cot[1] + 6, baseline);
+        veTrai(graphics, tieuDe[2], cot[2] + 6, baseline);
+        veCanGiua(graphics, tieuDe[3], cot[3] + COT[3] / 2f, baseline);
+        vePhai(graphics, tieuDe[4], cot[4] + COT[4] - 4, baseline);
+        vePhai(graphics, tieuDe[5], cot[5] + COT[5] - 2, baseline);
 
-        float viTriX = x;
-
-        for (int i = 0; i < tieuDe.length; i++) {
-            veCanGiuaTrongCot(
-                    graphics,
-                    tieuDe[i],
-                    viTriX,
-                    y + 16,
-                    doRongCot[i]);
-
-            viTriX += doRongCot[i];
-        }
-
-        veDuongKe(
-                graphics,
-                x,
-                y + 24,
-                CHIEU_RONG_NOI_DUNG);
+        veDuongKe(graphics, LE, y + 22, RONG, 0.8f, MAU_CHU_MO);
+        return y + 22;
     }
 
-    private static float veNoiDungBang(
-            Graphics2D graphics,
-            HoaDonInData data,
-            float x,
-            float y,
-            float[] doRongCot) {
+    private static void veDong(Graphics2D graphics, DongInVe dongVe, int soThuTu, float y) {
+        float cao = dongVe.chieuCao;
+        float[] cot = viTriCot();
 
-        graphics.setFont(FONT_THUONG);
+        if (soThuTu % 2 == 0) {
+            graphics.setColor(MAU_NEN);
+            graphics.fillRect(r(LE), r(y), r(RONG), r(cao));
+        }
 
-        for (var dong : data.danhSachDong()) {
-            float viTriX = x;
+        graphics.setFont(F_NHO);
+        graphics.setColor(MAU_CHU_MO);
+        veCanGiua(graphics, String.valueOf(soThuTu), cot[0] + COT[0] / 2f, y + cao / 2f + 3);
 
-            float viTriChu = y
-                    + CHIEU_CAO_DONG / 2
-                    + graphics.getFontMetrics().getAscent() / 2f
-                    - 1;
+        graphics.setFont(F_NHO);
+        graphics.setColor(MAU_CHU);
+        veTrai(graphics, catEllipsis(graphics.getFontMetrics(), dongVe.dong.loai(), COT[1] - 12),
+                cot[1] + 6, y + cao / 2f + 3);
 
-            String[] giaTri = {
-                    giaTri(dong.loai()),
-                    giaTri(dong.ten()),
-                    String.valueOf(dong.soLuong()),
-                    dinhDangTien(dong.donGia()),
-                    dinhDangTien(dong.thanhTien())
-            };
+        graphics.setFont(F_THUONG);
+        float top = y + (cao - dongVe.tenDong.size() * DONG_CHU) / 2f;
+        float baseline = top + 8.5f;
+        for (String dongChu : dongVe.tenDong) {
+            veTrai(graphics, dongChu, cot[2] + 6, baseline);
+            baseline += DONG_CHU;
+        }
 
-            for (int i = 0; i < giaTri.length; i++) {
-                String noiDung = catEllipsis(
-                        graphics,
-                        giaTri[i],
-                        doRongCot[i] - 8);
+        veCanGiua(graphics, String.valueOf(dongVe.dong.soLuong()), cot[3] + COT[3] / 2f,
+                y + cao / 2f + 3);
+        vePhai(graphics, dinhDangTien(dongVe.dong.donGia()), cot[4] + COT[4] - 4,
+                y + cao / 2f + 3);
+        vePhai(graphics, dinhDangTien(dongVe.dong.thanhTien()), cot[5] + COT[5] - 2,
+                y + cao / 2f + 3);
 
-                // Cột số lượng canh giữa, các cột tiền canh phải để dễ đối chiếu.
-                if (i >= 3) {
-                    veChuPhai(
-                            graphics,
-                            noiDung,
-                            viTriX + doRongCot[i] - 4,
-                            viTriChu);
-                } else if (i == 2) {
-                    veCanGiuaTrongCot(
-                            graphics,
-                            noiDung,
-                            viTriX,
-                            viTriChu,
-                            doRongCot[i]);
-                } else {
-                    veChu(
-                            graphics,
-                            noiDung,
-                            viTriX + 4,
-                            viTriChu);
-                }
+        veDuongKe(graphics, LE, y + cao, RONG, 0.5f, MAU_VIEN);
+    }
 
-                viTriX += doRongCot[i];
+    private static float veKhoiTongHop(Graphics2D graphics, HoaDonInData data, float y) {
+        float cuoiThanhToan = veThanhToanGon(graphics, data, y);
+        float cuoiTongTien = veTongTien(graphics, data, y);
+        return Math.max(cuoiThanhToan, cuoiTongTien);
+    }
+
+    private static float veThanhToanGon(Graphics2D graphics, HoaDonInData data, float y) {
+        float phai = LE + RONG - 262;
+
+        graphics.setFont(F_NHO_DAM);
+        graphics.setColor(MAU_CHU);
+        veTrai(graphics, layNhan("thongTinThanhToan"), LE, y + 9);
+
+        if (data.thanhToan().isEmpty()) {
+            graphics.setFont(F_NHO_DAM);
+            graphics.setColor(MAU_CHU_CHO_THANH_TOAN);
+            veTrai(graphics, catEllipsis(graphics.getFontMetrics(),
+                    layNhan("chuaThanhToan") + " — " + layNhan("ghiChuChuaThanhToan"),
+                    phai - LE), LE, y + 26);
+            return y + 40;
+        }
+
+        ThanhToan thanhToan = data.thanhToan().get();
+
+        String phuongThuc = thanhToan.getPhuongThuc() == null
+                ? ""
+                : thanhToan.getPhuongThuc().getI18NBusinessName();
+        String dongDau = ghep(phuongThuc, dinhDangNgay(thanhToan.getThoiGian()));
+
+        graphics.setFont(F_NHO);
+        graphics.setColor(MAU_CHU_MO);
+        veTrai(graphics, catEllipsis(graphics.getFontMetrics(), dongDau, phai - LE), LE, y + 24);
+
+        String thuNgan = thanhToan.getNhanVien() == null
+                ? ""
+                : thanhToan.getNhanVien().getTenHienThi();
+        veTrai(graphics, layNhan("nhanVienThuTien") + ": " + thuNgan, LE, y + 36);
+
+        if (thanhToan.getGhiChu() != null && !thanhToan.getGhiChu().isBlank()) {
+            veTrai(graphics, layNhan("ghiChu") + ": "
+                    + catEllipsis(graphics.getFontMetrics(), thanhToan.getGhiChu(), phai - LE),
+                    LE, y + 48);
+            return y + 58;
+        }
+
+        return y + 46;
+    }
+
+    private static float veTongTien(Graphics2D graphics, HoaDonInData data, float y) {
+        float rong = 252f;
+        float x = LE + RONG - rong;
+        float nhanX = x + 12;
+        float giaX = LE + RONG;
+
+        graphics.setFont(F_THUONG);
+        graphics.setColor(MAU_CHU);
+        veTrai(graphics, layNhan("tongGoc"), nhanX, y + 9);
+        vePhai(graphics, tien(data.tongGoc()), giaX, y + 9);
+
+        float dong = y + 26;
+
+        if (data.mucGiam() > 0 || data.soTienGiam().signum() > 0) {
+            int phanTram = (int) Math.round(data.mucGiam() * 100);
+            String nhan = layNhan("giamGia");
+            if (phanTram > 0) {
+                nhan += " (" + phanTram + "%" + maVoucher(data) + ")";
+            }
+            graphics.setColor(MAU_CHU_MO);
+            veTrai(graphics, nhan, nhanX, dong);
+            vePhai(graphics, "-" + tien(data.soTienGiam()), giaX, dong);
+            dong += 17;
+        }
+
+        float boxY = dong + 2;
+        graphics.setColor(MAU_NEN);
+        graphics.fillRoundRect(r(x), r(boxY), r(rong), 30, 6, 6);
+
+        graphics.setColor(MAU_CHU);
+        graphics.setFont(F_MUC);
+        veTrai(graphics, layNhan("thucThu"), nhanX, boxY + 19);
+
+        graphics.setFont(F_TONG);
+        vePhai(graphics, tien(data.thucThu()), giaX, boxY + 20);
+
+        return boxY + 30;
+    }
+
+    private static void veLoiCamOn(Graphics2D graphics, float y) {
+        graphics.setFont(F_GHI_CHU);
+        graphics.setColor(MAU_CHU_MO);
+        veCanGiua(graphics, layNhan("camOn"), LE + RONG / 2f, y);
+    }
+
+    private static float chieuCaoKhoiCuoi() {
+        return 112f;
+    }
+
+    private static void veChanTrang(BufferedImage anh,
+            double tiLe,
+            int soTrang,
+            int tongTrang,
+            LocalDateTime thoiGianIn) {
+
+        Graphics2D graphics = anh.createGraphics();
+
+        try {
+            graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            graphics.scale(tiLe, tiLe);
+
+            graphics.setFont(F_NHO);
+            graphics.setColor(MAU_CHU_MO);
+
+            veDuongKe(graphics, LE, A4_CAO - 36, RONG, 0.5f, MAU_VIEN);
+            veTrai(graphics, layNhan("thoiGianIn") + ": " + dinhDangNgay(thoiGianIn),
+                    LE, A4_CAO - 24);
+            vePhai(graphics, layNhan("trang") + " " + soTrang + "/" + tongTrang,
+                    LE + RONG, A4_CAO - 24);
+        } finally {
+            graphics.dispose();
+        }
+    }
+
+    private static List<DongInVe> chuanBiDong(List<HoaDonInData.DongIn> danhSach) {
+        Graphics2D graphics = taoGraphicsDo();
+
+        try {
+            graphics.setFont(F_THUONG);
+            FontMetrics metrics = graphics.getFontMetrics();
+            List<DongInVe> ketQua = new ArrayList<>();
+
+            for (HoaDonInData.DongIn dong : danhSach) {
+                List<String> tenDong = catDong(metrics, giaTri(dong.ten()), COT[2] - 12, 2);
+                float cao = Math.max(CHIEU_CAO_DONG_MIN, tenDong.size() * DONG_CHU + 11f);
+                ketQua.add(new DongInVe(dong, tenDong, cao));
             }
 
-            y += CHIEU_CAO_DONG;
+            return ketQua;
+        } finally {
+            graphics.dispose();
+        }
+    }
 
-            veDuongKe(
-                    graphics,
-                    x,
-                    y,
-                    CHIEU_RONG_NOI_DUNG);
+    private static Graphics2D taoGraphicsDo() {
+        BufferedImage anh = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = anh.createGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        return graphics;
+    }
+
+    private static float[] viTriCot() {
+        float[] cot = new float[COT.length];
+        cot[0] = LE;
+        for (int i = 1; i < COT.length; i++) {
+            cot[i] = cot[i - 1] + COT[i - 1];
+        }
+        return cot;
+    }
+
+    private static List<String> catDong(FontMetrics metrics, String noiDung, float rongToiDa,
+            int soDongToiDa) {
+
+        List<String> ketQua = new ArrayList<>();
+
+        if (noiDung == null || noiDung.isBlank()) {
+            ketQua.add("");
+            return ketQua;
         }
 
-        return y;
+        String[] tu = noiDung.trim().split("\\s+");
+        StringBuilder dong = new StringBuilder();
+
+        for (String mot : tu) {
+            String thu = dong.length() == 0 ? mot : dong + " " + mot;
+
+            if (metrics.stringWidth(thu) <= rongToiDa) {
+                dong.setLength(0);
+                dong.append(thu);
+                continue;
+            }
+
+            if (dong.length() > 0) {
+                ketQua.add(dong.toString());
+                dong.setLength(0);
+            }
+
+            if (metrics.stringWidth(mot) > rongToiDa) {
+                ketQua.add(catEllipsis(metrics, mot, rongToiDa));
+            } else {
+                dong.append(mot);
+            }
+        }
+
+        if (dong.length() > 0) {
+            ketQua.add(dong.toString());
+        }
+
+        if (ketQua.size() <= soDongToiDa) {
+            return ketQua;
+        }
+
+        StringBuilder phanConLai = new StringBuilder();
+        for (int i = soDongToiDa - 1; i < ketQua.size(); i++) {
+            if (phanConLai.length() > 0) {
+                phanConLai.append(' ');
+            }
+            phanConLai.append(ketQua.get(i));
+        }
+
+        List<String> rutGon = new ArrayList<>(ketQua.subList(0, soDongToiDa - 1));
+        rutGon.add(catEllipsis(metrics, phanConLai.toString(), rongToiDa));
+        return rutGon;
     }
 
-    private static void veDuongKe(
-            Graphics2D graphics,
-            float x,
-            float y,
-            float chieuRong) {
-
-        graphics.setColor(java.awt.Color.DARK_GRAY);
-        graphics.drawLine(
-                Math.round(x),
-                Math.round(y),
-                Math.round(x + chieuRong),
-                Math.round(y));
-
-        graphics.setColor(java.awt.Color.BLACK);
-    }
-
-    private static void veChu(
-            Graphics2D graphics,
-            String noiDung,
-            float x,
-            float y) {
-
-        graphics.drawString(noiDung, x, y);
-    }
-
-    private static void veChuPhai(
-            Graphics2D graphics,
-            String noiDung,
-            float x,
-            float y) {
-
-        FontMetrics metrics = graphics.getFontMetrics();
-
-        graphics.drawString(
-                noiDung,
-                x - metrics.stringWidth(noiDung),
-                y);
-    }
-
-    private static void veCanGiua(
-            Graphics2D graphics,
-            String noiDung,
-            float y) {
-
-        FontMetrics metrics = graphics.getFontMetrics();
-
-        float x = (CHIEU_RONG_A4
-                - metrics.stringWidth(noiDung)) / 2f;
-
-        graphics.drawString(noiDung, x, y);
-    }
-
-    private static void veCanGiuaTrongCot(
-            Graphics2D graphics,
-            String noiDung,
-            float x,
-            float y,
-            float chieuRong) {
-
-        FontMetrics metrics = graphics.getFontMetrics();
-
-        float viTriX = x
-                + (chieuRong - metrics.stringWidth(noiDung)) / 2f;
-
-        graphics.drawString(noiDung, viTriX, y);
-    }
-
-    private static String catEllipsis(
-            Graphics2D graphics,
-            String noiDung,
-            float chieuRongToiDa) {
-
+    private static String catEllipsis(FontMetrics metrics, String noiDung, float rongToiDa) {
         if (noiDung == null || noiDung.isEmpty()) {
             return "";
         }
 
-        FontMetrics metrics = graphics.getFontMetrics();
-
-        if (metrics.stringWidth(noiDung) <= chieuRongToiDa) {
+        if (metrics.stringWidth(noiDung) <= rongToiDa) {
             return noiDung;
         }
 
         String dauBaCham = "...";
-        int doDai = noiDung.length();
+        int thap = 0;
+        int cao = noiDung.length();
 
-        // Cắt dần từ cuối cho đến khi chuỗi cộng dấu ba chấm vừa bề rộng cột.
-        while (doDai > 0) {
-            String ketQua = noiDung.substring(0, doDai) + dauBaCham;
+        while (thap < cao) {
+            int giua = (thap + cao + 1) / 2;
 
-            if (metrics.stringWidth(ketQua) <= chieuRongToiDa) {
-                return ketQua;
+            if (metrics.stringWidth(noiDung.substring(0, giua) + dauBaCham) <= rongToiDa) {
+                thap = giua;
+            } else {
+                cao = giua - 1;
             }
-
-            doDai--;
         }
 
-        return dauBaCham;
+        return noiDung.substring(0, thap) + dauBaCham;
     }
-    
-    public static BufferedImage taoAnhIn(HoaDonInData data) {
-        // Vẽ bằng toạ độ point rồi scale Graphics2D để không phải sửa mọi toạ độ.
-        if (data == null
-                || data.hoaDon() == null
-                || data.phieuTiepNhan() == null) {
-            throw new IllegalArgumentException(
-                    I18nReaderUtil.get("app.hoaDon.in.duLieuKhongHopLe"));
+
+    private static void veNhan(Graphics2D graphics,
+            String noiDung,
+            float phai,
+            float top,
+            Color nen,
+            Color chu) {
+
+        graphics.setFont(F_NHO_DAM);
+        FontMetrics metrics = graphics.getFontMetrics();
+        String text = giaTri(noiDung);
+        float rong = metrics.stringWidth(text) + 14;
+        float x = phai - rong;
+
+        graphics.setColor(nen);
+        graphics.fillRoundRect(r(x), r(top), r(rong), 14, 8, 8);
+
+        graphics.setColor(chu);
+        veCanGiua(graphics, text, x + rong / 2f, top + 10);
+        graphics.setColor(MAU_CHU);
+    }
+
+    private static Color mauNenTrangThai(TrangThaiHoaDon trangThai) {
+        return switch (trangThai) {
+            case DA_THANH_TOAN -> MAU_NEN_DA_THANH_TOAN;
+            case CHO_THANH_TOAN -> MAU_NEN_CHO_THANH_TOAN;
+            case DA_HUY -> MAU_NEN_DA_HUY;
+        };
+    }
+
+    private static Color mauChuTrangThai(TrangThaiHoaDon trangThai) {
+        return switch (trangThai) {
+            case DA_THANH_TOAN -> MAU_CHU_DA_THANH_TOAN;
+            case CHO_THANH_TOAN -> MAU_CHU_CHO_THANH_TOAN;
+            case DA_HUY -> MAU_CHU_DA_HUY;
+        };
+    }
+
+    private static void veDuongKe(Graphics2D graphics,
+            float x,
+            float y,
+            float rong,
+            float doDay,
+            Color mau) {
+
+        graphics.setColor(mau);
+        graphics.setStroke(new BasicStroke(doDay));
+        graphics.draw(new Line2D.Float(x, y, x + rong, y));
+        graphics.setStroke(new BasicStroke(1f));
+        graphics.setColor(MAU_CHU);
+    }
+
+    private static void veTrai(Graphics2D graphics, String noiDung, float x, float baseline) {
+        graphics.drawString(giaTri(noiDung), x, baseline);
+    }
+
+    private static void vePhai(Graphics2D graphics, String noiDung, float phai, float baseline) {
+        String text = giaTri(noiDung);
+        graphics.drawString(text, phai - graphics.getFontMetrics().stringWidth(text), baseline);
+    }
+
+    private static void veCanGiua(Graphics2D graphics, String noiDung, float giua, float baseline) {
+        String text = giaTri(noiDung);
+        graphics.drawString(text, giua - graphics.getFontMetrics().stringWidth(text) / 2f,
+                baseline);
+    }
+
+    private static String maVoucher(HoaDonInData data) {
+        if (data.hoaDon().getVoucher() == null
+                || data.hoaDon().getVoucher().getMaVoucher() == null) {
+            return "";
+        }
+        return " • " + data.hoaDon().getVoucher().getMaVoucher();
+    }
+
+    private static String ghep(String... phan) {
+        List<String> hopLe = new ArrayList<>();
+
+        for (String giaTri : phan) {
+            if (giaTri != null && !giaTri.isBlank()) {
+                hopLe.add(giaTri.trim());
+            }
         }
 
-        int chieuRong = (int) Math.round(
-                CHIEU_RONG_A4 * TI_LE_DPI);
+        return String.join(" • ", hopLe);
+    }
 
-        int chieuCao = (int) Math.round(
-                CHIEU_CAO_A4 * TI_LE_DPI);
+    private static String taoDongLienHe() {
+        List<String> phan = new ArrayList<>();
 
-        BufferedImage image = new BufferedImage(
-                chieuRong,
-                chieuCao,
-                BufferedImage.TYPE_INT_RGB);
-
-        Graphics2D graphics = image.createGraphics();
-
-        try {
-            graphics.setColor(java.awt.Color.WHITE);
-            graphics.fillRect(0, 0, chieuRong, chieuCao);
-
-            graphics.setColor(java.awt.Color.BLACK);
-
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_TEXT_ANTIALIASING,
-                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-            graphics.setRenderingHint(
-                    RenderingHints.KEY_RENDERING,
-                    RenderingHints.VALUE_RENDER_QUALITY);
-
-            graphics.scale(TI_LE_DPI, TI_LE_DPI);
-
-            veHoaDon(graphics, data);
-
-        } finally {
-            graphics.dispose();
+        if (!CuaHangConfig.soDienThoai().isBlank()) {
+            phan.add(layNhan("hotline") + ": " + CuaHangConfig.soDienThoai());
+        }
+        if (!CuaHangConfig.email().isBlank()) {
+            phan.add(layNhan("email") + ": " + CuaHangConfig.email());
         }
 
-        return image;
+        return String.join("   •   ", phan);
     }
 
-    private static String layNhan(String key) {
-        return I18nReaderUtil.get("app.hoaDon.in." + key);
+    private static String taoDongPhapLy() {
+        List<String> phan = new ArrayList<>();
+
+        if (!CuaHangConfig.maSoThue().isBlank()) {
+            phan.add(layNhan("maSoThue") + ": " + CuaHangConfig.maSoThue());
+        }
+        if (!CuaHangConfig.website().isBlank()) {
+            phan.add(CuaHangConfig.website());
+        }
+
+        return String.join("   •   ", phan);
     }
 
-    private static String dinhDangNgay(LocalDateTime ngay) {
-        return ngay == null
-                ? ""
-                : ngay.format(DINH_DANG_NGAY);
+    private static String tien(Object giaTri) {
+        String donVi = layNhan("donViTienTe");
+        return dinhDangTien(giaTri) + (donVi.isBlank() ? "" : " " + donVi);
     }
 
     private static String dinhDangTien(Object giaTri) {
         if (giaTri == null) {
             return "0";
         }
-
-        DecimalFormatSymbols symbols =
-                new DecimalFormatSymbols(Locale.forLanguageTag("vi-VN"));
-
-        // Cố định dấu phân cách theo vi-VN để kết quả không phụ thuộc locale máy chạy.
-        symbols.setGroupingSeparator('.');
-        symbols.setDecimalSeparator(',');
-
-        DecimalFormat format = new DecimalFormat("#,##0", symbols);
-        format.setGroupingUsed(true);
-
         if (giaTri instanceof BigDecimal decimal) {
-            return format.format(decimal);
+            return DINH_DANG_TIEN.get().format(decimal);
         }
-
         if (giaTri instanceof Number number) {
-            return format.format(number);
+            return DINH_DANG_TIEN.get().format(number);
         }
-
         return giaTri.toString();
+    }
+
+    private static String dinhDangNgay(LocalDateTime ngay) {
+        return ngay == null ? "" : DINH_DANG_NGAY.format(ngay);
+    }
+
+    private static String layNhan(String key) {
+        String value = I18nReaderUtil.get("app.hoaDon.in." + key);
+        return value == null ? "" : value;
     }
 
     private static String giaTri(Object giaTri) {
         return giaTri == null ? "" : giaTri.toString();
+    }
+
+    private static int r(float giaTri) {
+        return Math.round(giaTri);
+    }
+
+    private static final class Trang {
+
+        private final BufferedImage anh;
+        private final Graphics2D g;
+
+        private Trang(double tiLe) {
+            this.anh = new BufferedImage(
+                    (int) Math.round(A4_RONG * tiLe),
+                    (int) Math.round(A4_CAO * tiLe),
+                    BufferedImage.TYPE_INT_RGB);
+            this.g = this.anh.createGraphics();
+            this.g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            this.g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            this.g.setRenderingHint(RenderingHints.KEY_RENDERING,
+                    RenderingHints.VALUE_RENDER_QUALITY);
+            this.g.setColor(MAU_TRANG);
+            this.g.fillRect(0, 0, this.anh.getWidth(), this.anh.getHeight());
+            this.g.scale(tiLe, tiLe);
+            this.g.setColor(MAU_CHU);
+        }
+
+        private void dong() {
+            this.g.dispose();
+        }
+    }
+
+    private record DongInVe(HoaDonInData.DongIn dong, List<String> tenDong, float chieuCao) {
     }
 }

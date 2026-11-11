@@ -2,17 +2,18 @@ package iuh.fit.util;
 
 import iuh.fit.gui.component.ThongBao;
 
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.awt.Component;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 /**
- * In hoá đơn qua hộp thoại máy in từ ảnh hoá đơn đã dựng sẵn.
+ * In hoá đơn qua hộp thoại máy in từ các trang ảnh đã dựng sẵn.
  */
 public final class InHoaDonUtil {
 
@@ -34,10 +35,10 @@ public final class InHoaDonUtil {
       return;
     }
 
-    BufferedImage hinhHoaDon;
+    List<BufferedImage> cacTrang;
 
     try {
-      hinhHoaDon = HoaDonRenderer.taoAnhIn(data);
+      cacTrang = HoaDonRenderer.taoAnhIn(data);
     } catch (IllegalArgumentException ex) {
       ThongBao.loi(parent, ex);
       return;
@@ -46,7 +47,7 @@ public final class InHoaDonUtil {
     PrinterJob printerJob = PrinterJob.getPrinterJob();
 
     printerJob.setPrintable(
-            taoNoiDungIn(hinhHoaDon));
+            taoNoiDungIn(cacTrang));
 
     if (!printerJob.printDialog()) {
       // Người dùng huỷ hộp thoại in thì không gửi lệnh in.
@@ -60,12 +61,13 @@ public final class InHoaDonUtil {
     }
   }
 
-  public static Printable taoNoiDungIn(BufferedImage hinhHoaDon) {
+  public static Printable taoNoiDungIn(List<BufferedImage> cacTrang) {
     return (Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
-      // Hoá đơn chỉ có một trang nên các trang sau báo không tồn tại.
-      if (pageIndex > 0) {
+      if (cacTrang == null || pageIndex < 0 || pageIndex >= cacTrang.size()) {
         return Printable.NO_SUCH_PAGE;
       }
+
+      BufferedImage hinhHoaDon = cacTrang.get(pageIndex);
 
       Graphics2D graphics2D = (Graphics2D) graphics.create();
 

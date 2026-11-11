@@ -1,5 +1,6 @@
 package iuh.fit.util;
 
+import iuh.fit.core.config.CuaHangConfig;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.ThanhToan;
 
@@ -16,7 +17,6 @@ import java.io.OutputStream;
  */
 public final class HoaDonXlsxUtil {
 
-  private static final String TEN_CUA_HANG = "GARA Ô TÔ LÚA";
   private static final String TEN_UNG_DUNG = "Gara O To Lua";
   private static final String PHIEN_BAN = "1.0";
 
@@ -70,13 +70,22 @@ public final class HoaDonXlsxUtil {
   private static int ghiTieuDe(
           Worksheet worksheet,
           int dong) {
-    worksheet.range(0, 0, 0, 4).merge();
+    worksheet.range(dong, 0, dong, 4).merge();
 
-    worksheet.value(dong, 0, TEN_CUA_HANG);
+    worksheet.value(dong, 0, CuaHangConfig.ten());
     worksheet.style(dong, 0).bold().set();
 
-    dong++;
-    worksheet.range(1, 0, 1, 4).merge();
+    dong = ghiDongThongTin(worksheet, dong + 1, CuaHangConfig.diaChi());
+    dong = ghiDongThongTin(worksheet, dong,
+            I18nReaderUtil.get("app.hoaDon.in.hotline") + ": "
+                    + CuaHangConfig.soDienThoai()
+                    + "   •   " + I18nReaderUtil.get("app.hoaDon.in.email") + ": "
+                    + CuaHangConfig.email());
+    dong = ghiDongThongTin(worksheet, dong,
+            I18nReaderUtil.get("app.hoaDon.in.maSoThue") + ": "
+                    + CuaHangConfig.maSoThue());
+
+    worksheet.range(dong, 0, dong, 4).merge();
     worksheet.value(
             dong,
             0,
@@ -85,6 +94,17 @@ public final class HoaDonXlsxUtil {
     worksheet.style(dong, 0).bold().set();
 
     return dong + 2;
+  }
+
+  private static int ghiDongThongTin(Worksheet worksheet, int dong, String noiDung) {
+    if (noiDung == null || noiDung.isBlank()) {
+      return dong;
+    }
+
+    worksheet.range(dong, 0, dong, 4).merge();
+    worksheet.value(dong, 0, noiDung);
+
+    return dong + 1;
   }
 
   private static int ghiThongTinHoaDon(
@@ -105,6 +125,13 @@ public final class HoaDonXlsxUtil {
             0,
             I18nReaderUtil.get("app.hoaDon.in.ngayTao"),
             dinhDangNgay(data.hoaDon().getNgayTao()));
+
+    ghiNhanVaGiaTri(
+            worksheet,
+            dong++,
+            0,
+            I18nReaderUtil.get("app.hoaDon.in.maPhieuTiepNhan"),
+            giaTri(data.phieuTiepNhan().getMaPhieuTiepNhan()));
 
     return dong + 1;
   }
