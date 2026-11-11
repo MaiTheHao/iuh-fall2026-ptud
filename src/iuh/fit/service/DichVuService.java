@@ -59,11 +59,11 @@ public class DichVuService {
         final Double giaDen = filter.donGiaDen();
 
         List<DichVu> ketQua = this.dichVuDAO.findAll().stream()
-                .filter(dv -> this.normalize(dv.getMaDichVu()).contains(ma))
-                .filter(dv -> this.normalize(dv.getTenDichVu()).contains(ten))
+                .filter(dv -> this.normalize(dv.getMaSanPham()).contains(ma))
+                .filter(dv -> this.normalize(dv.getTenSanPham()).contains(ten))
                 .filter(dv -> timNhanh.isEmpty()
-                        || this.normalize(dv.getMaDichVu() + " "
-                                + dv.getTenDichVu() + " "
+                        || this.normalize(dv.getMaSanPham() + " "
+                                + dv.getTenSanPham() + " "
                                 + (dv.getMoTa() == null ? "" : dv.getMoTa())).contains(timNhanh))
                 .filter(dv -> giaTu == null || dv.getDonGia() >= giaTu)
                 .filter(dv -> giaDen == null || dv.getDonGia() <= giaDen)
@@ -79,7 +79,7 @@ public class DichVuService {
 
         DichVu dichVuMoi = new DichVu(
                 maDichVu,
-                dichVu.getTenDichVu().trim(),
+                dichVu.getTenSanPham().trim(),
                 dichVu.getMoTa(),
                 dichVu.getAnhUrl(),
                 dichVu.getDonGia());
@@ -91,16 +91,16 @@ public class DichVuService {
     public void update(DichVu dichVu) throws SQLException {
         this.validate(dichVu);
 
-        if (dichVu.getMaDichVu() == null
-                || dichVu.getMaDichVu().isBlank()
+        if (dichVu.getMaSanPham() == null
+                || dichVu.getMaSanPham().isBlank()
                 || this.dichVuDAO.findById(
-                        dichVu.getMaDichVu()).isEmpty()) {
+                        dichVu.getMaSanPham()).isEmpty()) {
             throw new IllegalArgumentException(ERROR_ID);
         }
 
         DichVu dichVuCapNhat = new DichVu(
-                dichVu.getMaDichVu(),
-                dichVu.getTenDichVu().trim(),
+                dichVu.getMaSanPham(),
+                dichVu.getTenSanPham().trim(),
                 dichVu.getMoTa(),
                 dichVu.getAnhUrl(),
                 dichVu.getDonGia());
@@ -126,12 +126,12 @@ public class DichVuService {
             throw new IllegalArgumentException(ERROR_DATA);
         }
 
-        if (dichVu.getTenDichVu() == null
-                || dichVu.getTenDichVu().isBlank()) {
+        if (dichVu.getTenSanPham() == null
+                || dichVu.getTenSanPham().isBlank()) {
             throw new IllegalArgumentException(ERROR_NAME);
         }
 
-        if (dichVu.getTenDichVu().trim().length() > 100) {
+        if (dichVu.getTenSanPham().trim().length() > 100) {
             throw new IllegalArgumentException(ERROR_NAME_LENGTH);
         }
 

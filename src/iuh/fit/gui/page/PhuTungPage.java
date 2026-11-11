@@ -221,8 +221,8 @@ public class PhuTungPage extends AbstractPage {
       for (PhuTung phuTung : ketQua.items()) {
         rows.add(new Object[] {
             phuTung.getAnhUrl(),
-            phuTung.getMaPhuTung(),
-            phuTung.getTenPhuTung(),
+            phuTung.getMaSanPham(),
+            phuTung.getTenSanPham(),
             phuTung.getMoTa(),
             phuTung.getDonGiaNhap(),
             phuTung.getSoLuongTon(),
@@ -321,8 +321,8 @@ public class PhuTungPage extends AbstractPage {
 
   private PhuTungFormData taoFormData(PhuTung phuTung) {
     return new PhuTungFormData(
-            phuTung.getMaPhuTung(),
-            phuTung.getTenPhuTung(),
+            phuTung.getMaSanPham(),
+            phuTung.getTenSanPham(),
             phuTung.getMoTa(),
             phuTung.getAnhUrl(),
             phuTung.getDonGiaNhap(),
@@ -366,7 +366,7 @@ public class PhuTungPage extends AbstractPage {
 
     try {
       this.phuTungService.update(new PhuTung(
-              phuTung.getMaPhuTung(),
+              phuTung.getMaSanPham(),
               data.tenPhuTung(),
               data.moTa(),
               data.anhUrl(),

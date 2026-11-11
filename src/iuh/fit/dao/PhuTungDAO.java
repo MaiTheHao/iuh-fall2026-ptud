@@ -38,8 +38,8 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, phuTung.getMaPhuTung());
-            ps.setString(2, phuTung.getTenPhuTung());
+            ps.setString(1, phuTung.getMaSanPham());
+            ps.setString(2, phuTung.getTenSanPham());
             ps.setString(3, phuTung.getMoTa());
             ps.setString(4, phuTung.getAnhUrl());
             ps.setDouble(5, phuTung.getDonGiaNhap());
@@ -64,12 +64,12 @@ public final class PhuTungDAO extends BaseDao<PhuTung> {
         try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, phuTung.getTenPhuTung());
+            ps.setString(1, phuTung.getTenSanPham());
             ps.setString(2, phuTung.getMoTa());
             ps.setString(3, phuTung.getAnhUrl());
             ps.setDouble(4, phuTung.getDonGiaNhap());
             ps.setString(5, phuTung.getMaNhaCungCap());
-            ps.setString(6, phuTung.getMaPhuTung());
+            ps.setString(6, phuTung.getMaSanPham());
 
             ps.executeUpdate();
         }

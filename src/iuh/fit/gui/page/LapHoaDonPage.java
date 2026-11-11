@@ -9,8 +9,8 @@ import iuh.fit.entity.ChiTietHoaDon;
 import iuh.fit.entity.DichVu;
 import iuh.fit.entity.HoaDon;
 import iuh.fit.entity.PhuTung;
+import iuh.fit.entity.SanPham;
 import iuh.fit.entity.Voucher;
-import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.MenuGroup;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.gui.Theme;
@@ -112,7 +112,6 @@ public class LapHoaDonPage extends AbstractPage {
 	private final JTable tblDong = new JTable(this.lineModel);
 
 	private final List<ChiTietHoaDon> chiTiets = new ArrayList<>();
-	private final List<String> tenSanPham = new ArrayList<>();
 	private final Map<String, Integer> soLuongGoc = new HashMap<>();
 	private Voucher voucherDangChon;
 
@@ -300,7 +299,6 @@ public class LapHoaDonPage extends AbstractPage {
 
 	private void moLapMoi() {
 		this.chiTiets.clear();
-		this.tenSanPham.clear();
 		this.soLuongGoc.clear();
 		this.maHoaDonHienTai = null;
 		this.maPhieuHienTai = null;
@@ -310,30 +308,17 @@ public class LapHoaDonPage extends AbstractPage {
 		this.capNhatQuyen();
 	}
 
-	private void napChiTiet(List<ChiTietHoaDon> danhSach) throws SQLException {
+	private void napChiTiet(List<ChiTietHoaDon> danhSach) {
 		this.chiTiets.clear();
-		this.tenSanPham.clear();
 		this.soLuongGoc.clear();
 		if (danhSach == null) {
 			return;
 		}
 
-		Map<String, String> tenPhuTung = new HashMap<>();
-		for (PhuTung phuTung : this.phuTungService.getAllForSelection()) {
-			tenPhuTung.put(phuTung.getMaPhuTung(), phuTung.getTenPhuTung());
-		}
-		Map<String, String> tenDichVu = new HashMap<>();
-		for (DichVu dichVu : this.dichVuService.search(DanhSachDichVuCriteria.macDinh()).items()) {
-			tenDichVu.put(dichVu.getMaDichVu(), dichVu.getTenDichVu());
-		}
-
 		for (ChiTietHoaDon chiTiet : danhSach) {
 			this.chiTiets.add(chiTiet);
-			String ten = chiTiet.getLoaiSanPham() == LoaiSanPham.PHU_TUNG ? tenPhuTung.get(chiTiet.getMaSanPham())
-					: tenDichVu.get(chiTiet.getMaSanPham());
-			this.tenSanPham.add(ten == null ? chiTiet.getMaSanPham() : ten);
-			if (chiTiet.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
-				this.soLuongGoc.merge(chiTiet.getMaSanPham(), chiTiet.getSoLuong(), Integer::sum);
+			if (chiTiet.getSanPham() instanceof PhuTung phuTung) {
+				this.soLuongGoc.merge(phuTung.getMaSanPham(), chiTiet.getSoLuong(), Integer::sum);
 			}
 		}
 	}
@@ -412,28 +397,26 @@ public class LapHoaDonPage extends AbstractPage {
 			DichVu dv = kq.sanPham();
 			int sl = kq.soLuong();
 
-			int idx = this.indexOfChiTiet(LoaiSanPham.DICH_VU, dv.getMaDichVu());
+			int idx = this.indexOfChiTiet(dv);
 			if (idx >= 0) {
 				ChiTietHoaDon tonTai = this.chiTiets.get(idx);
 				tonTai.setSoLuong(tonTai.getSoLuong() + sl);
 			} else {
 				ChiTietHoaDon ct = new ChiTietHoaDon();
-				ct.setLoaiSanPham(LoaiSanPham.DICH_VU);
-				ct.setMaSanPham(dv.getMaDichVu());
+				ct.setSanPham(dv);
 				ct.setSoLuong(sl);
 				ct.setDonGia(dv.getDonGia());
 				this.chiTiets.add(ct);
-				this.tenSanPham.add(dv.getTenDichVu());
 			}
 			this.refreshLineTable();
 		});
 	}
 
 	private PhuTung voiTonKhaDung(PhuTung p, Map<String, Integer> daChon, Map<String, Integer> soLuongGoc) {
-		return new PhuTung(p.getMaPhuTung(), p.getTenPhuTung(),
+		return new PhuTung(p.getMaSanPham(), p.getTenSanPham(),
 				p.getMoTa(), p.getAnhUrl(), p.getDonGiaNhap(),
-				Math.max(0, p.getSoLuongTon() + soLuongGoc.getOrDefault(p.getMaPhuTung(), 0)
-						- daChon.getOrDefault(p.getMaPhuTung(), 0)),
+				Math.max(0, p.getSoLuongTon() + soLuongGoc.getOrDefault(p.getMaSanPham(), 0)
+						- daChon.getOrDefault(p.getMaSanPham(), 0)),
 				p.getMaNhaCungCap());
 	}
 
@@ -444,8 +427,8 @@ public class LapHoaDonPage extends AbstractPage {
 
 		Map<String, Integer> daChon = new HashMap<>();
 		for (ChiTietHoaDon ct : this.chiTiets) {
-			if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
-				daChon.merge(ct.getMaSanPham(), ct.getSoLuong(), Integer::sum);
+			if (ct.getSanPham() instanceof PhuTung phuTung) {
+				daChon.merge(phuTung.getMaSanPham(), ct.getSoLuong(), Integer::sum);
 			}
 		}
 
@@ -471,28 +454,27 @@ public class LapHoaDonPage extends AbstractPage {
 				return;
 			}
 
-			int idx = this.indexOfChiTiet(LoaiSanPham.PHU_TUNG, kq.sanPham().getMaPhuTung());
+			int idx = this.indexOfChiTiet(kq.sanPham());
 			if (idx >= 0) {
 				ChiTietHoaDon tonTai = this.chiTiets.get(idx);
 				tonTai.setSoLuong(tonTai.getSoLuong() + kq.soLuong());
 			} else {
 				ChiTietHoaDon ct = new ChiTietHoaDon();
-				ct.setLoaiSanPham(LoaiSanPham.PHU_TUNG);
-				ct.setMaSanPham(kq.sanPham().getMaPhuTung());
+				ct.setSanPham(kq.sanPham());
 				ct.setSoLuong(kq.soLuong());
 				ct.setDonGia(kq.sanPham().getDonGiaNhap());
 				this.chiTiets.add(ct);
-				this.tenSanPham.add(kq.sanPham().getTenPhuTung());
 			}
 			this.refreshLineTable();
 		});
 	}
 
-	private int indexOfChiTiet(LoaiSanPham loai, String maSanPham) {
+	private int indexOfChiTiet(SanPham sanPham) {
 		for (int i = 0; i < this.chiTiets.size(); i++) {
-			ChiTietHoaDon ct = this.chiTiets.get(i);
-			if (ct.getLoaiSanPham() == loai && ct.getMaSanPham() != null
-					&& ct.getMaSanPham().equalsIgnoreCase(maSanPham)) {
+			SanPham hienTai = this.chiTiets.get(i).getSanPham();
+			if (hienTai != null && hienTai.getLoaiSanPham() == sanPham.getLoaiSanPham()
+					&& hienTai.getMaSanPham() != null
+					&& hienTai.getMaSanPham().equalsIgnoreCase(sanPham.getMaSanPham())) {
 				return i;
 			}
 		}
@@ -530,7 +512,6 @@ public class LapHoaDonPage extends AbstractPage {
 			return;
 		}
 		this.chiTiets.remove(row);
-		this.tenSanPham.remove(row);
 		this.refreshLineTable();
 	}
 
@@ -562,7 +543,6 @@ public class LapHoaDonPage extends AbstractPage {
 		for (int row : dongDaChon) {
 			if (row >= 0 && row < this.chiTiets.size()) {
 				this.chiTiets.remove(row);
-				this.tenSanPham.remove(row);
 			}
 		}
 		this.refreshLineTable();
@@ -609,9 +589,10 @@ public class LapHoaDonPage extends AbstractPage {
 			ChiTietHoaDon ct = this.chiTiets.get(i);
 			double donGia = ct.getDonGia() == null ? 0.0 : ct.getDonGia();
 			double thanhTien = ct.getSoLuong() * donGia;
-			this.lineModel.addRow(new Object[] { Boolean.FALSE, ct.getLoaiSanPham().getI18NBusinessName(),
-					ct.getMaSanPham(), this.tenSanPham.get(i), ct.getSoLuong(), this.dinhDangTien(donGia),
-					this.dinhDangTien(thanhTien) });
+			this.lineModel.addRow(new Object[] { Boolean.FALSE,
+					ct.getSanPham().getLoaiSanPham().getI18NBusinessName(),
+					ct.getSanPham().getMaSanPham(), this.tenHienThi(ct.getSanPham()), ct.getSoLuong(),
+					this.dinhDangTien(donGia), this.dinhDangTien(thanhTien) });
 		}
 
 		Voucher voucher = this.voucherDangChon;
@@ -624,6 +605,11 @@ public class LapHoaDonPage extends AbstractPage {
 					+ " (" + Math.round(mucGiam * 100) + "%)");
 			this.lblThanhToan.setText(this.dinhDangTien(tong));
 		}
+	}
+
+	private String tenHienThi(SanPham sanPham) {
+		String ten = sanPham.getTenSanPham();
+		return ten == null || ten.isBlank() ? sanPham.getMaSanPham() : ten;
 	}
 
 	private String dinhDangTien(Double gia) {

@@ -2,8 +2,11 @@ package iuh.fit.dao;
 
 import iuh.fit.core.config.DatabaseConfig;
 import iuh.fit.entity.ChiTietHoaDon;
+import iuh.fit.entity.DichVu;
 import iuh.fit.entity.HoaDon;
 import iuh.fit.entity.PhieuTiepNhan;
+import iuh.fit.entity.PhuTung;
+import iuh.fit.entity.SanPham;
 import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.TrangThaiHoaDon;
@@ -30,8 +33,13 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
             """;
 
     private static final String SQL_SELECT_CHI_TIET = """
-            SELECT maHoaDon, loaiSanPham, maSanPham, soLuong, donGia
-            FROM ChiTietHoaDon
+            SELECT cthd.maHoaDon, cthd.loaiSanPham, cthd.maSanPham, cthd.soLuong, cthd.donGia,
+                   pt.tenPhuTung, pt.moTa AS ptMoTa, pt.anhUrl AS ptAnhUrl,
+                   pt.donGiaNhap, pt.soLuongTon, pt.maNhaCungCap,
+                   dv.tenDichVu, dv.moTa AS dvMoTa, dv.anhUrl AS dvAnhUrl, dv.donGia AS dvDonGia
+            FROM ChiTietHoaDon cthd
+            LEFT JOIN PhuTung pt ON cthd.loaiSanPham = 'PHU_TUNG' AND pt.maPhuTung = cthd.maSanPham
+            LEFT JOIN DichVu dv ON cthd.loaiSanPham = 'DICH_VU' AND dv.maDichVu = cthd.maSanPham
             """;
 
     public Optional<HoaDon> findById(String maHoaDon) throws SQLException {
@@ -124,8 +132,8 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
         try (PreparedStatement ps = scope.getConnection().prepareStatement(sql)) {
             for (ChiTietHoaDon ct : chiTiets) {
                 ps.setString(1, maHoaDon);
-                ps.setString(2, ct.getLoaiSanPham().name());
-                ps.setString(3, ct.getMaSanPham());
+                ps.setString(2, ct.getSanPham().getLoaiSanPham().name());
+                ps.setString(3, ct.getSanPham().getMaSanPham().trim());
                 ps.setInt(4, ct.getSoLuong());
                 if (ct.getDonGia() != null) {
                     ps.setDouble(5, ct.getDonGia());
@@ -254,7 +262,7 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
 
     private List<ChiTietHoaDon> loadDanhSachChiTiet(Connection connection, String maHoaDon) throws SQLException {
         List<ChiTietHoaDon> chiTietList = new ArrayList<>();
-        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_CHI_TIET + " WHERE maHoaDon = ?")) {
+        try (PreparedStatement ps = connection.prepareStatement(SQL_SELECT_CHI_TIET + " WHERE cthd.maHoaDon = ?")) {
             ps.setString(1, maHoaDon);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -268,10 +276,29 @@ public final class HoaDonDAO extends BaseDao<HoaDon> {
     private ChiTietHoaDon mapChiTiet(ResultSet rs) throws SQLException {
         ChiTietHoaDon chiTiet = new ChiTietHoaDon();
         chiTiet.setHoaDon(new HoaDon(rs.getString("maHoaDon")));
-        chiTiet.setLoaiSanPham(LoaiSanPham.valueOf(rs.getString("loaiSanPham")));
-        chiTiet.setMaSanPham(rs.getString("maSanPham"));
+        chiTiet.setSanPham(this.mapSanPham(rs));
         chiTiet.setSoLuong(rs.getInt("soLuong"));
         chiTiet.setDonGia(rs.getDouble("donGia"));
         return chiTiet;
+    }
+
+    private SanPham mapSanPham(ResultSet rs) throws SQLException {
+        LoaiSanPham loaiSanPham = LoaiSanPham.valueOf(rs.getString("loaiSanPham"));
+        String maSanPham = rs.getString("maSanPham");
+        if (loaiSanPham == LoaiSanPham.PHU_TUNG) {
+            String tenPhuTung = rs.getString("tenPhuTung");
+            if (tenPhuTung == null) {
+                // Sản phẩm đã bị xoá khỏi danh mục: chỉ còn tham chiếu theo mã.
+                return new PhuTung(maSanPham);
+            }
+            return new PhuTung(maSanPham, tenPhuTung, rs.getString("ptMoTa"), rs.getString("ptAnhUrl"),
+                    rs.getDouble("donGiaNhap"), rs.getInt("soLuongTon"), rs.getString("maNhaCungCap"));
+        }
+        String tenDichVu = rs.getString("tenDichVu");
+        if (tenDichVu == null) {
+            return new DichVu(maSanPham);
+        }
+        return new DichVu(maSanPham, tenDichVu, rs.getString("dvMoTa"), rs.getString("dvAnhUrl"),
+                rs.getDouble("dvDonGia"));
     }
 }

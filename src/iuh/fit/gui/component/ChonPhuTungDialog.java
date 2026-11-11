@@ -102,8 +102,8 @@ public final class ChonPhuTungDialog extends ChonSanPhamDialog<PhuTung> {
     double giaNhap = phuTung.getDonGiaNhap() == null ? 0.0 : phuTung.getDonGiaNhap();
 
     return new Object[]{
-        phuTung.getMaPhuTung(),
-        phuTung.getTenPhuTung(),
+        phuTung.getMaSanPham(),
+        phuTung.getTenSanPham(),
         phuTung.getSoLuongTon(),
         giaNhap
     };

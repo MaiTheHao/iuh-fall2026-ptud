@@ -1,10 +1,8 @@
 package iuh.fit.entity;
 
-public class PhuTung {
-    private String maPhuTung;
-    private String tenPhuTung;
-    private String moTa;
-    private String anhUrl;
+import iuh.fit.enumeration.LoaiSanPham;
+
+public class PhuTung extends SanPham {
     private Double donGiaNhap;
     private int soLuongTon;
     private String maNhaCungCap;
@@ -12,46 +10,20 @@ public class PhuTung {
     public PhuTung() {
     }
 
-    public PhuTung(String maPhuTung, String tenPhuTung, String moTa, String anhUrl, Double donGiaNhap, int soLuongTon, String maNhaCungCap) {
-        this.maPhuTung = maPhuTung;
-        this.tenPhuTung = tenPhuTung;
-        this.moTa = moTa;
-        this.anhUrl = anhUrl;
+    public PhuTung(String maSanPham) {
+        super(maSanPham, null, null, null);
+    }
+
+    public PhuTung(String maSanPham, String tenSanPham, String moTa, String anhUrl, Double donGiaNhap, int soLuongTon, String maNhaCungCap) {
+        super(maSanPham, tenSanPham, moTa, anhUrl);
         this.donGiaNhap = donGiaNhap;
         this.soLuongTon = soLuongTon;
         this.maNhaCungCap = maNhaCungCap;
     }
 
-    public String getMaPhuTung() {
-        return maPhuTung;
-    }
-
-    public void setMaPhuTung(String maPhuTung) {
-        this.maPhuTung = maPhuTung;
-    }
-
-    public String getTenPhuTung() {
-        return tenPhuTung;
-    }
-
-    public void setTenPhuTung(String tenPhuTung) {
-        this.tenPhuTung = tenPhuTung;
-    }
-
-    public String getMoTa() {
-        return moTa;
-    }
-
-    public void setMoTa(String moTa) {
-        this.moTa = moTa;
-    }
-
-    public String getAnhUrl() {
-        return anhUrl;
-    }
-
-    public void setAnhUrl(String anhUrl) {
-        this.anhUrl = anhUrl;
+    @Override
+    public LoaiSanPham getLoaiSanPham() {
+        return LoaiSanPham.PHU_TUNG;
     }
 
     public Double getDonGiaNhap() {

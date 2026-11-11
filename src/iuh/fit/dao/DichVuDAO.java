@@ -37,8 +37,8 @@ public final class DichVuDAO extends BaseDao<DichVu> {
         try (Connection conn = DatabaseConfig.getConnection();
                         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, dichVu.getMaDichVu());
-            ps.setString(2, dichVu.getTenDichVu());
+            ps.setString(1, dichVu.getMaSanPham());
+            ps.setString(2, dichVu.getTenSanPham());
             ps.setString(3, dichVu.getMoTa());
             ps.setString(4, dichVu.getAnhUrl());
             ps.setDouble(5, dichVu.getDonGia());
@@ -60,11 +60,11 @@ public final class DichVuDAO extends BaseDao<DichVu> {
         try (Connection conn = DatabaseConfig.getConnection();
                         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, dichVu.getTenDichVu());
+            ps.setString(1, dichVu.getTenSanPham());
             ps.setString(2, dichVu.getMoTa());
             ps.setString(3, dichVu.getAnhUrl());
             ps.setDouble(4, dichVu.getDonGia());
-            ps.setString(5, dichVu.getMaDichVu());
+            ps.setString(5, dichVu.getMaSanPham());
 
             ps.executeUpdate();
         }

@@ -1,29 +1,22 @@
 package iuh.fit.util;
 
-import iuh.fit.dto.DanhSachDichVuCriteria;
 import iuh.fit.entity.ChiTietHoaDon;
-import iuh.fit.entity.DichVu;
 import iuh.fit.entity.HoaDon;
 import iuh.fit.entity.KhachHang;
 import iuh.fit.entity.NhanVien;
 import iuh.fit.entity.PhieuTiepNhan;
-import iuh.fit.entity.PhuTung;
+import iuh.fit.entity.SanPham;
 import iuh.fit.entity.ThanhToan;
-import iuh.fit.enumeration.LoaiSanPham;
-import iuh.fit.service.DichVuService;
 import iuh.fit.service.HoaDonService;
 import iuh.fit.service.KhachHangService;
 import iuh.fit.service.NhanVienService;
 import iuh.fit.service.PhieuTiepNhanService;
-import iuh.fit.service.PhuTungService;
 import iuh.fit.service.ThanhToanService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -42,9 +35,6 @@ public record HoaDonInData(
     private static final String ERROR_PHIEU_NOT_FOUND =
             "app.phieuTiepNhan.khongTonTai";
 
-    private static final int TRANG_DICH_VU_MAC_DINH = 1;
-    private static final int SO_DICH_VU_TOI_DA = 10000;
-
     // Service được khai báo static vì record chỉ giữ dữ liệu in, không giữ tầng truy vấn.
     private static final HoaDonService hoaDonService =
             new HoaDonService();
@@ -57,12 +47,6 @@ public record HoaDonInData(
 
     private static final NhanVienService nhanVienService =
             new NhanVienService();
-
-    private static final PhuTungService phuTungService =
-            new PhuTungService();
-
-    private static final DichVuService dichVuService =
-            new DichVuService();
 
     private static final ThanhToanService thanhToanService =
             new ThanhToanService();
@@ -118,39 +102,9 @@ public record HoaDonInData(
             phieu.setNhanVien(nhanVien);
         }
 
-        Map<String, String> tenPhuTungTheoMa = new HashMap<>();
-
-        // Nạp sẵn tên một lần thay vì truy vấn lại cho từng dòng chi tiết.
-        for (PhuTung phuTung : phuTungService.getAllForSelection()) {
-            tenPhuTungTheoMa.put(
-                    phuTung.getMaPhuTung(),
-                    phuTung.getTenPhuTung());
-        }
-
-        Map<String, String> tenDichVuTheoMa = new HashMap<>();
-
-        DanhSachDichVuCriteria tieuChiDichVu =
-                new DanhSachDichVuCriteria(
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TRANG_DICH_VU_MAC_DINH,
-                        SO_DICH_VU_TOI_DA);
-
-        for (DichVu dichVu : dichVuService.search(tieuChiDichVu).items()) {
-            tenDichVuTheoMa.put(
-                    dichVu.getMaDichVu(),
-                    dichVu.getTenDichVu());
-        }
-
         List<DongIn> danhSachDong = hoaDon.getDanhSachChiTietHoaDon()
                 .stream()
-                .map(chiTiet -> taoDongIn(
-                        chiTiet,
-                        tenPhuTungTheoMa,
-                        tenDichVuTheoMa))
+                .map(HoaDonInData::taoDongIn)
                 .toList();
 
         double tongGoc = TinhTienUtil.tongGoc(
@@ -183,27 +137,21 @@ public record HoaDonInData(
                 thanhToan);
     }
 
-    private static DongIn taoDongIn(
-            ChiTietHoaDon chiTiet,
-            Map<String, String> tenPhuTungTheoMa,
-            Map<String, String> tenDichVuTheoMa) {
+    private static DongIn taoDongIn(ChiTietHoaDon chiTiet) {
+        SanPham sanPham = chiTiet.getSanPham();
 
-        String maSanPham = chiTiet.getMaSanPham();
+        String maSanPham = sanPham == null ? null : sanPham.getMaSanPham();
 
-        LoaiSanPham loaiSanPham = chiTiet.getLoaiSanPham();
-
-        String tenSanPham;
-
-        if (loaiSanPham == LoaiSanPham.PHU_TUNG) {
-            tenSanPham = tenPhuTungTheoMa.get(maSanPham);
-        } else {
-            tenSanPham = tenDichVuTheoMa.get(maSanPham);
-        }
+        String tenSanPham = sanPham == null ? null : sanPham.getTenSanPham();
 
         if (tenSanPham == null || tenSanPham.isBlank()) {
             // Hiển thị mã thay cho tên để dòng in không bị trống.
             tenSanPham = maSanPham;
         }
+
+        String loaiSanPham = sanPham == null
+                ? ""
+                : sanPham.getLoaiSanPham().getI18NBusinessName();
 
         double donGia = chiTiet.getDonGia() == null
                 ? 0.0
@@ -213,7 +161,7 @@ public record HoaDonInData(
 
         return new DongIn(
                 tenSanPham,
-                loaiSanPham.getI18NBusinessName(),
+                loaiSanPham,
                 chiTiet.getSoLuong(),
                 donGia,
                 thanhTien);

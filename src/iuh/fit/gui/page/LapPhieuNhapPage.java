@@ -168,7 +168,7 @@ public class LapPhieuNhapPage extends AbstractPage {
 			return;
 		}
 		for (int i = 0; i < this.modelDetails.getRowCount(); i++) {
-			if (this.getMaFromRow(i).equalsIgnoreCase(kq.sanPham().getMaPhuTung())) {
+			if (this.getMaFromRow(i).equalsIgnoreCase(kq.sanPham().getMaSanPham())) {
 				int soLuongMoi = this.getSoLuongRow(i) + kq.soLuong();
 				this.modelDetails.setValueAt(soLuongMoi, i, 4);
 				double giaMoi = kq.sanPham().getDonGiaNhap() != null ? kq.sanPham().getDonGiaNhap() : 0.0;
@@ -180,8 +180,8 @@ public class LapPhieuNhapPage extends AbstractPage {
 
 		double giaNhap = kq.sanPham().getDonGiaNhap() != null ? kq.sanPham().getDonGiaNhap() : 0.0;
 		this.modelDetails.addRow(new Object[] { Boolean.FALSE, this.modelDetails.getRowCount() + 1,
-				kq.sanPham().getMaPhuTung(),
-				kq.sanPham().getTenPhuTung(), kq.soLuong(), giaNhap,
+				kq.sanPham().getMaSanPham(),
+				kq.sanPham().getTenSanPham(), kq.soLuong(), giaNhap,
 				this.currencyFormat.format(kq.soLuong() * giaNhap) });
 		this.tinhTongChiPhi();
 	}

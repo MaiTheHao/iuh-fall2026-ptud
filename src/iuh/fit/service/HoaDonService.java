@@ -15,7 +15,6 @@ import iuh.fit.entity.PhieuTiepNhan;
 import iuh.fit.entity.PhuTung;
 import iuh.fit.entity.Voucher;
 import iuh.fit.enumeration.LoaiMa;
-import iuh.fit.enumeration.LoaiSanPham;
 import iuh.fit.enumeration.PhuongThucThanhToan;
 import iuh.fit.enumeration.TrangThaiHoaDon;
 import iuh.fit.util.TextNormalizerUtil;
@@ -397,16 +396,16 @@ public class HoaDonService {
 
   private void hoanTon(TransactionScope scope, List<ChiTietHoaDon> chiTiets) throws SQLException {
     for (ChiTietHoaDon ct : chiTiets) {
-      if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
-        this.phuTungService.increaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
+      if (ct.getSanPham() instanceof PhuTung phuTung) {
+        this.phuTungService.increaseStock(scope, phuTung.getMaSanPham(), ct.getSoLuong());
       }
     }
   }
 
   private void truTon(TransactionScope scope, List<ChiTietHoaDon> chiTiets) throws SQLException {
     for (ChiTietHoaDon ct : chiTiets) {
-      if (ct.getLoaiSanPham() == LoaiSanPham.PHU_TUNG) {
-        this.phuTungService.decreaseStock(scope, ct.getMaSanPham(), ct.getSoLuong());
+      if (ct.getSanPham() instanceof PhuTung phuTung) {
+        this.phuTungService.decreaseStock(scope, phuTung.getMaSanPham(), ct.getSoLuong());
       }
     }
   }
@@ -415,14 +414,14 @@ public class HoaDonService {
           throws SQLException {
     Map<String, Integer> soLuongCu = this.gopSoLuong(danhSachCu);
     for (ChiTietHoaDon ct : danhSachMoi) {
-      if (ct.getLoaiSanPham() != LoaiSanPham.PHU_TUNG) {
+      if (!(ct.getSanPham() instanceof PhuTung)) {
         continue;
       }
       int soLuongTang = ct.getSoLuong() - soLuongCu.getOrDefault(this.khoa(ct), 0);
       if (soLuongTang <= 0) {
         continue;
       }
-      PhuTung phuTung = this.phuTungService.getById(ct.getMaSanPham())
+      PhuTung phuTung = this.phuTungService.getById(ct.getSanPham().getMaSanPham())
               .orElseThrow(() -> new IllegalArgumentException(ERROR_SAN_PHAM));
       if (phuTung.getSoLuongTon() < soLuongTang) {
         throw new IllegalArgumentException(ERROR_THIEU_TON);
@@ -443,8 +442,7 @@ public class HoaDonService {
         continue;
       }
       ChiTietHoaDon moi = new ChiTietHoaDon();
-      moi.setLoaiSanPham(ct.getLoaiSanPham());
-      moi.setMaSanPham(ct.getMaSanPham().trim());
+      moi.setSanPham(ct.getSanPham());
       moi.setSoLuong(ct.getSoLuong());
       moi.setDonGia(ct.getDonGia());
       map.put(key, moi);
@@ -464,7 +462,8 @@ public class HoaDonService {
   }
 
   private String khoa(ChiTietHoaDon ct) {
-    return ct.getLoaiSanPham().name() + "|" + ct.getMaSanPham().trim();
+    String maSanPham = ct.getSanPham().getMaSanPham();
+    return ct.getSanPham().getLoaiSanPham().name() + "|" + (maSanPham == null ? "" : maSanPham.trim());
   }
 
   private String chuanHoaGhiChu(String ghiChu) {
@@ -538,8 +537,8 @@ public class HoaDonService {
       throw new IllegalArgumentException(ERROR_CHI_TIET_TRONG);
     }
     for (ChiTietHoaDon ct : chiTiets) {
-      if (ct == null || ct.getMaSanPham() == null || ct.getMaSanPham().isBlank()
-              || ct.getLoaiSanPham() == null) {
+      if (ct == null || ct.getSanPham() == null
+              || ct.getSanPham().getMaSanPham() == null || ct.getSanPham().getMaSanPham().isBlank()) {
         throw new IllegalArgumentException(ERROR_SAN_PHAM);
       }
       if (ct.getSoLuong() <= 0) {

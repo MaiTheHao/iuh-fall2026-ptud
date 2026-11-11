@@ -55,8 +55,8 @@ public final class ChonDichVuDialog extends ChonSanPhamDialog<DichVu> {
   @Override
   protected Object[] giaTriDong(DichVu dichVu) {
     return new Object[]{
-        dichVu.getMaDichVu(),
-        dichVu.getTenDichVu(),
+        dichVu.getMaSanPham(),
+        dichVu.getTenSanPham(),
         dichVu.getMoTa(),
         dichVu.getDonGia()
     };

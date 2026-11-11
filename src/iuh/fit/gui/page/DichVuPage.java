@@ -126,8 +126,8 @@ public class DichVuPage extends AbstractPage {
       for (DichVu dichVu : ketQua.items()) {
         rows.add(new Object[] {
             dichVu.getAnhUrl(),
-            dichVu.getMaDichVu(),
-            dichVu.getTenDichVu(),
+            dichVu.getMaSanPham(),
+            dichVu.getTenSanPham(),
             dichVu.getMoTa(),
             dichVu.getDonGia()
         });

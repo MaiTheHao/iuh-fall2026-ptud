@@ -29,7 +29,7 @@ public class PhuTungService {
     private static final String ERROR_SUPPLIER = "app.phuTung.loiNhaCungCap";
 
     private static final Comparator<PhuTung> THEO_MA_PHU_TUNG = Comparator.comparing(
-            PhuTung::getMaPhuTung, Comparator.nullsLast(String::compareTo));
+            PhuTung::getMaSanPham, Comparator.nullsLast(String::compareTo));
 
     private final PhuTungDAO phuTungDAO = new PhuTungDAO();
     private final NhaCungCapDAO nhaCungCapDAO = new NhaCungCapDAO();
@@ -60,7 +60,7 @@ public class PhuTungService {
         this.validate(phuTung);
         phuTung.setSoLuongTon(0);
 
-        phuTung.setMaPhuTung(this.maService.genMa(LoaiMa.PT));
+        phuTung.setMaSanPham(this.maService.genMa(LoaiMa.PT));
 
         this.phuTungDAO.insert(phuTung);
     }
@@ -68,11 +68,11 @@ public class PhuTungService {
     public void update(PhuTung phuTung) throws SQLException {
         this.validate(phuTung);
 
-        if (phuTung.getMaPhuTung() == null || phuTung.getMaPhuTung().isBlank()) {
+        if (phuTung.getMaSanPham() == null || phuTung.getMaSanPham().isBlank()) {
             throw new IllegalArgumentException(ERROR_ID);
         }
 
-        Optional<PhuTung> existing = this.phuTungDAO.findById(phuTung.getMaPhuTung());
+        Optional<PhuTung> existing = this.phuTungDAO.findById(phuTung.getMaSanPham());
 
         if (existing.isEmpty()) {
             throw new IllegalArgumentException(ERROR_ID);
@@ -154,7 +154,7 @@ public class PhuTungService {
             throw new IllegalArgumentException(ERROR_DATA);
         }
 
-        if (phuTung.getTenPhuTung() == null || phuTung.getTenPhuTung().isBlank()) {
+        if (phuTung.getTenSanPham() == null || phuTung.getTenSanPham().isBlank()) {
             throw new IllegalArgumentException(ERROR_NAME);
         }
 
@@ -179,17 +179,17 @@ public class PhuTungService {
 
     private boolean matches(PhuTung item, DanhSachPhuTungCriteria filter) {
 
-        if (!this.containsText(filter.maPhuTung(), item.getMaPhuTung())) {
+        if (!this.containsText(filter.maPhuTung(), item.getMaSanPham())) {
             return false;
         }
 
-        if (!this.containsText(filter.tenPhuTung(), item.getTenPhuTung())) {
+        if (!this.containsText(filter.tenPhuTung(), item.getTenSanPham())) {
             return false;
         }
 
         if (filter.timNhanh() != null && !filter.timNhanh().isBlank()) {
 
-            String combined = item.getMaPhuTung() + " " + item.getTenPhuTung()
+            String combined = item.getMaSanPham() + " " + item.getTenSanPham()
                     + " " + (item.getMoTa() == null ? "" : item.getMoTa());
 
             if (!TextNormalizerUtil.normalize(combined).contains(TextNormalizerUtil.normalize(filter.timNhanh()))) {
